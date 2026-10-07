@@ -1,68 +1,166 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Switch to Switch</title>
-<script src="config.js?v=8"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>پنل مدیریت | سوییچ به سوییچ</title>
+<script src="config.js?v=9"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#eef2f7;font-family:Tahoma;color:#172033}.wrap{max-width:1200px;margin:auto;padding:18px}
-.top{background:linear-gradient(135deg,#0f172a,#1e40af);color:#fff;padding:24px;border-radius:22px}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:14px 0}.stat,.case,.toolbar{background:#fff;border:1px solid #e1e7ef;border-radius:16px;padding:14px}.stat b{display:block;font-size:25px;margin-top:6px}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar input,.toolbar select{padding:11px;border:1px solid #d7dee8;border-radius:10px;font:inherit}
-.case{margin-top:10px}.casehead{display:flex;justify-content:space-between;gap:10px}.badge{padding:6px 9px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:bold}
-.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:10px;padding:9px 12px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer}.danger{background:#dc2626}.expert{background:#7c3aed}.auction{background:#059669}.refresh{background:#334155}
-.muted{font-size:12px;color:#64748b;line-height:1.9}.ok{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;padding:10px;border-radius:12px;margin-top:12px}.report{margin-top:12px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #dbe4ee}.report h4{margin:0 0 8px}.def{padding:6px 0;border-bottom:1px solid #e5e7eb}.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:10px;border-radius:12px;margin-top:12px}
-@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}.casehead{flex-direction:column}}
+*{box-sizing:border-box}
+:root{--bg:#07111f;--panel:#0d1a2b;--panel2:#101f33;--line:#1e3047;--text:#eef5ff;--muted:#8fa4bd;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6}
+body{margin:0;background:linear-gradient(135deg,#050b14,#091729 48%,#07111f);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
+*{scrollbar-width:thin;scrollbar-color:#29415f transparent}
+.wrap{max-width:1600px;margin:auto;padding:20px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,#102746,#0b1728);border:1px solid #203956;border-radius:24px;padding:22px 24px;box-shadow:0 18px 55px #0005}
+.brand{display:flex;align-items:center;gap:14px}.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#3b82f6,#7c3aed);display:grid;place-items:center;font-size:23px;font-weight:900;box-shadow:0 10px 30px #3b82f655}
+h1{font-size:20px;margin:0 0 5px}.sub{color:var(--muted);font-size:12px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}a{text-decoration:none}
+button,.btn{border:0;border-radius:11px;padding:10px 14px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;color:white;background:#1d4ed8}
+.btn.secondary{background:#16283f;border:1px solid #29415f}.btn.green{background:#059669}.btn.red{background:#b91c1c}.btn.purple{background:#6d28d9}
+.message{margin:14px 0}.notice{padding:11px 14px;border-radius:13px;font-size:12px;background:#0e253b;border:1px solid #1e496d;color:#b9d8f7}.notice.err{background:#35151b;border-color:#6d2836;color:#fecdd3}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:15px 0}
+.stat{background:linear-gradient(145deg,#0d1a2b,#0a1625);border:1px solid var(--line);border-radius:17px;padding:15px}.stat small{color:var(--muted)}.stat b{display:block;font-size:25px;margin-top:7px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;background:#0b1828;border:1px solid var(--line);padding:12px;border-radius:17px;margin-bottom:14px}
+input,select{background:#081321;color:#eaf2ff;border:1px solid #243a55;border-radius:11px;padding:11px 12px;font:inherit;font-size:12px;outline:none}input{min-width:260px}input:focus,select:focus{border-color:#3b82f6}
+.board{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding-bottom:10px}
+.column{min-width:285px;width:285px;background:#091625;border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 12px 35px #0002}
+.col-head{display:flex;align-items:center;justify-content:space-between;padding:5px 5px 10px;border-bottom:1px solid #1a2b40;margin-bottom:9px}.col-title{font-size:13px;font-weight:900}.count{min-width:25px;height:25px;border-radius:8px;background:#14263d;display:grid;place-items:center;color:#c8dcf5;font-size:11px}
+.col-head .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:6px}
+.cards{display:flex;flex-direction:column;gap:9px;min-height:55px}
+.case{background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #1d3149;border-radius:15px;padding:12px;transition:.18s}.case:hover{transform:translateY(-1px);border-color:#315579}
+.case-head{display:flex;justify-content:space-between;gap:8px}.case-no{font-size:12px;font-weight:900}.type{font-size:10px;color:#9db5cf;margin-top:5px}.badge{font-size:9px;padding:5px 7px;border-radius:999px;background:#142d4b;color:#9ec8ff;white-space:nowrap}
+.customer{margin-top:9px;font-size:12px;font-weight:800}.meta{font-size:10px;color:var(--muted);line-height:1.9;margin-top:5px}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.actions button{padding:8px 9px;font-size:10px}
+.report-box{margin-top:10px;background:#081522;border:1px solid #203851;border-radius:12px;padding:9px}.report-title{font-size:11px;font-weight:900;color:#dbeafe;margin-bottom:7px}.report-row{font-size:10px;color:#9fb2c8;line-height:1.8}.report-row b{color:#e7eef8}.defects{margin-top:6px;padding-top:6px;border-top:1px solid #1c3045}.defect{padding:4px 0;border-bottom:1px solid #14273b;font-size:10px;color:#b6c6d8}
+.empty{border:1px dashed #263e58;border-radius:12px;padding:18px 8px;text-align:center;color:#647b95;font-size:10px}
+.modal-back{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal{width:min(850px,100%);max-height:90vh;overflow:auto;background:#0c1929;border:1px solid #29425e;border-radius:22px;padding:18px;box-shadow:0 25px 80px #0008}.modal-head{display:flex;justify-content:space-between;align-items:center}.close{background:#24364d}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.photo{height:120px;border-radius:12px;background:#13263c;display:grid;place-items:center;color:#7188a1;font-size:10px;border:1px dashed #29435e}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start;flex-direction:column}.board{padding-bottom:18px}}
+@media(max-width:520px){.wrap{padding:10px}.stats{grid-template-columns:1fr 1fr}.column{min-width:275px;width:275px}input{min-width:100%;width:100%}}
 </style>
 </head>
 <body>
 <main class="wrap">
-<header class="top"><h2>Switch to Switch</h2><div>پرونده‌ها • کارشناسی • مزایده • مدارک • انتقال</div></header>
-<div id="message"></div>
+<header class="top">
+  <div class="brand"><div class="logo">S2S</div><div><h1>پنل مدیریت سوییچ به سوییچ</h1><div class="sub">مدیریت پرونده‌ها، کارشناسی، مزایده و مسیر معامله</div></div></div>
+  <div class="top-actions"><a href="index.html" class="btn secondary">صفحه اصلی</a><a href="auction.html" class="btn green">پنل مزایده</a></div>
+</header>
+
+<div id="message" class="message"></div>
+
 <section class="stats">
-<div class="stat">کل<b id="total">0</b></div><div class="stat">جدید<b id="newc">0</b></div><div class="stat">کارشناسی<b id="review">0</b></div><div class="stat">مزایده<b id="auc">0</b></div><div class="stat">تکمیل<b id="done">0</b></div>
+ <div class="stat"><small>کل پرونده‌ها</small><b id="total">0</b></div>
+ <div class="stat"><small>درخواست جدید</small><b id="newc">0</b></div>
+ <div class="stat"><small>در حال کارشناسی</small><b id="inspection">0</b></div>
+ <div class="stat"><small>مزایده</small><b id="auc">0</b></div>
+ <div class="stat"><small>تکمیل معامله</small><b id="done">0</b></div>
 </section>
+
 <div class="toolbar">
-<input id="q" placeholder="جستجو کد، نام، موبایل..." oninput="render()">
-<select id="filter" onchange="render()">
-<option value="">همه وضعیت‌ها</option><option value="new">درخواست جدید</option><option value="refer">ارجاع به کارشناس</option><option value="inspection">در حال کارشناسی</option><option value="review">پایان کارشناسی</option><option value="auction-ready">آماده مزایده</option><option value="auction">مزایده فعال</option><option value="auction-end">پایان مزایده</option><option value="customer">اعلام قیمت به مشتری</option><option value="docs">تکمیل مدارک</option><option value="contract">قرارداد و انتقال</option><option value="done">معامله تکمیل شد</option><option value="cancelled">انصراف</option>
-</select>
-<button class="refresh" onclick="load()">↻ بروزرسانی</button>
-<a href="auction.html"><button class="auction">پنل مزایده</button></a>
+ <input id="q" placeholder="جستجو کد پرونده، نام، موبایل یا خودرو..." oninput="render()">
+ <select id="filter" onchange="render()"><option value="">همه وضعیت‌ها</option></select>
+ <button class="btn secondary" onclick="load()">↻ بروزرسانی</button>
 </div>
-<section id="list"></section>
+
+<section id="board" class="board"></section>
 </main>
+
+<div id="modalBack" class="modal-back" onclick="if(event.target===this)closeReport()">
+ <div class="modal"><div class="modal-head"><div><b id="modalTitle">گزارش کارشناسی</b><div class="sub">گزارش کامل پرونده</div></div><button class="close" onclick="closeReport()">بستن</button></div><div id="modalBody"></div></div>
+</div>
+
 <script>
 const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-ADMIN';
 let rows=[],statusFa={};
-function show(type,msg){document.getElementById('message').innerHTML='<div class="'+type+'">'+msg+'</div>'}
+
+const stages=[
+ {id:'new',title:'تأیید تماس',color:'#3b82f6'},
+ {id:'refer',title:'ارجاع به کارشناس',color:'#8b5cf6'},
+ {id:'inspection',title:'در حال کارشناسی',color:'#f59e0b'},
+ {id:'review',title:'پایان کارشناسی',color:'#10b981'},
+ {id:'auction-ready',title:'آماده مزایده',color:'#06b6d4'},
+ {id:'auction',title:'مزایده فعال',color:'#10b981'},
+ {id:'auction-end',title:'پایان مزایده',color:'#64748b'},
+ {id:'customer',title:'اعلام قیمت به مشتری',color:'#f59e0b'},
+ {id:'docs',title:'تکمیل مدارک',color:'#3b82f6'},
+ {id:'contract',title:'قرارداد و انتقال',color:'#8b5cf6'},
+ {id:'done',title:'تکمیل معامله',color:'#10b981'},
+ {id:'cancelled',title:'انصراف / عدم توافق',color:'#ef4444'}
+];
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function show(msg,err=false){document.getElementById('message').innerHTML='<div class="notice '+(err?'err':'')+'">'+msg+'</div>'}
+function statusLabel(st){return statusFa[st]||stages.find(s=>s.id===st)?.title||st}
+
 async function load(){
  try{
-  show('ok','در حال دریافت پرونده‌ها...');
+  show('در حال دریافت پرونده‌ها از سرور...');
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=list&_='+Date.now(),{cache:'no-store'});
-  const raw=await r.text(); let j; try{j=JSON.parse(raw)}catch(e){throw new Error('پاسخ نامعتبر از سرور دریافت شد')}
-  if(!r.ok||j.error)throw new Error(j.error||('خطای سرور: '+r.status));
-  rows=Array.isArray(j.cases)?j.cases:[]; statusFa=j.statusFa||{};
-  document.getElementById('total').textContent=rows.length;
-  document.getElementById('newc').textContent=rows.filter(x=>x.status==='new'||!x.status).length;
-  document.getElementById('review').textContent=rows.filter(x=>['inspection','review'].includes(x.status)).length;
-  document.getElementById('auc').textContent=rows.filter(x=>['auction-ready','auction','auction-end'].includes(x.status)).length;
-  document.getElementById('done').textContent=rows.filter(x=>x.status==='done').length;
-  show('ok','✓ '+rows.length+' پرونده از سرور دریافت شد.');
-  render();
- }catch(e){show('err','❌ '+e.message);document.getElementById('list').innerHTML='<div class="case">پرونده‌ها قابل دریافت نیستند. دکمه «بروزرسانی» را بزنید.</div>'}
+  const raw=await r.text(); let j; try{j=JSON.parse(raw)}catch(e){throw new Error('پاسخ نامعتبر از سرور')}
+  if(!r.ok||j.error)throw new Error(j.error||('خطای سرور '+r.status));
+  rows=Array.isArray(j.cases)?j.cases:[];statusFa=j.statusFa||{};
+  buildFilter();updateStats();render();show('✓ '+rows.length+' پرونده با موفقیت دریافت شد.');
+ }catch(e){show('❌ '+e.message,true);document.getElementById('board').innerHTML='<div class="empty">پرونده‌ها قابل دریافت نیستند. دوباره بروزرسانی کنید.</div>'}
+}
+
+function buildFilter(){
+ const s=document.getElementById('filter'),old=s.value;
+ s.innerHTML='<option value="">همه وضعیت‌ها</option>'+stages.map(x=>'<option value="'+x.id+'">'+x.title+'</option>').join('');
+ s.value=old;
+}
+function updateStats(){
+ document.getElementById('total').textContent=rows.length;
+ document.getElementById('newc').textContent=rows.filter(x=>(x.status||'new')==='new').length;
+ document.getElementById('inspection').textContent=rows.filter(x=>['inspection','review'].includes(x.status)).length;
+ document.getElementById('auc').textContent=rows.filter(x=>['auction-ready','auction','auction-end'].includes(x.status)).length;
+ document.getElementById('done').textContent=rows.filter(x=>x.status==='done').length;
+}
+function matches(x,q){
+ const hay=[x.case_number,x.customer_name,x.customer_mobile,x.service_type,x.vehicle_name,x.brand,x.model].join(' ').toLowerCase();
+ return !q||hay.includes(q);
+}
+function card(x){
+ const st=x.status||'new',ins=x.inspection,vehicle=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0];
+ const hasReport=!!ins;
+ return '<article class="case">'+
+ '<div class="case-head"><div><div class="case-no">پرونده #'+esc(x.case_number||'—')+'</div><div class="type">'+esc(x.service_type||'درخواست خودرو')+'</div></div><span class="badge">'+esc(statusLabel(st))+'</span></div>'+
+ '<div class="customer">'+esc(x.customer_name||'نام ثبت نشده')+'</div>'+
+ '<div class="meta">📞 '+esc(x.customer_mobile||'—')+'<br>🚘 '+esc(x.vehicle_name||[x.brand,x.model,x.trim].filter(Boolean).join(' ')||'اطلاعات خودرو')+'<br>🕒 '+(x.created_at?esc(new Date(x.created_at).toLocaleString('fa-IR')):'—')+'</div>'+
+ (hasReport?'<div class="report-box"><div class="report-title">📋 گزارش کارشناسی آماده است</div><div class="report-row">وضعیت: <b>'+esc(ins.status||'تکمیل شده')+'</b></div><div class="report-row">خلاصه: <b>'+esc(ins.summary||'بدون توضیح')+'</b></div>'+(vehicle?'<div class="report-row">VIN: <b>'+esc(vehicle.vin||'—')+'</b> · موتور: <b>'+esc(vehicle.engine_number||'—')+'</b> · پلاک: <b>'+esc(vehicle.plate_number||'—')+'</b></div>':'')+'</div>':'')+
+ '<div class="actions">'+
+ (hasReport?'<button class="btn purple" onclick="openReport(\''+esc(x.id)+'\')">مشاهده گزارش کامل</button>':'')+
+ (st==='new'?'<button class="btn" onclick="nextCase(\''+esc(x.id)+'\')">✓ تأیید تماس</button>':'')+
+ (st!=='cancelled'&&st!=='done'&&st!=='new'?'<button class="btn" onclick="nextCase(\''+esc(x.id)+'\')">مرحله بعد ←</button>':'')+
+ (st!=='cancelled'&&st!=='done'?'<button class="btn red" onclick="cancelCase(\''+esc(x.id)+'\')">انصراف</button>':'')+
+ '</div></article>';
 }
 function render(){
  const q=document.getElementById('q').value.trim().toLowerCase(),f=document.getElementById('filter').value;
- const a=rows.filter(x=>(!f||((x.status||'new')===f))&&(!q||String(x.case_number||'').includes(q)||String(x.customer_name||'').toLowerCase().includes(q)||String(x.customer_mobile||'').includes(q)));
- document.getElementById('list').innerHTML=a.map(x=>{
-  const st=x.status||'new',label=statusFa[st]||st;
-  return '<article class="case"><div class="casehead"><div><b>پرونده #'+(x.case_number||'—')+'</b><div class="muted">'+(x.customer_name||'')+' • '+(x.customer_mobile||'')+' • '+(x.service_type||'')+'</div></div><span class="badge">'+label+'</span></div><div class="muted">ثبت: '+(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'—')+(x.appointment_date?' • مراجعه: '+x.appointment_date+' '+(x.appointment_time||''):'')+'</div>'+(x.inspection?'<div class="report"><h4>📋 گزارش کارشناسی</h4><div class="muted">'+(x.inspection.summary||'بدون توضیحات')+'</div><div class="muted">وضعیت: '+(x.inspection.status||'—')+' • پایان: '+(x.inspection.finished_at?new Date(x.inspection.finished_at).toLocaleString('fa-IR'):'—')+'</div>'+((x.vehicles||[]).find(v=>v.vehicle_role==='current')?'<div class="muted">VIN: '+(((x.vehicles||[]).find(v=>v.vehicle_role==='current')).vin||'—')+' • موتور: '+(((x.vehicles||[]).find(v=>v.vehicle_role==='current')).engine_number||'—')+' • پلاک: '+(((x.vehicles||[]).find(v=>v.vehicle_role==='current')).plate_number||'—')+'</div>':'')+((x.defects||[]).length?'<div style="margin-top:8px"><b>ایرادات:</b>'+x.defects.map(d=>'<div class="def">'+(d.part||'')+' — '+(d.defect_type||'')+(d.explanation?' — '+d.explanation:'')+'</div>').join('')+'</div>':'<div class="muted">ایراد ثبت‌شده‌ای وجود ندارد.</div>')+'</div>':'')+'<div class="actions">'+(st!=='cancelled'&&st!=='done'?'<button onclick="nextCase(\''+x.id+'\')">مرحله بعد ←</button>':'')+(st==='new'?'<button class="expert" onclick="referExpert(\''+x.id+'\')">ارجاع به کارشناس</button>':'')+(st==='auction'?'<button class="auction" onclick="location.href=\'auction.html\'">مزایده</button>':'')+(st!=='cancelled'&&st!=='done'?'<button class="danger" onclick="cancelCase(\''+x.id+'\')">انصراف</button>':'')+'</div></article>'
- }).join('')||'<div class="case">پرونده‌ای پیدا نشد.</div>';
+ const filtered=rows.filter(x=>(!f||(x.status||'new')===f)&&matches(x,q));
+ document.getElementById('board').innerHTML=stages.map(s=>{
+  const items=filtered.filter(x=>(x.status||'new')===s.id);
+  return '<section class="column"><div class="col-head"><div class="col-title"><span class="dot" style="background:'+s.color+'"></span>'+s.title+'</div><span class="count">'+items.length+'</span></div><div class="cards">'+(items.length?items.map(card).join(''):'<div class="empty">پرونده‌ای در این مرحله نیست</div>')+'</div></section>';
+ }).join('');
 }
-function referExpert(id){return nextCase(id)}
-async function nextCase(id){try{const r=await fetch(API+'?key='+KEY+'&api=next&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');await load()}catch(e){show('err','❌ '+e.message)}}
-async function cancelCase(id){if(!confirm('پرونده انصراف داده شود؟'))return;try{const r=await fetch(API+'?key='+KEY+'&api=cancel&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');await load()}catch(e){show('err','❌ '+e.message)}}
+async function nextCase(id){
+ try{show('در حال تغییر وضعیت پرونده...');const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=next&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا در تغییر وضعیت');await load()}catch(e){show('❌ '+e.message,true)}
+}
+async function cancelCase(id){
+ if(!confirm('پرونده به وضعیت انصراف منتقل شود؟'))return;
+ try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=cancel&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');await load()}catch(e){show('❌ '+e.message,true)}
+}
+function openReport(id){
+ const x=rows.find(r=>r.id===id);if(!x)return;
+ const ins=x.inspection||{},v=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0],defs=x.defects||[],docs=x.documents||[],photos=x.photos||[];
+ document.getElementById('modalTitle').textContent='گزارش کارشناسی • پرونده #'+(x.case_number||'—');
+ document.getElementById('modalBody').innerHTML=
+ '<div class="report-box" style="margin-top:14px"><div class="report-title">خلاصه کارشناسی</div><div class="report-row">'+esc(ins.summary||'بدون خلاصه ثبت‌شده')+'</div></div>'+
+ '<div class="report-box"><div class="report-title">مشخصات خودرو</div><div class="report-row">VIN: <b>'+esc(v?.vin||'—')+'</b> · شماره موتور: <b>'+esc(v?.engine_number||'—')+'</b> · پلاک: <b>'+esc(v?.plate_number||'—')+'</b></div></div>'+
+ '<div class="report-box"><div class="report-title">ایرادات و وضعیت قطعات</div>'+(defs.length?defs.map(d=>'<div class="defect">• '+esc(d.part||'قطعه')+' — '+esc(d.defect_type||'')+(d.explanation?' — '+esc(d.explanation):'')+'</div>').join(''):'<div class="report-row">ایرادی ثبت نشده است.</div>')+'</div>'+
+ '<div class="report-box"><div class="report-title">مدارک و تصاویر</div><div class="report-row">مدارک ثبت‌شده: <b>'+docs.length+'</b> · تصاویر کارشناسی: <b>'+photos.length+'</b></div><div class="gallery">'+(photos.length?photos.map(p=>'<div class="photo">📷 تصویر کارشناسی<br>'+esc(p.part||'خودرو')+'</div>').join(''):'<div class="photo">تصویری ثبت نشده</div>')+'</div></div>';
+ document.getElementById('modalBack').style.display='flex';
+}
+function closeReport(){document.getElementById('modalBack').style.display='none'}
 load();setInterval(load,15000);
 </script>
-</body></html>
+</body>
+</html>
