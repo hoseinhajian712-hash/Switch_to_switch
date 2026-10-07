@@ -65,7 +65,7 @@ input,select{background:#081321;color:#eaf2ff;border:1px solid #243a55;border-ra
 </div>
 
 <script>
-const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-ADMIN';
+const API=SUPABASE_URL+'/functions/v1/switch-to-switch',MEDIA=SUPABASE_URL+'/functions/v1/s2s-media',KEY='S2S-V4-2026-ADMIN';
 let rows=[],statusFa={};
 
 const stages=[
@@ -153,13 +153,13 @@ async function continueSelling(id){try{await postApi('continue-selling',id);awai
 function openReport(id){
  const x=rows.find(r=>r.id===id);if(!x)return;const ins=x.inspection||{},v=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0]||{},defs=x.defects||[],docs=x.documents||[],photos=x.photos||[];
  const main=photos.filter(p=>p.photo_type==='main'),defp=photos.filter(p=>p.photo_type==='defect');
- const img=p=>p.url?'<a href="'+esc(p.url)+'" target="_blank"><img src="'+esc(p.url)+'" alt="'+esc(p.label||'تصویر')+'"></a>':'<div class="photo">تصویر در دسترس نیست</div>';
+ const img=p=>(p.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(p.storage_path))?'<a href="'+esc(p.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(p.storage_path))+'" target="_blank"><img src="'+esc(p.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(p.storage_path))+'" alt="'+esc(p.label||'تصویر')+'"></a>':'<div class="photo">تصویر در دسترس نیست</div>';
  document.getElementById('modalTitle').textContent='گزارش کارشناسی • پرونده '+caseNo(x.case_number);
  document.getElementById('modalBody').innerHTML=
  '<div class="report-box" style="margin-top:14px"><div class="report-title">خلاصه کارشناسی</div><div class="report-row">'+esc(ins.summary||'بدون خلاصه ثبت‌شده')+'</div></div>'+
  '<div class="report-box"><div class="report-title">مشخصات خودرو</div><div class="report-row">VIN: <b>'+esc(v.vin||'—')+'</b> · شماره موتور: <b>'+esc(v.engine_number||'—')+'</b> · پلاک: <b>'+esc(v.plate_number||'—')+'</b></div></div>'+
  '<div class="report-box"><div class="report-title">📷 عکس‌های اصلی خودرو ('+main.length+')</div><div class="gallery">'+(main.length?main.map(img).join(''):'<div class="photo">عکس اصلی ثبت نشده</div>')+'</div></div>'+
- '<div class="report-box"><div class="report-title">📄 مدارک ('+docs.length+')</div><div class="gallery">'+(docs.length?docs.map(d=>d.url?'<a href="'+esc(d.url)+'" target="_blank"><img class="docimg" src="'+esc(d.url)+'" alt="'+esc(d.document_type)+'"></a>':'<div class="photo">مدرک</div>').join(''):'<div class="photo">مدرکی ثبت نشده</div>')+'</div></div>'+
+ '<div class="report-box"><div class="report-title">📄 مدارک ('+docs.length+')</div><div class="gallery">'+(docs.length?docs.map(d=>(d.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(d.storage_path))?'<a href="'+esc(d.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(d.storage_path))+'" target="_blank"><img class="docimg" src="'+esc(d.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(d.storage_path))+'" alt="'+esc(d.document_type)+'"></a>':'<div class="photo">مدرک</div>').join(''):'<div class="photo">مدرکی ثبت نشده</div>')+'</div></div>'+
  '<div class="report-box"><div class="report-title">🔎 ایرادات ثبت‌شده ('+defs.length+')</div>' +(defs.length?defs.map(d=>{const pp=defp.filter(p=>p.defect_id===d.id);return '<div class="defect"><b>'+esc(d.part)+'</b> — '+esc(d.defect_type)+(d.explanation?' — '+esc(d.explanation):'')+(pp.length?'<div class="gallery">'+pp.map(img).join('')+'</div>':'')+'</div>'}).join(''):'<div class="report-row">ایرادی ثبت نشده است.</div>')+'</div>';
  document.getElementById('modalBody').innerHTML+=x.history&&x.history.length?'<div class="report-box"><div class="report-title">🕒 تاریخچه پرونده</div>'+x.history.map(h=>'<div class="report-row">'+esc(h.from_status||'')+' ← '+esc(h.to_status||'')+' · '+esc(h.note||'')+' · '+esc(h.created_at?new Date(h.created_at).toLocaleString('fa-IR'):'')+'</div>').join('')+'</div>':'';
  document.getElementById('modalBack').style.display='flex';
