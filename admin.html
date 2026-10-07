@@ -80,7 +80,7 @@ const stages=[
  {id:'auction-ready',title:'آماده مزایده',color:'#06b6d4'},
  {id:'auction',title:'مزایده فعال',color:'#10b981'},
  {id:'auction-end',title:'پایان مزایده',color:'#64748b'},
- {id:'customer',title:'اعلام قیمت به مشتری',color:'#f59e0b'},
+ {id:'customer',title:'اعلام قیمت به مشتری',color:'#f59e0b'},{id:'deposit',title:'دریافت پیش‌پرداخت',color:'#22c55e'},{id:'disagreement',title:'عدم توافق',color:'#ef4444'},{id:'selling',title:'ادامه فروش خودرو',color:'#f97316'},
  {id:'docs',title:'تکمیل مدارک',color:'#3b82f6'},
  {id:'contract',title:'قرارداد و انتقال',color:'#8b5cf6'},
  {id:'done',title:'تکمیل معامله',color:'#10b981'},
@@ -148,6 +148,11 @@ async function cancelCase(id){
  if(!confirm('پرونده به وضعیت انصراف منتقل شود؟'))return;
  try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=cancel&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');await load()}catch(e){show('❌ '+e.message,true)}
 }
+async function postApi(api,id,body){const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api='+api+'&id='+encodeURIComponent(id),{method:'POST',headers:{'content-type':'application/json'},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');return j}
+async function confirmCall(id){try{show('در حال ثبت تأیید تماس...');await postApi('confirm-call',id);await load()}catch(e){show('❌ '+e.message,true)}}
+async function customerDecision(id,accept){if(accept){const p=prompt('قیمت مورد توافق را به تومان وارد کنید:');if(!p)return;try{await postApi('customer-decision',id,{decision:'accept',agreed_price:p});await load()}catch(e){show('❌ '+e.message,true)}}else{if(!confirm('عدم توافق مشتری ثبت شود؟'))return;try{await postApi('customer-decision',id,{decision:'decline'});await load()}catch(e){show('❌ '+e.message,true)}}}
+async function receivePrepayment(id){const p=prompt('مبلغ پیش‌پرداخت دریافتی را به تومان وارد کنید:');if(!p)return;try{await postApi('prepayment',id,{amount:p});await load()}catch(e){show('❌ '+e.message,true)}}
+async function continueSelling(id){try{await postApi('continue-selling',id);await load()}catch(e){show('❌ '+e.message,true)}}
 function openReport(id){
  const x=rows.find(r=>r.id===id);if(!x)return;
  const ins=x.inspection||{},v=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0],defs=x.defects||[],docs=x.documents||[],photos=x.photos||[];
@@ -157,7 +162,7 @@ function openReport(id){
  '<div class="report-box"><div class="report-title">مشخصات خودرو</div><div class="report-row">VIN: <b>'+esc(v?.vin||'—')+'</b> · شماره موتور: <b>'+esc(v?.engine_number||'—')+'</b> · پلاک: <b>'+esc(v?.plate_number||'—')+'</b></div></div>'+
  '<div class="report-box"><div class="report-title">ایرادات و وضعیت قطعات</div>'+(defs.length?defs.map(d=>'<div class="defect">• '+esc(d.part||'قطعه')+' — '+esc(d.defect_type||'')+(d.explanation?' — '+esc(d.explanation):'')+'</div>').join(''):'<div class="report-row">ایرادی ثبت نشده است.</div>')+'</div>'+
  '<div class="report-box"><div class="report-title">مدارک و تصاویر</div><div class="report-row">مدارک ثبت‌شده: <b>'+docs.length+'</b> · تصاویر کارشناسی: <b>'+photos.length+'</b></div><div class="gallery">'+(photos.length?photos.map(p=>'<div class="photo">📷 تصویر کارشناسی<br>'+esc(p.part||'خودرو')+'</div>').join(''):'<div class="photo">تصویری ثبت نشده</div>')+'</div></div>';
- document.getElementById('modalBack').style.display='flex';
+ document.getElementById('modalBody').innerHTML+=x.history&&x.history.length?'<div class="report-box"><div class="report-title">🕒 تاریخچه پرونده</div>'+x.history.map(h=>'<div class="report-row">'+esc(h.from_status||'')+' ← '+esc(h.to_status||'')+' · '+esc(h.note||'')+' · '+esc(h.created_at?new Date(h.created_at).toLocaleString('fa-IR'):'')+'</div>').join('')+'</div>':'';document.getElementById('modalBack').style.display='flex';
 }
 function closeReport(){document.getElementById('modalBack').style.display='none'}
 load();setInterval(load,15000);
