@@ -22,11 +22,7 @@ button,.btn{border:0;border-radius:11px;padding:10px 14px;font:inherit;font-size
 .stat{background:linear-gradient(145deg,#0d1a2b,#0a1625);border:1px solid var(--line);border-radius:17px;padding:15px}.stat small{color:var(--muted)}.stat b{display:block;font-size:25px;margin-top:7px}
 .toolbar{display:flex;gap:9px;flex-wrap:wrap;background:#0b1828;border:1px solid var(--line);padding:12px;border-radius:17px;margin-bottom:14px}
 input,select{background:#081321;color:#eaf2ff;border:1px solid #243a55;border-radius:11px;padding:11px 12px;font:inherit;font-size:12px;outline:none}input{min-width:260px}input:focus,select:focus{border-color:#3b82f6}
-.board{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding-bottom:10px}
-.column{min-width:285px;width:285px;background:#091625;border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 12px 35px #0002}
-.col-head{display:flex;align-items:center;justify-content:space-between;padding:5px 5px 10px;border-bottom:1px solid #1a2b40;margin-bottom:9px}.col-title{font-size:13px;font-weight:900}.count{min-width:25px;height:25px;border-radius:8px;background:#14263d;display:grid;place-items:center;color:#c8dcf5;font-size:11px}
-.col-head .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:6px}
-.cards{display:flex;flex-direction:column;gap:9px;min-height:55px}
+.board{display:flex;flex-direction:column;gap:10px;padding-bottom:10px}.table-head,.row{display:grid;grid-template-columns:110px 1.2fr 1.1fr 1.1fr 1.4fr 180px 250px;gap:10px;align-items:center}.table-head{background:#0d1a2b;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:#8fa4bd;font-size:10px;font-weight:900}.cards{display:flex;flex-direction:column;gap:8px}.row{background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #1d3149;border-radius:14px;padding:12px 14px;min-height:72px}.cell{min-width:0;font-size:11px}.cell small{display:block;color:#7188a1;font-size:9px;margin-bottom:4px}.vehicle-main{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status-select{width:100%;padding:9px 10px;border-radius:10px;background:#081321;color:#eef5ff;border:1px solid #29415f;font-size:10px;font-weight:800}.status-select:focus{border-color:#3b82f6}.row-actions{display:flex;gap:5px;justify-content:flex-start;flex-wrap:wrap}.row-actions button{padding:8px 9px;font-size:9px}.count{background:#14263d;padding:6px 10px;border-radius:8px;color:#c8dcf5;font-size:11px}.column{background:transparent}.col-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 9px}.col-title{font-size:13px;font-weight:900}.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:6px}
 .case{background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #1d3149;border-radius:15px;padding:12px;transition:.18s}.case:hover{transform:translateY(-1px);border-color:#315579}
 .case-head{display:flex;justify-content:space-between;gap:8px}.case-no{font-size:12px;font-weight:900}.type{font-size:10px;color:#9db5cf;margin-top:5px}.badge{font-size:9px;padding:5px 7px;border-radius:999px;background:#142d4b;color:#9ec8ff;white-space:nowrap}
 .customer{margin-top:9px;font-size:12px;font-weight:800}.meta{font-size:10px;color:var(--muted);line-height:1.9;margin-top:5px}
@@ -119,28 +115,27 @@ function matches(x,q){
  return !q||hay.includes(q);
 }
 function card(x){
- const st=x.status||'new',ins=x.inspection,vehicle=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0];
- const hasReport=!!ins;
- return '<article class="case">'+
- '<div class="case-head"><div><div class="case-no">پرونده #'+esc(x.case_number||'—')+'</div><div class="type">'+esc(x.service_type||'درخواست خودرو')+'</div></div><span class="badge">'+esc(statusLabel(st))+'</span></div>'+
- '<div class="customer">'+esc(x.customer_name||'نام ثبت نشده')+'</div>'+
- '<div class="meta">📞 '+esc(x.customer_mobile||'—')+'<br>🚘 '+esc(x.vehicle_name||[x.brand,x.model,x.trim].filter(Boolean).join(' ')||'اطلاعات خودرو')+'<br>🕒 '+(x.created_at?esc(new Date(x.created_at).toLocaleString('fa-IR')):'—')+'</div>'+
- (hasReport?'<div class="report-box"><div class="report-title">📋 گزارش کارشناسی آماده است</div><div class="report-row">وضعیت: <b>'+esc(ins.status||'تکمیل شده')+'</b></div><div class="report-row">خلاصه: <b>'+esc(ins.summary||'بدون توضیح')+'</b></div>'+(vehicle?'<div class="report-row">VIN: <b>'+esc(vehicle.vin||'—')+'</b> · موتور: <b>'+esc(vehicle.engine_number||'—')+'</b> · پلاک: <b>'+esc(vehicle.plate_number||'—')+'</b></div>':'')+'</div>':'')+
- '<div class="actions">'+
- (hasReport?'<button class="btn purple" onclick="openReport(\''+esc(x.id)+'\')">مشاهده گزارش کامل</button>':'')+
- (st==='new'?'<button class="btn" onclick="nextCase(\''+esc(x.id)+'\')">✓ تأیید تماس</button>':'')+
- (st!=='cancelled'&&st!=='done'&&st!=='new'?'<button class="btn" onclick="nextCase(\''+esc(x.id)+'\')">مرحله بعد ←</button>':'')+
- (st!=='cancelled'&&st!=='done'?'<button class="btn red" onclick="cancelCase(\''+esc(x.id)+'\')">انصراف</button>':'')+
- '</div></article>';
+ const st=x.status||'new',ins=x.inspection,vehicle=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0],hasReport=!!ins;
+ const opts=stages.map(z=>'<option value="'+z.id+'" '+(z.id===st?'selected':'')+'>'+z.title+'</option>').join('');
+ return '<article class="row">'+
+ '<div class="cell"><small>پرونده</small><b>#'+esc(x.case_number||'—')+'</b></div>'+
+ '<div class="cell"><small>مشتری</small><b>'+esc(x.customer_name||'نام ثبت نشده')+'</b><div class="sub">'+esc(x.customer_mobile||'—')+'</div></div>'+
+ '<div class="cell"><small>خودرو</small><div class="vehicle-main">'+esc(x.vehicle_name||[vehicle?.brand,vehicle?.model,vehicle?.trim].filter(Boolean).join(' ')||'اطلاعات خودرو')+'</div><div class="sub">'+esc(vehicle?.model_year||'')+(vehicle?.mileage?' · '+Number(vehicle.mileage).toLocaleString('fa-IR')+' km':'')+'</div></div>'+
+ '<div class="cell"><small>تاریخ ثبت</small>'+esc(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'—')+'<div class="sub">'+esc(x.service_type||'')+'</div></div>'+
+ '<div class="cell"><small>وضعیت پرونده</small><select class="status-select" onchange="changeStatus(\''+esc(x.id)+'\',this.value)">'+opts+'</select></div>'+
+ '<div class="cell"><small>گزارش کارشناسی</small>'+(hasReport?'<button class="btn purple" onclick="openReport(\''+esc(x.id)+'\')">📋 مشاهده گزارش</button>':'<span class="sub">هنوز ثبت نشده</span>')+'</div>'+
+ '<div class="row-actions"><button class="btn secondary" onclick="openCase(\''+esc(x.id)+'\')">جزئیات</button>'+(st==='customer'?'<button class="btn green" onclick="customerDecision(\''+esc(x.id)+'\',true)">موافقت</button><button class="btn red" onclick="customerDecision(\''+esc(x.id)+'\',false)">عدم توافق</button>':'')+(st==='deposit'?'<button class="btn green" onclick="receivePrepayment(\''+esc(x.id)+'\')">ثبت پیش‌پرداخت</button>':'')+(st==='disagreement'?'<button class="btn" onclick="continueSelling(\''+esc(x.id)+'\')">ادامه فروش</button>':'')+'</div>'+
+ '</article>';
 }
 function render(){
  const q=document.getElementById('q').value.trim().toLowerCase(),f=document.getElementById('filter').value;
  const filtered=rows.filter(x=>(!f||(x.status||'new')===f)&&matches(x,q));
- document.getElementById('board').innerHTML=stages.map(s=>{
-  const items=filtered.filter(x=>(x.status||'new')===s.id);
-  return '<section class="column"><div class="col-head"><div class="col-title"><span class="dot" style="background:'+s.color+'"></span>'+s.title+'</div><span class="count">'+items.length+'</span></div><div class="cards">'+(items.length?items.map(card).join(''):'<div class="empty">پرونده‌ای در این مرحله نیست</div>')+'</div></section>';
- }).join('');
+ document.getElementById('board').innerHTML='<div class="table-head"><div>پرونده</div><div>مشتری</div><div>خودرو</div><div>ثبت درخواست</div><div>وضعیت</div><div>کارشناسی</div><div>عملیات</div></div><div class="cards">'+(filtered.length?filtered.map(card).join(''):'<div class="empty">پرونده‌ای پیدا نشد</div>')+'</div>';
 }
+async function changeStatus(id,status){
+ try{show('در حال تغییر وضعیت...');await postApi('set-status',id,{status});await load()}catch(e){show('❌ '+e.message,true)}
+}
+function openCase(id){openReport(id)}
 async function nextCase(id){
  try{show('در حال تغییر وضعیت پرونده...');const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=next&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا در تغییر وضعیت');await load()}catch(e){show('❌ '+e.message,true)}
 }
