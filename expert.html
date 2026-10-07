@@ -1,8 +1,64 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Switch to Switch</title><script src="config.js?v=8"></script><style>*{box-sizing:border-box}body{margin:0;background:#f4f7fb;font-family:Tahoma;color:#172033}.wrap{max-width:1100px;margin:auto;padding:18px}.top{background:#111827;color:#fff;padding:22px;border-radius:22px}.card{background:#fff;border:1px solid #e5eaf0;border-radius:18px;padding:18px;margin-top:14px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}input,select,textarea{width:100%;padding:11px;border:1px solid #d8e0ea;border-radius:11px;margin-top:6px;font:inherit}label{font-size:12px;font-weight:bold}.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.check{padding:12px;border:1px solid #d8e0ea;border-radius:12px}.defects{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.defect{border:1px solid #e5eaf0;padding:12px;border-radius:14px}.defect select{margin-top:8px}button{background:#2563eb;color:#fff;border:0;padding:12px 18px;border-radius:12px;font-weight:bold;margin-top:14px}.muted{color:#64748b;font-size:12px}@media(max-width:750px){.grid,.defects{grid-template-columns:1fr 1fr}}@media(max-width:500px){.grid,.defects,.checks{grid-template-columns:1fr}}</style></head><body><main class="wrap"><div class="top"><h2>Switch to Switch</h2><div>ثبت سریع مشخصات، مدارک و ایرادات خودرو</div></div><div class="card"><label>کد پرونده<input id="caseId" placeholder="کد یا شناسه پرونده"></label><button onclick="loadCase()">دریافت پرونده</button><div id="caseInfo" class="muted"></div></div><div class="card"><h3>اطلاعات شناسایی خودرو</h3><div class="grid"><label>VIN<input id="vin"></label><label>شماره موتور<input id="engine"></label><label>پلاک<input id="plate"></label></div></div><div class="card"><h3>چک‌لیست سریع</h3><div class="checks"><label class="check">سوییچ یدک دارد؟ <input id="spare" type="checkbox"></label><label class="check">کارت سوخت دارد؟ <input id="fuel" type="checkbox"></label><label class="check">وکالت‌نامه دارد؟ <input id="poa" type="checkbox"></label><label class="check">عکس کارت ملی مالک <input id="national" type="file" accept="image/*" capture="environment"></label></div></div><div class="card"><h3>ایرادات کارشناسی</h3><div id="defs" class="defects"></div><label style="display:block;margin-top:12px">جمع‌بندی<textarea id="summary" rows="4"></textarea></label><button onclick="saveInspection()">ثبت پایان کارشناسی</button><div id="msg" class="muted"></div></div></main><script>
-const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-EXPERT';const parts=['سقف','کاپوت','درب‌ها','گلگیرها','سپرها','آینه‌ها','چراغ‌ها','صندوق','شاسی','تعلیق','کولر و تهویه','موتور','گیربکس'];const opts=['سالم','تعویض','برش و تعویض','صافکاری بدون رنگ','صافکاری نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','ضربه'];let current=null;
-parts.forEach(function(p,i){let d=document.createElement('div');d.className='defect';d.innerHTML='<b>'+p+'</b><select id="d'+i+'">'+opts.map(function(o){return '<option>'+o+'</option>'}).join('')+'</select>';defs.appendChild(d)});
-async function loadCase(){let id=caseId.value.trim();if(!id)return;let r=await fetch(API+'?key='+KEY+'&api=list');let j=await r.json();let a=j.cases||j||[];current=a.find(function(x){return String(x.id)===id||String(x.case_number)===id});caseInfo.textContent=current?'پرونده '+(current.case_number?'S'+current.case_number:current.id)+' • '+(current.customer_name||''):'پرونده پیدا نشد'}
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Switch to Switch</title><script src="config.js?v=8"></script><style>*{box-sizing:border-box}body{margin:0;background:#f4f7fb;font-family:Tahoma;color:#172033}.wrap{max-width:1100px;margin:auto;padding:18px}.top{background:#111827;color:#fff;padding:22px;border-radius:22px}.card{background:#fff;border:1px solid #e5eaf0;border-radius:18px;padding:18px;margin-top:14px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}input,select,textarea{width:100%;padding:11px;border:1px solid #d8e0ea;border-radius:11px;margin-top:6px;font:inherit}label{font-size:12px;font-weight:bold}.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.check{padding:12px;border:1px solid #d8e0ea;border-radius:12px}.defects{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.defect{border:1px solid #e5eaf0;padding:12px;border-radius:14px}.defect select{margin-top:8px}button{background:#2563eb;color:#fff;border:0;padding:12px 18px;border-radius:12px;font-weight:bold;margin-top:14px}.muted{color:#64748b;font-size:12px}@media(max-width:750px){.grid,.defects{grid-template-columns:1fr 1fr}}@media(max-width:500px){.grid,.defects,.checks{grid-template-columns:1fr}}</style><style>
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.cases{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}.case{border:1px solid #dbe3ec;border-radius:15px;padding:15px;background:#fbfdff}.case>div:first-child{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.case strong{display:block;margin-bottom:4px}.vehicle{font-weight:bold;margin:8px 0}.badge{background:#ede9fe;color:#6d28d9;padding:5px 9px;border-radius:20px;font-size:10px}.empty{padding:25px;text-align:center;border:1px dashed #cbd5e1;border-radius:14px;color:#64748b;margin-top:15px}.back{background:#475569} @media(max-width:650px){.cases{grid-template-columns:1fr}.list-head{align-items:flex-start;flex-direction:column}}
+</style></head><body>
+<main class="wrap">
+<div class="top"><h2>پنل کارشناسی | سوییچ به سوییچ</h2><div>پرونده‌های ارجاع‌شده برای کارشناسی</div></div>
+
+<div id="listCard" class="card">
+  <div class="list-head"><div><h3 style="margin:0">📋 پرونده‌های ارجاع‌شده</h3><div class="muted">ابتدا پرونده را انتخاب کنید، سپس وارد فرم کارشناسی شوید.</div></div><button onclick="loadCases()">↻ بروزرسانی</button></div>
+  <div id="caseList" class="cases"><div class="muted">در حال دریافت پرونده‌ها...</div></div>
+</div>
+
+<div id="formArea" style="display:none">
+<div class="card">
+  <div class="list-head"><div><h3 style="margin:0">پرونده <span id="selectedCase"></span></h3><div id="caseInfo" class="muted"></div></div><button class="back" onclick="backToList()">← بازگشت به پرونده‌ها</button></div>
+</div>
+<div class="card"><h3>اطلاعات شناسایی خودرو</h3><div class="grid"><label>VIN<input id="vin"></label><label>شماره موتور<input id="engine"></label><label>پلاک<input id="plate"></label></div></div>
+<div class="card"><h3>چک‌لیست سریع</h3><div class="checks"><label class="check">سوییچ یدک دارد؟ <input id="spare" type="checkbox"></label><label class="check">کارت سوخت دارد؟ <input id="fuel" type="checkbox"></label><label class="check">وکالت‌نامه دارد؟ <input id="poa" type="checkbox"></label><label class="check">عکس کارت ملی مالک <input id="national" type="file" accept="image/*" capture="environment"></label></div></div>
+<div class="card"><h3>ایرادات کارشناسی</h3><div id="defs" class="defects"></div><label style="display:block;margin-top:12px">جمع‌بندی<textarea id="summary" rows="4"></textarea></label><button onclick="saveInspection()">ثبت پایان کارشناسی</button><div id="msg" class="muted"></div></div>
+</div>
+</main>
+<script>
+const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-EXPERT';
+const parts=['سقف','کاپوت','درب‌ها','گلگیرها','سپرها','آینه‌ها','چراغ‌ها','صندوق','شاسی','تعلیق','کولر و تهویه','موتور','گیربکس'];
+const opts=['سالم','تعویض','برش و تعویض','صافکاری بدون رنگ','صافکاری نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','ضربه'];
+let current=null,cases=[];
+parts.forEach(function(p,i){let d=document.createElement('div');d.className='defect';d.innerHTML='<b>'+p+'</b><select id="d'+i+'">'+opts.map(function(o){return '<option>'+o+'</option>'}).join('');d.innerHTML+= '</select>';defs.appendChild(d)});
+
+function caseNo(v){const n=Number(v);return Number.isFinite(n)&&n>0?'S'+n:'S—'}
+function esc(v){return String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function vehicle(x){const v=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0];return v||{}}
+function renderCases(){
+ const el=document.getElementById('caseList');
+ if(!cases.length){el.innerHTML='<div class="empty">فعلاً پرونده‌ای برای کارشناسی ارجاع نشده است.</div>';return}
+ el.innerHTML=cases.map(x=>{
+   const v=vehicle(x);
+   const status=x.status==='inspection'?'در حال کارشناسی':'ارجاع به کارشناس';
+   return '<div class="case"><div><b>'+esc(caseNo(x.case_number))+'</b><span class="badge">'+status+'</span></div><strong>'+esc(x.customer_name||'نام ثبت نشده')+'</strong><div class="muted">'+esc(x.customer_mobile||'—')+'</div><div class="vehicle">'+esc(x.vehicle_name||[v.brand,v.model,v.trim].filter(Boolean).join(' ')||'خودرو')+'</div><div class="muted">'+(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'')+'</div><button onclick="openCase(\''+esc(x.id)+'\')">ورود به پرونده ←</button></div>';
+ }).join('')
+}
+async function loadCases(){
+ try{document.getElementById('caseList').innerHTML='<div class="muted">در حال دریافت پرونده‌ها...</div>';let r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=list&_='+Date.now(),{cache:'no-store'});let j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');cases=j.cases||[];renderCases()}catch(e){document.getElementById('caseList').innerHTML='<div class="empty">❌ '+esc(e.message)+'</div>'}
+}
+function openCase(id){
+ current=cases.find(x=>x.id===id);if(!current)return;
+ const v=vehicle(current);
+ document.getElementById('selectedCase').textContent=caseNo(current.case_number);
+ document.getElementById('caseInfo').textContent=(current.customer_name||'')+' • '+(current.customer_mobile||'')+' • '+(current.vehicle_name||[v.brand,v.model,v.trim].filter(Boolean).join(' ')||'خودرو');
+ vin.value=v.vin||'';engine.value=v.engine_number||'';plate.value=v.plate_number||'';
+ spare.checked=!!v.spare_key;fuel.checked=!!v.fuel_card;poa.checked=!!v.power_of_attorney;
+ document.getElementById('listCard').style.display='none';document.getElementById('formArea').style.display='block';window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToList(){current=null;document.getElementById('formArea').style.display='none';document.getElementById('listCard').style.display='block';loadCases();window.scrollTo({top:0,behavior:'smooth'})}
 function readFile(f){return new Promise(function(res,rej){let r=new FileReader();r.onload=function(){res(r.result)};r.onerror=rej;r.readAsDataURL(f)})}
-async function saveInspection(){if(!current)return msg.textContent='ابتدا پرونده را دریافت کنید.';if(!vin.value||!engine.value||!plate.value)return msg.textContent='VIN، شماره موتور و پلاک الزامی است.';if(!national.files[0])return msg.textContent='عکس کارت ملی مالک الزامی است.';let defects=[];parts.forEach(function(p,i){let v=document.getElementById('d'+i).value;if(v!=='سالم')defects.push({part:p,defect_type:v})});let b={vin:vin.value,engine_number:engine.value,plate_number:plate.value,spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,defects:defects,national_id_data_url:await readFile(national.files[0])};let r=await fetch(API+'?key='+KEY+'&api=inspect&id='+current.id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});let j=await r.json();msg.textContent=r.ok?'✅ کارشناسی ثبت شد و مدارک ذخیره شدند.':'❌ '+(j.error||'خطا')}
-let p=new URLSearchParams(location.search).get('case');if(p){caseId.value=p;loadCase()}
-</script></body></html>
+async function saveInspection(){
+ if(!current)return msg.textContent='ابتدا یک پرونده را انتخاب کنید.';
+ if(!vin.value||!engine.value||!plate.value)return msg.textContent='VIN، شماره موتور و پلاک الزامی است.';
+ if(!national.files[0])return msg.textContent='عکس کارت ملی مالک الزامی است.';
+ let defects=[];parts.forEach(function(p,i){let v=document.getElementById('d'+i).value;if(v!=='سالم')defects.push({part:p,defect_type:v})});
+ let b={vin:vin.value,engine_number:engine.value,plate_number:plate.value,spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,defects:defects,national_id_data_url:await readFile(national.files[0])};
+ let r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});let j=await r.json();msg.textContent=r.ok?'✅ کارشناسی ثبت شد و پرونده به پایان کارشناسی منتقل شد.':'❌ '+(j.error||'خطا');
+ if(r.ok)setTimeout(backToList,700)
+}
+loadCases();
+</script></body></body></html>
