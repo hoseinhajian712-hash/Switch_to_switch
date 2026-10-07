@@ -13,7 +13,7 @@
 <div class="card"><h3>۶. جمع‌بندی کارشناسی</h3><textarea id="summary" rows="5" placeholder="توضیحات نهایی کارشناس..."></textarea><button class="button" onclick="saveInspection()">ثبت پایان کارشناسی</button><div id="msg" class="msg"></div></div>
 </div></main>
 <script>
-const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-EXPERT';
+const API=SUPABASE_URL+'/functions/v1/switch-to-switch',MEDIA=SUPABASE_URL+'/functions/v1/s2s-media',KEY='S2S-V4-2026-EXPERT';
 const parts=['سقف','کاپوت','درب‌ها','گلگیرها','سپرها','آینه‌ها','چراغ‌ها','صندوق','شاسی','تعلیق','کولر و تهویه','موتور','گیربکس'];
 const opts=['تعویض','برش و تعویض','صافکاری بدون رنگ','صافکاری نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','ضربه'];
 const mainLabels=['نمای جلو','نمای عقب','سمت راننده','سمت شاگرد','داخل کابین','موتور و صندوق'];
@@ -38,7 +38,7 @@ async function saveInspection(){try{if(!current)return msg.textContent='پرون
  const main=[];for(const f of document.querySelectorAll('.mainfile'))for(const file of f.files)main.push({label:f.dataset.label,data_url:await readFile(file)});
  const defs=[];for(const c of document.querySelectorAll('.defect-options input:checked')){const part=parts[Number(c.dataset.part)], photos=[];const input=document.querySelector('.defphoto[data-part="'+c.dataset.part+'"][data-defect="'+CSS.escape(c.value)+'"]');if(input)for(const file of input.files)photos.push({data_url:await readFile(file)});defs.push({area:'بدنه',part,defect_type:c.value,photos})}
  const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:await readFile(national.files[0]),documents:docs,main_photos:main,defects:defs};
- const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');msg.textContent='✅ گزارش کامل کارشناسی، مدارک، عکس‌های اصلی و ایرادات ثبت شد.';setTimeout(backToList,1000)
+ const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');const mr=await fetch(MEDIA+'?key='+encodeURIComponent(KEY)+'&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({documents:docs,main_photos:main,defects:defs})}),mj=await mr.json();if(!mr.ok||mj.error)throw Error(mj.error||'ذخیره تصاویر و ایرادات ناموفق بود');msg.textContent='✅ گزارش کامل کارشناسی، مدارک، عکس‌های اصلی و ایرادات ثبت شد.';setTimeout(backToList,1000)
  }catch(e){msg.textContent='❌ '+e.message}}
 renderDefects();loadCases();
 </script></body></html>
