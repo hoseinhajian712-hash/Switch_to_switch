@@ -83,6 +83,7 @@ const stages=[
  {id:'cancelled',title:'انصراف / عدم توافق',color:'#ef4444'}
 ];
 
+function caseNo(v){const n=Number(v);return Number.isFinite(n)&&n>0?'S'+n:'S—'}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function show(msg,err=false){document.getElementById('message').innerHTML='<div class="notice '+(err?'err':'')+'">'+msg+'</div>'}
 function statusLabel(st){return statusFa[st]||stages.find(s=>s.id===st)?.title||st}
@@ -111,14 +112,14 @@ function updateStats(){
  document.getElementById('done').textContent=rows.filter(x=>x.status==='done').length;
 }
 function matches(x,q){
- const hay=[x.case_number,x.customer_name,x.customer_mobile,x.service_type,x.vehicle_name,x.brand,x.model].join(' ').toLowerCase();
+ const hay=[caseNo(x.case_number),x.customer_name,x.customer_mobile,x.service_type,x.vehicle_name,x.brand,x.model].join(' ').toLowerCase();
  return !q||hay.includes(q);
 }
 function card(x){
  const st=x.status||'new',ins=x.inspection,vehicle=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0],hasReport=!!ins;
  const opts=stages.map(z=>'<option value="'+z.id+'" '+(z.id===st?'selected':'')+'>'+z.title+'</option>').join('');
  return '<article class="row">'+
- '<div class="cell"><small>پرونده</small><b>#'+esc(x.case_number||'—')+'</b></div>'+
+ '<div class="cell"><small>پرونده</small><b>#'+esc(caseNo(x.case_number))+'</b></div>'+
  '<div class="cell"><small>مشتری</small><b>'+esc(x.customer_name||'نام ثبت نشده')+'</b><div class="sub">'+esc(x.customer_mobile||'—')+'</div></div>'+
  '<div class="cell"><small>خودرو</small><div class="vehicle-main">'+esc(x.vehicle_name||[vehicle?.brand,vehicle?.model,vehicle?.trim].filter(Boolean).join(' ')||'اطلاعات خودرو')+'</div><div class="sub">'+esc(vehicle?.model_year||'')+(vehicle?.mileage?' · '+Number(vehicle.mileage).toLocaleString('fa-IR')+' km':'')+'</div></div>'+
  '<div class="cell"><small>تاریخ ثبت</small>'+esc(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'—')+'<div class="sub">'+esc(x.service_type||'')+'</div></div>'+
@@ -151,7 +152,7 @@ async function continueSelling(id){try{await postApi('continue-selling',id);awai
 function openReport(id){
  const x=rows.find(r=>r.id===id);if(!x)return;
  const ins=x.inspection||{},v=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0],defs=x.defects||[],docs=x.documents||[],photos=x.photos||[];
- document.getElementById('modalTitle').textContent='گزارش کارشناسی • پرونده #'+(x.case_number||'—');
+ document.getElementById('modalTitle').textContent='گزارش کارشناسی • پرونده '+caseNo(x.case_number);
  document.getElementById('modalBody').innerHTML=
  '<div class="report-box" style="margin-top:14px"><div class="report-title">خلاصه کارشناسی</div><div class="report-row">'+esc(ins.summary||'بدون خلاصه ثبت‌شده')+'</div></div>'+
  '<div class="report-box"><div class="report-title">مشخصات خودرو</div><div class="report-row">VIN: <b>'+esc(v?.vin||'—')+'</b> · شماره موتور: <b>'+esc(v?.engine_number||'—')+'</b> · پلاک: <b>'+esc(v?.plate_number||'—')+'</b></div></div>'+
