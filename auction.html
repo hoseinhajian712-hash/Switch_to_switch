@@ -17,8 +17,8 @@ h1{font-size:20px;margin:0 0 5px}.sub{color:var(--muted);font-size:12px}.live{di
 @media(max-width:900px){.grid{grid-template-columns:1fr}.photos{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.wrap{padding:10px}.top{padding:17px}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}.form{grid-template-columns:1fr 1fr}.form .btn{grid-column:1/-1}.photos{grid-template-columns:repeat(2,1fr)}}
 .ready-panel{margin:15px 0;background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #2b4059;border-radius:20px;padding:16px}.ready-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.ready-title{font-size:14px;font-weight:900}.ready-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.ready-card{background:#081522;border:1px solid #203851;border-radius:14px;padding:13px}.ready-card b{font-size:13px}.ready-meta{color:#8fa4bd;font-size:10px;line-height:1.9;margin:6px 0}.manager{display:flex;gap:7px;flex-wrap:wrap}.ready-empty{color:#7188a1;font-size:11px;padding:14px;text-align:center;border:1px dashed #263e58;border-radius:12px;grid-column:1/-1}.btn.blue{background:#2563eb}.btn.orange{background:#b45309}@media(max-width:700px){.ready-list{grid-template-columns:1fr}}</style></head>
 <body><main class="wrap">
-<header class="top"><div class="brand"><div class="logo">S2S</div><div><h1>🔨 مزایده خودرو</h1><div class="sub">خودروهای کارشناسی‌شده • گزارش کامل • پیشنهاد قیمت لحظه‌ای</div></div></div><div class="live"><i></i> مزایده زنده</div></header>
-<div id="message" class="message"></div><section class="ready-panel"><div class="ready-head"><div><div class="ready-title">🚘 خودروهای آماده مزایده</div><div class="sub">پرونده‌های پایان کارشناسی که هنوز مزایده فعال ندارند</div></div><button class="btn blue" onclick="loadReady()">🔄 بروزرسانی</button></div></div><div id="readyList" class="ready-list"><div class="ready-empty">برای نمایش خودروهای آماده، کلید مدیریت را وارد کنید.</div></div></section>
+<header class="top"><div class="brand"><div class="logo">S2S</div><div><h1>🔨 مزایده خودرو</h1><div class="sub">خودروهای کارشناسی‌شده • مزایده خصوصی • اشتراک اعضا • پیشنهاد قیمت لحظه‌ای</div></div></div><div class="live"><i></i> مزایده زنده</div></header>
+<div id="message" class="message"></div><div id="gate" class="notice">در حال بررسی دسترسی...</div>
 <section class="stats"><div class="stat"><small>مزایده‌های فعال</small><b id="active">0</b></div><div class="stat"><small>پیشنهادهای ثبت‌شده</small><b id="bidCount">0</b></div><div class="stat"><small>وضعیت</small><b>LIVE</b></div></section>
 <section id="list" class="auctions"><div class="empty">در حال دریافت مزایده‌های فعال...</div></section>
 </main>
@@ -37,7 +37,7 @@ function auctionCard(a){
  return '<article class="auction"><div class="head"><div><div class="case">پرونده #'+esc(a.case?.case_number||'—')+'</div><div class="vehicle">'+esc(vehicle)+'</div><div class="meta">مدل '+esc(v.model_year||'—')+' · رنگ '+esc(v.color||'—')+' · کارکرد '+(v.mileage?money(v.mileage):'—')+' کیلومتر</div></div><span class="badge">● مزایده فعال</span></div>'+
  '<div class="pricebox"><div class="current"><small>بالاترین قیمت فعلی</small><div class="price">'+money(a.current_bid||a.starting_price)+' تومان</div></div><div class="current"><small>پایان مزایده</small><div class="end">'+fmtTime(a.ends_at)+'</div><div class="meta">قیمت شروع: '+money(a.starting_price)+' تومان</div></div></div>'+
  '<div class="grid"><div>'+
- '<div class="box"><div class="box-title">📋 گزارش کارشناسی</div><div class="report">'+esc(i.summary||'گزارش کارشناسی ثبت شده است.')+'<br>VIN: <b>'+esc(v.vin||'—')+'</b><br>شماره موتور: <b>'+esc(v.engine_number||'—')+'</b><br>پلاک: <b>'+esc(v.plate_number||'—')+'</b></div></div>'+
+ '<div class="box"><div class="box-title">📋 گزارش کارشناسی</div><div class="report">'+esc(i.summary||'گزارش کارشناسی ثبت شده است.')+'<br>شناسه فنی خودرو در این صفحه نمایش داده نمی‌شود.</div></div>'+
  '<div class="box" style="margin-top:10px"><div class="box-title">📷 تصاویر خودرو و کارشناسی</div><div class="photos">'+(photos.length?photos.map(p=>'<a href="'+esc(p.url||'#')+'" target="_blank"><img src="'+esc(p.url||'')+'" alt="'+esc(p.label||'تصویر')+'"></a>').join(''):'<div class="empty">تصویری ثبت نشده</div>')+'</div></div>'+
  '<div class="box" style="margin-top:10px"><div class="box-title">🔎 ایرادات ثبت‌شده</div>'+(a.defects?.length?a.defects.map(d=>'<div class="defect"><b>'+esc(d.part)+'</b> — '+esc(d.defect_type)+(d.explanation?' — '+esc(d.explanation):'')+'</div>').join(''):'<div class="report">ایراد ثبت‌شده‌ای وجود ندارد.</div>')+'</div>'+
  '</div><div>'+
@@ -46,13 +46,13 @@ function auctionCard(a){
  '</div></div></article>';
 }
 async function loadReady(){try{var j=await api("api=public-ready-auctions");var rows=j.cases||[];document.getElementById("readyList").innerHTML=rows.length?rows.map(readyCard).join(""):"<div class=\"ready-empty\">خودروی آماده مزایده‌ای وجود ندارد.</div>"}catch(e){document.getElementById("readyList").innerHTML="<div class=\"ready-empty\">❌ "+esc(e.message)+"</div>";show("❌ "+e.message,true)}}function readyCard(x){var v=x.vehicle||{};var name=[v.brand,v.model,v.trim].filter(Boolean).join(" ")||"خودرو";return "<article class=\"ready-card\"><b>"+esc(name)+"</b><div class=\"ready-meta\">پرونده #"+esc(x.case_number||"—")+" · مدل "+esc(v.model_year||"—")+" · کارکرد "+(v.mileage?money(v.mileage):"—")+" کیلومتر</div><div class=\"meta\">آماده انتقال توسط مدیریت</div></article>"}async function load(){
- try{const j=await api('api=public-auctions');const as=j.auctions||[];$('active').textContent=as.length;$('bidCount').textContent=as.reduce((n,a)=>n+(a.bids||[]).length,0);$('list').innerHTML=as.length?as.map(auctionCard).join(''):'<div class="empty">در حال حاضر مزایده فعالی وجود ندارد.</div>'}
- catch(e){show('❌ '+e.message,true)}
+ try{const t=localStorage.getItem('s2s_auction_token');if(!t){location.href='auction-access.html';return}const j=await api('api=public-auctions&token='+encodeURIComponent(t));$('gate').textContent='✅ دسترسی فعال است';const as=j.auctions||[];$('active').textContent=as.length;$('bidCount').textContent=as.reduce((n,a)=>n+(a.bids||[]).length,0);$('list').innerHTML=as.length?as.map(auctionCard).join(''):'<div class="empty">در حال حاضر مزایده فعالی وجود ندارد.</div>'}
+ catch(e){if(e.message==='auction_login_required'){localStorage.removeItem('s2s_auction_token');location.href='auction-access.html';return}show('❌ '+e.message,true)}
 }
 async function bid(id){
- const name=$('name-'+id).value.trim(),mobile=$('mobile-'+id).value.trim(),amount=Number(($('amount-'+id).value||'').replace(/[,٬\s]/g,''));
- const box=$('bidmsg-'+id); if(!name||!mobile||!amount){box.textContent='نام، موبایل و مبلغ پیشنهاد را کامل کنید.';return}
- try{box.textContent='در حال ثبت پیشنهاد...';await api('api=place-bid&id='+encodeURIComponent(id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({bidder_name:name,bidder_mobile:mobile,amount})});show('✅ پیشنهاد شما با موفقیت ثبت شد.');await load()}catch(e){box.textContent='❌ '+e.message}
-}
+ const amount=Number(($('amount-'+id).value||'').replace(/[,٬\s]/g,'')),box=$('bidmsg-'+id),t=localStorage.getItem('s2s_auction_token');
+ if(!amount){box.textContent='مبلغ پیشنهاد را وارد کنید.';return}
+ try{box.textContent='در حال ثبت پیشنهاد...';await api('api=place-bid&id='+encodeURIComponent(id)+'&token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+t},body:JSON.stringify({amount})});show('✅ پیشنهاد شما با موفقیت ثبت شد.');await load()}catch(e){if(e.message==='auction_login_required'){localStorage.removeItem('s2s_auction_token');location.href='auction-access.html'}else box.textContent='❌ '+e.message}}
+
 load();setInterval(load,3000);
 </script></body></html>
