@@ -51,6 +51,8 @@ input,select{background:#081321;color:#eaf2ff;border:1px solid #243a55;border-ra
  <div class="stat"><small>تکمیل معامله</small><b id="done">0</b></div>
 </section>
 
+<section id="auctionCodes" class="report-box" style="margin:0 0 14px"><div class="report-title">🔐 کدهای ورود مزایده</div><div id="auctionCodesBody" class="report-row">در حال دریافت...</div></section>
+
 <div class="toolbar">
  <input id="q" placeholder="جستجو کد پرونده، نام، موبایل یا خودرو..." oninput="render()">
  <select id="filter" onchange="render()"><option value="">همه وضعیت‌ها</option></select>
@@ -99,6 +101,15 @@ async function load(){
  }catch(e){show('❌ '+e.message,true);document.getElementById('board').innerHTML='<div class="empty">پرونده‌ها قابل دریافت نیستند. دوباره بروزرسانی کنید.</div>'}
 }
 
+async function loadAuctionCodes(){
+ try{
+  const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=auction-login-codes&_='+Date.now(),{cache:'no-store'});
+  const j=await r.json();
+  if(!r.ok||j.error)throw new Error(j.error||'خطا');
+  const list=Array.isArray(j.codes)?j.codes:[];
+  document.getElementById('auctionCodesBody').innerHTML=list.length?list.map(x=>'<div class="report-box" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px"><div><b>'+esc(x.mobile)+'</b><div class="sub">'+esc(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'')+'</div></div><div style="font-size:22px;font-weight:900;letter-spacing:4px;color:#60a5fa">'+esc(x.display_code||'—')+'</div></div>').join(''):'<span class="sub">کد فعال و تأییدنشده‌ای وجود ندارد.</span>';
+ }catch(e){document.getElementById('auctionCodesBody').innerHTML='<span class="sub">کدهای ورود قابل دریافت نیستند.</span>'}
+}
 function buildFilter(){
  const s=document.getElementById('filter'),old=s.value;
  s.innerHTML='<option value="">همه وضعیت‌ها</option>'+stages.map(x=>'<option value="'+x.id+'">'+x.title+'</option>').join('');
@@ -216,7 +227,7 @@ function openReport(id){
  document.getElementById('modalBack').style.display='flex';
 }
 function closeReport(){document.getElementById('modalBack').style.display='none'}
-load();setInterval(load,15000);
+load();loadAuctionCodes();setInterval(load,15000);setInterval(loadAuctionCodes,5000);
 </script>
 </body>
 </html>
