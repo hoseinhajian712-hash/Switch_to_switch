@@ -36,7 +36,7 @@ input:focus,select:focus,textarea:focus{border-color:#3b82f6}
 .preview{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
 .preview img{width:100%;height:80px;object-fit:cover;border-radius:8px;border:1px solid #203851}
 .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.check{padding:12px;background:#081522;border:1px solid #203851;border-radius:12px}.check input{width:auto;margin-left:7px}
-.defect-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}
+.defect-search{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px;background:#081522;border:1px solid #203851;border-radius:13px}.defect-search input{flex:1;margin:0}.defect-search .search-count{font-size:10px;color:#8fa4bd;white-space:nowrap}.defect-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}.defect-card.is-hidden{display:none}
 .defect-card{background:#081522;border:1px solid #203851;border-radius:14px;overflow:hidden}
 .defect-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 13px}
 .defect-head b{font-size:12px}.mini{font-size:9px;color:#7188a1}
@@ -153,7 +153,29 @@ function renderMainPhotos(){
  mainPhotos.innerHTML=mainShots.map((s,i)=>{const id='maincam_'+i;return '<div class="photo-box"><strong>'+s[1]+'</strong><small>'+s[2]+'</small><input id="'+id+'" class="mainfile" data-label="'+esc(s[1])+'" type="file" accept="image/*" capture="environment" multiple><label class="camera-btn" for="'+id+'">انتخاب تصویر</label><span class="file-name" id="mainname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="mp'+i+'"></div></div>'}).join('');
  document.querySelectorAll('.mainfile').forEach((f,i)=>f.onchange=()=>{document.getElementById('mainname'+i).textContent=f.files.length?(f.files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';previewFiles(f,document.getElementById('mp'+i))});
 }
-function renderDefects(){defects.innerHTML=parts.map((p,i)=>'<div class="defect-card"><div class="defect-head"><b>'+p+'</b><span class="mini">هر ایراد جداگانه</span></div><div class="defect-options">'+opts.map(o=>'<label class="pill"><input type="checkbox" data-part="'+i+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer"><b>📷 عکس '+esc(o)+'</b><input id="defcam_'+i+'_'+opts.indexOf(o)+'" class="defphoto" data-part="'+i+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><label class="camera-btn" for="defcam_'+i+'_'+opts.indexOf(o)+'">انتخاب تصویر</label><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><textarea class="defnote" data-part="'+i+'" data-defect="'+esc(o)+'" rows="3" placeholder="توضیحات ایراد..."></textarea><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">✏️ قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">✓ ثبت علامت</button></div></div></div></label>').join('')+'</div></div>').join('');document.querySelectorAll('.defect-options input').forEach(c=>c.onchange=toggleDefectDrawer)}
+function renderDefects(){
+ const searchWrap='<div class="defect-search"><input id="defectSearch" type="search" placeholder="جست‌وجوی قطعه؛ مثلاً «درب»، «گلگیر»، «رکاب»..."><span class="search-count" id="defectCount"></span></div>';
+ defects.innerHTML=searchWrap+parts.map((p,i)=>{
+   const searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست'));
+   return '<div class="defect-card" data-part-search="'+searchable+'"><div class="defect-head"><b>'+p+'</b><span class="mini">هر ایراد جداگانه</span></div><div class="defect-options">'+opts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+i+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+i+'_'+oi+'"><b>عکس '+esc(o)+'</b><input id="defcam_'+i+'_'+oi+'" class="defphoto" data-part="'+i+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><label class="camera-btn" for="defcam_'+i+'_'+oi+'">انتخاب تصویر</label><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><textarea class="defnote" data-part="'+i+'" data-defect="'+esc(o)+'" rows="3" placeholder="توضیحات ایراد..."></textarea><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div>'
+ }).join('');
+ document.querySelectorAll('.defect-options input').forEach(c=>c.onchange=toggleDefectDrawer);
+ const search=document.getElementById('defectSearch');
+ search.oninput=filterDefects;
+ filterDefects();
+}
+function filterDefects(){
+ const raw=(document.getElementById('defectSearch')?.value||'').trim().toLowerCase(); const q=raw.replaceAll('راننده','چپ').replaceAll('شاگرد','راست');
+ const cards=[...document.querySelectorAll('.defect-card')];
+ let visible=0;
+ cards.forEach(card=>{
+   const ok=!q||(card.dataset.partSearch||'').toLowerCase().includes(q);
+   card.classList.toggle('is-hidden',!ok);
+   if(ok)visible++;
+ });
+ const count=document.getElementById('defectCount');
+ if(count)count.textContent=visible+' قطعه';
+}
 function toggleDefectDrawer(e){const c=e.target,p=c.closest('.pill');p.classList.toggle('open',c.checked);if(c.checked){const i=p.querySelector('.defphoto');i.onchange=()=>previewDef(i);setTimeout(()=>i.focus(),50)}else{const i=p.querySelector('.defphoto');if(i)i.value='';const pv=p.querySelector('.drawer-preview');if(pv)pv.innerHTML='';const n=p.querySelector('.defnote');if(n)n.value='';}}
 function previewDef(input){const box=input.closest('.inline-drawer').querySelector('.drawer-preview');box.innerHTML='';const name=input.closest('.inline-drawer').querySelector('.file-name');if(name)name.textContent=input.files.length?(input.files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';[...input.files].forEach(f=>{const im=document.createElement('img');im.src=URL.createObjectURL(f);box.appendChild(im)});if(input.files[0]){const drawer=input.closest('.inline-drawer'),can=drawer.querySelector('canvas'),ctx=can.getContext('2d'),im=new Image();im.onload=()=>{ctx.clearRect(0,0,can.width,can.height);ctx.drawImage(im,0,0,can.width,can.height)};im.src=URL.createObjectURL(input.files[0])}}
 function enableDraw(btn){const can=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=can.getContext('2d');ctx.lineWidth=5;ctx.lineCap='round';ctx.strokeStyle='#ef4444';let drawing=false;const pos=e=>{const r=can.getBoundingClientRect();return{x:(e.clientX-r.left)*can.width/r.width,y:(e.clientY-r.top)*can.height/r.height}};can.onpointerdown=e=>{e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};can.onpointermove=e=>{if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};can.onpointerup=()=>drawing=false;can.onpointerleave=()=>drawing=false;btn.textContent='✏️ قلم فعال است'}
