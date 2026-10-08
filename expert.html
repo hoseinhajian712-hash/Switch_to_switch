@@ -229,7 +229,7 @@ function clearDraw(btn){const c=btn.closest('.canvas-wrap').querySelector('canva
 function markSaved(btn){btn.textContent='✓ علامت ثبت شد'}
 function setupAccordions(){document.querySelectorAll('#formArea>.card').forEach((card,i)=>{if(i===0)return;const title=card.querySelector('.section-title');if(!title)return;const body=document.createElement('div');body.className='collapse-body';while(title.nextSibling)body.appendChild(title.nextSibling);card.appendChild(body);const arrow=document.createElement('span');arrow.className='collapse-arrow';arrow.textContent='⌃';title.appendChild(arrow);card.classList.add('collapse-card');title.onclick=()=>card.classList.toggle('closed')})}
 async function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
-async function fileObj(input,type){if(!input.files[0])return null;return {type,data_url:await readFile(input.files[0])}}
+async async function fileObj(input,type){if(!input||!input.files[0])return null;return {type,data_url:await readFile(input.files[0])}}
 function bindCaseButtons(){document.querySelectorAll('.case-open-btn').forEach(btn=>{btn.addEventListener('click',()=>{const id=btn.getAttribute('data-case-id');if(id)openCase(id)})})}
 async function loadCases(){
  try{caseList.innerHTML='<div class="sub">در حال دریافت پرونده‌ها...</div>';
