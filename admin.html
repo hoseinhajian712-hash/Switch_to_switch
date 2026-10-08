@@ -135,7 +135,17 @@ function render(){
 }
 async function referToExpert(id){try{show('در حال ارجاع پرونده به کارشناس...');const r=await postApi('set-status',id,{status:'refer',note:'ارجاع پرونده توسط مدیر به کارشناس'});if(!r||r.status!=='refer')throw new Error('ارجاع پرونده انجام نشد');const row=rows.find(x=>x.id===id);if(row)row.status='refer';render();show('✅ پرونده با موفقیت به کارشناس ارجاع شد.');setTimeout(load,300)}catch(e){show('❌ '+e.message,true)}}
 async function changeStatus(id,status){
- try{show('در حال تغییر وضعیت...');await postApi('set-status',id,{status});await load()}catch(e){show('❌ '+e.message,true)}
+ try{
+  if(status==='auction'){
+   const row=rows.find(x=>x.id===id);
+   if(row?.auction?.status==='active'){show('ℹ️ این پرونده همین حالا مزایده فعال دارد.');return}
+   await createAuctionFromAdmin(id);
+   return;
+  }
+  show('در حال تغییر وضعیت...');
+  await postApi('set-status',id,{status});
+  await load();
+ }catch(e){show('❌ '+e.message,true)}
 }
 async function createAuctionFromAdmin(id){
  const row=rows.find(x=>x.id===id); if(!row)return;
