@@ -133,7 +133,7 @@ function render(){
  const filtered=rows.filter(x=>(!f||(x.status||'new')===f)&&matches(x,q));
  document.getElementById('board').innerHTML='<div class="table-head"><div>پرونده</div><div>مشتری</div><div>خودرو</div><div>ثبت درخواست</div><div>وضعیت</div><div>کارشناسی</div><div>عملیات</div></div><div class="cards">'+(filtered.length?filtered.map(card).join(''):'<div class="empty">پرونده‌ای پیدا نشد</div>')+'</div>';
 }
-async function referToExpert(id){if(!confirm('این پرونده برای کارشناسی ارجاع شود؟'))return;try{show('در حال ارجاع پرونده به کارشناس...');await postApi('set-status',id,{status:'refer',note:'ارجاع پرونده توسط مدیر به کارشناس'});await load()}catch(e){show('❌ '+e.message,true)}}
+async function referToExpert(id){try{show('در حال ارجاع پرونده به کارشناس...');const r=await postApi('set-status',id,{status:'refer',note:'ارجاع پرونده توسط مدیر به کارشناس'});if(!r||r.status!=='refer')throw new Error('ارجاع پرونده انجام نشد');const row=rows.find(x=>x.id===id);if(row)row.status='refer';render();show('✅ پرونده با موفقیت به کارشناس ارجاع شد.');setTimeout(load,300)}catch(e){show('❌ '+e.message,true)}}
 async function changeStatus(id,status){
  try{show('در حال تغییر وضعیت...');await postApi('set-status',id,{status});await load()}catch(e){show('❌ '+e.message,true)}
 }
