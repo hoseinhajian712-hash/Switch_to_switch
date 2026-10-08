@@ -118,6 +118,7 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
   <textarea id="summary" rows="5" style="width:100%;margin-top:10px" placeholder="توضیحات نهایی کارشناس..."></textarea>
   <div id="msg" class="msg"></div>
  </div>
+ <div id="finishAction" class="card" style="margin-top:18px;padding:0;overflow:hidden"><button type="button" onclick="saveInspection()" style="width:100%;border:0;border-radius:0;padding:20px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font:inherit;font-size:15px;font-weight:900;cursor:pointer">✓ پایان کارشناسی و ثبت نهایی گزارش</button></div>
  </div></main>
 <script>
 const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-EXPERT',CASE_STORAGE='s2s_expert_active_case';
