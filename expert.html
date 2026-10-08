@@ -259,7 +259,7 @@ async function saveInspection(){
   }
   const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:await readFile(national.files[0]),documents:docs,main_photos:main,defects:defs};
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');
-  msg.textContent='✅ گزارش کامل کارشناسی، مدارک، عکس‌های اصلی و ایرادات ثبت شد.';localStorage.removeItem(CASE_STORAGE);setTimeout(()=>{history.pushState({},'','expert.html');current=null;renderRoute();loadCases()},700)
+  msg.textContent='✅ گزارش کامل کارشناسی ثبت شد. در حال انتقال به پنل مدیریت...';localStorage.removeItem(CASE_STORAGE);setTimeout(()=>{window.location.href='admin.html'},500)
  }catch(e){msg.textContent='❌ '+e.message}
 }
 renderDocs();renderMainPhotos();renderDefects();setupAccordions();document.querySelectorAll('#formArea>.collapse-card').forEach((x,i)=>{if(i>0)x.classList.add('closed')});
