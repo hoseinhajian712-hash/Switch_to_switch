@@ -125,7 +125,7 @@ function card(x){
  '<div class="cell"><small>تاریخ ثبت</small>'+esc(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'—')+'<div class="sub">'+esc(x.service_type||'')+'</div></div>'+
  '<div class="cell"><small>وضعیت پرونده</small><select class="status-select" onchange="changeStatus(\''+esc(x.id)+'\',this.value)">'+opts+'</select></div>'+
  '<div class="cell"><small>گزارش کارشناسی</small>'+(hasReport?'<button class="btn purple" onclick="openReport(\''+esc(x.id)+'\')">📋 مشاهده گزارش</button>':'<span class="sub">هنوز ثبت نشده</span>')+(x.auction?'<div class="sub" style="margin-top:6px">🔨 '+(x.auction.status==='active'?'فعال':'پایان‌یافته')+' · پایان: '+new Date(x.auction.ends_at).toLocaleString('fa-IR')+'</div>':'')+'</div>'+
- '<div class="row-actions">'+(st==='new'?'<button class="btn purple" onclick="referToExpert(\''+esc(x.id)+'\')">👨‍🔧 ارجاع به کارشناس</button>':'')+((st==='review'||(st==='auction'&&!x.auction))?'<button class="btn green" onclick="createAuctionFromAdmin(\''+esc(x.id)+'\')">'+(st==='auction'?'🔨 ساخت مزایده برای این پرونده':'🔨 انتقال به مزایده')+'</button>':'')+(st==='auction'&&x.auction?.status==='active'?'<a class="btn secondary" href="auction.html" target="_blank">👁 اتاق مزایده</a>':'')+'<button class="btn secondary" onclick="openCase(\''+esc(x.id)+'\')">جزئیات</button>'+(st==='customer'?'<button class="btn green" onclick="customerDecision(\''+esc(x.id)+'\',true)">موافقت</button><button class="btn red" onclick="customerDecision(\''+esc(x.id)+'\',false)">عدم توافق</button>':'')+(st==='deposit'?'<button class="btn green" onclick="receivePrepayment(\''+esc(x.id)+'\')">ثبت پیش‌پرداخت</button>':'')+(st==='disagreement'?'<button class="btn" onclick="continueSelling(\''+esc(x.id)+'\')">ادامه فروش</button>':'')+'</div>'+
+ '<div class="row-actions">'+(st==='new'?'<button class="btn purple" onclick="referToExpert(\''+esc(x.id)+'\')">👨‍🔧 ارجاع به کارشناس</button>':'')+((st==='review'||(st==='auction'&&!x.auction))?'<button class="btn green" onclick="createAuctionFromAdmin(\''+esc(x.id)+'\')">'+(st==='auction'?'🔨 ساخت مزایده برای این پرونده':'🔨 انتقال به مزایده')+'</button>':'')+(st==='auction'&&x.auction?.status==='active'?'<button class="btn purple" onclick="changeAuctionTime(\''+esc(x.auction.id)+'\')">⏱ تنظیم زمان</button><a class="btn secondary" href="auction.html" target="_blank">👁 اتاق مزایده</a>':'')+'<button class="btn secondary" onclick="openCase(\''+esc(x.id)+'\')">جزئیات</button>'+(st==='customer'?'<button class="btn green" onclick="customerDecision(\''+esc(x.id)+'\',true)">موافقت</button><button class="btn red" onclick="customerDecision(\''+esc(x.id)+'\',false)">عدم توافق</button>':'')+(st==='deposit'?'<button class="btn green" onclick="receivePrepayment(\''+esc(x.id)+'\')">ثبت پیش‌پرداخت</button>':'')+(st==='disagreement'?'<button class="btn" onclick="continueSelling(\''+esc(x.id)+'\')">ادامه فروش</button>':'')+'</div>'+
  '</article>';
 }
 function render(){
@@ -173,6 +173,19 @@ async function createAuctionFromAdmin(id){
   if(!r||!r.ok)throw new Error(r?.error||'ایجاد مزایده انجام نشد');
   await load();
   show('✅ پرونده با موفقیت از «پایان کارشناسی» به «مزایده فعال» منتقل شد.');
+ }catch(e){show('❌ '+e.message,true)}
+}
+async function changeAuctionTime(auctionId){
+ const mins=prompt('مزایده چند دقیقه دیگر ادامه داشته باشد؟','60');
+ if(!mins)return;
+ const n=Number(String(mins).replace(/[,٬\s]/g,''));
+ if(!Number.isFinite(n)||n<=0){show('❌ مدت زمان نامعتبر است.',true);return}
+ try{
+  show('⏱ در حال تنظیم زمان مزایده...');
+  const r=await postApi('update_auction_time',auctionId,{minutes:n});
+  if(!r||!r.ok)throw new Error(r?.error||'تنظیم زمان انجام نشد');
+  await load();
+  show('✅ زمان مزایده تا '+new Date(r.ends_at).toLocaleString('fa-IR')+' تنظیم شد.');
  }catch(e){show('❌ '+e.message,true)}
 }
 function openCase(id){openReport(id)}
