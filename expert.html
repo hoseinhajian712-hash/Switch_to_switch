@@ -36,7 +36,7 @@ input:focus,select:focus,textarea:focus{border-color:#3b82f6}
 .preview{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
 .preview img{width:100%;height:80px;object-fit:cover;border-radius:8px;border:1px solid #203851}
 .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.check{padding:12px;background:#081522;border:1px solid #203851;border-radius:12px}.check input{width:auto;margin-left:7px}
-.defect-search{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px;background:#081522;border:1px solid #203851;border-radius:13px}.defect-search input{flex:1;margin:0}.defect-search .search-count{font-size:10px;color:#8fa4bd;white-space:nowrap}.defect-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}.defect-card.is-hidden{display:none}
+.defect-search{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px;background:#081522;border:1px solid #203851;border-radius:13px}.defect-search input{flex:1;margin:0}.defect-search .search-count{font-size:10px;color:#8fa4bd;white-space:nowrap}.defect-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}.defect-group{margin-top:16px;background:#091725;border:1px solid #203851;border-radius:17px;padding:12px}.group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 8px 13px;border-bottom:1px solid #1b3046;margin-bottom:2px}.group-head h4{margin:0;font-size:14px}.group-head span{display:block;color:#7188a1;font-size:9px;margin-top:5px}.group-head b{font-size:9px;padding:6px 9px;border-radius:999px;background:#142d4b;color:#9ec8ff;white-space:nowrap}.defect-card.is-hidden{display:none}
 .defect-card{background:#081522;border:1px solid #203851;border-radius:14px;overflow:hidden}
 .defect-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 13px}
 .defect-head b{font-size:12px}.mini{font-size:9px;color:#7188a1}
@@ -120,16 +120,42 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
 <script>
 const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-EXPERT',CASE_STORAGE='s2s_expert_active_case';
 function keyFor(partIndex,defect){const oi=opts.indexOf(defect);return partIndex+'_'+(oi<0?0:oi)}
-const parts=[
-'درب موتور','گلگیر جلو راننده','درب جلو راننده','درب عقب راننده','گلگیر عقب راننده','درب صندوق','رکاب راننده','ناودانی راننده','کف صندوق',
-'گلگیر عقب شاگرد','درب عقب شاگرد','درب جلو شاگرد','گلگیر جلو شاگرد','رکاب شاگرد','ناودانی شاگرد',
-'سقف','سانروف','شیشه جلو','شیشه عقب','ستون A راننده','ستون B راننده','ستون C راننده','ستون A شاگرد','ستون B شاگرد','ستون C شاگرد',
-'سپر جلو','جلوپنجره','چراغ جلو راننده','چراغ جلو شاگرد','مه‌شکن جلو راننده','مه‌شکن جلو شاگرد',
-'سپر عقب','چراغ عقب راننده','چراغ عقب شاگرد','چراغ ترمز سوم','چراغ پلاک',
-'آینه بغل راننده','آینه بغل شاگرد','دستگیره‌های درب','قاب پلاک','درب باک','گلگیر داخلی / قاب چرخ',
-'کف اتاق','شاسی جلو راننده','شاسی جلو شاگرد','شاسی عقب راننده','شاسی عقب شاگرد','سینی جلو','سینی عقب',
-'کف صندوق','جای زاپاس','دیاق جلو','دیاق عقب','پشت چراغ‌ها','اتصالات و لولاها'
+const defectGroups=[
+ {key:'body',title:'بدنه، شاسی و چرخ‌ها',desc:'بازدید کامل بدنه، ستون‌ها، شاسی، سینی، سقف، سپرها و چرخ‌ها',parts:[
+ 'درب موتور','گلگیر جلو راننده','درب جلو راننده','درب عقب راننده','گلگیر عقب راننده','درب صندوق','رکاب راننده','ناودانی راننده','کف صندوق',
+ 'گلگیر عقب شاگرد','درب عقب شاگرد','درب جلو شاگرد','گلگیر جلو شاگرد','رکاب شاگرد','ناودانی شاگرد','سقف','سانروف','شیشه جلو','شیشه عقب',
+ 'ستون A راننده','ستون B راننده','ستون C راننده','ستون A شاگرد','ستون B شاگرد','ستون C شاگرد','سپر جلو','جلوپنجره','چراغ جلو راننده',
+ 'چراغ جلو شاگرد','مه‌شکن جلو راننده','مه‌شکن جلو شاگرد','سپر عقب','چراغ عقب راننده','چراغ عقب شاگرد','چراغ ترمز سوم','چراغ پلاک',
+ 'آینه بغل راننده','آینه بغل شاگرد','دستگیره‌های درب','قاب پلاک','درب باک','گلگیر داخلی / قاب چرخ','کف اتاق','شاسی جلو راننده',
+ 'شاسی جلو شاگرد','شاسی عقب راننده','شاسی عقب شاگرد','سینی جلو','سینی عقب','جای زاپاس','دیاق جلو','دیاق عقب','پشت چراغ‌ها',
+ 'اتصالات و لولاها','لاستیک جلو راننده','لاستیک جلو شاگرد','لاستیک عقب راننده','لاستیک عقب شاگرد','رینگ‌ها'
+ ]},
+ {key:'climate',title:'تهویه و مطبوع',desc:'سیستم سرمایش، گرمایش و گردش هوای کابین',parts:[
+ 'کمپرسور کولر','کندانسور کولر','رادیاتور بخاری','فن کابین','فن کندانسور','لوله‌های کولر','شلنگ‌های بخاری','گاز کولر','پنل کنترل تهویه',
+ 'دریچه‌های تهویه','موتور دریچه‌ها','سنسور دمای کابین','بخاری','کولر','دمپر و دریچه‌های گردش هوا'
+ ]},
+ {key:'suspension',title:'سیستم تعلیق و فرمان',desc:'تعلیق، کمک‌ها، فنرها، جلوبندی و فرمان',parts:[
+ 'کمک فنر جلو راننده','کمک فنر جلو شاگرد','کمک فنر عقب راننده','کمک فنر عقب شاگرد','فنر جلو راننده','فنر جلو شاگرد',
+ 'فنر عقب راننده','فنر عقب شاگرد','طبق جلو راننده','طبق جلو شاگرد','سیبک‌ها','میل موج‌گیر','بوش‌ها','توپی چرخ','بلبرینگ چرخ',
+ 'میل فرمان','جعبه فرمان','فرمان و غربیلک','پمپ هیدرولیک فرمان','روغن هیدرولیک فرمان'
+ ]},
+ {key:'electrical',title:'برقی و داخلی',desc:'برق خودرو، تجهیزات کابین و امکانات داخلی',parts:[
+ 'باتری','دینام','استارت','فیوزها','جعبه فیوز','سیم‌کشی','ECU','چراغ‌های داخلی','چراغ سقف','شیشه‌بالابر راننده','شیشه‌بالابر شاگرد',
+ 'شیشه‌بالابر عقب راننده','شیشه‌بالابر عقب شاگرد','قفل مرکزی','ریموت و کلید','آینه برقی','صندلی برقی','گرمکن صندلی','سیستم صوتی',
+ 'مانیتور','دوربین عقب','سنسور پارک','کروز کنترل','ایربگ راننده','ایربگ شاگرد','ایربگ‌های جانبی','کمربند ایمنی راننده',
+ 'کمربند ایمنی شاگرد','کمربندهای عقب','سانروف برقی','بوق','برف‌پاک‌کن','شیشه‌شوی','دسته راهنما','کلیدهای روی داشبورد'
+ ]},
+ {key:'engine',title:'موتور و مکانیک',desc:'موتور، گیربکس، روغن‌ها و سیستم‌های مکانیکی',parts:[
+ 'موتور','سرسیلندر','واشر سرسیلندر','تسمه تایم','تسمه‌ها','رادیاتور آب','واترپمپ','ترموستات','فن موتور','باتری موتور',
+ 'انژکتورها','دریچه گاز','توربو','اگزوز','کاتالیزور','گیربکس','کلاچ','دیسک و صفحه','پلوس راننده','پلوس شاگرد','دیفرانسیل',
+ 'روغن موتور','روغن گیربکس','روغن ترمز','ضدیخ و آب رادیاتور','نشتی روغن','نشتی آب'
+ ]},
+ {key:'brakes',title:'ترمز و ایمنی',desc:'ترمز، ABS و تجهیزات ایمنی خودرو',parts:[
+ 'دیسک ترمز جلو راننده','دیسک ترمز جلو شاگرد','دیسک ترمز عقب راننده','دیسک ترمز عقب شاگرد','لنت ترمز جلو','لنت ترمز عقب',
+ 'کالیپر ترمز','پمپ ترمز','بوستر ترمز','ABS','ترمز دستی','لوله‌های ترمز','شیلنگ ترمز'
+ ]}
 ];
+const parts=defectGroups.flatMap(g=>g.parts);
 const opts=['تعویض','برش و تعویض','صافکاری بدون رنگ','صافکاری نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','ضربه'];
 const mainShots=[
  ['front3','نمای جلو سه‌رخ','نمای سه‌رخ کامل از جلوی خودرو'],
@@ -164,25 +190,23 @@ function renderMainPhotos(){
  document.querySelectorAll('.mainfile').forEach((f,i)=>f.onchange=()=>{document.getElementById('mainname'+i).textContent=f.files.length?(f.files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';previewFiles(f,document.getElementById('mp'+i))});
 }
 function renderDefects(){
- const searchWrap='<div class="defect-search"><input id="defectSearch" type="search" placeholder="جست‌وجوی قطعه؛ مثلاً «درب»، «گلگیر»، «رکاب»..."><span class="search-count" id="defectCount"></span></div>';
- defects.innerHTML=searchWrap+parts.map((p,i)=>{
-   const searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست'));
-   return '<div class="defect-card" data-part-search="'+searchable+'"><div class="defect-head"><b>'+p+'</b><span class="mini">هر ایراد جداگانه</span></div><div class="defect-options">'+opts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+i+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+i+'_'+oi+'"><b>عکس '+esc(o)+'</b><input id="defcam_'+i+'_'+oi+'" class="defphoto" data-part="'+i+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><label class="camera-btn" for="defcam_'+i+'_'+oi+'">انتخاب تصویر</label><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><textarea class="defnote" data-part="'+i+'" data-defect="'+esc(o)+'" rows="3" placeholder="توضیحات ایراد..."></textarea><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div>'
- }).join('');
+ const searchWrap='<div class="defect-search"><input id="defectSearch" type="search" placeholder="جست‌وجوی قطعه یا سیستم؛ مثلاً «درب»، «گلگیر»، «کولر»..."><span class="search-count" id="defectCount"></span></div>';
+ const groups=defectGroups.map(g=>'<div class="defect-group" data-group="'+g.key+'"><div class="group-head"><div><h4>'+g.title+'</h4><span>'+g.desc+'</span></div><b>'+g.parts.length+' مورد</b></div><div class="defect-list">'+g.parts.map((p,i)=>{const globalIndex=parts.indexOf(p);const searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست')+' '+g.title+' '+g.desc);return '<div class="defect-card" data-part-search="'+searchable+'" data-area="'+esc(g.title)+'"><div class="defect-head"><b>'+p+'</b><span class="mini">'+g.title+'</span></div><div class="defect-options">'+opts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+globalIndex+'" data-area="'+esc(g.title)+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+globalIndex+'_'+oi+'"><b>عکس '+esc(o)+'</b><input id="defcam_'+globalIndex+'_'+oi+'" class="defphoto" data-part="'+globalIndex+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><label class="camera-btn" for="defcam_'+globalIndex+'_'+oi+'">انتخاب تصویر</label><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><textarea class="defnote" data-part="'+globalIndex+'" data-defect="'+esc(o)+'" rows="3" placeholder="توضیحات ایراد..."></textarea><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div>'}).join('')+'</div></div>').join('');
+ defects.innerHTML=searchWrap+groups;
  document.querySelectorAll('.defect-options input').forEach(c=>c.onchange=toggleDefectDrawer);
- const search=document.getElementById('defectSearch');
- search.oninput=filterDefects;
- filterDefects();
+ const search=document.getElementById('defectSearch'); search.oninput=filterDefects; filterDefects();
 }
 function filterDefects(){
  const raw=(document.getElementById('defectSearch')?.value||'').trim().toLowerCase(); const q=raw.replaceAll('راننده','چپ').replaceAll('شاگرد','راست');
  const cards=[...document.querySelectorAll('.defect-card')];
+ const groups=[...document.querySelectorAll('.defect-group')];
  let visible=0;
  cards.forEach(card=>{
    const ok=!q||(card.dataset.partSearch||'').toLowerCase().includes(q);
    card.classList.toggle('is-hidden',!ok);
    if(ok)visible++;
  });
+ groups.forEach(g=>g.style.display=g.querySelectorAll('.defect-card:not(.is-hidden)').length?'':'none');
  const count=document.getElementById('defectCount');
  if(count)count.textContent=visible+' قطعه';
 }
@@ -216,7 +240,7 @@ async function saveInspection(){
    const input=drawer?.querySelector('.defphoto');if(input)for(const file of input.files)photos.push({data_url:await readFile(file)});
    const note=drawer?.querySelector('.defnote')?.value||'';
    const canvas=drawer?.querySelector('.defcanvas');const annotation=canvas?canvas.toDataURL('image/png'):null;
-   defs.push({area:'بدنه',part,defect_type:defect,explanation:note,annotation,photos})
+   defs.push({area:c.dataset.area||'بدنه، شاسی و چرخ‌ها',part,defect_type:defect,explanation:note,annotation,photos})
   }
   const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:await readFile(national.files[0]),documents:docs,main_photos:main,defects:defs};
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');
