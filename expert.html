@@ -57,12 +57,12 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
 @media(max-width:1050px){.photo-grid{grid-template-columns:repeat(3,1fr)}.case{grid-template-columns:90px 1fr 1fr 150px}.defect-options{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.wrap{padding:10px}.top{align-items:flex-start;flex-direction:column}.grid,.checks{grid-template-columns:1fr 1fr}.photo-grid{grid-template-columns:repeat(2,1fr)}.case{grid-template-columns:1fr 1fr}.case button{grid-column:1/-1}.drawer-grid{grid-template-columns:1fr}.defect-options{grid-template-columns:1fr 1fr}}
 @media(max-width:500px){.grid,.checks,.photo-grid{grid-template-columns:1fr}.case{grid-template-columns:1fr}.defect-options{grid-template-columns:1fr}.drawer-preview{grid-template-columns:repeat(2,1fr)}}
-</style>
+`.session-badge{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:999px;background:#0b2a22;border:1px solid #17634e;color:#6ee7b7;font-size:10px;font-weight:900}.session-badge::first-letter{color:#10b981}.top{position:sticky;top:10px;z-index:20;backdrop-filter:blur(14px)}.case{transition:.18s ease}.case button{min-width:150px}.card{transition:border-color .18s ease}.card:hover{border-color:#29425e}@media(max-width:760px){.top{position:relative;top:0}.top-actions{width:100%}.session-badge{flex:1;justify-content:center}}`</style>
 </head>
 <body><main class="wrap">
 <header class="top">
  <div class="brand"><div class="logo">S2S</div><div><h1>پنل کارشناسی سوییچ به سوییچ</h1><div class="sub">کارشناسی خودرو، ثبت ایرادات و مستندسازی تصویری</div></div></div>
- <div class="top-actions"><a href="https://hoseinhajian712-hash.github.io/Switch_to_switch/" class="btn secondary">صفحه اصلی</a><button class="btn secondary" onclick="loadCases()">↻ بروزرسانی</button></div>
+ <div class="top-actions"><span class="session-badge">● پنل فعال</span><button class="btn secondary" onclick="loadCases()">↻ بروزرسانی پرونده‌ها</button></div>
 </header>
 
 <div id="listCard" class="card">
@@ -83,19 +83,19 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
  </div>
 
  <div class="card">
-  <div class="section-title"<h3>۱. مدارک خودرو</h3><span class="badge">کارت ملی مالک الزامی</span></div>
+  <div class="section-title"><h3>۲. مدارک خودرو</h3><span class="badge">کارت ملی مالک الزامی</span></div>
   <div class="photo-grid" id="docsGrid"></div>
   <div class="notice">📄 مدارک ثبت‌شده داخل گزارش پرونده مدیریت نمایش داده می‌شوند.</div>
  </div>
 
  <div class="card">
-  <div class="section-title"<h3>۳. گالری اصلی خودرو</h3><span class="badge">زاویه‌به‌زاویه</span></div>
+  <div class="section-title"><h3>۳. گالری اصلی خودرو</h3><span class="badge">زاویه‌به‌زاویه</span></div>
   <div class="sub" style="margin-top:5px">هر زاویه را جداگانه ثبت کنید؛ برای هر کادر امکان گرفتن چند عکس وجود دارد.</div>
   <div class="photo-grid" id="mainPhotos"></div>
  </div>
 
  <div class="card">
-  <div class="section-title"<h3>۴. چک‌لیست سریع</h3><span class="badge">تیک بزنید</span></div>
+  <div class="section-title"><h3>۴. چک‌لیست سریع</h3><span class="badge">تیک بزنید</span></div>
   <div class="checks">
    <label class="check"><input id="spare" type="checkbox">سوییچ یدک دارد؟</label>
    <label class="check"><input id="fuel" type="checkbox">کارت سوخت دارد؟</label>
@@ -104,7 +104,7 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
  </div>
 
  <div class="card">
-  <div class="section-title"<h3>۵. ایرادات کارشناسی</h3><span class="badge">چند ایراد برای هر قطعه</span></div>
+  <div class="section-title"><h3>۵. ایرادات کارشناسی</h3><span class="badge">چند ایراد برای هر قطعه</span></div>
   <div class="notice">🔎 هر قطعه را باز کنید و هر تعداد ایراد لازم را تیک بزنید. بعد از انتخاب هر ایراد، کشوی همان ایراد باز می‌شود و می‌توانید <b>تصویر + توضیحات + علامت‌گذاری</b> ثبت کنید.</div>
   <div id="defects" class="defect-list"></div>
  </div>
@@ -118,7 +118,8 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
 </div>
 </main>
 <script>
-const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-EXPERT';
+const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY='S2S-V4-2026-EXPERT',CASE_STORAGE='s2s_expert_active_case';
+function keyFor(partIndex,defect){const oi=opts.indexOf(defect);return partIndex+'_'+(oi<0?0:oi)}
 const parts=[
 'درب موتور','گلگیر جلو راننده','درب جلو راننده','درب عقب راننده','گلگیر عقب راننده','درب صندوق','رکاب راننده','ناودانی راننده','کف صندوق',
 'گلگیر عقب شاگرد','درب عقب شاگرد','درب جلو شاگرد','گلگیر جلو شاگرد','رکاب شاگرد','ناودانی شاگرد',
@@ -199,8 +200,8 @@ async function loadCases(){
  cases=j.cases||[];caseList.innerHTML=cases.length?cases.map(x=>{const v=vehicle(x);return '<div class="case"><div><div class="case-no">'+caseNo(x.case_number)+'</div><div class="meta">'+(x.status==='inspection'?'در حال کارشناسی':'ارجاع به کارشناس')+'</div></div><div><div class="customer">'+esc(x.customer_name||'نام ثبت نشده')+'</div><div class="meta">اطلاعات تماس مشتری برای کارشناس نمایش داده نمی‌شود</div></div><div><div class="customer">'+esc(x.vehicle_name||[v.brand,v.model,v.trim].filter(Boolean).join(' ')||'خودرو')+'</div><div class="meta">پرونده آماده ثبت گزارش کارشناسی</div></div><button class="btn" onclick="openCase(\''+x.id+'\')">ورود به پرونده ←</button></div>'}).join(''):'<div class="sub">فعلاً پرونده‌ای ارجاع نشده است.</div>'
  }catch(e){caseList.innerHTML='<div class="notice">❌ '+esc(e.message)+'</div>'}
 }
-function openCase(id){current=cases.find(x=>x.id===id);if(!current)return;const v=vehicle(current);selectedCase.textContent=caseNo(current.case_number);caseInfo.textContent=(current.customer_name||'')+' • اطلاعات تماس مشتری محرمانه است';vin.value=v.vin||'';engine.value=v.engine_number||'';plate.value=v.plate_number||'';spare.checked=!!v.spare_key;fuel.checked=!!v.fuel_card;poa.checked=!!v.power_of_attorney;listCard.classList.add('hidden');formArea.classList.remove('hidden');scrollTo(0,0)}
-function backToList(){current=null;formArea.classList.add('hidden');listCard.classList.remove('hidden');loadCases();scrollTo(0,0)}
+function openCase(id){current=cases.find(x=>x.id===id);if(!current)return;localStorage.setItem(CASE_STORAGE,id);const v=vehicle(current);selectedCase.textContent=caseNo(current.case_number);caseInfo.textContent=(current.customer_name||'')+' • اطلاعات تماس مشتری محرمانه است';vin.value=v.vin||'';engine.value=v.engine_number||'';plate.value=v.plate_number||'';spare.checked=!!v.spare_key;fuel.checked=!!v.fuel_card;poa.checked=!!v.power_of_attorney;listCard.classList.add('hidden');formArea.classList.remove('hidden');scrollTo(0,0)}
+function backToList(){current=null;localStorage.removeItem(CASE_STORAGE);formArea.classList.add('hidden');listCard.classList.remove('hidden');loadCases();scrollTo(0,0)}
 async function saveInspection(){
  try{
   if(!current)return msg.textContent='پرونده را انتخاب کنید.';
@@ -219,8 +220,9 @@ async function saveInspection(){
   }
   const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:await readFile(national.files[0]),documents:docs,main_photos:main,defects:defs};
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');
-  msg.textContent='✅ گزارش کامل کارشناسی، مدارک، عکس‌های اصلی و ایرادات ثبت شد.';setTimeout(backToList,1000)
+  msg.textContent='✅ گزارش کامل کارشناسی، مدارک، عکس‌های اصلی و ایرادات ثبت شد.';localStorage.removeItem(CASE_STORAGE);setTimeout(backToList,1000)
  }catch(e){msg.textContent='❌ '+e.message}
 }
-renderDocs();renderMainPhotos();renderDefects();setupAccordions();document.querySelectorAll('#formArea>.collapse-card').forEach((x,i)=>{if(i>0)x.classList.add('closed')});loadCases();
+renderDocs();renderMainPhotos();renderDefects();setupAccordions();document.querySelectorAll('#formArea>.collapse-card').forEach((x,i)=>{if(i>0)x.classList.add('closed')});
+async function boot(){await loadCases();const saved=localStorage.getItem(CASE_STORAGE);if(saved&&cases.some(x=>x.id===saved))openCase(saved);else if(saved)localStorage.removeItem(CASE_STORAGE)}boot();
 </script></body></html>
