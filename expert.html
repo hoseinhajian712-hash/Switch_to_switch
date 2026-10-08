@@ -53,7 +53,7 @@ input:focus,select:focus,textarea:focus{border-color:#3b82f6}
 .canvas-wrap{margin-top:8px;background:#07111f;border:1px solid #243a55;border-radius:11px;padding:7px}
 canvas{width:100%;height:190px;display:block;border-radius:8px;background:#122338;touch-action:none}
 .drawbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.drawbar button{padding:7px 9px;font-size:9px}
-.msg{margin-top:10px;font-size:12px}.hidden{display:none!important}
+.msg{margin-top:10px;font-size:12px}.hidden{display:none!important}#formArea{display:flex;flex-direction:column}#formArea>.card:nth-child(1){order:0}#formArea>.card:nth-child(2){order:2}#formArea>.card:nth-child(3){order:1}#formArea>.card:nth-child(4){order:3}#formArea>.card:nth-child(5){order:4}#formArea>.card:nth-child(6){order:5}#formArea>.card:nth-child(7){order:6}
 @media(max-width:1050px){.photo-grid{grid-template-columns:repeat(3,1fr)}.case{grid-template-columns:90px 1fr 1fr 150px}.defect-options{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.wrap{padding:10px}.top{align-items:flex-start;flex-direction:column}.grid,.checks{grid-template-columns:1fr 1fr}.photo-grid{grid-template-columns:repeat(2,1fr)}.case{grid-template-columns:1fr 1fr}.case button{grid-column:1/-1}.drawer-grid{grid-template-columns:1fr}.defect-options{grid-template-columns:1fr 1fr}}
 @media(max-width:500px){.grid,.checks,.photo-grid{grid-template-columns:1fr}.case{grid-template-columns:1fr}.defect-options{grid-template-columns:1fr}.drawer-preview{grid-template-columns:repeat(2,1fr)}}
@@ -83,19 +83,19 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
  </div>
 
  <div class="card">
-  <div class="section-title"><h3>۲. مدارک خودرو</h3><span class="badge">کارت ملی مالک الزامی</span></div>
+  <div class="section-title"<h3>۱. مدارک خودرو</h3><span class="badge">کارت ملی مالک الزامی</span></div>
   <div class="photo-grid" id="docsGrid"></div>
   <div class="notice">📄 مدارک ثبت‌شده داخل گزارش پرونده مدیریت نمایش داده می‌شوند.</div>
  </div>
 
  <div class="card">
-  <div class="section-title"><h3>۳. گالری اصلی خودرو</h3><span class="badge">زاویه‌به‌زاویه</span></div>
+  <div class="section-title"<h3>۳. گالری اصلی خودرو</h3><span class="badge">زاویه‌به‌زاویه</span></div>
   <div class="sub" style="margin-top:5px">هر زاویه را جداگانه ثبت کنید؛ برای هر کادر امکان گرفتن چند عکس وجود دارد.</div>
   <div class="photo-grid" id="mainPhotos"></div>
  </div>
 
  <div class="card">
-  <div class="section-title"><h3>۴. چک‌لیست سریع</h3><span class="badge">تیک بزنید</span></div>
+  <div class="section-title"<h3>۴. چک‌لیست سریع</h3><span class="badge">تیک بزنید</span></div>
   <div class="checks">
    <label class="check"><input id="spare" type="checkbox">سوییچ یدک دارد؟</label>
    <label class="check"><input id="fuel" type="checkbox">کارت سوخت دارد؟</label>
@@ -104,7 +104,7 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
  </div>
 
  <div class="card">
-  <div class="section-title"><h3>۵. ایرادات کارشناسی</h3><span class="badge">چند ایراد برای هر قطعه</span></div>
+  <div class="section-title"<h3>۵. ایرادات کارشناسی</h3><span class="badge">چند ایراد برای هر قطعه</span></div>
   <div class="notice">🔎 هر قطعه را باز کنید و هر تعداد ایراد لازم را تیک بزنید. بعد از انتخاب هر ایراد، کشوی همان ایراد باز می‌شود و می‌توانید <b>عکس + توضیحات + علامت‌گذاری با قلم</b> ثبت کنید.</div>
   <div id="defects" class="defect-list"></div>
  </div>
