@@ -74,7 +74,7 @@ canvas{width:100%;height:190px;display:block;border-radius:8px;background:#12233
 <div id="caseHome" class="card hidden">
  <div class="section-title"><div><h3 style="margin:0">پرونده <span id="caseHomeNo"></span></h3><div id="caseHomeInfo" class="sub" style="margin-top:6px"></div></div><button class="btn secondary" onclick="backToList()">← پرونده‌ها</button></div>
  <div class="notice" style="margin-top:14px">این صفحه مخصوص اطلاعات پرونده است. برای ورود به فرم کارشناسی، دکمه زیر را بزنید.</div>
- <button class="btn green" style="margin-top:14px;width:100%;padding:14px" onclick="startInspection()">🔧 شروع کارشناسی</button>
+ <button id="startInspectionBtn" class="btn green" style="margin-top:14px;width:100%;padding:14px" onclick="startInspection()">🔧 شروع کارشناسی</button>
 </div>
 <div id="formArea" class="hidden">
  <div id="section-identity" class="inspection-section card hidden">
@@ -198,7 +198,7 @@ function renderDefects(){
  const search=document.getElementById('defectSearch'); search.oninput=filterDefects; filterDefects();
 }
 function hideAllViews(){listCard.classList.add('hidden');caseHome.classList.add('hidden');inspectionHome.classList.add('hidden');formArea.classList.add('hidden');document.querySelectorAll('.inspection-section').forEach(x=>x.classList.add('hidden'));document.querySelectorAll('.defect-group').forEach(g=>g.style.display='')}
-function renderCaseLanding(){if(!current)return;hideAllViews();caseHome.classList.remove('hidden');caseHomeNo.textContent=caseNo(current.case_number);caseHomeInfo.textContent=(current.customer_name||'')+' • '+(current.vehicle_name||'خودرو');scrollTo(0,0)}
+function renderCaseLanding(){if(!current)return;hideAllViews();caseHome.classList.remove('hidden');caseHomeNo.textContent=caseNo(current.case_number);caseHomeInfo.textContent=(current.customer_name||'')+' • '+(current.vehicle_name||'خودرو');const sib=document.getElementById('startInspectionBtn');if(sib){sib.innerHTML=current.status==='inspection'?'🔧 در حال کارشناسی':'🔧 شروع کارشناسی'}scrollTo(0,0)}
 function hydrateCase(){const v=vehicle(current);const sn=document.getElementById('selectedCase'),ci=document.getElementById('caseInfo');if(sn)sn.textContent=caseNo(current.case_number);if(ci)ci.textContent=(current.customer_name||'')+' • اطلاعات تماس مشتری محرمانه است';if(document.getElementById('vin'))vin.value=v.vin||'';if(document.getElementById('engine'))engine.value=v.engine_number||'';if(document.getElementById('plate'))plate.value=v.plate_number||'';if(document.getElementById('mileage'))document.getElementById('mileage').value=v.mileage||v.kilometers||'';if(document.getElementById('spare'))spare.checked=!!v.spare_key;if(document.getElementById('fuel'))fuel.checked=!!v.fuel_card;if(document.getElementById('poa'))poa.checked=!!v.power_of_attorney}
 function openCase(id,navigate=true){current=cases.find(x=>x.id===id);if(!current)return;localStorage.setItem(CASE_STORAGE,id);hydrateCase();if(navigate)history.pushState({},'','expert.html?case='+encodeURIComponent(id)+'&view=case');renderCaseLanding()}
 function startInspection(){if(!current)return;history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection');startInspectionView(true)}
