@@ -6,228 +6,40 @@
 <title>پنل مدیریت | سوییچ به سوییچ</title>
 <script src="config.js?v=9"></script>
 <style>
-*{box-sizing:border-box}
-:root{--bg:#07111f;--panel:#0d1a2b;--panel2:#101f33;--line:#1e3047;--text:#eef5ff;--muted:#8fa4bd;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6}
-body{margin:0;background:linear-gradient(135deg,#050b14,#091729 48%,#07111f);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
-*{scrollbar-width:thin;scrollbar-color:#29415f transparent}
-.wrap{max-width:1600px;margin:auto;padding:20px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,#102746,#0b1728);border:1px solid #203956;border-radius:24px;padding:22px 24px;box-shadow:0 18px 55px #0005}
-.brand{display:flex;align-items:center;gap:14px}.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#3b82f6,#7c3aed);display:grid;place-items:center;font-size:23px;font-weight:900;box-shadow:0 10px 30px #3b82f655}
-h1{font-size:20px;margin:0 0 5px}.sub{color:var(--muted);font-size:12px}
-.top-actions{display:flex;gap:8px;flex-wrap:wrap}a{text-decoration:none}
-button,.btn{border:0;border-radius:11px;padding:10px 14px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;color:white;background:#1d4ed8}
-.btn.secondary{background:#16283f;border:1px solid #29415f}.btn.green{background:#059669}.btn.red{background:#b91c1c}.btn.purple{background:#6d28d9}
-.message{margin:14px 0}.notice{padding:11px 14px;border-radius:13px;font-size:12px;background:#0e253b;border:1px solid #1e496d;color:#b9d8f7}.notice.err{background:#35151b;border-color:#6d2836;color:#fecdd3}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:15px 0}
-.stat{background:linear-gradient(145deg,#0d1a2b,#0a1625);border:1px solid var(--line);border-radius:17px;padding:15px}.stat small{color:var(--muted)}.stat b{display:block;font-size:25px;margin-top:7px}
-.toolbar{display:flex;gap:9px;flex-wrap:wrap;background:#0b1828;border:1px solid var(--line);padding:12px;border-radius:17px;margin-bottom:14px}
-input,select{background:#081321;color:#eaf2ff;border:1px solid #243a55;border-radius:11px;padding:11px 12px;font:inherit;font-size:12px;outline:none}input{min-width:260px}input:focus,select:focus{border-color:#3b82f6}
-.board{display:flex;flex-direction:column;gap:10px;padding-bottom:10px}.table-head,.row{display:grid;grid-template-columns:110px 1.2fr 1.1fr 1.1fr 1.4fr 180px 250px;gap:10px;align-items:center}.table-head{background:#0d1a2b;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:#8fa4bd;font-size:10px;font-weight:900}.cards{display:flex;flex-direction:column;gap:8px}.row{background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #1d3149;border-radius:14px;padding:12px 14px;min-height:72px}.cell{min-width:0;font-size:11px}.cell small{display:block;color:#7188a1;font-size:9px;margin-bottom:4px}.vehicle-main{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status-select{width:100%;padding:9px 10px;border-radius:10px;background:#081321;color:#eef5ff;border:1px solid #29415f;font-size:10px;font-weight:800}.status-select:focus{border-color:#3b82f6}.row-actions{display:flex;gap:5px;justify-content:flex-start;flex-wrap:wrap}.row-actions button{padding:8px 9px;font-size:9px}.count{background:#14263d;padding:6px 10px;border-radius:8px;color:#c8dcf5;font-size:11px}.column{background:transparent}.col-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 9px}.col-title{font-size:13px;font-weight:900}.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:6px}
-.case{background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #1d3149;border-radius:15px;padding:12px;transition:.18s}.case:hover{transform:translateY(-1px);border-color:#315579}
-.case-head{display:flex;justify-content:space-between;gap:8px}.case-no{font-size:12px;font-weight:900}.type{font-size:10px;color:#9db5cf;margin-top:5px}.badge{font-size:9px;padding:5px 7px;border-radius:999px;background:#142d4b;color:#9ec8ff;white-space:nowrap}
-.customer{margin-top:9px;font-size:12px;font-weight:800}.meta{font-size:10px;color:var(--muted);line-height:1.9;margin-top:5px}
-.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.actions button{padding:8px 9px;font-size:10px}
-.report-box{margin-top:10px;background:#081522;border:1px solid #203851;border-radius:12px;padding:9px}.report-title{font-size:11px;font-weight:900;color:#dbeafe;margin-bottom:7px}.report-row{font-size:10px;color:#9fb2c8;line-height:1.8}.report-row b{color:#e7eef8}.defects{margin-top:6px;padding-top:6px;border-top:1px solid #1c3045}.defect{padding:4px 0;border-bottom:1px solid #14273b;font-size:10px;color:#b6c6d8}
-.empty{border:1px dashed #263e58;border-radius:12px;padding:18px 8px;text-align:center;color:#647b95;font-size:10px}
-.modal-back{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal{width:min(850px,100%);max-height:90vh;overflow:auto;background:#0c1929;border:1px solid #29425e;border-radius:22px;padding:18px;box-shadow:0 25px 80px #0008}.modal-head{display:flex;justify-content:space-between;align-items:center}.close{background:#24364d}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.gallery img{width:100%;height:160px;object-fit:cover;border-radius:12px;display:block}.gallery .docimg{object-fit:contain;background:#13263c}.photo{height:120px;border-radius:12px;background:#13263c;display:grid;place-items:center;color:#7188a1;font-size:10px;border:1px dashed #29435e}
-@media(max-width:1100px){.table-head{display:none}.row{grid-template-columns:1fr 1fr;gap:12px}.row-actions{grid-column:1/-1}.row .cell:nth-child(5),.row .cell:nth-child(6){grid-column:1/-1}}@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start;flex-direction:column}.board{padding-bottom:18px}}
-@media(max-width:520px){.wrap{padding:10px}.stats{grid-template-columns:1fr 1fr}.column{min-width:275px;width:275px}input{min-width:100%;width:100%}}
-</style>
-</head>
-<body>
-<main class="wrap">
-<header class="top">
-  <div class="brand"><div class="logo">S2S</div><div><h1>پنل مدیریت سوییچ به سوییچ</h1><div class="sub">مدیریت پرونده‌ها، کارشناسی، مزایده و مسیر معامله</div></div></div>
-  <div class="top-actions"><a href="index.html" class="btn secondary">صفحه اصلی</a><a href="auction.html" class="btn green">پنل مزایده</a></div>
-</header>
-
+*{box-sizing:border-box}:root{--bg:#07111f;--panel:#0d1a2b;--panel2:#101f33;--line:#1e3047;--text:#eef5ff;--muted:#8fa4bd;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6}
+body{margin:0;background:linear-gradient(135deg,#050b14,#091729 48%,#07111f);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}*{scrollbar-width:thin;scrollbar-color:#29415f transparent}
+.wrap{max-width:1600px;margin:auto;padding:20px}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,#102746,#0b1728);border:1px solid #203956;border-radius:24px;padding:22px 24px;box-shadow:0 18px 55px #0005}.brand{display:flex;align-items:center;gap:14px}.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#3b82f6,#7c3aed);display:grid;place-items:center;font-size:23px;font-weight:900;box-shadow:0 10px 30px #3b82f655}h1{font-size:20px;margin:0 0 5px}.sub{color:var(--muted);font-size:12px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}a{text-decoration:none}button,.btn{border:0;border-radius:11px;padding:10px 14px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;color:white;background:#1d4ed8}.btn.secondary{background:#16283f;border:1px solid #29415f}.btn.green{background:#059669}.btn.red{background:#b91c1c}.btn.purple{background:#6d28d9}.message{margin:14px 0}.notice{padding:11px 14px;border-radius:13px;font-size:12px;background:#0e253b;border:1px solid #1e496d;color:#b9d8f7}.notice.err{background:#35151b;border-color:#6d2836;color:#fecdd3}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:15px 0}.stat{background:linear-gradient(145deg,#0d1a2b,#0a1625);border:1px solid var(--line);border-radius:17px;padding:15px}.stat small{color:var(--muted)}.stat b{display:block;font-size:25px;margin-top:7px}
+.auction-mini{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#0b1828;border:1px solid #203956;border-radius:12px;padding:8px 10px;margin:0 0 12px;min-height:42px}.auction-mini-title{font-size:10px;font-weight:900;color:#cfe3fa;white-space:nowrap}.auction-mini-list{display:flex;gap:6px;flex-wrap:wrap}.auction-code{display:inline-flex;align-items:center;gap:7px;background:#10243a;border:1px solid #294866;border-radius:8px;padding:5px 8px;font-size:10px}.auction-code b{font-size:13px;letter-spacing:2px;color:#60a5fa}.auction-code span{color:#8fa4bd}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;background:#0b1828;border:1px solid var(--line);padding:12px;border-radius:17px;margin-bottom:14px}input,select{background:#081321;color:#eaf2ff;border:1px solid #243a55;border-radius:11px;padding:11px 12px;font:inherit;font-size:12px;outline:none}input{min-width:260px}input:focus,select:focus{border-color:#3b82f6}.board{display:flex;flex-direction:column;gap:10px;padding-bottom:10px}.table-head,.row{display:grid;grid-template-columns:110px 1.2fr 1.1fr 1.1fr 1.4fr 180px 250px;gap:10px;align-items:center}.table-head{background:#0d1a2b;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:#8fa4bd;font-size:10px;font-weight:900}.cards{display:flex;flex-direction:column;gap:8px}.row{background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #1d3149;border-radius:14px;padding:12px 14px;min-height:72px}.cell{min-width:0;font-size:11px}.cell small{display:block;color:#7188a1;font-size:9px;margin-bottom:4px}.vehicle-main{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status-select{width:100%;padding:9px 10px;border-radius:10px;background:#081321;color:#eef5ff;border:1px solid #29415f;font-size:10px;font-weight:800}.status-select:focus{border-color:#3b82f6}.row-actions{display:flex;gap:5px;justify-content:flex-start;flex-wrap:wrap}.row-actions button{padding:8px 9px;font-size:9px}.count{background:#14263d;padding:6px 10px;border-radius:8px;color:#c8dcf5;font-size:11px}.case{background:linear-gradient(145deg,#102033,#0d1a2b);border:1px solid #1d3149;border-radius:15px;padding:12px}.case-head{display:flex;justify-content:space-between;gap:8px}.case-no{font-size:12px;font-weight:900}.type{font-size:10px;color:#9db5cf;margin-top:5px}.badge{font-size:9px;padding:5px 7px;border-radius:999px;background:#142d4b;color:#9ec8ff;white-space:nowrap}.customer{margin-top:9px;font-size:12px;font-weight:800}.meta{font-size:10px;color:var(--muted);line-height:1.9;margin-top:5px}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.actions button{padding:8px 9px;font-size:10px}.report-box{margin-top:10px;background:#081522;border:1px solid #203851;border-radius:12px;padding:9px}.report-title{font-size:11px;font-weight:900;color:#dbeafe;margin-bottom:7px}.report-row{font-size:10px;color:#9fb2c8;line-height:1.8}.report-row b{color:#e7eef8}.defects{margin-top:6px;padding-top:6px;border-top:1px solid #1c3045}.defect{padding:4px 0;border-bottom:1px solid #14273b;font-size:10px;color:#b6c6d8}.empty{border:1px dashed #263e58;border-radius:12px;padding:18px 8px;text-align:center;color:#647b95;font-size:10px}.modal-back{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal{width:min(850px,100%);max-height:90vh;overflow:auto;background:#0c1929;border:1px solid #29425e;border-radius:22px;padding:18px;box-shadow:0 25px 80px #0008}.modal-head{display:flex;justify-content:space-between;align-items:center}.close{background:#24364d}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.gallery img{width:100%;height:160px;object-fit:cover;border-radius:12px;display:block}.gallery .docimg{object-fit:contain;background:#13263c}.photo{height:120px;border-radius:12px;background:#13263c;display:grid;place-items:center;color:#7188a1;font-size:10px;border:1px dashed #29435e}
+@media(max-width:1100px){.table-head{display:none}.row{grid-template-columns:1fr 1fr;gap:12px}.row-actions{grid-column:1/-1}.row .cell:nth-child(5),.row .cell:nth-child(6){grid-column:1/-1}}@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start;flex-direction:column}.board{padding-bottom:18px}}@media(max-width:520px){.wrap{padding:10px}.stats{grid-template-columns:1fr 1fr}.column{min-width:275px;width:275px}input{min-width:100%;width:100%}}
+</style></head>
+<body><main class="wrap">
+<header class="top"><div class="brand"><div class="logo">S2S</div><div><h1>پنل مدیریت سوییچ به سوییچ</h1><div class="sub">مدیریت پرونده‌ها، کارشناسی، مزایده و مسیر معامله</div></div></div><div class="top-actions"><a href="index.html" class="btn secondary">صفحه اصلی</a><a href="auction.html" class="btn green">پنل مزایده</a></div></header>
 <div id="message" class="message"></div>
-
-<section class="stats">
- <div class="stat"><small>کل پرونده‌ها</small><b id="total">0</b></div>
- <div class="stat"><small>درخواست جدید</small><b id="newc">0</b></div>
- <div class="stat"><small>در حال کارشناسی</small><b id="inspection">0</b></div>
- <div class="stat"><small>مزایده</small><b id="auc">0</b></div>
- <div class="stat"><small>تکمیل معامله</small><b id="done">0</b></div>
-</section>
-
-<section id="auctionCodes" class="report-box" style="margin:0 0 14px"><div class="report-title">🔐 کدهای ورود مزایده</div><div id="auctionCodesBody" class="report-row">در حال دریافت...</div></section>
-
-<div class="toolbar">
- <input id="q" placeholder="جستجو کد پرونده، نام، موبایل یا خودرو..." oninput="render()">
- <select id="filter" onchange="render()"><option value="">همه وضعیت‌ها</option></select>
- <button class="btn secondary" onclick="load()">↻ بروزرسانی</button>
-</div>
-
-<section id="board" class="board"></section>
-</main>
-
-<div id="modalBack" class="modal-back" onclick="if(event.target===this)closeReport()">
- <div class="modal"><div class="modal-head"><div><b id="modalTitle">گزارش کارشناسی</b><div class="sub">گزارش کامل پرونده</div></div><button class="close" onclick="closeReport()">بستن</button></div><div id="modalBody"></div></div>
-</div>
-
+<section class="stats"><div class="stat"><small>کل پرونده‌ها</small><b id="total">0</b></div><div class="stat"><small>درخواست جدید</small><b id="newc">0</b></div><div class="stat"><small>در حال کارشناسی</small><b id="inspection">0</b></div><div class="stat"><small>مزایده</small><b id="auc">0</b></div><div class="stat"><small>تکمیل معامله</small><b id="done">0</b></div></section>
+<section id="auctionCodes" class="auction-mini"><span class="auction-mini-title">🔐 کد ورود مزایده:</span><div id="auctionCodesBody" class="auction-mini-list"><span class="sub">در حال دریافت...</span></div></section>
+<div class="toolbar"><input id="q" placeholder="جستجو کد پرونده، نام، موبایل یا خودرو..." oninput="render()"><select id="filter" onchange="render()"><option value="">همه وضعیت‌ها</option></select><button class="btn secondary" onclick="load()">↻ بروزرسانی</button></div>
+<section id="board" class="board"></section></main>
+<div id="modalBack" class="modal-back" onclick="if(event.target===this)closeReport()"><div class="modal"><div class="modal-head"><div><b id="modalTitle">گزارش کارشناسی</b><div class="sub">گزارش کامل پرونده</div></div><button class="close" onclick="closeReport()">بستن</button></div><div id="modalBody"></div></div></div>
 <script>
-const API=SUPABASE_URL+'/functions/v1/switch-to-switch',MEDIA=SUPABASE_URL+'/functions/v1/s2s-media',KEY='S2S-V4-2026-ADMIN';
-let rows=[],statusFa={};
-
-const stages=[
- {id:'new',title:'تأیید تماس',color:'#3b82f6'},
- {id:'refer',title:'ارجاع به کارشناس',color:'#8b5cf6'},
- {id:'inspection',title:'در حال کارشناسی',color:'#f59e0b'},
- {id:'review',title:'پایان کارشناسی',color:'#10b981'},
- {id:'auction-ready',title:'آماده مزایده',color:'#06b6d4'},
- {id:'auction',title:'مزایده فعال',color:'#10b981'},
- {id:'auction-end',title:'پایان مزایده',color:'#64748b'},
- {id:'customer',title:'اعلام قیمت به مشتری',color:'#f59e0b'},{id:'deposit',title:'دریافت پیش‌پرداخت',color:'#22c55e'},{id:'disagreement',title:'عدم توافق',color:'#ef4444'},{id:'selling',title:'ادامه فروش خودرو',color:'#f97316'},
- {id:'docs',title:'تکمیل مدارک',color:'#3b82f6'},
- {id:'contract',title:'قرارداد و انتقال',color:'#8b5cf6'},
- {id:'done',title:'تکمیل معامله',color:'#10b981'},
- {id:'cancelled',title:'انصراف / عدم توافق',color:'#ef4444'}
-];
-
-function caseNo(v){const n=Number(v);return Number.isFinite(n)&&n>0?'S'+n:'S—'}
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function show(msg,err=false){document.getElementById('message').innerHTML='<div class="notice '+(err?'err':'')+'">'+msg+'</div>'}
-function statusLabel(st){return statusFa[st]||stages.find(s=>s.id===st)?.title||st}
-
-async function load(){
- try{
-  show('در حال دریافت پرونده‌ها از سرور...');
-  const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=list&_='+Date.now(),{cache:'no-store'});
-  const raw=await r.text(); let j; try{j=JSON.parse(raw)}catch(e){throw new Error('پاسخ نامعتبر از سرور')}
-  if(!r.ok||j.error)throw new Error(j.error||('خطای سرور '+r.status));
-  rows=Array.isArray(j.cases)?j.cases:[];statusFa=j.statusFa||{};
-  buildFilter();updateStats();render();show('✓ '+rows.length+' پرونده با موفقیت دریافت شد.');
- }catch(e){show('❌ '+e.message,true);document.getElementById('board').innerHTML='<div class="empty">پرونده‌ها قابل دریافت نیستند. دوباره بروزرسانی کنید.</div>'}
-}
-
-async function loadAuctionCodes(){
- try{
-  const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=auction-login-codes&_='+Date.now(),{cache:'no-store'});
-  const j=await r.json();
-  if(!r.ok||j.error)throw new Error(j.error||'خطا');
-  const list=Array.isArray(j.codes)?j.codes:[];
-  document.getElementById('auctionCodesBody').innerHTML=list.length?list.map(x=>'<div class="report-box" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px"><div><b>'+esc(x.mobile)+'</b><div class="sub">'+esc(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'')+'</div></div><div style="font-size:22px;font-weight:900;letter-spacing:4px;color:#60a5fa">'+esc(x.display_code||'—')+'</div></div>').join(''):'<span class="sub">کد فعال و تأییدنشده‌ای وجود ندارد.</span>';
- }catch(e){document.getElementById('auctionCodesBody').innerHTML='<span class="sub">کدهای ورود قابل دریافت نیستند.</span>'}
-}
-function buildFilter(){
- const s=document.getElementById('filter'),old=s.value;
- s.innerHTML='<option value="">همه وضعیت‌ها</option>'+stages.map(x=>'<option value="'+x.id+'">'+x.title+'</option>').join('');
- s.value=old;
-}
-function updateStats(){
- document.getElementById('total').textContent=rows.length;
- document.getElementById('newc').textContent=rows.filter(x=>(x.status||'new')==='new').length;
- document.getElementById('inspection').textContent=rows.filter(x=>['inspection','review'].includes(x.status)).length;
- document.getElementById('auc').textContent=rows.filter(x=>['auction-ready','auction','auction-end'].includes(x.status)).length;
- document.getElementById('done').textContent=rows.filter(x=>x.status==='done').length;
-}
-function matches(x,q){
- const hay=[caseNo(x.case_number),x.customer_name,x.customer_mobile,x.service_type,x.vehicle_name,x.brand,x.model].join(' ').toLowerCase();
- return !q||hay.includes(q);
-}
-function card(x){
- const st=x.status||'new',ins=x.inspection,vehicle=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0],hasReport=!!ins;
- const opts=stages.map(z=>'<option value="'+z.id+'" '+(z.id===st?'selected':'')+'>'+z.title+'</option>').join('');
- return '<article class="row">'+
- '<div class="cell"><small>پرونده</small><b>#'+esc(caseNo(x.case_number))+'</b></div>'+
- '<div class="cell"><small>مشتری</small><b>'+esc(x.customer_name||'نام ثبت نشده')+'</b><div class="sub">'+esc(x.customer_mobile||'—')+'</div></div>'+
- '<div class="cell"><small>خودرو</small><div class="vehicle-main">'+esc(x.vehicle_name||[vehicle?.brand,vehicle?.model,vehicle?.trim].filter(Boolean).join(' ')||'اطلاعات خودرو')+'</div><div class="sub">'+esc(vehicle?.model_year||'')+(vehicle?.mileage?' · '+Number(vehicle.mileage).toLocaleString('fa-IR')+' km':'')+'</div></div>'+
- '<div class="cell"><small>تاریخ ثبت</small>'+esc(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'—')+'<div class="sub">'+esc(x.service_type||'')+'</div></div>'+
- '<div class="cell"><small>وضعیت پرونده</small><select class="status-select" onchange="changeStatus(\''+esc(x.id)+'\',this.value)">'+opts+'</select></div>'+
- '<div class="cell"><small>گزارش کارشناسی</small>'+(hasReport?'<button class="btn purple" onclick="openReport(\''+esc(x.id)+'\')">📋 مشاهده گزارش</button>':'<span class="sub">هنوز ثبت نشده</span>')+(x.auction?'<div class="sub" style="margin-top:6px">🔨 '+(x.auction.status==='active'?'فعال':'پایان‌یافته')+' · پایان: '+new Date(x.auction.ends_at).toLocaleString('fa-IR')+'</div>':'')+'</div>'+
- '<div class="row-actions">'+(st==='new'?'<button class="btn purple" onclick="referToExpert(\''+esc(x.id)+'\')">👨‍🔧 ارجاع به کارشناس</button>':'')+((st==='review'||(st==='auction'&&!x.auction))?'<button class="btn green" onclick="createAuctionFromAdmin(\''+esc(x.id)+'\')">'+(st==='auction'?'🔨 ساخت مزایده برای این پرونده':'🔨 انتقال به مزایده')+'</button>':'')+(st==='auction'&&x.auction?.status==='active'?'<button class="btn purple" onclick="changeAuctionTime(\''+esc(x.auction.id)+'\')">⏱ تنظیم زمان</button><a class="btn secondary" href="auction.html" target="_blank">👁 اتاق مزایده</a>':'')+'<button class="btn secondary" onclick="openCase(\''+esc(x.id)+'\')">جزئیات</button>'+(st==='customer'?'<button class="btn green" onclick="customerDecision(\''+esc(x.id)+'\',true)">موافقت</button><button class="btn red" onclick="customerDecision(\''+esc(x.id)+'\',false)">عدم توافق</button>':'')+(st==='deposit'?'<button class="btn green" onclick="receivePrepayment(\''+esc(x.id)+'\')">ثبت پیش‌پرداخت</button>':'')+(st==='disagreement'?'<button class="btn" onclick="continueSelling(\''+esc(x.id)+'\')">ادامه فروش</button>':'')+'</div>'+
- '</article>';
-}
-function render(){
- const q=document.getElementById('q').value.trim().toLowerCase(),f=document.getElementById('filter').value;
- const filtered=rows.filter(x=>(!f||(x.status||'new')===f)&&matches(x,q));
- document.getElementById('board').innerHTML='<div class="table-head"><div>پرونده</div><div>مشتری</div><div>خودرو</div><div>ثبت درخواست</div><div>وضعیت</div><div>کارشناسی</div><div>عملیات</div></div><div class="cards">'+(filtered.length?filtered.map(card).join(''):'<div class="empty">پرونده‌ای پیدا نشد</div>')+'</div>';
-}
+const API=SUPABASE_URL+'/functions/v1/switch-to-switch',MEDIA=SUPABASE_URL+'/functions/v1/s2s-media',KEY='S2S-V4-2026-ADMIN';let rows=[],statusFa={};
+const stages=[{id:'new',title:'تأیید تماس',color:'#3b82f6'},{id:'refer',title:'ارجاع به کارشناس',color:'#8b5cf6'},{id:'inspection',title:'در حال کارشناسی',color:'#f59e0b'},{id:'review',title:'پایان کارشناسی',color:'#10b981'},{id:'auction-ready',title:'آماده مزایده',color:'#06b6d4'},{id:'auction',title:'مزایده فعال',color:'#10b981'},{id:'auction-end',title:'پایان مزایده',color:'#64748b'},{id:'customer',title:'اعلام قیمت به مشتری',color:'#f59e0b'},{id:'deposit',title:'دریافت پیش‌پرداخت',color:'#22c55e'},{id:'disagreement',title:'عدم توافق',color:'#ef4444'},{id:'selling',title:'ادامه فروش خودرو',color:'#f97316'},{id:'docs',title:'تکمیل مدارک',color:'#3b82f6'},{id:'contract',title:'قرارداد و انتقال',color:'#8b5cf6'},{id:'done',title:'تکمیل معامله',color:'#10b981'},{id:'cancelled',title:'انصراف / عدم توافق',color:'#ef4444'}];
+function caseNo(v){const n=Number(v);return Number.isFinite(n)&&n>0?'S'+n:'S—'}function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function show(msg,err=false){document.getElementById('message').innerHTML='<div class="notice '+(err?'err':'')+'">'+msg+'</div>'}function statusLabel(st){return statusFa[st]||stages.find(s=>s.id===st)?.title||st}
+async function load(){try{show('در حال دریافت پرونده‌ها از سرور...');const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=list&_='+Date.now(),{cache:'no-store'});const raw=await r.text();let j;try{j=JSON.parse(raw)}catch(e){throw new Error('پاسخ نامعتبر از سرور')}if(!r.ok||j.error)throw new Error(j.error||('خطای سرور '+r.status));rows=Array.isArray(j.cases)?j.cases:[];statusFa=j.statusFa||{};buildFilter();updateStats();render();show('✓ '+rows.length+' پرونده با موفقیت دریافت شد.')}catch(e){show('❌ '+e.message,true);document.getElementById('board').innerHTML='<div class="empty">پرونده‌ها قابل دریافت نیستند. دوباره بروزرسانی کنید.</div>'}}
+async function loadAuctionCodes(){try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=auction-login-codes&_='+Date.now(),{cache:'no-store'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');const list=Array.isArray(j.codes)?j.codes:[];document.getElementById('auctionCodesBody').innerHTML=list.length?list.map(x=>'<div class="auction-code"><span>'+esc(x.mobile)+'</span><b>'+esc(x.display_code||'—')+'</b></div>').join(''):'<span class="sub">کد فعالی نیست</span>'}catch(e){document.getElementById('auctionCodesBody').innerHTML='<span class="sub">کدها قابل دریافت نیستند</span>'}}
+function buildFilter(){const s=document.getElementById('filter'),old=s.value;s.innerHTML='<option value="">همه وضعیت‌ها</option>'+stages.map(x=>'<option value="'+x.id+'">'+x.title+'</option>').join('');s.value=old}function updateStats(){document.getElementById('total').textContent=rows.length;document.getElementById('newc').textContent=rows.filter(x=>(x.status||'new')==='new').length;document.getElementById('inspection').textContent=rows.filter(x=>['inspection','review'].includes(x.status)).length;document.getElementById('auc').textContent=rows.filter(x=>['auction-ready','auction','auction-end'].includes(x.status)).length;document.getElementById('done').textContent=rows.filter(x=>x.status==='done').length}
+function matches(x,q){const hay=[caseNo(x.case_number),x.customer_name,x.customer_mobile,x.service_type,x.vehicle_name,x.brand,x.model].join(' ').toLowerCase();return !q||hay.includes(q)}
+function card(x){const st=x.status||'new',ins=x.inspection,vehicle=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0],hasReport=!!ins;const opts=stages.map(z=>'<option value="'+z.id+'" '+(z.id===st?'selected':'')+'>'+z.title+'</option>').join('');return '<article class="row"><div class="cell"><small>پرونده</small><b>#'+esc(caseNo(x.case_number))+'</b></div><div class="cell"><small>مشتری</small><b>'+esc(x.customer_name||'نام ثبت نشده')+'</b><div class="sub">'+esc(x.customer_mobile||'—')+'</div></div><div class="cell"><small>خودرو</small><div class="vehicle-main">'+esc(x.vehicle_name||[vehicle?.brand,vehicle?.model,vehicle?.trim].filter(Boolean).join(' ')||'اطلاعات خودرو')+'</div><div class="sub">'+esc(vehicle?.model_year||'')+(vehicle?.mileage?' · '+Number(vehicle.mileage).toLocaleString('fa-IR')+' km':'')+'</div></div><div class="cell"><small>تاریخ ثبت</small>'+esc(x.created_at?new Date(x.created_at).toLocaleString('fa-IR'):'—')+'<div class="sub">'+esc(x.service_type||'')+'</div></div><div class="cell"><small>وضعیت پرونده</small><select class="status-select" onchange="changeStatus(\''+esc(x.id)+'\',this.value)">'+opts+'</select></div><div class="cell"><small>گزارش کارشناسی</small>'+(hasReport?'<button class="btn purple" onclick="openReport(\''+esc(x.id)+'\')">📋 مشاهده گزارش</button>':'<span class="sub">هنوز ثبت نشده</span>')+(x.auction?'<div class="sub" style="margin-top:6px">🔨 '+(x.auction.status==='active'?'فعال':'پایان‌یافته')+' · پایان: '+new Date(x.auction.ends_at).toLocaleString('fa-IR')+'</div>':'')+'</div><div class="row-actions">'+(st==='new'?'<button class="btn purple" onclick="referToExpert(\''+esc(x.id)+'\')">👨‍🔧 ارجاع به کارشناس</button>':'')+((st==='review'||(st==='auction'&&!x.auction))?'<button class="btn green" onclick="createAuctionFromAdmin(\''+esc(x.id)+'\')">'+(st==='auction'?'🔨 ساخت مزایده برای این پرونده':'🔨 انتقال به مزایده')+'</button>':'')+(st==='auction'&&x.auction?.status==='active'?'<button class="btn purple" onclick="changeAuctionTime(\''+esc(x.auction.id)+'\')">⏱ تنظیم زمان</button><a class="btn secondary" href="auction.html" target="_blank">👁 اتاق مزایده</a>':'')+'<button class="btn secondary" onclick="openCase(\''+esc(x.id)+'\')">جزئیات</button>'+(st==='customer'?'<button class="btn green" onclick="customerDecision(\''+esc(x.id)+'\',true)">موافقت</button><button class="btn red" onclick="customerDecision(\''+esc(x.id)+'\',false)">عدم توافق</button>':'')+(st==='deposit'?'<button class="btn green" onclick="receivePrepayment(\''+esc(x.id)+'\')">ثبت پیش‌پرداخت</button>':'')+(st==='disagreement'?'<button class="btn" onclick="continueSelling(\''+esc(x.id)+'\')">ادامه فروش</button>':'')+'</div></article>'}
+function render(){const q=document.getElementById('q').value.trim().toLowerCase(),f=document.getElementById('filter').value;const filtered=rows.filter(x=>(!f||(x.status||'new')===f)&&matches(x,q));document.getElementById('board').innerHTML='<div class="table-head"><div>پرونده</div><div>مشتری</div><div>خودرو</div><div>ثبت درخواست</div><div>وضعیت</div><div>کارشناسی</div><div>عملیات</div></div><div class="cards">'+(filtered.length?filtered.map(card).join(''):'<div class="empty">پرونده‌ای پیدا نشد</div>')+'</div>'}
 async function referToExpert(id){try{show('در حال ارجاع پرونده به کارشناس...');const r=await postApi('set-status',id,{status:'refer',note:'ارجاع پرونده توسط مدیر به کارشناس'});if(!r||r.status!=='refer')throw new Error('ارجاع پرونده انجام نشد');const row=rows.find(x=>x.id===id);if(row)row.status='refer';render();show('✅ پرونده با موفقیت به کارشناس ارجاع شد.');setTimeout(load,300)}catch(e){show('❌ '+e.message,true)}}
-async function changeStatus(id,status){
- try{
-  if(status==='auction'){
-   const row=rows.find(x=>x.id===id);
-   if(row?.auction?.status==='active'){show('ℹ️ این پرونده همین حالا مزایده فعال دارد.');return}
-   await createAuctionFromAdmin(id);
-   return;
-  }
-  show('در حال تغییر وضعیت...');
-  await postApi('set-status',id,{status});
-  await load();
- }catch(e){show('❌ '+e.message,true)}
-}
-async function createAuctionFromAdmin(id){
- const row=rows.find(x=>x.id===id); if(!row)return;
- if(row.status==='auction'&&!row.auction){
-  try{
-   show('در حال آماده‌سازی پرونده برای ساخت مزایده...');
-   await postApi('set-status',id,{status:'review',note:'اصلاح پرونده: وضعیت مزایده فعال بود اما رکورد مزایده وجود نداشت'});
-   row.status='review';
-  }catch(e){show('❌ '+e.message,true);return}
- }
- const price=prompt('قیمت شروع مزایده را به تومان وارد کنید:');
- if(!price)return;
- const amount=Number(String(price).replace(/[,٬\s]/g,''));
- if(!Number.isFinite(amount)||amount<=0){show('❌ قیمت شروع مزایده نامعتبر است.',true);return}
- const mins=prompt('مدت مزایده را به دقیقه وارد کنید:', '60');
- if(!mins)return;
- const duration=Number(String(mins).replace(/[,٬\s]/g,''));
- if(!Number.isFinite(duration)||duration<=0){show('❌ مدت مزایده نامعتبر است.',true);return}
- if(!confirm('پرونده '+caseNo(row.case_number)+' به مزایده منتقل و مزایده فعال شود؟'))return;
- try{
-  show('🔨 در حال انتقال پرونده به مزایده...');
-  const starts=new Date();
-  const ends=new Date(starts.getTime()+duration*60000);
-  const r=await postApi('create_auction',id,{starting_price:amount,starts_at:starts.toISOString(),ends_at:ends.toISOString()});
-  if(!r||!r.ok)throw new Error(r?.error||'ایجاد مزایده انجام نشد');
-  await load();
-  show('✅ پرونده با موفقیت از «پایان کارشناسی» به «مزایده فعال» منتقل شد.');
- }catch(e){show('❌ '+e.message,true)}
-}
-async function changeAuctionTime(auctionId){
- const mins=prompt('مزایده چند دقیقه دیگر ادامه داشته باشد؟','60');
- if(!mins)return;
- const n=Number(String(mins).replace(/[,٬\s]/g,''));
- if(!Number.isFinite(n)||n<=0){show('❌ مدت زمان نامعتبر است.',true);return}
- try{
-  show('⏱ در حال تنظیم زمان مزایده...');
-  const r=await postApi('update_auction_time',auctionId,{minutes:n});
-  if(!r||!r.ok)throw new Error(r?.error||'تنظیم زمان انجام نشد');
-  await load();
-  show('✅ زمان مزایده تا '+new Date(r.ends_at).toLocaleString('fa-IR')+' تنظیم شد.');
- }catch(e){show('❌ '+e.message,true)}
-}
-function openCase(id){openReport(id)}
-async function nextCase(id){
- try{show('در حال تغییر وضعیت پرونده...');const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=next&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا در تغییر وضعیت');await load()}catch(e){show('❌ '+e.message,true)}
-}
-async function cancelCase(id){
- if(!confirm('پرونده به وضعیت انصراف منتقل شود؟'))return;
- try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=cancel&id='+encodeURIComponent(id),{method:'POST'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');await load()}catch(e){show('❌ '+e.message,true)}
-}
-async function postApi(api,id,body){const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api='+api+'&id='+encodeURIComponent(id),{method:'POST',headers:{'content-type':'application/json'},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');return j}
-async function confirmCall(id){try{show('در حال ثبت تأیید تماس...');await postApi('confirm-call',id);await load()}catch(e){show('❌ '+e.message,true)}}
+async function changeStatus(id,status){try{if(status==='auction'){const row=rows.find(x=>x.id===id);if(row?.auction?.status==='active'){show('ℹ️ این پرونده همین حالا مزایده فعال دارد.');return}await createAuctionFromAdmin(id);return}show('در حال تغییر وضعیت...');await postApi('set-status',id,{status});await load()}catch(e){show('❌ '+e.message,true)}}
+async function createAuctionFromAdmin(id){const row=rows.find(x=>x.id===id);if(!row)return;if(row.status==='auction'&&!row.auction){try{show('در حال آماده‌سازی پرونده برای ساخت مزایده...');await postApi('set-status',id,{status:'review',note:'اصلاح پرونده: وضعیت مزایده فعال بود اما رکورد مزایده وجود نداشت'});row.status='review'}catch(e){show('❌ '+e.message,true);return}}const price=prompt('قیمت شروع مزایده را به تومان وارد کنید:');if(!price)return;const amount=Number(String(price).replace(/[,٬\s]/g,''));if(!Number.isFinite(amount)||amount<=0){show('❌ قیمت شروع مزایده نامعتبر است.',true);return}const mins=prompt('مدت مزایده را به دقیقه وارد کنید:','60');if(!mins)return;const duration=Number(String(mins).replace(/[,٬\s]/g,''));if(!Number.isFinite(duration)||duration<=0){show('❌ مدت زمان نامعتبر است.',true);return}if(!confirm('پرونده '+caseNo(row.case_number)+' به مزایده منتقل و مزایده فعال شود؟'))return;try{show('🔨 در حال انتقال پرونده به مزایده...');const starts=new Date(),ends=new Date(starts.getTime()+duration*60000);const r=await postApi('create_auction',id,{starting_price:amount,starts_at:starts.toISOString(),ends_at:ends.toISOString()});if(!r||!r.ok)throw new Error(r?.error||'ایجاد مزایده انجام نشد');await load();show('✅ پرونده با موفقیت از «پایان کارشناسی» به «مزایده فعال» منتقل شد.')}catch(e){show('❌ '+e.message,true)}}
+async function changeAuctionTime(auctionId){const mins=prompt('مزایده چند دقیقه دیگر ادامه داشته باشد؟','60');if(!mins)return;const n=Number(String(mins).replace(/[,٬\s]/g,''));if(!Number.isFinite(n)||n<=0){show('❌ مدت زمان نامعتبر است.',true);return}try{show('⏱ در حال تنظیم زمان مزایده...');const r=await postApi('update_auction_time',auctionId,{minutes:n});if(!r||!r.ok)throw new Error(r?.error||'تنظیم زمان انجام نشد');await load();show('✅ زمان مزایده تا '+new Date(r.ends_at).toLocaleString('fa-IR')+' تنظیم شد.')}catch(e){show('❌ '+e.message,true)}}
+function openCase(id){openReport(id)}async function postApi(api,id,body){const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api='+api+'&id='+encodeURIComponent(id),{method:'POST',headers:{'content-type':'application/json'},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');return j}
 async function customerDecision(id,accept){if(accept){const p=prompt('قیمت مورد توافق را به تومان وارد کنید:');if(!p)return;try{await postApi('customer-decision',id,{decision:'accept',agreed_price:p});await load()}catch(e){show('❌ '+e.message,true)}}else{if(!confirm('عدم توافق مشتری ثبت شود؟'))return;try{await postApi('customer-decision',id,{decision:'decline'});await load()}catch(e){show('❌ '+e.message,true)}}}
 async function receivePrepayment(id){const p=prompt('مبلغ پیش‌پرداخت دریافتی را به تومان وارد کنید:');if(!p)return;try{await postApi('prepayment',id,{amount:p});await load()}catch(e){show('❌ '+e.message,true)}}
 async function continueSelling(id){try{await postApi('continue-selling',id);await load()}catch(e){show('❌ '+e.message,true)}}
-function openReport(id){
- const x=rows.find(r=>r.id===id);if(!x)return;const ins=x.inspection||{},v=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0]||{},defs=x.defects||[],docs=x.documents||[],photos=x.photos||[];
- const main=photos.filter(p=>p.photo_type==='main'),defp=photos.filter(p=>p.photo_type==='defect');
- const img=p=>(p.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(p.storage_path))?'<a href="'+esc(p.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(p.storage_path))+'" target="_blank"><img src="'+esc(p.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(p.storage_path))+'" alt="'+esc(p.label||'تصویر')+'"></a>':'<div class="photo">تصویر در دسترس نیست</div>';
- document.getElementById('modalTitle').textContent='گزارش کارشناسی • پرونده '+caseNo(x.case_number);
- document.getElementById('modalBody').innerHTML=
- '<div class="report-box" style="margin-top:14px"><div class="report-title">خلاصه کارشناسی</div><div class="report-row">'+esc(ins.summary||'بدون خلاصه ثبت‌شده')+'</div></div>'+
- '<div class="report-box"><div class="report-title">مشخصات خودرو</div><div class="report-row">VIN: <b>'+esc(v.vin||'—')+'</b> · شماره موتور: <b>'+esc(v.engine_number||'—')+'</b> · پلاک: <b>'+esc(v.plate_number||'—')+'</b></div></div>'+
- '<div class="report-box"><div class="report-title">📷 عکس‌های اصلی خودرو ('+main.length+')</div><div class="gallery">'+(main.length?main.map(img).join(''):'<div class="photo">عکس اصلی ثبت نشده</div>')+'</div></div>'+
- '<div class="report-box"><div class="report-title">📄 مدارک ('+docs.length+')</div><div class="gallery">'+(docs.length?docs.map(d=>(d.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(d.storage_path))?'<a href="'+esc(d.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(d.storage_path))+'" target="_blank"><img class="docimg" src="'+esc(d.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(d.storage_path))+'" alt="'+esc(d.document_type)+'"></a>':'<div class="photo">مدرک</div>').join(''):'<div class="photo">مدرکی ثبت نشده</div>')+'</div></div>'+
- '<div class="report-box"><div class="report-title">🔎 ایرادات ثبت‌شده ('+defs.length+')</div>' +(defs.length?defs.map(d=>{const pp=defp.filter(p=>p.defect_id===d.id);return '<div class="defect"><b>'+esc(d.part)+'</b> — '+esc(d.defect_type)+(d.explanation?' — '+esc(d.explanation):'')+(pp.length?'<div class="gallery">'+pp.map(img).join('')+'</div>':'')+'</div>'}).join(''):'<div class="report-row">ایرادی ثبت نشده است.</div>')+'</div>';
- document.getElementById('modalBody').innerHTML+=x.history&&x.history.length?'<div class="report-box"><div class="report-title">🕒 تاریخچه پرونده</div>'+x.history.map(h=>'<div class="report-row">'+esc(h.from_status||'')+' ← '+esc(h.to_status||'')+' · '+esc(h.note||'')+' · '+esc(h.created_at?new Date(h.created_at).toLocaleString('fa-IR'):'')+'</div>').join('')+'</div>':'';
- document.getElementById('modalBack').style.display='flex';
-}
-function closeReport(){document.getElementById('modalBack').style.display='none'}
+function openReport(id){const x=rows.find(r=>r.id===id);if(!x)return;const ins=x.inspection||{},v=(x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0]||{},defs=x.defects||[],docs=x.documents||[],photos=x.photos||[];const main=photos.filter(p=>p.photo_type==='main'),defp=photos.filter(p=>p.photo_type==='defect');const img=p=>{const u=p.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(p.storage_path);return u?'<a href="'+esc(u)+'" target="_blank"><img src="'+esc(u)+'" alt="'+esc(p.label||'تصویر')+'"></a>':'<div class="photo">تصویر در دسترس نیست</div>'};document.getElementById('modalTitle').textContent='گزارش کارشناسی • پرونده '+caseNo(x.case_number);document.getElementById('modalBody').innerHTML='<div class="report-box" style="margin-top:14px"><div class="report-title">خلاصه کارشناسی</div><div class="report-row">'+esc(ins.summary||'بدون خلاصه ثبت‌شده')+'</div></div><div class="report-box"><div class="report-title">مشخصات خودرو</div><div class="report-row">VIN: <b>'+esc(v.vin||'—')+'</b> · شماره موتور: <b>'+esc(v.engine_number||'—')+'</b> · پلاک: <b>'+esc(v.plate_number||'—')+'</b></div></div><div class="report-box"><div class="report-title">📷 عکس‌های اصلی خودرو ('+main.length+')</div><div class="gallery">'+(main.length?main.map(img).join(''):'<div class="photo">عکس اصلی ثبت نشده</div>')+'</div></div><div class="report-box"><div class="report-title">📄 مدارک ('+docs.length+')</div><div class="gallery">'+(docs.length?docs.map(d=>{const u=d.url||MEDIA+'?key='+encodeURIComponent(KEY)+'&file='+encodeURIComponent(d.storage_path);return u?'<a href="'+esc(u)+'" target="_blank"><img class="docimg" src="'+esc(u)+'" alt="'+esc(d.document_type)+'"></a>':'<div class="photo">مدرک</div>'}).join(''):'<div class="photo">مدرکی ثبت نشده</div>')+'</div></div><div class="report-box"><div class="report-title">🔎 ایرادات ثبت‌شده ('+defs.length+')</div>'+(defs.length?defs.map(d=>{const pp=defp.filter(p=>p.defect_id===d.id);return '<div class="defect"><b>'+esc(d.part)+'</b> — '+esc(d.defect_type)+(d.explanation?' — '+esc(d.explanation):'')+(pp.length?'<div class="gallery">'+pp.map(img).join('')+'</div>':'')+'</div>'}).join(''):'<div class="report-row">ایرادی ثبت نشده است.</div>')+'</div>';document.getElementById('modalBody').innerHTML+=x.history&&x.history.length?'<div class="report-box"><div class="report-title">🕒 تاریخچه پرونده</div>'+x.history.map(h=>'<div class="report-row">'+esc(h.from_status||'')+' ← '+esc(h.to_status||'')+' · '+esc(h.note||'')+' · '+esc(h.created_at?new Date(h.created_at).toLocaleString('fa-IR'):'')+'</div>').join('')+'</div>':'';document.getElementById('modalBack').style.display='flex'}function closeReport(){document.getElementById('modalBack').style.display='none'}
 load();loadAuctionCodes();setInterval(load,15000);setInterval(loadAuctionCodes,5000);
-</script>
-</body>
-</html>
+</script></body></html>
