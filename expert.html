@@ -256,7 +256,7 @@ async function saveInspection(){
   }
   const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:await readFile(national.files[0]),documents:docs,main_photos:main,defects:defs};
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');
-  msg.textContent='✅ گزارش کامل کارشناسی ثبت شد. در حال بازگشت به لیست پرونده‌های کارشناسی...';localStorage.setItem(CASE_STORAGE,current.id);setTimeout(()=>{window.location.replace('https://hoseinhajian712-hash.github.io/Switch_to_switch/expert.html?case='+encodeURIComponent(current.id)+'&view=case&done=1')},500)
+  msg.textContent='✅ گزارش کامل کارشناسی ثبت شد. در حال بازگشت به همان پرونده...';localStorage.setItem(CASE_STORAGE,current.id);sessionStorage.setItem('s2s_done_case',JSON.stringify(current));const target=new URL('expert.html',location.href);target.searchParams.set('case',current.id);target.searchParams.set('view','case');target.searchParams.set('done','1');target.searchParams.set('v','20261008');window.location.assign(target.href)
  }catch(e){msg.textContent='❌ '+e.message}
 }
 renderDocs();renderMainPhotos();renderDefects();setupAccordions();document.querySelectorAll('#formArea>.collapse-card').forEach((x,i)=>{if(i>0)x.classList.add('closed')});
