@@ -248,7 +248,7 @@ async function saveInspection(){
   if(!current)return msg.textContent='پرونده را انتخاب کنید.';
   if(!vin.value||!engine.value||!plate.value)return msg.textContent='VIN، شماره موتور و پلاک الزامی است.';
   if(!national.files[0])return msg.textContent='عکس کارت ملی مالک الزامی است.';
-  sessionStorage.setItem('s2s_done_case',JSON.stringify(current));msg.textContent='در حال آماده‌سازی گزارش و تصاویر...';
+  sessionStorage.setItem('s2s_done_case',JSON.stringify(current));await persistDraft();msg.textContent='در حال آماده‌سازی گزارش و تصاویر...';
   const docs=[];for(const [id,type] of [['carDoc','car_document'],['greenDoc','green_card'],['insuranceDoc','insurance'],['otherDoc','other']]){const z=await fileObj(document.getElementById(id),type);if(z)docs.push(z)}
   const main=[];for(const f of document.querySelectorAll('.mainfile'))for(const file of f.files)main.push({label:f.dataset.label,data_url:await readFile(file)});
   const defs=[];
