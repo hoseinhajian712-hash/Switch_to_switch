@@ -249,5 +249,5 @@ async function saveInspection(){
  }catch(e){msg.textContent='❌ '+e.message}
 }
 renderDocs();renderMainPhotos();renderDefects();setupAccordions();document.querySelectorAll('#formArea>.collapse-card').forEach((x,i)=>{if(i>0)x.classList.add('closed')});
-async function boot(){await loadCases();const saved=localStorage.getItem(CASE_STORAGE);if(saved&&cases.some(x=>x.id===saved))openCase(saved);else if(saved)localStorage.removeItem(CASE_STORAGE)}boot();
+async function boot(){await loadCases();const p=new URLSearchParams(location.search);const qcase=p.get('case');const section=p.get('section');if(qcase&&cases.some(x=>x.id===qcase)){openCase(qcase,false);if(section)openInspectionSection(section,false);return;}const saved=localStorage.getItem(CASE_STORAGE);if(saved&&cases.some(x=>x.id===saved)){location.replace('expert.html?case='+encodeURIComponent(saved));return;}if(saved)localStorage.removeItem(CASE_STORAGE)}boot();
 </script></body></html>
