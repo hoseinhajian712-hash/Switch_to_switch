@@ -395,7 +395,19 @@ async function saveInspection(){
    const note=drawer?.querySelector('.defnote')?.value||'';
    return {area:c.dataset.area||'بدنه، شاسی و چرخ‌ها',part,defect_type:defect,explanation:note,photos}
   }));
-  const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:selectedPhoto('national')?await readFile(selectedPhoto('national')):await compressDataUrl(photoDraft.docs?.national||null),documents:docs,main_photos:main,defects:defs};
+  msg.textContent='در حال ارسال جداگانه عکس‌ها؛ لطفاً پنجره را نبند...';
+  const nationalData=selectedPhoto('national')?await readFile(selectedPhoto('national')):await compressDataUrl(photoDraft.docs?.national||null);
+  const uploads=[];
+  docs.forEach((x,n)=>uploads.push({data:x.data_url,set:path=>{x.storage_path=path;delete x.data_url},label:'مدرک '+(n+1)}));
+  main.forEach((x,n)=>uploads.push({data:x.data_url,set:path=>{x.storage_path=path;delete x.data_url},label:'عکس خودرو '+(n+1)}));
+  defs.forEach((d,di)=>d.photos.forEach((p,pi)=>uploads.push({data:p.data_url,set:path=>{p.storage_path=path;delete p.data_url},label:'عکس ایراد '+(di+1)+'-'+(pi+1)})));
+  const pool=async(items,limit,worker)=>{let next=0;await Promise.all(Array.from({length:Math.min(limit,items.length)},async()=>{while(true){const n=next++;if(n>=items.length)return;await worker(items[n],n)}}))};
+  let completedUploads=0;const totalUploads=uploads.length+1;
+  const uploadOne=async(data,label)=>{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=upload-photo&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({data_url:data,label})});let j;try{j=await r.json()}catch(_){throw Error('پاسخ ذخیره عکس معتبر نیست')}if(!r.ok||j.error)throw Error(j.error||('ذخیره '+label+' ناموفق بود'));return j.storage_path};
+  const nationalPath=await uploadOne(nationalData,'کارت ملی مالک');completedUploads++;msg.textContent='عکس کارت ملی ذخیره شد؛ در حال ذخیره عکس‌ها ('+completedUploads+' از '+totalUploads+')...';
+  await pool(uploads,3,async(item)=>{const path=await uploadOne(item.data,item.label);item.set(path);completedUploads++;msg.textContent='عکس‌ها جداگانه ذخیره می‌شوند ('+completedUploads+' از '+totalUploads+')...'});
+  const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_path:nationalPath,documents:docs,main_photos:main,defects:defs};
+  msg.textContent='عکس‌ها ذخیره شدند؛ در حال ثبت نهایی پرونده...';
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');
   msg.textContent='✅ گزارش کامل کارشناسی ثبت شد. در حال بازگشت به همان پرونده...';localStorage.setItem(CASE_STORAGE,current.id);sessionStorage.setItem('s2s_done_case',JSON.stringify(current));const target=new URL('expert.html',location.href);target.searchParams.set('case',current.id);target.searchParams.set('view','case');target.searchParams.set('done','1');target.searchParams.set('v','20261008');window.location.assign(target.href)
  }catch(e){msg.textContent='❌ '+e.message;window.s2sSavingInspection=false;const submitBtn=document.querySelector('#finishAction button');if(submitBtn){submitBtn.disabled=false;submitBtn.style.opacity='1';submitBtn.textContent='✓ ثبت اطلاعات و پایان کارشناسی'}}
