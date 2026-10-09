@@ -85,7 +85,26 @@ async function estimate(req:Request){
  const estimated=Math.max(150000000,zero*ageFactor*mileageFactor*bodyFactor);
  const low=estimated*0.93,high=estimated*1.07;
  return json({ok:true,source:"market_based_used",source_label:"برآورد بر پایه قیمت روز بازار + سال، کارکرد و وضعیت بدنه",average_price:Math.round(estimated),low_price:Math.round(low),high_price:Math.round(high),zero_reference:Math.round(zero),sample_count:vals.length,updated_at:data?.[0]?.updated_at||new Date().toISOString()});
-}async function historyAdd(id:string,from:string,to:string,note:string){await db.from("case_history").insert({case_id:id,from_status:from,to_status:to,note});} async function setStatus(id:string,next:string,note:string){const {data,error}=await db.from("cases").select("status").eq("id",id).single();if(error)return json({error:error.message},500);const r=await db.from("cases").update({status:next}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,data?.status||"new",next,note);return json({ok:true,status:next})} async function api(req:Request,u:URL){
+}async function historyAdd(id:string,from:string,to:string,note:string){await db.from("case_history").insert({case_id:id,from_status:from,to_status:to,note});} async function setStatus(id:string,next:string,note:string){const {data,error}=await db.from("cases").select("status").eq("id",id).single();if(error)return json({error:error.message},500);const r=await db.from("cases").update({status:next}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,data?.status||"new",next,note);return json({ok:true,status:next})} async function caseComments(req:Request,id:string,role:string){
+ if(!id)return json({error:"پرونده مشخص نیست"},400);
+ const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();
+ if(cr.error)return json({error:cr.error.message},500);
+ if(!cr.data)return json({error:"پرونده پیدا نشد"},404);
+ if(role==="expert"&&!["refer","inspection"].includes(cr.data.status))return json({error:"این پرونده در حال حاضر در دسترس کارشناس نیست"},403);
+ if(req.method==="GET"){
+  const r=await db.from("case_comments").select("id,case_id,author_role,message,created_at").eq("case_id",id).order("created_at",{ascending:true});
+  return r.error?json({error:r.error.message},500):json({comments:r.data||[]});
+ }
+ if(req.method==="POST"){
+  const b=await req.json(),message=String(b.message||"").trim();
+  if(!message)return json({error:"متن پیام را بنویسید"},400);
+  if(message.length>3000)return json({error:"پیام نباید بیشتر از ۳۰۰۰ نویسه باشد"},400);
+  const r=await db.from("case_comments").insert({case_id:id,author_role:role,message}).select("id,case_id,author_role,message,created_at").single();
+  return r.error?json({error:r.error.message},500):json({ok:true,comment:r.data});
+ }
+ return json({error:"method_not_allowed"},405);
+}
+async function api(req:Request,u:URL){
  const role=auth(u),a=u.searchParams.get("api"),id=u.searchParams.get("id")||"";
  if(a==="public-ready-auctions"&&req.method==="GET"){const {data,error}=await db.from("cases").select("id,case_number,status,created_at").eq("status","review").order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((c:any)=>c.id);const vr=ids.length?await db.from("vehicles").select("case_id,brand,model,trim,model_year,mileage").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null};if(vr.error)return json({error:vr.error.message},500);return json({cases:(data||[]).map((c:any)=>({...c,vehicle:(vr.data||[]).find((v:any)=>v.case_id===c.id)||null}))})}if(a==="auction-request-code"&&req.method==="POST")return requestAuctionOtp(req);if(a==="auction-verify-code"&&req.method==="POST")return verifyAuctionOtp(req);if(a==="auction-start-subscription"&&req.method==="POST")return startAuctionSubscription(req);if(a==="auction-payment-callback"&&req.method==="POST")return paymentCallback(req);if(a==="public-auctions"&&req.method==="GET")return publicAuctions(req,u);
  if(a==="place-bid"&&req.method==="POST")return placeBid(req,id);
@@ -93,6 +112,8 @@ async function estimate(req:Request){
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
 if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(!role)return json({error:"unauthorized"},401);
  if(a==="list")return listCases(role);
+ if(a==="case-comments"&&req.method==="GET")return caseComments(req,id,role);
+ if(a==="case-comment"&&req.method==="POST")return caseComments(req,id,role);
  if(a==="draft"&&role==="expert"&&req.method==="GET")return getDraft(id);
  if(a==="draft"&&role==="expert"&&req.method==="POST")return saveDraft(req,id);
  if(a==="auctions"&&role==="admin"){const {data,error}=await db.from("auctions").select("*").order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((x:any)=>x.case_id).filter(Boolean);let cases:any[]=[];if(ids.length){const cr=await db.from("cases").select("*").in("id",ids);if(cr.error)return json({error:cr.error.message},500);cases=cr.data||[]}const aids=(data||[]).map((x:any)=>x.id);let bids:any[]=[];if(aids.length){const br=await db.from("bids").select("*").in("auction_id",aids).order("amount",{ascending:false});if(br.error)return json({error:br.error.message},500);bids=br.data||[]}return json({auctions:(data||[]).map((a:any)=>({...a,case:cases.find((c:any)=>c.id===a.case_id)||null,bids:bids.filter((b:any)=>b.auction_id===a.id)}))})}
