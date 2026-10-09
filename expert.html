@@ -329,7 +329,17 @@ function enableDraw(btn){const can=btn.closest('.canvas-wrap').querySelector('ca
 function clearDraw(btn){const c=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);if(c._baseImage)ctx.drawImage(c._baseImage,0,0,c.width,c.height)}
 function markSaved(btn){btn.textContent='✓ علامت ثبت شد'}
 function setupAccordions(){document.querySelectorAll('#formArea>.card').forEach((card,i)=>{if(i===0)return;const title=card.querySelector('.section-title');if(!title)return;const body=document.createElement('div');body.className='collapse-body';while(title.nextSibling)body.appendChild(title.nextSibling);card.appendChild(body);const arrow=document.createElement('span');arrow.className='collapse-arrow';arrow.textContent='⌃';title.appendChild(arrow);card.classList.add('collapse-card');title.onclick=()=>card.classList.toggle('closed')})}
-async function readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+async function readFile(f){
+ if(!f)return null;
+ if(!f.type||!f.type.startsWith('image/'))return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
+ try{
+  const bitmap=await createImageBitmap(f),maxSide=1600,scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+  if(scale===1&&f.size<450*1024){bitmap.close();return await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+  return canvas.toDataURL('image/jpeg',0.78)
+ }catch(e){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+}
 let photoDraftDbPromise;
 function photoDraftDb(){if(!photoDraftDbPromise)photoDraftDbPromise=new Promise((resolve,reject)=>{const q=indexedDB.open('s2s_expert_photo_drafts',1);q.onupgradeneeded=()=>q.result.createObjectStore('drafts');q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)});return photoDraftDbPromise}
 async function readPhotoDraft(){if(!current)return {main:{},docs:{}};try{const db=await photoDraftDb();return await new Promise((resolve,reject)=>{const q=db.transaction('drafts').objectStore('drafts').get(String(current.id));q.onsuccess=()=>resolve(q.result||{main:{},docs:{}});q.onerror=()=>reject(q.error)})}catch(e){return {main:{},docs:{}}}}
