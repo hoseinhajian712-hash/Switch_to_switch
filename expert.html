@@ -34,16 +34,16 @@ input:focus,select:focus,textarea:focus{border-color:#3b82f6}
 .photo-box strong{display:block;font-size:11px}.photo-box small{display:block;color:#7188a1;font-size:9px;margin-top:4px;min-height:26px}
 .photo-box input,.inline-drawer input[type=file]{display:none}.camera-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:9px;padding:11px 14px;border:1px solid #294763;border-radius:12px;background:linear-gradient(180deg,#122a43,#0d1d30);color:#dbeafe;font-size:11px;font-weight:900;cursor:pointer;box-shadow:0 7px 20px #0003;transition:.18s ease;position:relative;overflow:hidden}.camera-btn::before{content:"";width:17px;height:13px;border:1.8px solid #8fb9e6;border-radius:3px;display:inline-block;box-shadow:inset 0 0 0 1px #0d1d30;position:relative}.camera-btn::after{content:"";width:5px;height:5px;border:1.5px solid #8fb9e6;border-radius:50%;position:absolute;left:calc(50% - 2px);top:calc(50% - 1px)}.camera-btn:active{transform:scale(.985)}.camera-btn:hover{border-color:#4b8ed0;background:linear-gradient(180deg,#173653,#10263d);box-shadow:0 9px 25px #0005}.camera-btn:active{transform:scale(.98)}.camera-btn:hover{border-color:#3b82f6;background:linear-gradient(135deg,#173858,#102a43)}.file-name{display:block;margin-top:6px;color:#7f9ab6;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .preview{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
-.preview img{width:100%;height:80px;object-fit:cover;border-radius:8px;border:1px solid #203851}
+.preview img{width:100%;height:auto;max-height:260px;object-fit:contain;object-position:center;border-radius:8px;border:1px solid #203851;background:#020813}
 /* After a photo is added, show the photo in place of the camera/gallery choices. */
 .photo-box:has(.preview img) .camera-btn,.photo-box:has(.preview img) .file-name{display:none!important}
 .photo-box:has(.preview img) .preview{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px}
-.photo-box:has(.preview img) .preview img{height:132px;border-radius:11px;border:1px solid #10b981;box-shadow:0 4px 14px #0004}
+.photo-box:has(.preview img) .preview img{height:auto;max-height:300px;object-fit:contain;border-radius:11px;border:1px solid #10b981;box-shadow:0 4px 14px #0004;background:#020813}
 .photo-box:has(.preview img){border-style:solid;border-color:#10b981}
 .photo-box.has-photo .camera-btn,.photo-box.has-photo .file-name{display:none!important}
 .photo-box.has-photo .preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px}
-.photo-box.has-photo .preview img{height:132px;border-radius:11px;border:1px solid #10b981}
-#quickCameraVideo{aspect-ratio:3/4;max-height:58vh;width:auto;max-width:100%;margin:0 auto;object-fit:cover}
+.photo-box.has-photo .preview img{height:auto;max-height:300px;object-fit:contain;border-radius:11px;border:1px solid #10b981;background:#020813}
+#quickCameraVideo{aspect-ratio:auto;max-height:62vh;width:100%;max-width:100%;margin:0 auto;object-fit:contain}
 .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.check{padding:12px;background:#081522;border:1px solid #203851;border-radius:12px}.check input{width:auto;margin-left:7px}
 .defect-search{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px;background:#081522;border:1px solid #203851;border-radius:13px}.defect-search input{flex:1;margin:0}.defect-search .search-count{font-size:10px;color:#8fa4bd;white-space:nowrap}.defect-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}.defect-group{margin-top:16px;background:#091725;border:1px solid #203851;border-radius:17px;padding:12px}.group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 8px 13px;border-bottom:1px solid #1b3046;margin-bottom:2px}.group-head h4{margin:0;font-size:14px}.group-head span{display:block;color:#7188a1;font-size:9px;margin-top:5px}.group-head b{font-size:9px;padding:6px 9px;border-radius:999px;background:#142d4b;color:#9ec8ff;white-space:nowrap}.defect-card.is-hidden{display:none}
 .defect-card{background:#081522;border:1px solid #203851;border-radius:14px;overflow:hidden}
@@ -235,10 +235,9 @@ async function captureQuickPhoto(){
  if(!quickCaptureActive||!quickCameraStream)return;
  const video=document.getElementById('quickCameraVideo'),canvas=document.getElementById('quickCameraCanvas');
  if(!video.videoWidth){quickCaptureMessage('دوربین هنوز آماده نیست؛ یک لحظه صبر کنید.');return}
- /* Crop the live frame to a portrait 3:4 composition without rotating the subject sideways. */
- const sw=video.videoWidth,sh=video.videoHeight,portraitRatio=3/4;let sx=0,sy=0,swc=sw,shc=sh;
- if(sw/sh>portraitRatio){swc=Math.round(sh*portraitRatio);sx=Math.round((sw-swc)/2)}else{shc=Math.round(sw/portraitRatio);sy=Math.round((sh-shc)/2)}
- canvas.width=720;canvas.height=960;const ctx=canvas.getContext('2d');ctx.drawImage(video,sx,sy,swc,shc,0,0,canvas.width,canvas.height);
+ /* Preserve the camera's original orientation and full frame: landscape stays landscape, portrait stays portrait. */
+ const sw=video.videoWidth,sh=video.videoHeight,scale=Math.min(1,1600/sw,1600/sh);
+ canvas.width=Math.max(1,Math.round(sw*scale));canvas.height=Math.max(1,Math.round(sh*scale));const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,canvas.width,canvas.height);
  const dataUrl=canvas.toDataURL('image/jpeg',0.88);
  quickCapturedPhotos[quickCaptureIndex]=dataUrl;await savePhotoDraftItem('main',String(quickCaptureIndex),dataUrl);
  const preview=document.getElementById('mp'+quickCaptureIndex),name=document.getElementById('mainname'+quickCaptureIndex);
