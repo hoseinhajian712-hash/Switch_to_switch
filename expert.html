@@ -56,7 +56,7 @@ canvas{width:100%;height:auto;max-height:420px;object-fit:contain;display:block;
 .msg{margin-top:10px;font-size:12px}.collapse-card.closed>.collapse-body{display:none}.collapse-card>.section-title{cursor:pointer}.collapse-arrow{width:30px;height:30px;border-radius:9px;background:#10263d;border:1px solid #294763;display:grid;place-items:center}.collapse-card.closed .collapse-arrow{transform:rotate(180deg)}.hidden{display:none!important}#formArea{display:flex;flex-direction:column}#formArea>.card:nth-child(1){order:0}#formArea>.card:nth-child(2){order:2}#formArea>.card:nth-child(3){order:1}#formArea>.card:nth-child(4){order:3}#formArea>.card:nth-child(5){order:4}#formArea>.card:nth-child(6){order:5}#formArea>.card:nth-child(7){order:6}
 @media(max-width:1050px){.photo-grid{grid-template-columns:repeat(3,1fr)}.case{grid-template-columns:90px 1fr 1fr 150px}.defect-options{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.wrap{padding:10px}.top{align-items:flex-start;flex-direction:column}.grid,.checks{grid-template-columns:1fr 1fr}.photo-grid{grid-template-columns:repeat(2,1fr)}.case{grid-template-columns:1fr 1fr}.case button{grid-column:1/-1}.drawer-grid{grid-template-columns:1fr}.defect-options{grid-template-columns:1fr 1fr}}
-@media(max-width:500px){.grid,.checks,.photo-grid{grid-template-columns:1fr}.case{grid-template-columns:1fr}.defect-options{grid-template-columns:1fr}.drawer-preview{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.grid,.checks{grid-template-columns:1fr}.case{grid-template-columns:1fr}.defect-options{grid-template-columns:1fr}.drawer-preview{grid-template-columns:repeat(2,1fr)}}
 .session-badge{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:999px;background:#0b2a22;border:1px solid #17634e;color:#6ee7b7;font-size:10px;font-weight:900}.session-badge::first-letter{color:#10b981}.top{position:sticky;top:10px;z-index:20;backdrop-filter:blur(14px)}.case{transition:.18s ease}.case button{min-width:150px}.card{transition:border-color .18s ease}.card:hover{border-color:#29425e}@media(max-width:760px){.top{position:relative;top:0}.top-actions{width:100%}.session-badge{flex:1;justify-content:center}}.inspection-home{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.inspection-tile{min-height:145px;padding:20px;border:1px solid #294763;border-radius:20px;background:linear-gradient(145deg,#10263d,#0a1727);cursor:pointer;transition:.2s;box-shadow:0 12px 30px #0003;display:flex;flex-direction:column;justify-content:space-between}.inspection-tile:hover{transform:translateY(-3px);border-color:#3b82f6}@media(max-width:760px){.inspection-home{grid-template-columns:1fr 1fr}}@media(max-width:450px){.inspection-home{grid-template-columns:1fr}}.case-backoffice{display:flex;flex-direction:column;min-height:0;background:#101b27;border:1px solid #26394b;border-radius:12px;padding:9px;gap:5px}.expert-comments-list{display:flex;flex-direction:column;gap:7px;height:180px;max-height:30vh;overflow-y:auto;overscroll-behavior:contain;padding:8px;background:#0b141d;border:1px solid #223344;border-radius:12px;margin-top:8px;scroll-behavior:smooth}.expert-comment{align-self:flex-start;max-width:88%;padding:6px 10px;border:1px solid #29415f;border-radius:14px 14px 14px 4px;background:#1b2a38;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.65}.expert-comment.admin{align-self:flex-start;background:#24283b;border-color:#44446a;border-right:3px solid #8b5cf6}.expert-comment.expert{align-self:flex-end;background:#243d32;border-color:#315846;border-right:3px solid #10b981;border-radius:14px 14px 4px 14px}.expert-comment small{display:block;color:#a9bdc9;font-size:9px;margin-top:4px}.expert-comment-form textarea{resize:none;min-height:42px}.case-backoffice .notice{margin-bottom:0}.expert-comment-form textarea{resize:vertical}.expert-comment-form button{min-width:130px}@media(max-width:500px){.expert-comment-form button{width:100%}}</style>
 <link rel="stylesheet" href="s2s-style.css"></head>
 <body><main class="wrap">
@@ -159,23 +159,31 @@ const defectGroups=[
 const parts=defectGroups.flatMap(g=>g.parts);
 const opts=['تعویض','برش و تعویض','صافکاری بدون رنگ','صافکاری نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','ضربه'];
 const mainShots=[
- ['front3','نمای جلو سه‌رخ','نمای سه‌رخ کامل از جلوی خودرو'],
- ['driver3','جلو سه‌رخ راننده','سه‌رخ جلو از سمت راننده'],
- ['passenger3','جلو سه‌رخ شاگرد','سه‌رخ جلو از سمت شاگرد'],
- ['rear3d','عقب سه‌رخ راننده','سه‌رخ عقب از سمت راننده'],
- ['rear3p','عقب سه‌رخ شاگرد','سه‌رخ عقب از سمت شاگرد'],
- ['rear','نمای عقب','نمای مستقیم عقب خودرو'],
- ['driver','نمای کامل سمت راننده','نمای کامل بدنه سمت راننده'],
- ['passenger','نمای کامل سمت شاگرد','نمای کامل بدنه سمت شاگرد'],
- ['roof','سقف','نمای سقف و ستون‌ها'],
- ['engine','محوطه موتور','موتور و محفظه موتور'],
- ['trunk','کف صندوق','کف و فضای صندوق'],
- ['spare','زاپاس','لاستیک زاپاس و محل قرارگیری آن'],
- ['cabin','کابین','نمای کامل داخل کابین'],
- ['dashboard','داشبورد و کیلومتر','داشبورد و کیلومتر خودرو'],
- ['frontSeats','صندلی‌های جلو','وضعیت صندلی‌های جلو'],
- ['tires','چرخ‌ها و لاستیک‌ها','لاستیک و رینگ‌ها']
-];
+ ['front','نمای مستقیم جلو','از روبه‌رو، کل خودرو در کادر باشد'],
+ ['front3d','سه‌رخ جلو راننده','نمای جلو و سمت راننده'],
+ ['front3p','سه‌رخ جلو شاگرد','نمای جلو و سمت شاگرد'],
+ ['driver','نمای کامل سمت راننده','تمام طول بدنه از سمت راننده'],
+ ['rear3d','سه‌رخ عقب راننده','نمای عقب و سمت راننده'],
+ ['rear','نمای مستقیم عقب','از روبه‌رو به عقب خودرو'],
+ ['trunkOpen','صندوق عقب باز','نمای کلی فضای صندوق در حالت باز'],
+ ['trunkFloor','کف صندوق','کف صندوق و زیرپوش آن'],
+ ['jackTools','جک و آچار چرخ','جک، آچار و ابزار همراه خودرو'],
+ ['rear3p','سه‌رخ عقب شاگرد','نمای عقب و سمت شاگرد'],
+ ['passenger','نمای کامل سمت شاگرد','تمام طول بدنه از سمت شاگرد'],
+ ['roof','سقف خودرو','سقف و ستون‌ها'],
+ ['driverSeat','صندلی جلو راننده','نمای نزدیک صندلی راننده'],
+ ['rearSeats','صندلی عقب کامل','تمام ردیف صندلی عقب'],
+ ['passengerSeat','صندلی جلو شاگرد','نمای نزدیک صندلی شاگرد'],
+ ['odometer','کیلومترشمار','نمای واضح عدد کیلومتر'],
+ ['steering','فرمان','فرمان و وضعیت ظاهری آن'],
+ ['dashboard','داشبورد کامل','نمای کامل داشبورد از داخل کابین'],
+ ['dashboardZoom','زوم داشبورد از عقب','نمای نزدیک داشبورد از سمت صندلی عقب'],
+ ['frontTireDriver','لاستیک جلو راننده','لاستیک و رینگ جلو سمت راننده'],
+ ['rearTireDriver','لاستیک عقب راننده','لاستیک و رینگ عقب سمت راننده'],
+ ['frontTirePassenger','لاستیک جلو شاگرد','لاستیک و رینگ جلو سمت شاگرد'],
+ ['rearTirePassenger','لاستیک عقب شاگرد','لاستیک و رینگ عقب سمت شاگرد'],
+ ['engine','محوطه موتور','نمای کلی موتور و محفظه آن']
+];;
 let current=null,cases=[];
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function caseNo(v){const n=Number(v);return Number.isFinite(n)&&n>0?'S'+n:'S—'}
