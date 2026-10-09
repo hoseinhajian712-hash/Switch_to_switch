@@ -24,7 +24,16 @@ input::placeholder{color:#7188a1!important}
 .cell,.customer,.vehicle-main,.case-no,.report-title,.report-row b{color:#eef5ff!important}
 .status-select option,select option{background:#0d1a2b!important;color:#eef5ff!important}
 .count,.badge{background:#142d4b!important;color:#dbeafe!important}
-</style></head>
+<style id="admin-contrast-fix">
+/* خوانایی پنل مدیریت: فیلدهای تیره و نام مشتری‌ها روشن */
+html body .toolbar input,html body .toolbar select,html body select,html body .status-select{
+ background:#081321!important;color:#f8fafc!important;border:1px solid #29415f!important;color-scheme:dark!important;
+}
+html body select option,html body .status-select option{background:#0d1a2b!important;color:#f8fafc!important}
+html body .customer,html body .vehicle-main,html body .cell,html body .case-no,html body .report-title,html body .report-row b{color:#f8fafc!important}
+html body .cell small,html body .meta,html body .type,html body .sub,html body .table-head{color:#b8c9dd!important}
+html body .row,html body .case,html body .stat,html body .toolbar,html body .auction-mini{background:linear-gradient(145deg,#102033,#0b1727)!important}
+</style></style></head>
 <body><main class="wrap">
 <header class="top"><div class="brand"><div class="logo">S2S</div><div><h1>پنل مدیریت سوییچ به سوییچ</h1><div class="sub">مدیریت پرونده‌ها، کارشناسی، مزایده و مسیر معامله</div></div></div><div class="top-actions"><a href="index.html" class="btn secondary">صفحه اصلی</a><a href="auction.html" class="btn green">پنل مزایده</a></div></header>
 <div id="message" class="message"></div>
