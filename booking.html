@@ -208,7 +208,7 @@ function initModernDropdowns(){
    if(!list.length){const empty=document.createElement('div');empty.className='modern-select-empty';empty.textContent='گزینه‌ای پیدا نشد';options.appendChild(empty);return}
    list.forEach(opt=>{const b=document.createElement('button');b.type='button';b.className='modern-select-option'+(opt.value===sel.value?' selected':'');b.textContent=opt.textContent;b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus()});options.appendChild(b)})
   }
-  trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');document.querySelectorAll('.modern-select.open').forEach(w=>{w.classList.remove('open');w.querySelector('.modern-select-trigger').setAttribute('aria-expanded','false')});if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();search.focus()}});
+  trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');document.querySelectorAll('.modern-select.open').forEach(w=>{w.classList.remove('open');w.querySelector('.modern-select-trigger').setAttribute('aria-expanded','false')});if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions()}});
   search.addEventListener('input',renderOptions);
   search.addEventListener('keydown',e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();const first=options.querySelector('.modern-select-option');if(first)first.click()}});
   sel.addEventListener('change',sync);
