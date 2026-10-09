@@ -186,8 +186,32 @@ const catalog={
 const $=id=>document.getElementById(id);
 function optionList(el,items,placeholder){el.innerHTML='';const first=document.createElement('option');first.value='';first.textContent=placeholder;el.appendChild(first);items.forEach(item=>{const o=document.createElement('option');o.value=item;o.textContent=item;el.appendChild(o)});el.disabled=!items.length}
 function trimsFor(model){if(model==='پژو 206')return ['تیپ ۲','تیپ ۵','SD'];if(model==='پژو 207')return ['دنده‌ای','اتوماتیک'];if(model==='شاهین')return ['G','اتوماتیک'];if(model==='ساینا')return ['S','GX','اتوماتیک'];if(model==='کوئیک')return ['دنده‌ای','اتوماتیک','R','S'];if(model==='دنا پلاس')return ['دنده‌ای','توربو','اتوماتیک'];if(model==='دنا')return ['معمولی','EF7'];if(model==='تارا')return ['دنده‌ای','اتوماتیک'];return ['استاندارد']}
-function yearsFor(model,trim){const max=model==='پژو 206'&&trim==='تیپ ۵'?1399:1405;const min=model==='پژو 206'&&trim==='تیپ ۵'?1385:1385;const a=[];for(let y=max;y>=min;y--)a.push(String(y));return a}
-function setupCar(prefix){const brand=$(prefix+'brand'),model=$(prefix+'model'),trim=$(prefix+'trim'),year=$(prefix+'year');optionList(brand,Object.keys(catalog),'انتخاب برند');optionList(model,[],'ابتدا برند را انتخاب کن');optionList(trim,[],'ابتدا مدل را انتخاب کن');optionList(year,[],'ابتدا تیپ را انتخاب کن');brand.addEventListener('change',()=>{optionList(model,catalog[brand.value]||[],'انتخاب مدل');optionList(trim,[],'ابتدا مدل را انتخاب کن');optionList(year,[],'ابتدا تیپ را انتخاب کن')});model.addEventListener('change',()=>{optionList(trim,model.value?trimsFor(model.value):[],'انتخاب تیپ');optionList(year,[],'ابتدا تیپ را انتخاب کن')});trim.addEventListener('change',()=>optionList(year,trim.value?yearsFor(model.value,trim.value):[],'انتخاب سال'))}
+// بازه تقریبی سال ساخت شمسی هر مدل؛ سال‌ها خارج از دوره تولید نمایش داده نمی‌شوند.
+const productionYears={
+'پراید':[1372,1399],'تیبا':[1389,1401],'تیبا 2':[1393,1401],'ساینا':[1395,1405],'کوئیک':[1397,1405],'شاهین':[1400,1405],'اطلس':[1402,1405],'سهند':[1403,1405],
+'پژو 206':[1380,1402],'پژو 207':[1389,1405],'دنا':[1393,1405],'دنا پلاس':[1396,1405],'تارا':[1400,1405],'سورن پلاس':[1399,1405],'رانا پلاس':[1399,1405],'سمند':[1381,1402],
+'هایما S5':[1395,1405],'هایما S7':[1394,1405],'جک J4':[1397,1405],'جک S3':[1396,1402],'جک S5':[1394,1402],'KMC J7':[1401,1405],'KMC T8':[1399,1405],'KMC X5':[1402,1405],
+'MVM X22':[1396,1405],'MVM X33':[1389,1402],'MVM X55':[1398,1405],'MVM X77':[1404,1405],'Arrizo 5':[1395,1405],'Arrizo 6':[1397,1405],
+'FX':[1401,1405],'Tiggo 7 Pro':[1400,1405],'Tiggo 8 Pro':[1400,1405],'Arrizo 6 Pro':[1401,1405],'فیدلیتی':[1400,1405],'فیدلیتی پرستیژ':[1402,1405],'دیگنیتی':[1399,1405],'دیگنیتی پرستیژ':[1402,1405],'رسپکت':[1401,1405],'کاپرا':[1389,1405],
+'لاماری ایما':[1401,1405],'لاماری ایما HEV':[1403,1405],'SX5':[1399,1405],'SX6':[1399,1405],'T5':[1400,1405],'GC6':[1396,1400],'Emgrand 7':[1391,1397],
+'i10':[1389,1402],'i20':[1389,1402],'Accent':[1389,1402],'Elantra':[1391,1402],'Sonata':[1385,1402],'Tucson':[1385,1405],'Santa Fe':[1385,1402],'Creta':[1402,1405],
+'Picanto':[1389,1402],'Rio':[1385,1397],'Cerato':[1385,1400],'K5':[1400,1405],'Sportage':[1385,1405],'Sorento':[1385,1402],'Seltos':[1400,1405],
+'Yaris':[1385,1400],'Corolla':[1385,1405],'Camry':[1385,1402],'C-HR':[1396,1400],'RAV4':[1385,1402],'Land Cruiser':[1385,1402],
+'Juke':[1391,1398],'Qashqai':[1389,1400],'X-Trail':[1394,1400],'Teana':[1388,1395],'Sunny':[1385,1395],
+'Sandero':[1394,1398],'Stepway':[1395,1398],'Logan':[1387,1397],'Duster':[1392,1400],'Koleos':[1389,1400],'Megane':[1385,1398],
+'2008':[1396,1399],'3008':[1396,1400],'508':[1392,1397],'Golf':[1385,1405],'Tiguan':[1396,1400],'Passat':[1396,1400],'Atlas':[1397,1400],
+'3':[1386,1398],'CX-3':[1396,1400],'CX-5':[1394,1400],'Civic':[1385,1405],'Accord':[1385,1400],'CR-V':[1385,1400],'HR-V':[1402,1405],
+'Swift':[1385,1400],'Vitara':[1385,1400],'Jimny':[1385,1400],'S-Cross':[1395,1400],
+'CS35':[1395,1400],'CS55':[1397,1405],'CS75':[1395,1400],'UNI-T':[1400,1405],'MG3':[1389,1397],'MG5':[1392,1398],'ZS':[1397,1400],'HS':[1398,1400],
+'H2':[1395,1399],'H6':[1395,1400],'Jolion':[1400,1405],'B30':[1396,1400],'B50':[1390,1396],'X40':[1397,1400],'H30 Cross':[1395,1398],'Shine Max':[1401,1405],
+'Tunland':[1394,1405],'Sauvana':[1395,1398],'C-Class':[1385,1405],'E-Class':[1385,1405],'S-Class':[1385,1405],'GLC':[1395,1405],'GLE':[1395,1405],
+'Series 1':[1385,1400],'Series 3':[1385,1405],'Series 5':[1385,1405],'X1':[1385,1405],'X3':[1385,1405],'X5':[1385,1405],
+'A3':[1385,1400],'A4':[1385,1400],'Q3':[1392,1405],'Q5':[1389,1405],'IS':[1385,1400],'ES':[1385,1405],'NX':[1395,1405],'RX':[1385,1405],
+'Macan':[1394,1405],'Cayenne':[1385,1405],'Panamera':[1388,1405],'XC40':[1397,1405],'XC60':[1389,1405],'XC90':[1385,1405],
+'Renegade':[1394,1400],'Compass':[1385,1405],'Wrangler':[1385,1405],'Grand Cherokee':[1385,1405]
+};
+function yearsFor(brand,model,trim){let range=productionYears[model]||[1390,1405];if(model==='پژو 206'&&trim==='تیپ ۵')range=[1385,1399];if(model==='پژو 206'&&trim==='SD')range=[1385,1400];const [min,max]=range;const a=[];for(let y=max;y>=min;y--)a.push(String(y));return a}
+function setupCar(prefix){const brand=$(prefix+'brand'),model=$(prefix+'model'),trim=$(prefix+'trim'),year=$(prefix+'year');optionList(brand,Object.keys(catalog),'انتخاب برند');optionList(model,[],'ابتدا برند را انتخاب کن');optionList(trim,[],'ابتدا مدل را انتخاب کن');optionList(year,[],'ابتدا تیپ را انتخاب کن');brand.addEventListener('change',()=>{optionList(model,catalog[brand.value]||[],'انتخاب مدل');optionList(trim,[],'ابتدا مدل را انتخاب کن');optionList(year,[],'ابتدا تیپ را انتخاب کن')});model.addEventListener('change',()=>{optionList(trim,model.value?trimsFor(model.value):[],'انتخاب تیپ');optionList(year,[],'ابتدا تیپ را انتخاب کن')});trim.addEventListener('change',()=>optionList(year,trim.value?yearsFor(brand.value,model.value,trim.value):[],'انتخاب سال'))}
 function colorsFor(brand,model){
  const iranBrands=['ایران خودرو','سایپا','پژو'];
  const suvModels=['هایما S5','هایما S7','جک S3','جک S5','KMC X5','MVM X22','MVM X33','MVM X55','MVM X77','Tiggo 7 Pro','Tiggo 8 Pro','FX','فیدلیتی','فیدلیتی پرستیژ','دیگنیتی','دیگنیتی پرستیژ','لاماری ایما','SX5','SX6','T5','Tucson','Santa Fe','Creta','Sportage','Sorento','Seltos','RAV4','C-HR','Qashqai','X-Trail','Duster','Koleos','Tiguan','CX-3','CX-5','CR-V','HR-V','Vitara','Jimny','S-Cross','CS35','CS55','CS75','UNI-T','ZS','HS','H2','H6','Jolion','X40','Macan','Cayenne','GLC','GLE','X1','X3','X5','Q3','Q5','NX','RX','XC40','XC60','XC90','Wrangler','Grand Cherokee'];
