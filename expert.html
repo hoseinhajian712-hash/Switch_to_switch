@@ -329,15 +329,19 @@ function enableDraw(btn){const can=btn.closest('.canvas-wrap').querySelector('ca
 function clearDraw(btn){const c=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);if(c._baseImage)ctx.drawImage(c._baseImage,0,0,c.width,c.height)}
 function markSaved(btn){btn.textContent='✓ علامت ثبت شد'}
 function setupAccordions(){document.querySelectorAll('#formArea>.card').forEach((card,i)=>{if(i===0)return;const title=card.querySelector('.section-title');if(!title)return;const body=document.createElement('div');body.className='collapse-body';while(title.nextSibling)body.appendChild(title.nextSibling);card.appendChild(body);const arrow=document.createElement('span');arrow.className='collapse-arrow';arrow.textContent='⌃';title.appendChild(arrow);card.classList.add('collapse-card');title.onclick=()=>card.classList.toggle('closed')})}
+async function compressDataUrl(dataUrl){
+ if(!dataUrl||!dataUrl.startsWith('data:image/'))return dataUrl;
+ try{const blob=await (await fetch(dataUrl)).blob(),bitmap=await createImageBitmap(blob),maxSide=1280,scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));if(scale===1&&blob.size<300*1024){bitmap.close();return dataUrl}const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();return canvas.toDataURL('image/jpeg',0.66)}catch(e){return dataUrl}
+}
 async function readFile(f){
  if(!f)return null;
  if(!f.type||!f.type.startsWith('image/'))return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
  try{
-  const bitmap=await createImageBitmap(f),maxSide=1600,scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+  const bitmap=await createImageBitmap(f),maxSide=1280,scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
   if(scale===1&&f.size<450*1024){bitmap.close();return await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
   canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
-  return canvas.toDataURL('image/jpeg',0.78)
+  return canvas.toDataURL('image/jpeg',0.66)
  }catch(e){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
 }
 let photoDraftDbPromise;
@@ -380,7 +384,7 @@ async function saveInspection(){
   window.s2sSavingInspection=true;if(submitBtn){submitBtn.disabled=true;submitBtn.style.opacity='.7';submitBtn.textContent='⏳ در حال ثبت سریع...'}msg.textContent='ثبت شروع شد؛ عکس‌ها هم‌زمان آماده و ارسال می‌شوند...';
   sessionStorage.setItem('s2s_done_case',JSON.stringify(current));await persistDraft();
   const photoDraft=await readPhotoDraft();msg.textContent='در حال فشرده‌سازی و آماده‌سازی عکس‌ها...';const docSpecs=[['carDocFront','car_document_front'],['carDocBack','car_document_back'],['greenDoc','green_card'],['factoryDoc','factory_invoice'],['techDoc','technical_inspection'],['insuranceDoc','insurance'],['insuranceBack','insurance_back'],['transferDoc','transfer_document'],['otherDoc','other']];const docs=(await Promise.all(docSpecs.map(async([id,type])=>{const f=selectedPhoto(id),saved=photoDraft.docs?.[id];if(f)return {type,data_url:await readFile(f)};if(saved)return {type,data_url:saved};return null}))).filter(Boolean);
-  const mainJobs=[];for(let mi=0;mi<mainShots.length;mi++){const saved=photoDraft.main?.[mi];if(saved)mainJobs.push(Promise.resolve({label:mainShots[mi][1],data_url:saved}));else if(quickCapturedPhotos[mi])mainJobs.push(Promise.resolve({label:mainShots[mi][1],data_url:quickCapturedPhotos[mi]}));for(const file of selectedPhotoGroup('mainfile',mi))mainJobs.push(readFile(file).then(data_url=>({label:mainShots[mi][1],data_url}))) }const main=await Promise.all(mainJobs);
+  const mainJobs=[];for(let mi=0;mi<mainShots.length;mi++){const saved=photoDraft.main?.[mi];if(saved)mainJobs.push(compressDataUrl(saved).then(data_url=>({label:mainShots[mi][1],data_url})));else if(quickCapturedPhotos[mi])mainJobs.push(compressDataUrl(quickCapturedPhotos[mi]).then(data_url=>({label:mainShots[mi][1],data_url})));for(const file of selectedPhotoGroup('mainfile',mi))mainJobs.push(readFile(file).then(data_url=>({label:mainShots[mi][1],data_url}))) }const main=await Promise.all(mainJobs);
   const checkedDefects=[...document.querySelectorAll('.defect-options input:checked')];
   msg.textContent='در حال آماده‌سازی هم‌زمان عکس‌های ایراد ('+checkedDefects.length+' مورد)...';
   const defs=await Promise.all(checkedDefects.map(async c=>{
@@ -388,10 +392,10 @@ async function saveInspection(){
    const inputs=drawer?[...drawer.querySelectorAll('.defphoto')]:[],picked=inputs.flatMap(x=>[...x.files]),canvas=drawer?.querySelector('.defcanvas'),savedDefectPhotos=photoDraft.defectPhotos?.[defectPhotoKey(c.dataset.part,defect)]||[];
    const photoJobs=picked.length?picked.map((file,pi)=>pi===0&&canvas&&canvas._baseImage?Promise.resolve(canvas.toDataURL('image/jpeg',0.82)):readFile(file)):savedDefectPhotos.map(data_url=>Promise.resolve(data_url));
    const photos=(await Promise.all(photoJobs)).map(data_url=>({data_url}));
-   const note=drawer?.querySelector('.defnote')?.value||'',annotation=canvas&&canvas._baseImage?canvas.toDataURL('image/png'):null;
-   return {area:c.dataset.area||'بدنه، شاسی و چرخ‌ها',part,defect_type:defect,explanation:note,annotation,photos}
+   const note=drawer?.querySelector('.defnote')?.value||'';
+   return {area:c.dataset.area||'بدنه، شاسی و چرخ‌ها',part,defect_type:defect,explanation:note,photos}
   }));
-  const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:selectedPhoto('national')?await readFile(selectedPhoto('national')):(photoDraft.docs?.national||null),documents:docs,main_photos:main,defects:defs};
+  const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,summary:summary.value,national_id_data_url:selectedPhoto('national')?await readFile(selectedPhoto('national')):await compressDataUrl(photoDraft.docs?.national||null),documents:docs,main_photos:main,defects:defs};
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');
   msg.textContent='✅ گزارش کامل کارشناسی ثبت شد. در حال بازگشت به همان پرونده...';localStorage.setItem(CASE_STORAGE,current.id);sessionStorage.setItem('s2s_done_case',JSON.stringify(current));const target=new URL('expert.html',location.href);target.searchParams.set('case',current.id);target.searchParams.set('view','case');target.searchParams.set('done','1');target.searchParams.set('v','20261008');window.location.assign(target.href)
  }catch(e){msg.textContent='❌ '+e.message;window.s2sSavingInspection=false;const submitBtn=document.querySelector('#finishAction button');if(submitBtn){submitBtn.disabled=false;submitBtn.style.opacity='1';submitBtn.textContent='✓ ثبت اطلاعات و پایان کارشناسی'}}
