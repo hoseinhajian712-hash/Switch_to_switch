@@ -60,7 +60,7 @@ async function placeBid(req:Request,id:string){
 async function inspect(req:Request,id:string){
  const b=await req.json();if(!b.vin||!b.engine_number||!b.plate_number||!b.national_id_data_url)return json({error:"VIN، شماره موتور، پلاک و عکس کارت ملی مالک الزامی است"},400);
  const {data:v}=await db.from("vehicles").select("id").eq("case_id",id).eq("vehicle_role","current").limit(1).maybeSingle();
- if(v)await db.from("vehicles").update({vin:b.vin,engine_number:b.engine_number,plate_number:b.plate_number,mileage:Number(String(b.mileage||"").replace(/[^0-9]/g,""))||null,spare_key:!!b.spare_key,fuel_card:!!b.fuel_card,power_of_attorney:!!b.power_of_attorney}).eq("id",v.id);
+ if(v)await db.from("vehicles").update({vin:b.vin,engine_number:b.engine_number,plate_number:b.plate_number,mileage:Number(String(b.mileage||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,""))||null,spare_key:!!b.spare_key,fuel_card:!!b.fuel_card,power_of_attorney:!!b.power_of_attorney}).eq("id",v.id);
  const {data:i,error:ie}=await db.from("inspections").insert({case_id:id,status:"completed",finished_at:new Date().toISOString(),summary:b.summary||"کارشناسی ثبت شد"}).select("id").single();if(ie)return json({error:ie.message},500);
  const raw=b.national_id_data_url.split(","),mime=(raw[0].match(/data:(.*?);base64/)||[])[1]||"image/jpeg",bytes=Uint8Array.from(atob(raw[1]),c=>c.charCodeAt(0)),path=`${id}/national-id-${Date.now()}.jpg`;
  const up=await db.storage.from("s2s-documents").upload(path,bytes,{contentType:mime,upsert:false});if(up.error)return json({error:"آپلود کارت ملی ناموفق بود: "+up.error.message},500);
