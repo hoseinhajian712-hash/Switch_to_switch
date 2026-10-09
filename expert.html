@@ -43,6 +43,7 @@ input:focus,select:focus,textarea:focus{border-color:#3b82f6}
 .photo-box.has-photo .camera-btn,.photo-box.has-photo .file-name{display:none!important}
 .photo-box.has-photo .preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px}
 .photo-box.has-photo .preview img{height:132px;border-radius:11px;border:1px solid #10b981}
+#quickCameraVideo{aspect-ratio:3/4;max-height:58vh;width:auto;max-width:100%;margin:0 auto;object-fit:cover}
 .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.check{padding:12px;background:#081522;border:1px solid #203851;border-radius:12px}.check input{width:auto;margin-left:7px}
 .defect-search{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px;background:#081522;border:1px solid #203851;border-radius:13px}.defect-search input{flex:1;margin:0}.defect-search .search-count{font-size:10px;color:#8fa4bd;white-space:nowrap}.defect-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}.defect-group{margin-top:16px;background:#091725;border:1px solid #203851;border-radius:17px;padding:12px}.group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 8px 13px;border-bottom:1px solid #1b3046;margin-bottom:2px}.group-head h4{margin:0;font-size:14px}.group-head span{display:block;color:#7188a1;font-size:9px;margin-top:5px}.group-head b{font-size:9px;padding:6px 9px;border-radius:999px;background:#142d4b;color:#9ec8ff;white-space:nowrap}.defect-card.is-hidden{display:none}
 .defect-card{background:#081522;border:1px solid #203851;border-radius:14px;overflow:hidden}
@@ -230,14 +231,16 @@ function closeQuickCamera(){
  const modal=document.getElementById('quickCameraModal');if(modal)modal.classList.add('hidden');
 }
 function stopQuickCapture(){closeQuickCamera();quickCaptureMessage('عکاسی سریع متوقف شد. عکس‌های گرفته‌شده حفظ شده‌اند.')}
-function captureQuickPhoto(){
+async function captureQuickPhoto(){
  if(!quickCaptureActive||!quickCameraStream)return;
  const video=document.getElementById('quickCameraVideo'),canvas=document.getElementById('quickCameraCanvas');
  if(!video.videoWidth){quickCaptureMessage('دوربین هنوز آماده نیست؛ یک لحظه صبر کنید.');return}
- canvas.width=video.videoWidth;canvas.height=video.videoHeight;
- const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,canvas.width,canvas.height);
+ /* Crop the live frame to a portrait 3:4 composition without rotating the subject sideways. */
+ const sw=video.videoWidth,sh=video.videoHeight,portraitRatio=3/4;let sx=0,sy=0,swc=sw,shc=sh;
+ if(sw/sh>portraitRatio){swc=Math.round(sh*portraitRatio);sx=Math.round((sw-swc)/2)}else{shc=Math.round(sw/portraitRatio);sy=Math.round((sh-shc)/2)}
+ canvas.width=720;canvas.height=960;const ctx=canvas.getContext('2d');ctx.drawImage(video,sx,sy,swc,shc,0,0,canvas.width,canvas.height);
  const dataUrl=canvas.toDataURL('image/jpeg',0.88);
- quickCapturedPhotos[quickCaptureIndex]=dataUrl;
+ quickCapturedPhotos[quickCaptureIndex]=dataUrl;await savePhotoDraftItem('main',String(quickCaptureIndex),dataUrl);
  const preview=document.getElementById('mp'+quickCaptureIndex),name=document.getElementById('mainname'+quickCaptureIndex);
  if(preview)showPhotoPreview(preview,dataUrl);savePhotoDraftItem('main',String(quickCaptureIndex),dataUrl);
  if(name)name.textContent='۱ عکس با دوربین سریع ثبت شد';
@@ -291,7 +294,7 @@ function openCase(id,navigate=true){current=cases.find(x=>x.id===id);if(!current
 function startInspection(){if(!current)return;current.status='inspection';const b=document.getElementById('startInspectionBtn');if(b)b.innerHTML='🔧 در حال کارشناسی';history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection');startInspectionView(true)}
 function goToFinish(){if(!current)return;openInspectionSection('summary');const s=document.getElementById('summary');if(s)s.focus()}
 function startInspectionView(markStatus=true){hideAllViews();inspectionHome.classList.remove('hidden');loadExpertComments();if(markStatus&&current&&current.status!=='inspection'){fetch(API+'?key='+encodeURIComponent(KEY)+'&api=expert-status&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({status:'inspection',note:'شروع کارشناسی'})}).catch(()=>{});current.status='inspection'}scrollTo(0,0)}
-function openInspectionSection(key,navigate=true){if(!current)return;if(navigate)history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection&section='+encodeURIComponent(key));hideAllViews();formArea.classList.remove('hidden');if(['body','climate','suspension','electrical','engine','brakes'].includes(key)){const s=document.getElementById('section-defects');s.classList.remove('hidden');document.querySelectorAll('.defect-group').forEach(g=>g.style.display=g.dataset.group===key?'':'none')}else{const s=document.getElementById('section-'+key);if(s)s.classList.remove('hidden')}scrollTo(0,0)}
+function openInspectionSection(key,navigate=true){if(!current)return;if(navigate)history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection&section='+encodeURIComponent(key));hideAllViews();formArea.classList.remove('hidden');if(['body','climate','suspension','electrical','engine','brakes'].includes(key)){const s=document.getElementById('section-defects');s.classList.remove('hidden');document.querySelectorAll('.defect-group').forEach(g=>g.style.display=g.dataset.group===key?'':'none')}else{const s=document.getElementById('section-'+key);if(s)s.classList.remove('hidden')}if(key==='gallery')restoreMainPhotoDraft();if(key==='docs')restoreDocPhotoDraft();scrollTo(0,0)}
 function backToInspectionSections(){if(!current)return;history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection');startInspectionView(false)}
 function backToList(){history.pushState({},'','expert.html');current=null;localStorage.removeItem(CASE_STORAGE);hideAllViews();listCard.classList.remove('hidden');loadCases();scrollTo(0,0)}
 function renderRoute(){const p=new URLSearchParams(location.search),qcase=p.get('case'),view=p.get('view'),section=p.get('section');if(qcase){let found=cases.find(x=>x.id===qcase);if(!found&&p.get('done')==='1'){found=JSON.parse(sessionStorage.getItem('s2s_done_case')||'null')}if(found){current=found;hydrateCase();restoreDraft().catch(()=>{});if(view==='inspection'){if(section)openInspectionSection(section,false);else startInspectionView(true)}else renderCaseLanding();return}}current=null;hideAllViews();listCard.classList.remove('hidden')}
