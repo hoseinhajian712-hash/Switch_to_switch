@@ -95,7 +95,8 @@ canvas{width:100%;height:auto;max-height:420px;object-fit:contain;display:block;
 
  <div id="section-gallery" class="inspection-section card hidden">
   <div class="section-title"><h3>۳. گالری اصلی خودرو</h3><span class="badge">زاویه‌به‌زاویه</span></div>
-  <div class="sub" style="margin-top:5px">هر زاویه را جداگانه ثبت کنید؛ برای هر کادر امکان گرفتن چند عکس وجود دارد.</div>
+  <div class="sub" style="margin-top:5px">هر زاویه را جداگانه ثبت کنید؛ برای هر کادر امکان گرفتن چند عکس وجود دارد. در حالت عکاسی سریع، بعد از هر عکس به کادر بعدی می‌رود.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="camera-btn" style="width:auto;margin:0" onclick="startQuickCapture()">⚡ شروع عکاسی سریع</button><button type="button" class="camera-btn" style="width:auto;margin:0" onclick="stopQuickCapture()">⏹️ توقف عکاسی سریع</button></div><div id="quickCaptureStatus" class="notice" style="margin-top:8px">برای ثبت عکس‌ها به ترتیب کادرها، «شروع عکاسی سریع» را بزنید.</div>
   <div class="photo-grid" id="mainPhotos"></div>
  </div>
 
@@ -194,9 +195,28 @@ function renderDocs(){
  docsGrid.innerHTML=arr.map((d,i)=>'<div class="photo-box"><strong>'+d[1]+' '+(d[2]==='الزامی'?'*':'')+'</strong><small>'+d[2]+'</small><input id="'+d[0]+'Cam" class="photo-camera" type="file" accept="image/*" capture="environment"><input id="'+d[0]+'Gal" class="photo-gallery" type="file" accept="image/*"><button type="button" class="camera-btn" onclick="document.getElementById(\''+d[0]+'Cam\').click()">📷 گرفتن عکس</button><button type="button" class="camera-btn" onclick="document.getElementById(\''+d[0]+'Gal\').click()">🖼️ انتخاب از گالری</button><span class="file-name" id="docname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="docprev'+i+'"></div></div>').join('');
  arr.forEach((d,i)=>[document.getElementById(d[0]+'Cam'),document.getElementById(d[0]+'Gal')].forEach(f=>f.onchange=()=>{const picked=selectedPhoto(d[0]);document.getElementById('docname'+i).textContent=picked?picked.name:'تصویری انتخاب نشده';const box=document.getElementById('docprev'+i);box.innerHTML='';if(picked){const im=document.createElement('img');im.src=URL.createObjectURL(picked);box.appendChild(im)}}));
 }
+let quickCaptureActive=false,quickCaptureIndex=0;
+function quickCaptureMessage(t){const el=document.getElementById('quickCaptureStatus');if(el)el.textContent=t}
+function startQuickCapture(){
+ quickCaptureActive=true;
+ const next=mainShots.findIndex((s,i)=>!selectedPhotoGroup('mainfile',i).length);
+ quickCaptureIndex=next<0?0:next;
+ quickCaptureMessage('عکاسی سریع فعال است. کادر بعدی: '+mainShots[quickCaptureIndex][1]);
+ const input=document.getElementById('maincam_'+quickCaptureIndex);
+ if(input)input.click();
+}
+function stopQuickCapture(){quickCaptureActive=false;quickCaptureMessage('عکاسی سریع متوقف شد. می‌توانید هر کادر را جداگانه تکمیل کنید.')}
+function advanceQuickCapture(){
+ if(!quickCaptureActive)return;
+ quickCaptureIndex++;
+ if(quickCaptureIndex>=mainShots.length){quickCaptureActive=false;quickCaptureMessage('✅ تمام کادرهای گالری اصلی بررسی شدند. عکس‌های جاافتاده را می‌توانید جداگانه اضافه کنید.');return}
+ quickCaptureMessage('عکس بعدی: '+mainShots[quickCaptureIndex][1]+' — اگر دوربین خودکار باز نشد، دکمه «گرفتن عکس» همین کادر را لمس کنید.');
+ const next=document.getElementById('maincam_'+quickCaptureIndex);
+ if(next)setTimeout(()=>{if(quickCaptureActive)next.click()},350);
+}
 function renderMainPhotos(){
- mainPhotos.innerHTML=mainShots.map((s,i)=>{const id='maincam_'+i,gid='maingal_'+i;return '<div class="photo-box"><strong>'+s[1]+'</strong><small>'+s[2]+'</small><input id="'+id+'" class="mainfile photo-camera" data-label="'+esc(s[1])+'" type="file" accept="image/*" capture="environment" multiple><input id="'+gid+'" class="mainfile photo-gallery" data-label="'+esc(s[1])+'" type="file" accept="image/*" multiple><button type="button" class="camera-btn" onclick="document.getElementById(\''+id+'\').click()">📷 گرفتن عکس</button><button type="button" class="camera-btn" onclick="document.getElementById(\''+gid+'\').click()">🖼️ انتخاب از گالری</button><span class="file-name" id="mainname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="mp'+i+'"></div></div>'}).join('');
- document.querySelectorAll('.mainfile').forEach(f=>f.onchange=()=>{const i=Number(f.id.split('_').pop()),box=document.getElementById('mp'+i),files=selectedPhotoGroup('mainfile',i);box.innerHTML='';document.getElementById('mainname'+i).textContent=files.length?(files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';files.forEach(file=>{const im=document.createElement('img');im.src=URL.createObjectURL(file);box.appendChild(im)})});
+ mainPhotos.innerHTML=mainShots.map((s,i)=>{const id='maincam_'+i,gid='maingal_'+i;return '<div class="photo-box" id="mainbox_'+i+'"><strong>'+s[1]+'</strong><small>'+s[2]+'</small><input id="'+id+'" class="mainfile photo-camera" data-label="'+esc(s[1])+'" type="file" accept="image/*" capture="environment" multiple><input id="'+gid+'" class="mainfile photo-gallery" data-label="'+esc(s[1])+'" type="file" accept="image/*" multiple><button type="button" class="camera-btn" onclick="document.getElementById(\''+id+'\').click()">📷 گرفتن عکس</button><button type="button" class="camera-btn" onclick="document.getElementById(\''+gid+'\').click()">🖼️ انتخاب از گالری</button><span class="file-name" id="mainname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="mp'+i+'"></div></div>'}).join('');
+ document.querySelectorAll('.mainfile').forEach(f=>f.onchange=()=>{const i=Number(f.id.split('_').pop()),box=document.getElementById('mp'+i),files=selectedPhotoGroup('mainfile',i);box.innerHTML='';document.getElementById('mainname'+i).textContent=files.length?(files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';files.forEach(file=>{const im=document.createElement('img');im.src=URL.createObjectURL(file);box.appendChild(im)});if(quickCaptureActive&&f.classList.contains('photo-camera')&&f.files&&f.files.length){const card=document.getElementById('mainbox_'+i);if(card)card.style.borderColor='#10b981';advanceQuickCapture()}});
 }
 function renderDefects(){
  const searchWrap='<div class="defect-search"><input id="defectSearch" type="search" placeholder="جست‌وجوی قطعه یا سیستم؛ مثلاً «درب»، «گلگیر»، «کولر»..."><span class="search-count" id="defectCount"></span></div>';
