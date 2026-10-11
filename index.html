@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <title>سوییچ به سوییچ | معاوضه هوشمندانه خودرو</title>
 <meta name="description" content="سوییچ به سوییچ؛ راهی هوشمندانه برای معاوضه خودرو، همراه با خدمات خرید، فروش و کارشناسی تخصصی.">
-<meta name="homepage-build" content="2026-10-12-premium-service-cards-v2">
+<meta name="homepage-build" content="2026-10-12-modern-service-cards-v3">
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#07111f;color:#fff;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 10%,#2563eb33,transparent 32%),radial-gradient(circle at 85% 20%,#7c3aed22,transparent 30%);pointer-events:none}
@@ -145,6 +145,30 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .serviceBuy:hover .serviceButton{background:linear-gradient(110deg,#6352d0,#927df8)}
 @media(max-width:800px){.services{gap:13px}.serviceCard{min-height:220px;padding:21px}.serviceCard h2{font-size:18px}.serviceButton{padding:13px 14px}}
 
+
+/* Modern editorial service cards v3 */
+.premiumServices{gap:22px;padding-top:8px}
+.premiumServices .serviceCard{min-height:322px;padding:26px;border-radius:28px;background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--serviceGlow) 20%,transparent),transparent 45%),linear-gradient(145deg,#111f32 0%,#0b1421 72%,#09111c 100%);border:1px solid #d7e8ff17;box-shadow:0 14px 32px #02071135,inset 0 1px #ffffff0b;backdrop-filter:blur(16px)}
+.premiumServices .serviceCard:after{width:240px;height:240px;right:-110px;top:-125px;opacity:.16;filter:blur(14px)}
+.premiumServices .serviceCard:before{right:26px;left:26px;background:linear-gradient(90deg,transparent,var(--serviceAccent),transparent);height:2px}
+.premiumServices .serviceCardHead{margin-bottom:26px}
+.premiumServices .serviceNumber{border-radius:12px;padding:7px 10px;background:#ffffff08;border-color:#ffffff12;color:#c1cede;font-size:10px}
+.premiumServices .icon{position:relative;left:auto;transform:none;width:58px;height:58px;flex:0 0 58px;border-radius:19px;font-size:27px;background:linear-gradient(145deg,#ffffff1c,#ffffff06);border-color:color-mix(in srgb,var(--serviceAccent) 42%,#ffffff12);box-shadow:0 10px 24px #0002,inset 0 1px #ffffff20}
+.premiumServices .serviceMiniArrow{width:36px;height:36px;flex:0 0 36px;border-radius:12px;background:#ffffff07;border-color:#ffffff16;color:#e5edf7}
+.premiumServices .serviceEyebrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:9px;letter-spacing:1.35px;margin-bottom:9px;color:var(--serviceAccent)}
+.featuredServiceTag{font-family:'Vazirmatn',Tahoma,sans-serif;letter-spacing:0;font-size:9px;font-weight:800;color:#08221d;background:#8bf0cc;padding:4px 8px;border-radius:999px}
+.premiumServices .serviceCard h2{font-size:23px;line-height:1.6;margin-bottom:8px;letter-spacing:-.65px}
+.premiumServices .serviceCard p{font-size:12.5px;line-height:2.15;color:#bdcada;max-width:34ch;margin-bottom:25px}
+.premiumServices .serviceButton{padding:14px 16px;border-radius:15px;background:linear-gradient(110deg,#ffffff0c,#ffffff05);border-color:#ffffff19;font-weight:800}
+.premiumServices .serviceButton b{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--serviceAccent) 15%,transparent);font-size:17px}
+.premiumServices .serviceCard:hover .serviceButton{background:var(--serviceAccent);box-shadow:0 8px 20px color-mix(in srgb,var(--serviceAccent) 22%,transparent)}
+.premiumServices .serviceExchange{background:radial-gradient(ellipse at 100% 0%,#1bb99435,transparent 48%),linear-gradient(145deg,#10312f 0%,#0b2027 70%,#091720 100%);border-color:#77e6c02b}
+.premiumServices .serviceExchange:before{height:3px}
+.premiumServices .serviceExchange .serviceButton{background:linear-gradient(105deg,#0d8f78,#25b994);border-color:#25b994;box-shadow:0 8px 24px #0b9b7b2c}
+.premiumServices .serviceExchange .serviceButton b{background:#ffffff20}
+@media(max-width:800px){.premiumServices{gap:15px;padding-top:2px}.premiumServices .serviceCard{min-height:0;padding:22px;border-radius:24px}.premiumServices .serviceCardHead{margin-bottom:22px}.premiumServices .serviceCard h2{font-size:22px}.premiumServices .serviceCard p{max-width:100%;margin-bottom:20px}}
+@media(min-width:801px){.premiumServices .serviceExchange{transform:translateY(-7px)}.premiumServices .serviceExchange:hover{transform:translateY(-14px)}}
+
 </style>
 <link rel="stylesheet" href="s2s-style.css"></head>
 <body><main class="wrap">
@@ -164,7 +188,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 <h2 class="title" id="services">معاوضه‌ای سریع، با دردسر کمتر</h2>
 <section class="services premiumServices">
 <a class="card serviceCard serviceSell" href="booking.html?type=sell"><div class="serviceCardHead"><span class="serviceNumber">۰۱</span><div class="icon">🚗</div><span class="serviceMiniArrow">↗</span></div><div class="serviceEyebrow">SELL YOUR CAR</div><h2>فروش خودرو</h2><p>خودروی خودت رو برای فروش ثبت کن؛ ادامه مسیر رو با هم پیش می‌بریم.</p><span class="serviceButton"><span>شروع فروش خودرو</span><b>←</b></span></a>
-<a class="card serviceCard serviceExchange" href="booking.html?type=exchange"><div class="serviceCardHead"><span class="serviceNumber">۰۲</span><div class="icon">🔄</div><span class="serviceMiniArrow">↗</span></div><div class="serviceEyebrow">SMART EXCHANGE</div><h2>معاوضه خودرو</h2><p>ماشین فعلیت رو با خودروی دلخواهت عوض کن؛ هوشمندانه و آسون.</p><span class="serviceButton"><span>شروع معاوضه</span><b>←</b></span></a>
+<a class="card serviceCard serviceExchange" href="booking.html?type=exchange"><div class="serviceCardHead"><span class="serviceNumber">۰۲</span><div class="icon">🔄</div><span class="serviceMiniArrow">↗</span></div><div class="serviceEyebrow">SMART EXCHANGE <span class="featuredServiceTag">خدمت اصلی ما</span></div><h2>معاوضه خودرو</h2><p>ماشین فعلیت رو با خودروی دلخواهت عوض کن؛ هوشمندانه و آسون.</p><span class="serviceButton"><span>شروع معاوضه</span><b>←</b></span></a>
 <a class="card serviceCard serviceBuy" href="booking.html?type=buy"><div class="serviceCardHead"><span class="serviceNumber">۰۳</span><div class="icon">🔎</div><span class="serviceMiniArrow">↗</span></div><div class="serviceEyebrow">FIND YOUR CAR</div><h2>خرید خودرو</h2><p>خودرویی که دنبالش هستی رو معرفی کن تا برای هماهنگی باهات تماس بگیریم.</p><span class="serviceButton"><span>ثبت درخواست خرید</span><b>←</b></span></a>
 </section>
 <section class="security"><div class="shield">🛡️</div><div><h3>تضمین امنیت معامله</h3><p>مراحل معامله به‌صورت یکپارچه پیگیری می‌شود؛ از بررسی اطلاعات و کارشناسی تا ثبت مدارک و تکمیل کار، با روندی روشن و منظم.</p></div></section><section class="trust"><div><b>✓ کارشناسی تخصصی</b><span>نتیجه کارشناسی در پرونده ثبت می‌شود تا مراحل معامله با نظم بیشتری پیش برود.</span></div><div><b>✓ مدارک و مستندات</b><span>مدارک و تصاویر پرونده به‌صورت منظم ثبت و نگهداری می‌شوند.</span></div><div><b>✓ فرآیند شفاف</b><span>مراحل پرونده مشخص است و روند آن به‌صورت منظم پیگیری می‌شود.</span></div></section><section class="info" id="about">
