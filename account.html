@@ -15,20 +15,19 @@
 <main class="wrap">
 <header class="top"><a class="brand" href="index.html">سوییچ <span>به</span> سوییچ</a><a class="back" href="index.html">← بازگشت به سایت</a></header>
 <div class="layout">
-<section class="intro"><span class="eyebrow">حساب مشتریان</span><h1>درخواست‌هات رو <span>یک‌جا</span> پیگیری کن</h1><p>حساب مشتری بساز تا درخواست‌های فروش، خرید و معاوضه خودرو به حساب خودت وصل شوند و وضعیت هر پرونده را ببینی.</p><div class="benefit"><b>✓</b><span>مشاهده شماره پرونده و آخرین وضعیت</span></div><div class="benefit"><b>✓</b><span>پیگیری زمان مراجعه و مشخصات درخواست</span></div><div class="benefit"><b>✓</b><span>ورود امن با ایمیل و رمز عبور</span></div></section>
+<section class="intro"><span class="eyebrow">حساب مشتریان</span><h1>درخواست‌هات رو <span>یک‌جا</span> پیگیری کن</h1><p>حساب مشتری بساز تا درخواست‌های فروش، خرید و معاوضه خودرو به حساب خودت وصل شوند و وضعیت هر پرونده را ببینی.</p><div class="benefit"><b>✓</b><span>مشاهده شماره پرونده و آخرین وضعیت</span></div><div class="benefit"><b>✓</b><span>پیگیری زمان مراجعه و مشخصات درخواست</span></div><div class="benefit"><b>✓</b><span>ورود و ساخت حساب فقط با شماره همراه و کد پیامکی</span></div></section>
 <section class="panel" id="authPanel">
 <div class="tabs" id="tabs"><button type="button" class="active" data-mode="login">ورود به حساب</button><button type="button" data-mode="signup">ثبت‌نام مشتری</button></div>
 <form id="authForm">
-<h2 class="heading" id="formTitle">خوش برگشتی!</h2><p class="sub" id="formSub">با ایمیل و رمز عبورت وارد شو تا درخواست‌هات رو ببینی.</p>
+<h2 class="heading" id="formTitle">ورود با شماره همراه</h2><p class="sub" id="formSub">شماره همراهت رو وارد کن تا کد یک‌بارمصرف برات پیامک بشه.</p>
 <div class="fields">
-<label class="field full hidden" id="nameWrap"><span>نام و نام خانوادگی</span><input id="fullName" maxlength="120" autocomplete="name" placeholder="نام کامل"></label>
-<label class="field full hidden" id="mobileWrap"><span>شماره موبایل</span><input id="mobile" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="09xxxxxxxxx"></label>
-<label class="field full"><span>ایمیل</span><input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com"></label>
-<label class="field full"><span>رمز عبور</span><input id="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="حداقل ۸ نویسه"></label>
+<label class="field full"><span>شماره همراه</span><input id="mobile" inputmode="tel" autocomplete="tel" maxlength="16" required placeholder="09xxxxxxxxx"></label>
+<label class="field full hidden" id="otpWrap"><span>کد پیامکی</span><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="کد ۶ رقمی"></label>
 </div>
-<button class="primary" id="submitBtn" type="submit">ورود به حساب ←</button>
+<button class="primary" id="submitBtn" type="submit">ارسال کد پیامکی ←</button>
+<button class="ghost hidden" id="changePhoneBtn" type="button" style="width:100%;margin-top:10px">تغییر شماره همراه</button>
 <div class="msg hidden" id="message" role="status" aria-live="polite"></div>
-<p class="small">اطلاعات حساب فقط برای ورود و پیگیری درخواست‌های ثبت‌شده با همین حساب استفاده می‌شود.</p>
+<p class="small">برای ورود یا ساخت حساب، فقط شماره همراه لازم است. کد تأیید به همان شماره پیامک می‌شود.</p>
 </form>
 </section>
 <section class="panel hidden" id="dashboard">
@@ -45,19 +44,37 @@
  const params=new URLSearchParams(location.search);
  const nextRaw=params.get('next')||'';
  const nextUrl=nextRaw.startsWith('booking.html')&&!nextRaw.startsWith('//')?nextRaw:'';
- let mode='login';
+ let mode='login',phase='phone',pendingPhone='';
  const form=document.getElementById('authForm'),tabs=document.getElementById('tabs'),message=document.getElementById('message'),submit=document.getElementById('submitBtn');
  function norm(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
+ function normalizePhone(v){let p=norm(v).replace(/[\s()\-]/g,'');if(/^09\d{9}$/.test(p))return '+98'+p.slice(1);if(/^\+989\d{9}$/.test(p))return p;if(/^989\d{9}$/.test(p))return '+'+p;return ''}
  function showMsg(text,kind=''){message.textContent=text;message.className='msg'+(kind?' '+kind:'')}
- function setMode(next){mode=next;tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));document.getElementById('nameWrap').classList.toggle('hidden',mode!=='signup');document.getElementById('mobileWrap').classList.toggle('hidden',mode!=='signup');document.getElementById('formTitle').textContent=mode==='signup'?'ساخت حساب مشتری':'خوش برگشتی!';document.getElementById('formSub').textContent=mode==='signup'?'اطلاعاتت رو وارد کن تا حساب مشتری ساخته بشه.':'با ایمیل و رمز عبورت وارد شو تا درخواست‌هات رو ببینی.';document.getElementById('password').autocomplete=mode==='signup'?'new-password':'current-password';submit.textContent=mode==='signup'?'ساخت حساب و ادامه ←':'ورود به حساب ←';message.className='msg hidden';document.getElementById('fullName').required=mode==='signup';document.getElementById('mobile').required=mode==='signup'}
+ function setMode(next){mode=next;phase='phone';tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));document.getElementById('formTitle').textContent=mode==='signup'?'ساخت حساب با شماره همراه':'ورود با شماره همراه';document.getElementById('formSub').textContent=mode==='signup'?'شماره همراهت رو وارد کن؛ حساب بعد از تأیید کد پیامکی ساخته می‌شه.':'شماره همراهت رو وارد کن تا کد یک‌بارمصرف برات پیامک بشه.';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('otp').value='';document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد پیامکی ←';message.className='msg hidden'}
  tabs.addEventListener('click',e=>{const b=e.target.closest('button[data-mode]');if(b)setMode(b.dataset.mode)});
+ document.getElementById('changePhoneBtn').addEventListener('click',()=>{phase='phone';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد پیامکی ←';showMsg('شماره همراهت رو بررسی کن و دوباره کد بگیر.')});
  function dateFa(v){if(!v)return 'ثبت نشده';try{return new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'long',day:'numeric'}).format(new Date(v))}catch(_){return v}}
  function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  async function loadCases(session){const list=document.getElementById('caseList');list.innerHTML='<div class="empty">در حال دریافت درخواست‌ها…</div>';try{const r=await fetch(API+'?api=customer-cases',{headers:{apikey:window.SUPABASE_KEY,authorization:'Bearer '+session.access_token},cache:'no-store'});const j=await r.json();if(!r.ok)throw Error(j.error||'دریافت درخواست‌ها ناموفق بود');const cases=j.cases||[];if(!cases.length){list.innerHTML='<div class="empty">هنوز درخواستی به این حساب متصل نیست.<br>برای شروع، درخواست فروش، خرید یا معاوضه‌ات رو ثبت کن.</div>';return}list.innerHTML=cases.map(c=>{const cars=(c.vehicles||[]).map(v=>(v.vehicle_role==='target'?'خودروی موردنظر: ':'خودروی فعلی: ')+[v.brand,v.model,v.trim,v.model_year?'مدل '+v.model_year:''].filter(Boolean).join(' ')).join('<br>');const appointment=c.appointment_date?'<span>مراجعه: '+safe(dateFa(c.appointment_date))+' '+safe(c.appointment_time||'')+'</span>':'';return '<article class="case"><div class="caseTop"><span class="caseNo">پرونده شماره '+safe(c.case_number)+'</span><span class="status">'+safe(c.status_label||'در حال پیگیری')+'</span></div><h3 class="caseTitle">'+safe(c.service_label||'درخواست خودرو')+'</h3><div class="meta"><span>ثبت: '+safe(dateFa(c.created_at))+'</span>'+appointment+'<span>آخرین به‌روزرسانی: '+safe(dateFa(c.updated_at))+'</span></div>'+(cars?'<div class="vehicles">'+cars+'</div>':'')+'</article>'}).join('')}catch(e){list.innerHTML='<div class="empty">'+safe(e.message||'دریافت درخواست‌ها ناموفق بود')+'</div>'}}
- async function showDashboard(session){document.getElementById('authPanel').classList.add('hidden');const dash=document.getElementById('dashboard');dash.classList.remove('hidden');const profile=await sb.from('profiles').select('full_name,mobile').eq('id',session.user.id).maybeSingle();const full=profile.data?.full_name||session.user.user_metadata?.full_name||'مشتری';document.getElementById('welcome').textContent='سلام '+full+' عزیز';await loadCases(session)}
- form.addEventListener('submit',async e=>{e.preventDefault();message.className='msg hidden';submit.disabled=true;submit.textContent='در حال انجام…';try{if(mode==='signup'){const full_name=document.getElementById('fullName').value.trim(),mobile=norm(document.getElementById('mobile').value).replace(/\D/g,'');if(full_name.length<2)throw Error('نام و نام خانوادگی را درست وارد کن.');if(!/^09\d{9}$/.test(mobile))throw Error('شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد.');const {data,error}=await sb.auth.signUp({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value,options:{data:{full_name,mobile}}});if(error)throw error;if(data.session){showMsg('حساب ساخته شد؛ در حال ورود…','success');if(nextUrl){location.href=nextUrl;return}await showDashboard(data.session)}else{setMode('login');showMsg('حساب ثبت شد. برای امنیت، ایمیل تأیید را بررسی کن؛ بعد از تأیید، از بخش ورود وارد شو.','success')}}else{const {data,error}=await sb.auth.signInWithPassword({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value});if(error)throw error;if(nextUrl){location.href=nextUrl;return}await showDashboard(data.session)}}catch(e){showMsg(e.message||'عملیات انجام نشد. دوباره تلاش کن.','error')}finally{submit.disabled=false;submit.textContent=mode==='signup'?'ساخت حساب و ادامه ←':'ورود به حساب ←'}});
+ async function showDashboard(session){document.getElementById('authPanel').classList.add('hidden');const dash=document.getElementById('dashboard');dash.classList.remove('hidden');const profile=await sb.from('profiles').select('full_name,mobile').eq('id',session.user.id).maybeSingle();const full=profile.data?.full_name||'مشتری';document.getElementById('welcome').textContent='سلام '+full+' عزیز';await loadCases(session)}
+ form.addEventListener('submit',async e=>{e.preventDefault();message.className='msg hidden';submit.disabled=true;submit.textContent='در حال انجام…';try{
+   if(phase==='phone'){
+     pendingPhone=normalizePhone(document.getElementById('mobile').value);
+     if(!pendingPhone)throw Error('شماره همراه معتبر وارد کن؛ مثال: 09123456789');
+     const {error}=await sb.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:mode==='signup',data:{mobile:pendingPhone}}});
+     if(error)throw error;
+     phase='otp';document.getElementById('mobile').disabled=true;document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;document.getElementById('formTitle').textContent='تأیید شماره همراه';document.getElementById('formSub').textContent='کد پیامک‌شده به '+pendingPhone+' رو وارد کن.';document.getElementById('changePhoneBtn').classList.remove('hidden');submit.textContent='تأیید کد و ورود ←';showMsg('کد تأیید ارسال شد. اگر پیامک نرسید، تنظیمات پیامک و ورود با شماره همراه در Supabase باید فعال باشد.','success');
+   }else{
+     const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
+     if(!/^\d{6}$/.test(token))throw Error('کد پیامکی ۶ رقمی را وارد کن.');
+     const {data,error}=await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
+     if(error)throw error;
+     if(!data.session)throw Error('تأیید انجام نشد؛ دوباره تلاش کن.');
+     if(nextUrl){location.href=nextUrl;return}
+     await showDashboard(data.session);
+   }
+ }catch(e){showMsg(e.message||'عملیات انجام نشد. دوباره تلاش کن.','error')}finally{submit.disabled=false;submit.textContent=phase==='otp'?'تأیید کد و ورود ←':'ارسال کد پیامکی ←'}});
  document.getElementById('logoutBtn').addEventListener('click',async()=>{await sb.auth.signOut();location.href='account.html'});
- async function init(){const {data}=await sb.auth.getSession();if(data.session){if(nextUrl){location.href=nextUrl;return}await showDashboard(data.session)}else if(nextUrl){setMode('login');showMsg('برای ادامه ابتدا وارد حساب مشتری شو یا ثبت‌نام کن.','')} }
+ async function init(){const {data}=await sb.auth.getSession();if(data.session){if(nextUrl){location.href=nextUrl;return}await showDashboard(data.session)}else if(nextUrl){setMode('login');showMsg('برای ادامه ابتدا با شماره همراه وارد شو یا حساب بساز.','')}}
  setMode('login');init();
 })();
 </script>
