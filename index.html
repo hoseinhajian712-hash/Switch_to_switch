@@ -72,6 +72,41 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .footer{padding:18px 0 5px}
 @media(max-width:800px){.heroVisual{height:300px;min-height:300px}.fallbackCar{height:100px}.carBody{height:52px}.carWheel{width:44px;height:44px}.wrap{padding:14px 13px 36px}.top{align-items:flex-start}.logo{font-size:22px}.hero{grid-template-columns:1fr;padding:21px;border-radius:24px;gap:22px}.hero h1{font-size:clamp(31px,8.5vw,43px);letter-spacing:-1px}.hero p{font-size:13px}.heroVisual{min-height:255px;grid-row:1}.heroCopy{grid-row:2}.heroMiniTrust{gap:10px}.heroMiniTrust span{font-size:10px}.primaryCta,.secondaryCta{flex:1}.services{gap:11px}.card{min-height:auto;padding:20px}.card h2{margin-top:12px}.title{font-size:20px}.photoCaption{right:12px;bottom:12px}.photoTag{left:12px;top:12px}.nav{display:flex;gap:5px}.nav a{font-size:10px;padding:8px}.nav a:nth-child(2){display:none}}
 @media(max-width:380px){.heroMiniTrust{display:grid;grid-template-columns:1fr 1fr}.heroVisual{min-height:220px}.nav a{padding:7px 8px}}
+
+/* Clean, professional hero refresh */
+.wrap .hero{grid-template-columns:1fr 1.08fr;gap:clamp(24px,4vw,54px);padding:clamp(22px,3.6vw,44px);background:#fff;border:1px solid #e7edf3;border-radius:24px;box-shadow:0 18px 55px #0f274014;color:#172b43}
+.wrap .heroCopy{max-width:570px}
+.wrap .hero .kicker{color:#38658d;font-weight:800}
+.wrap .hero .liveDot{background:#1e9a72;box-shadow:0 0 0 5px #1e9a7217}
+.wrap .hero h1{color:#152c43;line-height:1.5;font-size:clamp(30px,4vw,49px);letter-spacing:-1.2px}
+.wrap .hero h1 span{background:none;color:#2473b9;-webkit-text-fill-color:#2473b9}
+.wrap .hero p{color:#5d6e80;font-size:14px;line-height:2.2}
+.wrap .hero .primaryCta{background:#1769aa;box-shadow:0 8px 20px #1769aa2b;border-radius:10px}
+.wrap .hero .secondaryCta{color:#23445f;background:#f5f8fb;border:1px solid #dce5ee;border-radius:10px}
+.wrap .hero .heroMiniTrust{color:#52687b;gap:12px 18px}
+.wrap .heroVisual{height:365px;min-height:300px;border-radius:18px;border:1px solid #dce5ec;background:linear-gradient(135deg,#dfeaf1,#b8cbd8);box-shadow:none;isolation:isolate}
+.wrap .heroVisual:before{display:none}
+.wrap .heroVisual .heroPhoto{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center 56%;z-index:0}
+.wrap .heroVisual:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#071727b8 0%,transparent 52%);z-index:1;pointer-events:none}
+.wrap .heroVisual .photoCaption{z-index:2;right:16px;bottom:16px;background:#fffF;border-color:#ffffff;box-shadow:0 8px 24px #06111e22;backdrop-filter:blur(8px)}
+.wrap .heroVisual .photoCaption b{color:#18364f}
+.wrap .heroVisual .photoCaption small{color:#64778a}
+.wrap .heroVisual .photoCaptionIcon{background:#e8f4fb;color:#1769aa}
+.wrap .heroVisual .photoTag{z-index:2;background:#ffffffed;color:#26445e;border-color:#ffffff}
+.wrap .heroVisual .photoTag span{color:#16865f}
+.wrap .title{color:#172b43}
+.wrap .card{background:#fff;border:1px solid #e3eaf0;box-shadow:0 8px 24px #16334b0a;color:#172b43}
+.wrap .card p{color:#64778a}
+.wrap .card .icon{background:#edf6fc;border-color:#d8eaf6}
+.wrap .card .go{color:#1769aa}
+@media(max-width:800px){
+ .wrap .hero{grid-template-columns:1fr;padding:18px;gap:20px}
+ .wrap .heroVisual{grid-row:1;height:270px;min-height:270px}
+ .wrap .heroCopy{grid-row:2}
+ .wrap .hero h1{font-size:clamp(30px,8vw,41px)}
+ .wrap .hero .heroMiniTrust{gap:10px}
+}
+
 </style>
 <link rel="stylesheet" href="s2s-style.css"></head>
 <body><main class="wrap">
@@ -82,10 +117,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 <section class="hero">
 <div class="heroCopy"><div class="kicker"><span class="liveDot"></span> سامانه تخصصی خرید، فروش و معاوضه خودرو</div><h1>معامله‌ی بعدی خودروت،<br><span>هوشمندتر شروع می‌شه.</span></h1><p>برای فروش یا معاوضه خودروی فعلی‌ات، یا پیدا کردن خودروی دلخواهت، از یک مسیر ساده و شفاف شروع کن؛ از ثبت درخواست تا کارشناسی و انجام معامله کنار تو هستیم.</p><div class="heroActions"><a class="primaryCta" href="#services">شروع درخواست <span>←</span></a><a class="secondaryCta" href="auction-access.html">ورود به مزایده <span>↗</span></a></div><div class="heroMiniTrust"><span>✓ کارشناسی تخصصی</span><span>✓ روند شفاف</span><span>✓ پیگیری مرحله‌به‌مرحله</span></div></div>
 <div class="heroVisual" role="img" aria-label="تصویر خودروی سواری">
-  <div class="sceneSky"></div>
-  <div class="sceneHill hillOne"></div><div class="sceneHill hillTwo"></div>
-  <div class="sceneRoad"></div>
-  <div class="fallbackCar" aria-hidden="true"><span class="carWindow"></span><span class="carBody"></span><span class="carWheel wheelA"></span><span class="carWheel wheelB"></span></div>
+  <img class="heroPhoto" src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=85" alt="خودروی سواری در نمای حرفه‌ای" fetchpriority="high" decoding="async">
   <div class="photoCaption"><span class="photoCaptionIcon">✦</span><div><b>از انتخاب تا معامله</b><small>یک مسیر یکپارچه برای خودروی تو</small></div></div>
   <div class="photoTag">SWITCH YOUR DRIVE <span>↗</span></div>
 </div>
