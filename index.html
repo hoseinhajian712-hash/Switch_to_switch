@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <title>سوییچ به سوییچ | معاوضه هوشمندانه خودرو</title>
 <meta name="description" content="سوییچ به سوییچ؛ راهی هوشمندانه برای معاوضه خودرو، همراه با خدمات خرید، فروش و کارشناسی تخصصی.">
-<meta name="homepage-build" content="2026-10-12-remove-auction-entry">
+<meta name="homepage-build" content="2026-10-12-premium-service-buttons">
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#07111f;color:#fff;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 10%,#2563eb33,transparent 32%),radial-gradient(circle at 85% 20%,#7c3aed22,transparent 30%);pointer-events:none}
@@ -93,6 +93,28 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .footer{padding:18px 0 5px}
 @media(max-width:800px){.heroVisual{height:300px;min-height:300px}.fallbackCar{height:100px}.carBody{height:52px}.carWheel{width:44px;height:44px}.wrap{padding:14px 13px 36px}.top{align-items:flex-start}.logo{font-size:22px}.hero{grid-template-columns:1fr;padding:21px;border-radius:24px;gap:22px}.hero h1{font-size:clamp(31px,8.5vw,43px);letter-spacing:-1px}.hero p{font-size:13px}.heroVisual{min-height:255px;grid-row:1}.heroCopy{grid-row:2}.heroMiniTrust{gap:10px}.heroMiniTrust span{font-size:10px}.primaryCta,.secondaryCta{flex:1}.services{gap:11px}.card{min-height:auto;padding:20px}.card h2{margin-top:12px}.title{font-size:20px}.photoCaption{right:12px;bottom:12px}.photoTag{left:12px;top:12px}.nav{display:flex;gap:5px}.nav a{font-size:10px;padding:8px}.nav a:nth-child(2){display:none}}
 @media(max-width:380px){.heroMiniTrust{display:grid;grid-template-columns:1fr 1fr}.heroVisual{min-height:220px}.nav a{padding:7px 8px}}
+
+/* Premium service action cards */
+.services{align-items:stretch;gap:17px}
+.serviceCard{display:flex;flex-direction:column;align-items:flex-start;min-height:250px;padding:25px 24px 22px;border-radius:25px;background:linear-gradient(145deg,#14243a,#0a1422 78%);border:1px solid #9ac8ff20;box-shadow:0 16px 36px #0003;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.serviceCard:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,transparent,#70b7ff,transparent);opacity:.45;transition:opacity .25s}
+.serviceCard:hover{transform:translateY(-7px);border-color:#7ce6c177;box-shadow:0 23px 48px #0006}
+.serviceCard:hover:before{opacity:1}
+.serviceCard .icon{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;font-size:29px;background:linear-gradient(145deg,#70b7ff20,#7ce6c10d);border:1px solid #8dc9ff38;box-shadow:inset 0 1px #ffffff10}
+.serviceCard h2{font-size:20px;margin:17px 0 7px}
+.serviceCard p{margin:0 0 20px;color:#bdcadd;line-height:2.05;font-size:12px}
+.serviceButton{margin-top:auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-radius:14px;background:linear-gradient(110deg,#2563eb,#377ef0);color:#fff;font-size:12px;font-weight:800;box-shadow:0 8px 22px #2563eb28;transition:background .2s,transform .2s}
+.serviceButton b{font-size:18px;font-weight:500;transition:transform .2s}
+.serviceCard:hover .serviceButton{background:linear-gradient(110deg,#168f78,#27b99b)}
+.serviceCard:hover .serviceButton b{transform:translateX(-4px)}
+.serviceExchange .icon{background:linear-gradient(145deg,#7ce6c128,#70b7ff10);border-color:#7ce6c155}
+.serviceExchange .serviceButton{background:linear-gradient(110deg,#07866f,#20aa8b);box-shadow:0 8px 24px #0d9f8040}
+.serviceExchange:hover .serviceButton{background:linear-gradient(110deg,#0aa987,#36c9a7)}
+.serviceSell .serviceButton{background:linear-gradient(110deg,#2563eb,#4f8ff7)}
+.serviceBuy .serviceButton{background:linear-gradient(110deg,#5141b8,#8068ed)}
+.serviceBuy:hover .serviceButton{background:linear-gradient(110deg,#6352d0,#927df8)}
+@media(max-width:800px){.services{gap:13px}.serviceCard{min-height:220px;padding:21px}.serviceCard h2{font-size:18px}.serviceButton{padding:13px 14px}}
+
 </style>
 <link rel="stylesheet" href="s2s-style.css"></head>
 <body><main class="wrap">
@@ -111,9 +133,9 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 
 <h2 class="title" id="services">معاوضه‌ای سریع، با دردسر کمتر</h2>
 <section class="services">
-<a class="card" href="booking.html?type=sell"><div class="icon">🚗</div><h2>فروش خودرو</h2><p>مشخصات خودرو را ثبت کن؛ برای هماهنگی مراحل فروش با تو تماس می‌گیریم.</p><span class="go">شروع فروش ←</span></a>
-<a class="card" href="booking.html?type=exchange"><div class="icon">🔄</div><h2>معاوضه هوشمندانه خودرو</h2><p>خودروی فعلی و خودروی دلخواهت را ثبت کن. از کارشناسی تا هماهنگی و تکمیل معامله، مراحل کار پیگیری می‌شود.</p><span class="go">شروع معاوضه ←</span></a>
-<a class="card" href="booking.html?type=buy"><div class="icon">🔎</div><h2>خرید خودرو</h2><p>خودروی موردنظرت را ثبت کن تا برای بررسی درخواست و هماهنگی با تو تماس بگیریم.</p><span class="go">درخواست خرید خودرو ←</span></a>
+<a class="card serviceCard serviceSell" href="booking.html?type=sell"><div class="icon">🚗</div><h2>فروش خودرو</h2><p>مشخصات خودرو را ثبت کن؛ برای هماهنگی مراحل فروش با تو تماس می‌گیریم.</p><span class="serviceButton">شروع فروش <b>←</b></span></a>
+<a class="card serviceCard serviceExchange" href="booking.html?type=exchange"><div class="icon">🔄</div><h2>معاوضه هوشمندانه خودرو</h2><p>خودروی فعلی و خودروی دلخواهت را ثبت کن. از کارشناسی تا هماهنگی و تکمیل معامله، مراحل کار پیگیری می‌شود.</p><span class="serviceButton">شروع معاوضه <b>←</b></span></a>
+<a class="card serviceCard serviceBuy" href="booking.html?type=buy"><div class="icon">🔎</div><h2>خرید خودرو</h2><p>خودروی موردنظرت را ثبت کن تا برای بررسی درخواست و هماهنگی با تو تماس بگیریم.</p><span class="serviceButton">درخواست خرید خودرو <b>←</b></span></a>
 </section>
 <section class="security"><div class="shield">🛡️</div><div><h3>تضمین امنیت معامله</h3><p>مراحل معامله به‌صورت یکپارچه پیگیری می‌شود؛ از بررسی اطلاعات و کارشناسی تا ثبت مدارک و تکمیل کار، با روندی روشن و منظم.</p></div></section><section class="trust"><div><b>✓ کارشناسی تخصصی</b><span>نتیجه کارشناسی در پرونده ثبت می‌شود تا مراحل معامله با نظم بیشتری پیش برود.</span></div><div><b>✓ مدارک و مستندات</b><span>مدارک و تصاویر پرونده به‌صورت منظم ثبت و نگهداری می‌شوند.</span></div><div><b>✓ فرآیند شفاف</b><span>مراحل پرونده مشخص است و روند آن به‌صورت منظم پیگیری می‌شود.</span></div></section><section class="info" id="about">
 <div class="infoBox"><h3>چرا سوییچ به سوییچ؟</h3><p>در سوییچ به سوییچ، هدف ما این است که معاوضه خودرو برایت سریع‌تر و بی‌دردسرتر باشد؛ مراحل معامله به‌صورت یکپارچه هماهنگ و پیگیری می‌شود تا لازم نباشد کارها را جداگانه دنبال کنی.</p></div>
