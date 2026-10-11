@@ -164,6 +164,23 @@ select:hover:not(:disabled){border-color:#cdb578;background-color:#fffdf8}
 .wizard-prev{border:1px solid #e3dccd;background:#fff;color:#655c4a}
 .wizard-next{border:1px solid #d2b66f;background:linear-gradient(120deg,#191919,#4a402b);color:#f6e7bd;box-shadow:0 10px 22px #17130c1b}
 @media(max-width:520px){.stepper{gap:6px;padding:13px 7px}.stepper .step{gap:5px;font-size:9px}.stepper .step b{width:28px;height:28px}.stepper>i{width:5vw}.wizard-nav button{padding:14px 10px}}
+/* Premium dropdown polish for the actual booking page */
+.modern-select-trigger{min-height:58px;padding:14px 17px;border-radius:17px;border-color:#e1d5b8;background:linear-gradient(145deg,#fffefa,#f8f4e9);box-shadow:0 7px 20px #4937190d,inset 0 1px #fff;gap:14px}
+.modern-select-trigger:hover:not(:disabled){transform:translateY(-1px);border-color:#c7a75e;box-shadow:0 10px 24px #8a682015}
+.modern-select-trigger .chosen-label{font-size:13px;color:#29271f}
+.modern-select-trigger .chosen-label.placeholder{color:#9a927f}
+.modern-select-trigger .select-chevron{width:32px;height:32px;flex-basis:32px;border-radius:11px;background:linear-gradient(145deg,#f5ecd5,#eee0bb);color:#8c6828}
+.modern-select.open .modern-select-trigger{border-color:#b9974e;box-shadow:0 0 0 4px #c2a45a20,0 10px 24px #8a682015}
+.modern-select-menu{top:calc(100% + 9px);padding:11px;border-radius:19px;border-color:#e4d8bc;background:#fffefa;box-shadow:0 24px 60px #30230f30;backdrop-filter:blur(12px)}
+.modern-select-search{min-height:47px;margin-bottom:9px;padding:12px 14px;border-radius:13px;border-color:#e6ddca;background:#faf7ef;color:#2b2922}
+.modern-select-search:focus{border-color:#bd9b51;box-shadow:0 0 0 3px #c2a45a20}
+.modern-select-options{max-height:250px;padding:2px;scrollbar-width:thin;scrollbar-color:#d7c69e transparent}
+.modern-select-option{min-height:45px;margin:2px 0;padding:12px 14px;border-radius:12px;font-size:13px;transition:background .15s,color .15s,transform .15s}
+.modern-select-option:hover,.modern-select-option:focus-visible{background:#f7f0df;color:#795b25;transform:translateX(-1px)}
+.modern-select-option.selected{background:linear-gradient(100deg,#f1e5c6,#fbf7ec);color:#795b25;box-shadow:inset 0 0 0 1px #e5d3a5}
+.modern-select-option.selected:after{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:#e7d6a8;color:#76561d}
+.modern-select-empty{padding:18px 10px;border-radius:12px;background:#faf7ef}
+@media(max-width:700px){.modern-select-trigger{min-height:53px;padding:12px 14px}.modern-select-menu{max-height:min(58vh,330px);border-radius:17px}.modern-select-options{max-height:min(42vh,250px)}.modern-select-option{min-height:44px}}
 </style>
 </head>
 <body>
