@@ -23,5 +23,5 @@ async function submit(){let client;try{client=window.supabase.createClient(windo
 function close(){modal.classList.remove('open');document.body.style.overflow='';delete el.next.dataset.done}
 function open(t){type=Object.keys(titles).includes(t)?t:'exchange';values={};build();render();modal.classList.add('open');document.body.style.overflow='hidden'}
 window.openS2SRequest=open;$('s2sModalClose').onclick=close;modal.onclick=e=>{if(e.target===modal)close()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))close()});el.prev.onclick=()=>{if(step>1){remember();step--;render()}};el.next.onclick=async()=>{if(el.next.dataset.done==='1'){close();return}if(busy||!validate())return;if(step<steps.length){remember();step++;render()}else await submit()};
-document.querySelectorAll('a[href*="booking.html?type="]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();open(new URL(a.href,location.href).searchParams.get('type')||'exchange')},true));
+
 })();
