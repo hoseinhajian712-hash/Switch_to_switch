@@ -42,8 +42,17 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .primaryCta:hover,.secondaryCta:hover{transform:translateY(-2px)}
 .heroMiniTrust{display:flex;flex-wrap:wrap;gap:14px;margin-top:25px;color:#b8c9dd;font-size:11px}
 .heroMiniTrust span: first-letter{color:var(--mint)}
-.heroVisual{position:relative;height:380px;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:linear-gradient(145deg,#dcebf5 0%,#90adbf 50%,#3b5364 100%);box-shadow:0 24px 60px #0006}.heroVisual:before{content:"🚘";position:absolute;z-index:0;left:50%;top:44%;transform:translate(-50%,-50%);font-size:clamp(110px,18vw,220px);line-height:1;filter:drop-shadow(0 24px 18px #08111e55)}
-.heroVisual>svg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}.heroVisual img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:center;display:block;transform:scale(1.02)}
+.heroVisual{position:relative;height:380px;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:linear-gradient(180deg,#d9e7ef 0%,#9db8c7 55%,#647c89 56%,#263644 100%);box-shadow:0 24px 60px #0006}.heroVisual:before{content:"🚘";position:absolute;z-index:0;left:50%;top:44%;transform:translate(-50%,-50%);font-size:clamp(110px,18vw,220px);line-height:1;filter:drop-shadow(0 24px 18px #08111e55)}
+
+.sceneSky{position:absolute;inset:0 0 38%;background:linear-gradient(145deg,#e8f1f5,#9ab7c8)}
+.sceneHill{position:absolute;left:-8%;right:-8%;height:48%;bottom:34%;background:#6f929f;clip-path:polygon(0 72%,16% 30%,27% 57%,42% 12%,59% 62%,75% 25%,100% 70%,100% 100%,0 100%);opacity:.75}
+.hillTwo{bottom:27%;background:#476c7a;transform:scaleX(-1);opacity:.6}
+.sceneRoad{position:absolute;left:-15%;right:-15%;bottom:-25%;height:55%;background:linear-gradient(180deg,#52616b,#1b2731);transform:perspective(240px) rotateX(13deg);border-top:4px solid #d4e0e5}
+.fallbackCar{position:absolute;z-index:2;left:50%;top:54%;width:min(76%,430px);height:120px;transform:translate(-50%,-50%);filter:drop-shadow(0 22px 12px #10182070)}
+.carBody{position:absolute;left:0;right:0;bottom:15px;height:62px;border-radius:35px 42px 20px 22px;background:linear-gradient(180deg,#f9fcff 0%,#c5d2d9 43%,#7c909b 78%,#e8eef1 100%);border:2px solid #edf4f7;clip-path:polygon(8% 18%,25% 5%,36% 0,69% 4%,83% 22%,96% 35%,100% 72%,95% 93%,5% 93%,0 68%,2% 38%)}
+.carWindow{position:absolute;z-index:1;left:25%;top:10px;width:48%;height:50px;background:linear-gradient(135deg,#20394b,#7192a4);clip-path:polygon(16% 0,77% 0,100% 82%,0 82%);border:2px solid #dce7ed}
+.carWheel{position:absolute;z-index:3;bottom:5px;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle,#aab9c2 0 22%,#27323a 24% 48%,#0b1118 50% 100%);border:4px solid #101820}
+.wheelA{left:16%}.wheelB{right:15%}
 .photoShade{position:absolute;inset:0;background:linear-gradient(0deg,#020813ed 0%,#02081315 48%,#06111e0a 100%),linear-gradient(90deg,#06111e20,transparent)}
 .photoCaption{position:absolute;right:18px;bottom:18px;display:flex;align-items:center;gap:12px;padding:13px 16px;border:1px solid #ffffff25;border-radius:16px;background:#07111fd9;backdrop-filter:blur(12px)}
 .photoCaptionIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#7ce6c11a;color:#7ce6c1;font-size:21px}
@@ -61,7 +70,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .trust b{font-size:13px}.trust span{line-height:2}
 .infoBox{padding:24px}
 .footer{padding:18px 0 5px}
-@media(max-width:800px){.heroVisual{height:300px;min-height:300px}.wrap{padding:14px 13px 36px}.top{align-items:flex-start}.logo{font-size:22px}.hero{grid-template-columns:1fr;padding:21px;border-radius:24px;gap:22px}.hero h1{font-size:clamp(31px,8.5vw,43px);letter-spacing:-1px}.hero p{font-size:13px}.heroVisual{min-height:255px;grid-row:1}.heroCopy{grid-row:2}.heroMiniTrust{gap:10px}.heroMiniTrust span{font-size:10px}.primaryCta,.secondaryCta{flex:1}.services{gap:11px}.card{min-height:auto;padding:20px}.card h2{margin-top:12px}.title{font-size:20px}.photoCaption{right:12px;bottom:12px}.photoTag{left:12px;top:12px}.nav{display:flex;gap:5px}.nav a{font-size:10px;padding:8px}.nav a:nth-child(2){display:none}}
+@media(max-width:800px){.heroVisual{height:300px;min-height:300px}.fallbackCar{height:100px}.carBody{height:52px}.carWheel{width:44px;height:44px}.wrap{padding:14px 13px 36px}.top{align-items:flex-start}.logo{font-size:22px}.hero{grid-template-columns:1fr;padding:21px;border-radius:24px;gap:22px}.hero h1{font-size:clamp(31px,8.5vw,43px);letter-spacing:-1px}.hero p{font-size:13px}.heroVisual{min-height:255px;grid-row:1}.heroCopy{grid-row:2}.heroMiniTrust{gap:10px}.heroMiniTrust span{font-size:10px}.primaryCta,.secondaryCta{flex:1}.services{gap:11px}.card{min-height:auto;padding:20px}.card h2{margin-top:12px}.title{font-size:20px}.photoCaption{right:12px;bottom:12px}.photoTag{left:12px;top:12px}.nav{display:flex;gap:5px}.nav a{font-size:10px;padding:8px}.nav a:nth-child(2){display:none}}
 @media(max-width:380px){.heroMiniTrust{display:grid;grid-template-columns:1fr 1fr}.heroVisual{min-height:220px}.nav a{padding:7px 8px}}
 </style>
 <link rel="stylesheet" href="s2s-style.css"></head>
@@ -72,54 +81,14 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 </header>
 <section class="hero">
 <div class="heroCopy"><div class="kicker"><span class="liveDot"></span> سامانه تخصصی خرید، فروش و معاوضه خودرو</div><h1>معامله‌ی بعدی خودروت،<br><span>هوشمندتر شروع می‌شه.</span></h1><p>برای فروش یا معاوضه خودروی فعلی‌ات، یا پیدا کردن خودروی دلخواهت، از یک مسیر ساده و شفاف شروع کن؛ از ثبت درخواست تا کارشناسی و انجام معامله کنار تو هستیم.</p><div class="heroActions"><a class="primaryCta" href="#services">شروع درخواست <span>←</span></a><a class="secondaryCta" href="auction-access.html">ورود به مزایده <span>↗</span></a></div><div class="heroMiniTrust"><span>✓ کارشناسی تخصصی</span><span>✓ روند شفاف</span><span>✓ پیگیری مرحله‌به‌مرحله</span></div></div>
-<div class="heroVisual"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" style="display:block;width:100%;height:100%;min-height:330px;object-fit:cover" role="img" aria-label="تصویر خودرو">
-<defs>
- <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dcebf5"/><stop offset=".55" stop-color="#91b4c9"/><stop offset="1" stop-color="#e6edf0"/></linearGradient>
- <linearGradient id="body" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#f8fbfd"/><stop offset=".38" stop-color="#b9c8d2"/><stop offset=".72" stop-color="#647887"/><stop offset="1" stop-color="#e1e8ec"/></linearGradient>
- <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#233b50"/><stop offset=".55" stop-color="#68899d"/><stop offset="1" stop-color="#d4e2e9"/></linearGradient>
- <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#64727c"/><stop offset="1" stop-color="#26323c"/></linearGradient>
- <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
-</defs>
-<rect width="1200" height="760" fill="url(#sky)"/>
-<circle cx="930" cy="125" r="68" fill="#fff" opacity=".42"/>
-<path d="M0 355 125 250 210 310 340 205 470 330 590 245 710 340 845 220 980 325 1090 255 1200 330V560H0Z" fill="#7b9ba8" opacity=".55"/>
-<path d="M0 405 145 325 255 380 395 285 535 395 700 300 850 390 1010 300 1200 390V585H0Z" fill="#587c8b" opacity=".45"/>
-<rect y="485" width="1200" height="275" fill="url(#road)"/>
-<path d="M0 518Q300 482 600 520T1200 510" fill="none" stroke="#d7e0e5" stroke-width="4" opacity=".55"/>
-<ellipse cx="610" cy="594" rx="390" ry="58" fill="#101923" opacity=".48" filter="url(#shadow)"/>
-<g transform="translate(90 45)">
- <path d="M135 470 166 403Q181 374 228 355L335 269Q363 246 411 243L626 246Q667 248 702 283L789 365 887 394Q923 405 934 445L948 493Q950 519 924 528L128 528Q101 525 108 501Z" fill="#344652" opacity=".55"/>
- <path d="M132 448 163 391Q174 367 215 349L327 263Q353 242 400 239L618 242Q660 244 693 277L785 358 876 382Q914 392 928 430L941 472Q947 496 923 507L132 507Q108 505 113 482Z" fill="url(#body)" stroke="#526775" stroke-width="5"/>
- <path d="M347 274Q366 258 404 257L485 258 483 348 244 348Z" fill="url(#glass)" stroke="#607b8b" stroke-width="5"/>
- <path d="M505 258 614 261Q646 264 673 293L728 350 505 350Z" fill="url(#glass)" stroke="#607b8b" stroke-width="5"/>
- <path d="M493 258 492 355" stroke="#eef5f8" stroke-width="8"/>
- <path d="M239 357 727 359" stroke="#f5fafc" stroke-width="5" opacity=".8"/>
- <path d="M149 430Q179 408 221 407L248 411 232 438 145 451Z" fill="#f8fcff" stroke="#8b9ba5" stroke-width="4"/>
- <path d="M808 383 866 401Q890 410 901 437L840 431Z" fill="#f5fafb" stroke="#718795" stroke-width="4"/>
- <path d="M145 468 922 468" stroke="#596d7a" stroke-width="5" opacity=".8"/>
- <path d="M320 375 315 448M740 375 758 449" stroke="#657b88" stroke-width="4"/>
- <path d="M382 391 448 391M550 391 614 391" stroke="#708591" stroke-width="4" stroke-linecap="round"/>
- <rect x="488" y="465" width="115" height="20" rx="5" fill="#f4f7f9" stroke="#788c98" stroke-width="3"/>
- <path d="M500 472h90" stroke="#9aaab3" stroke-width="3"/>
- <path d="M114 477 169 474 169 493 126 496Q112 493 114 477Z" fill="#e3f2ff" stroke="#7b8e9a" stroke-width="3"/>
- <path d="M870 459 929 458 935 481 885 487Z" fill="#d9f4ff" stroke="#758b99" stroke-width="3"/>
- <path d="M190 364 272 360 250 374 177 390Z" fill="#6d8290" opacity=".5"/>
- <path d="M280 350 333 300" stroke="#f5fafc" stroke-width="4" opacity=".8"/>
- <path d="M360 260 445 260" stroke="#f5fafc" stroke-width="3" opacity=".7"/>
- <g>
-  <circle cx="273" cy="491" r="72" fill="#1b252e" stroke="#758894" stroke-width="7"/>
-  <circle cx="273" cy="491" r="48" fill="#aab8c0" stroke="#e5edf1" stroke-width="7"/>
-  <circle cx="273" cy="491" r="17" fill="#5b6d79"/>
-  <path d="M273 445V474M273 508V537M227 491H256M290 491H319M241 459 261 479M285 503 305 523M305 459 285 479M261 503 241 523" stroke="#eef4f7" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="781" cy="491" r="72" fill="#1b252e" stroke="#758894" stroke-width="7"/>
-  <circle cx="781" cy="491" r="48" fill="#aab8c0" stroke="#e5edf1" stroke-width="7"/>
-  <circle cx="781" cy="491" r="17" fill="#5b6d79"/>
-  <path d="M781 445V474M781 508V537M735 491H764M798 491H827M749 459 769 479M793 503 813 523M813 459 793 479M769 503 749 523" stroke="#eef4f7" stroke-width="7" stroke-linecap="round"/>
- </g>
- <path d="M124 504Q280 517 440 509T935 504" fill="none" stroke="#f7fbff" stroke-width="4" opacity=".55"/>
-</g>
-<rect width="1200" height="760" fill="#07111f" opacity=".08"/>
-</svg><div class="photoShade"></div><div class="photoCaption"><span class="photoCaptionIcon">✦</span><div><b>از انتخاب تا معامله</b><small>یک مسیر یکپارچه برای خودروی تو</small></div></div><div class="photoTag">SWITCH YOUR DRIVE <span>↗</span></div></div>
+<div class="heroVisual" role="img" aria-label="تصویر خودروی سواری">
+  <div class="sceneSky"></div>
+  <div class="sceneHill hillOne"></div><div class="sceneHill hillTwo"></div>
+  <div class="sceneRoad"></div>
+  <div class="fallbackCar" aria-hidden="true"><span class="carWindow"></span><span class="carBody"></span><span class="carWheel wheelA"></span><span class="carWheel wheelB"></span></div>
+  <div class="photoCaption"><span class="photoCaptionIcon">✦</span><div><b>از انتخاب تا معامله</b><small>یک مسیر یکپارچه برای خودروی تو</small></div></div>
+  <div class="photoTag">SWITCH YOUR DRIVE <span>↗</span></div>
+</div>
 </section>
 
 <h2 class="title" id="services">انتخاب خدمات</h2>
