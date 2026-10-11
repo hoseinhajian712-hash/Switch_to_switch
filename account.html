@@ -89,7 +89,7 @@
    }else{
      const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
      if(!/^\d{6}$/.test(token))throw Error('کد تأیید ۶ رقمی را وارد کن.');
-     const {data,error}=pendingMethod==='email'?await sb.auth.verifyOtp({email:pendingEmail,token,type:'email'}):await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
+     const {data,error}=pendingMethod==='email'?await sb.auth.verifyOtp({email:pendingEmail,token,type:mode==='signup'?'signup':'email'}):await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
      if(error)throw error;
      if(!data.session)throw Error('تأیید انجام نشد؛ دوباره تلاش کن.');
      if(nextUrl){location.href=nextUrl;return}
