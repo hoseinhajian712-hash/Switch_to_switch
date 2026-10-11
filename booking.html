@@ -217,6 +217,25 @@ button,.btn,.submit,.primary{background:linear-gradient(120deg,#3b82f6,#2563eb)!
 .back:hover{border-color:#60a5fa66!important;color:#fff!important}
 
 </style>
+
+<style id="s2s-stepper-redesign">
+/* Cleaner modern progress indicator for request steps */
+.stepper{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:clamp(6px,2vw,18px)!important;margin:0 0 22px!important;padding:15px clamp(12px,3vw,26px)!important;border:1px solid #ffffff16!important;border-radius:22px!important;background:linear-gradient(135deg,#101f33eF,#0b1728f2)!important;box-shadow:0 16px 38px #0003!important;position:relative!important;overflow:hidden!important}
+.stepper:before{content:"";position:absolute;inset:0 auto 0 0;width:34%;background:linear-gradient(90deg,#3b82f60a,transparent);pointer-events:none}
+.stepper .step{position:relative!important;z-index:1;display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important;color:#91a4bd!important;font-size:12px!important;font-weight:800!important;white-space:nowrap!important;transition:color .2s!important}
+.stepper .step b{display:grid!important;place-items:center!important;flex:0 0 36px!important;width:36px!important;height:36px!important;border-radius:12px!important;border:1px solid #ffffff18!important;background:#13243a!important;color:#9fb2c8!important;font-size:14px!important;box-shadow:none!important;transition:all .2s!important}
+.stepper .step.active{color:#f8fbff!important}
+.stepper .step.active b{background:linear-gradient(145deg,#60a5fa,#2563eb)!important;border-color:#93c5fd!important;color:#fff!important;box-shadow:0 6px 20px #2563eb55!important}
+.stepper .step.done{color:#a7f3d0!important}
+.stepper .step.done b{background:#10392f!important;border-color:#10b98166!important;color:#6ee7b7!important}
+.stepper>i{display:block!important;flex:1 1 28px!important;min-width:10px!important;width:auto!important;height:2px!important;background:#29415f!important;border-radius:99px!important;position:relative!important;z-index:1}
+@media(max-width:520px){
+.stepper{gap:6px!important;padding:12px 9px!important;border-radius:17px!important;margin-bottom:16px!important}
+.stepper .step{gap:5px!important;font-size:9px!important;white-space:normal!important;line-height:1.5!important;flex-direction:column!important;text-align:center!important;flex:1 1 0!important}
+.stepper .step b{flex-basis:32px!important;width:32px!important;height:32px!important;border-radius:11px!important;font-size:12px!important}
+.stepper>i{flex:0 1 16px!important;min-width:8px!important;margin-top:-17px!important}
+}
+</style>
 </head>
 <body>
 <main class="wrap">
