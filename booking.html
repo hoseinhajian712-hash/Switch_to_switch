@@ -482,7 +482,9 @@ function showWizardStep(n){
  const fields=$('currentPanel').querySelector('.fields');
  if(fields){Array.from(fields.children).forEach((el,i)=>{el.classList.toggle('hidden',wizardStep===2?i>=2:wizardStep===3?i<2:false)})}
  $('currentHint').classList.toggle('hidden',wizardStep===2);
- $('targetPanel').classList.toggle('hidden',type==='sell'||wizardStep!==3);
+ $('targetPanel').classList.toggle('hidden',type==='sell'||wizardStep===1);
+ const targetFields=$('targetPanel').querySelector('.fields');
+ if(targetFields){Array.from(targetFields.children).forEach((el,i)=>{el.classList.toggle('hidden',wizardStep===2?i>=2:wizardStep===3?i<2:false)})}
  $('appointmentPanel').classList.toggle('hidden',type==='buy'||wizardStep!==3);
  const notePanel=$('notes').closest('.panel');notePanel.classList.toggle('hidden',wizardStep!==3);
  $('submitPanel')?.classList.toggle('hidden',wizardStep!==3);
