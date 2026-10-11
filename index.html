@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <title>سوییچ به سوییچ | معاوضه هوشمندانه خودرو</title>
 <meta name="description" content="سوییچ به سوییچ؛ راهی هوشمندانه برای معاوضه خودرو، همراه با خدمات خرید، فروش و کارشناسی تخصصی.">
-<meta name="homepage-build" content="2026-10-12-modern-service-cards-v3">
+<meta name="homepage-build" content="2026-10-12-why-switch-section-v1">
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#07111f;color:#fff;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 10%,#2563eb33,transparent 32%),radial-gradient(circle at 85% 20%,#7c3aed22,transparent 30%);pointer-events:none}
@@ -169,6 +169,24 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 @media(max-width:800px){.premiumServices{gap:15px;padding-top:2px}.premiumServices .serviceCard{min-height:0;padding:22px;border-radius:24px}.premiumServices .serviceCardHead{margin-bottom:22px}.premiumServices .serviceCard h2{font-size:22px}.premiumServices .serviceCard p{max-width:100%;margin-bottom:20px}}
 @media(min-width:801px){.premiumServices .serviceExchange{transform:translateY(-7px)}.premiumServices .serviceExchange:hover{transform:translateY(-14px)}}
 
+
+/* Why Switch to Switch — modern editorial section */
+.whySwitch{position:relative;isolation:isolate;overflow:hidden;margin:38px 0 28px;padding:clamp(24px,4vw,46px);border:1px solid #cbd8e51c;border-radius:30px;background:radial-gradient(ellipse at 8% 0%,#36b99b16,transparent 42%),linear-gradient(145deg,#101e30 0%,#0b1421 75%,#0b1722 100%);box-shadow:0 18px 44px #02091426}
+.whySwitch:before{content:"";position:absolute;z-index:-1;width:300px;height:300px;left:-180px;bottom:-210px;border-radius:50%;background:#21b99820;filter:blur(38px)}
+.whySwitchIntro{max-width:700px;margin:0 auto 28px;text-align:center}
+.whySwitchEyebrow{display:inline-block;margin-bottom:9px;color:#7ce6c1;font-size:10px;font-weight:900;letter-spacing:1.5px}
+.whySwitchIntro h2{margin:0 0 10px;color:#fff;font-size:clamp(25px,3vw,36px);line-height:1.65;letter-spacing:-.8px}
+.whySwitchIntro h2 span{color:#7ce6c1}
+.whySwitchIntro>p{max-width:590px;margin:0 auto;color:#bdcada;font-size:13px;line-height:2.1}
+.whySwitchGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.whySwitchItem{position:relative;display:flex;align-items:flex-start;gap:14px;min-width:0;padding:20px;border:1px solid #ffffff12;border-radius:20px;background:linear-gradient(130deg,#ffffff0b,#ffffff04);transition:transform .22s,border-color .22s,background .22s}
+.whySwitchItem:hover{transform:translateY(-3px);border-color:#7ce6c145;background:#ffffff0d}
+.whySwitchIcon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border:1px solid #7ce6c126;border-radius:15px;background:#7ce6c10d;font-size:21px}
+.whySwitchItem h3{margin:1px 0 6px;color:#f7fafc;font-size:15px;line-height:1.8}
+.whySwitchItem p{margin:0;color:#b9c6d5;font-size:12px;line-height:2}
+.whySwitchNo{position:absolute;left:15px;top:13px;color:#ffffff45;font-size:10px;font-weight:800}
+@media(max-width:650px){.whySwitch{margin:25px 0 20px;padding:23px 16px;border-radius:24px}.whySwitchIntro{margin-bottom:21px}.whySwitchGrid{grid-template-columns:1fr;gap:10px}.whySwitchItem{padding:17px;border-radius:17px}.whySwitchItem h3{font-size:14px}.whySwitchItem p{font-size:11.5px;padding-left:14px}}
+
 </style>
 <link rel="stylesheet" href="s2s-style.css"></head>
 <body><main class="wrap">
@@ -190,6 +208,19 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 <a class="card serviceCard serviceSell" href="booking.html?type=sell"><div class="serviceCardHead"><span class="serviceNumber">۰۱</span><div class="icon">🚗</div><span class="serviceMiniArrow">↗</span></div><div class="serviceEyebrow">SELL YOUR CAR</div><h2>فروش خودرو</h2><p>فروش خودرو در سریع‌ترین زمان؛ ساده، مطمئن و بدون دردسر.</p><span class="serviceButton"><span>شروع فروش سریع</span><b>←</b></span></a>
 <a class="card serviceCard serviceExchange" href="booking.html?type=exchange"><div class="serviceCardHead"><span class="serviceNumber">۰۲</span><div class="icon">🔄</div><span class="serviceMiniArrow">↗</span></div><div class="serviceEyebrow">SMART EXCHANGE <span class="featuredServiceTag">خدمت اصلی ما</span></div><h2>معاوضه خودرو</h2><p>ماشین فعلیت رو با خودروی دلخواهت عوض کن؛ هوشمندانه و آسون.</p><span class="serviceButton"><span>شروع معاوضه</span><b>←</b></span></a>
 <a class="card serviceCard serviceBuy" href="booking.html?type=buy"><div class="serviceCardHead"><span class="serviceNumber">۰۳</span><div class="icon">🔎</div><span class="serviceMiniArrow">↗</span></div><div class="serviceEyebrow">FIND YOUR CAR</div><h2>خرید خودرو</h2><p>خودرویی که دنبالش هستی رو معرفی کن تا برای هماهنگی باهات تماس بگیریم.</p><span class="serviceButton"><span>ثبت درخواست خرید</span><b>←</b></span></a>
+</section>
+<section class="whySwitch" aria-labelledby="whySwitchTitle">
+  <div class="whySwitchIntro">
+    <span class="whySwitchEyebrow">THE SWITCH TO SWITCH DIFFERENCE</span>
+    <h2 id="whySwitchTitle">چرا <span>سوییچ به سوییچ؟</span></h2>
+    <p>برای خرید، فروش یا معاوضه خودرو، یک مسیر روشن و منظم؛ از اولین درخواست تا پیگیری مراحل معامله.</p>
+  </div>
+  <div class="whySwitchGrid">
+    <article class="whySwitchItem"><span class="whySwitchIcon">⚡</span><div><h3>شروع سریع و آسان</h3><p>درخواستت رو آنلاین ثبت کن تا برای ادامه مراحل باهات هماهنگ کنیم.</p></div><span class="whySwitchNo">۰۱</span></article>
+    <article class="whySwitchItem"><span class="whySwitchIcon">🔍</span><div><h3>کارشناسی تخصصی</h3><p>وضعیت خودرو بررسی می‌شه و اطلاعات کارشناسی در پرونده ثبت می‌شه.</p></div><span class="whySwitchNo">۰۲</span></article>
+    <article class="whySwitchItem"><span class="whySwitchIcon">🛡️</span><div><h3>شفافیت در مراحل معامله</h3><p>مراحل مشخص و مستندات پرونده منظم ثبت و پیگیری می‌شن.</p></div><span class="whySwitchNo">۰۳</span></article>
+    <article class="whySwitchItem"><span class="whySwitchIcon">🔄</span><div><h3>خرید، فروش و معاوضه در یک مسیر</h3><p>خدمت موردنظرت رو انتخاب کن و ادامه کار رو با هماهنگی تیم ما پیش ببر.</p></div><span class="whySwitchNo">۰۴</span></article>
+  </div>
 </section>
 <section class="security"><div class="shield">🛡️</div><div><h3>تضمین امنیت معامله</h3><p>مراحل معامله به‌صورت یکپارچه پیگیری می‌شود؛ از بررسی اطلاعات و کارشناسی تا ثبت مدارک و تکمیل کار، با روندی روشن و منظم.</p></div></section><section class="trust"><div><b>✓ کارشناسی تخصصی</b><span>نتیجه کارشناسی در پرونده ثبت می‌شود تا مراحل معامله با نظم بیشتری پیش برود.</span></div><div><b>✓ مدارک و مستندات</b><span>مدارک و تصاویر پرونده به‌صورت منظم ثبت و نگهداری می‌شوند.</span></div><div><b>✓ فرآیند شفاف</b><span>مراحل پرونده مشخص است و روند آن به‌صورت منظم پیگیری می‌شود.</span></div></section><section class="info" id="about">
 <div class="infoBox"><h3>چرا سوییچ به سوییچ؟</h3><p>در سوییچ به سوییچ، هدف ما این است که معاوضه خودرو برایت سریع‌تر و بی‌دردسرتر باشد؛ مراحل معامله به‌صورت یکپارچه هماهنگ و پیگیری می‌شود تا لازم نباشد کارها را جداگانه دنبال کنی.</p></div>
