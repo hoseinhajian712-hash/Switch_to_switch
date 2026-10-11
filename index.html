@@ -42,8 +42,8 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .primaryCta:hover,.secondaryCta:hover{transform:translateY(-2px)}
 .heroMiniTrust{display:flex;flex-wrap:wrap;gap:14px;margin-top:25px;color:#b8c9dd;font-size:11px}
 .heroMiniTrust span: first-letter{color:var(--mint)}
-.heroVisual{position:relative;height:380px;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:#0b1524;box-shadow:0 24px 60px #0006}
-.heroVisual>svg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}.heroVisual img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:center;display:block;transform:scale(1.02)}
+.heroVisual{position:relative;height:380px;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:linear-gradient(145deg,#dcebf5 0%,#90adbf 50%,#3b5364 100%);box-shadow:0 24px 60px #0006}.heroVisual:before{content:"🚘";position:absolute;z-index:0;left:50%;top:44%;transform:translate(-50%,-50%);font-size:clamp(110px,18vw,220px);line-height:1;filter:drop-shadow(0 24px 18px #08111e55)}
+.heroVisual>svg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}.heroVisual img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:center;display:block;transform:scale(1.02)}
 .photoShade{position:absolute;inset:0;background:linear-gradient(0deg,#020813ed 0%,#02081315 48%,#06111e0a 100%),linear-gradient(90deg,#06111e20,transparent)}
 .photoCaption{position:absolute;right:18px;bottom:18px;display:flex;align-items:center;gap:12px;padding:13px 16px;border:1px solid #ffffff25;border-radius:16px;background:#07111fd9;backdrop-filter:blur(12px)}
 .photoCaptionIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#7ce6c11a;color:#7ce6c1;font-size:21px}
