@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <title>Switch to Switch | سامانه خودرو</title>
+<meta name="homepage-build" content="2026-10-11-car-visual-fix">
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#07111f;color:#fff;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 10%,#2563eb33,transparent 32%),radial-gradient(circle at 85% 20%,#7c3aed22,transparent 30%);pointer-events:none}
@@ -41,8 +42,8 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .primaryCta:hover,.secondaryCta:hover{transform:translateY(-2px)}
 .heroMiniTrust{display:flex;flex-wrap:wrap;gap:14px;margin-top:25px;color:#b8c9dd;font-size:11px}
 .heroMiniTrust span: first-letter{color:var(--mint)}
-.heroVisual{position:relative;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:#0b1524;box-shadow:0 24px 60px #0006}
-.heroVisual img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:center;display:block;transform:scale(1.02)}
+.heroVisual{position:relative;height:380px;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:#0b1524;box-shadow:0 24px 60px #0006}
+.heroVisual>svg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}.heroVisual img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:center;display:block;transform:scale(1.02)}
 .photoShade{position:absolute;inset:0;background:linear-gradient(0deg,#020813ed 0%,#02081315 48%,#06111e0a 100%),linear-gradient(90deg,#06111e20,transparent)}
 .photoCaption{position:absolute;right:18px;bottom:18px;display:flex;align-items:center;gap:12px;padding:13px 16px;border:1px solid #ffffff25;border-radius:16px;background:#07111fd9;backdrop-filter:blur(12px)}
 .photoCaptionIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#7ce6c11a;color:#7ce6c1;font-size:21px}
@@ -60,7 +61,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .trust b{font-size:13px}.trust span{line-height:2}
 .infoBox{padding:24px}
 .footer{padding:18px 0 5px}
-@media(max-width:800px){.wrap{padding:14px 13px 36px}.top{align-items:flex-start}.logo{font-size:22px}.hero{grid-template-columns:1fr;padding:21px;border-radius:24px;gap:22px}.hero h1{font-size:clamp(31px,8.5vw,43px);letter-spacing:-1px}.hero p{font-size:13px}.heroVisual{min-height:255px;grid-row:1}.heroCopy{grid-row:2}.heroMiniTrust{gap:10px}.heroMiniTrust span{font-size:10px}.primaryCta,.secondaryCta{flex:1}.services{gap:11px}.card{min-height:auto;padding:20px}.card h2{margin-top:12px}.title{font-size:20px}.photoCaption{right:12px;bottom:12px}.photoTag{left:12px;top:12px}.nav{display:flex;gap:5px}.nav a{font-size:10px;padding:8px}.nav a:nth-child(2){display:none}}
+@media(max-width:800px){.heroVisual{height:300px;min-height:300px}.wrap{padding:14px 13px 36px}.top{align-items:flex-start}.logo{font-size:22px}.hero{grid-template-columns:1fr;padding:21px;border-radius:24px;gap:22px}.hero h1{font-size:clamp(31px,8.5vw,43px);letter-spacing:-1px}.hero p{font-size:13px}.heroVisual{min-height:255px;grid-row:1}.heroCopy{grid-row:2}.heroMiniTrust{gap:10px}.heroMiniTrust span{font-size:10px}.primaryCta,.secondaryCta{flex:1}.services{gap:11px}.card{min-height:auto;padding:20px}.card h2{margin-top:12px}.title{font-size:20px}.photoCaption{right:12px;bottom:12px}.photoTag{left:12px;top:12px}.nav{display:flex;gap:5px}.nav a{font-size:10px;padding:8px}.nav a:nth-child(2){display:none}}
 @media(max-width:380px){.heroMiniTrust{display:grid;grid-template-columns:1fr 1fr}.heroVisual{min-height:220px}.nav a{padding:7px 8px}}
 </style>
 <link rel="stylesheet" href="s2s-style.css"></head>
