@@ -363,7 +363,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
  function digits(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
  function openGate(url){destination=url;error.textContent='';try{const old=JSON.parse(sessionStorage.getItem('s2sContact')||'null');if(old){nameEl.value=old.name||'';mobileEl.value=old.mobile||''}}catch(_){}gate.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>nameEl.focus(),60)}
  function closeGate(){gate.classList.remove('open');document.body.style.overflow=''}
- document.querySelectorAll('a[href*="booking.html?type="]').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();location.href=this.href;}));
+ document.querySelectorAll('a[href*="booking.html?type="]').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();const t=new URL(this.href,location.href).searchParams.get('type')||'exchange';if(window.openS2SRequest)window.openS2SRequest(t);else location.href=this.href;}));
  document.getElementById('contactGateClose').addEventListener('click',closeGate);
  gate.addEventListener('click',e=>{if(e.target===gate)closeGate()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&gate.classList.contains('open'))closeGate()});
@@ -386,4 +386,4 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 })();
 </script>
 
-<script src="support-widget.js?v=4"></script></body></html>
+<script src="support-widget.js?v=4"></script><script src="request-modal.js?v=1"></script></body></html>
