@@ -363,7 +363,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
  function digits(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
  function openGate(url){destination=url;error.textContent='';try{const old=JSON.parse(sessionStorage.getItem('s2sContact')||'null');if(old){nameEl.value=old.name||'';mobileEl.value=old.mobile||''}}catch(_){}gate.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>nameEl.focus(),60)}
  function closeGate(){gate.classList.remove('open');document.body.style.overflow=''}
- const bookingLayer=document.createElement('div');bookingLayer.id='bookingOverlay';bookingLayer.innerHTML='<div class="bookingOverlayBackdrop"></div><section class="bookingOverlayPanel" role="dialog" aria-modal="true" aria-label="ثبت درخواست خودرو"><button type="button" class="bookingOverlayClose" aria-label="بستن پنجره">×</button><iframe title="فرم ثبت درخواست خودرو" id="bookingOverlayFrame"></iframe></section>';document.body.appendChild(bookingLayer);const bookingFrame=document.getElementById('bookingOverlayFrame');function openBookingWindow(t){bookingFrame.src='booking.html?type='+encodeURIComponent(t)+'&embedded=1';bookingLayer.classList.add('is-open');document.body.style.overflow='hidden'}function closeBookingWindow(){bookingLayer.classList.remove('is-open');bookingFrame.src='about:blank';document.body.style.overflow=''}const bookingStyle=document.createElement('style');bookingStyle.textContent='#bookingOverlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:clamp(8px,2vw,24px)}#bookingOverlay.is-open{display:flex}#bookingOverlay .bookingOverlayBackdrop{position:absolute;inset:0;background:rgba(2,8,20,.82);backdrop-filter:blur(9px)}#bookingOverlay .bookingOverlayPanel{position:relative;z-index:1;width:min(1120px,100%);height:min(92vh,920px);background:#f3f6fb;border:1px solid #d5b56a;border-radius:22px;overflow:hidden;box-shadow:0 30px 100px #0009}#bookingOverlay iframe{display:block;width:100%;height:100%;border:0;background:#f3f6fb}#bookingOverlay .bookingOverlayClose{position:absolute;z-index:3;top:10px;left:10px;width:42px;height:42px;border:1px solid #d5b56a;background:#101114;color:#fff;border-radius:50%;font-size:30px;line-height:1;cursor:pointer;box-shadow:0 5px 20px #0005}#bookingOverlay .bookingOverlayClose:hover{background:#d5b56a;color:#101114}@media(max-width:600px){#bookingOverlay{padding:0}#bookingOverlay .bookingOverlayPanel{width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:0}#bookingOverlay .bookingOverlayClose{top:8px;left:8px;width:38px;height:38px}}';document.head.appendChild(bookingStyle);bookingLayer.querySelector('.bookingOverlayClose').addEventListener('click',closeBookingWindow);bookingLayer.querySelector('.bookingOverlayBackdrop').addEventListener('click',closeBookingWindow);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&bookingLayer.classList.contains('is-open'))closeBookingWindow()});document.querySelectorAll('a[href*="booking.html?type="]').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();const t=new URL(this.href,location.href).searchParams.get('type')||'exchange';openBookingWindow(t);},true));
+ const bookingLayer=document.createElement('div');bookingLayer.id='bookingOverlay';bookingLayer.innerHTML='<div class="bookingOverlayBackdrop"></div><section class="bookingOverlayPanel" role="dialog" aria-modal="true" aria-label="ثبت درخواست خودرو"><button type="button" class="bookingOverlayClose" aria-label="بستن پنجره">×</button><iframe title="فرم ثبت درخواست خودرو" id="bookingOverlayFrame"></iframe></section>';document.body.appendChild(bookingLayer);const bookingFrame=document.getElementById('bookingOverlayFrame');function openBookingWindow(t){bookingFrame.src='booking.html?type='+encodeURIComponent(t)+'&embedded=1';bookingLayer.classList.add('is-open');document.body.style.overflow='hidden'}function closeBookingWindow(){bookingLayer.classList.remove('is-open');bookingFrame.src='about:blank';document.body.style.overflow=''}const bookingStyle=document.createElement('style');bookingStyle.textContent='#bookingOverlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:clamp(8px,2vw,24px)}#bookingOverlay.is-open{display:flex}#bookingOverlay .bookingOverlayBackdrop{position:absolute;inset:0;background:rgba(2,8,20,.82);backdrop-filter:blur(9px)}#bookingOverlay .bookingOverlayPanel{position:relative;z-index:1;width:min(1120px,100%);height:min(92vh,920px);background:#f3f6fb;border:1px solid #d5b56a;border-radius:22px;overflow:hidden;box-shadow:0 30px 100px #0009}#bookingOverlay iframe{display:block;width:100%;height:100%;border:0;background:#f3f6fb}#bookingOverlay .bookingOverlayClose{position:absolute;z-index:3;top:10px;left:10px;width:42px;height:42px;border:1px solid #d5b56a;background:#101114;color:#fff;border-radius:50%;font-size:30px;line-height:1;cursor:pointer;box-shadow:0 5px 20px #0005}#bookingOverlay .bookingOverlayClose:hover{background:#d5b56a;color:#101114}@media(max-width:600px){#bookingOverlay{padding:0}#bookingOverlay .bookingOverlayPanel{width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:0}#bookingOverlay .bookingOverlayClose{top:8px;left:8px;width:38px;height:38px}}';document.head.appendChild(bookingStyle);bookingLayer.querySelector('.bookingOverlayClose').addEventListener('click',closeBookingWindow);bookingLayer.querySelector('.bookingOverlayBackdrop').addEventListener('click',closeBookingWindow);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&bookingLayer.classList.contains('is-open'))closeBookingWindow()});/* Service-link handling is delegated below, after all scripts load. */
  document.getElementById('contactGateClose').addEventListener('click',closeGate);
  gate.addEventListener('click',e=>{if(e.target===gate)closeGate()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&gate.classList.contains('open'))closeGate()});
@@ -386,4 +386,48 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 })();
 </script>
 
-<script src="support-widget.js?v=4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="request-modal.js?v=9"></script></body></html>
+<script src="support-widget.js?v=4"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="request-modal.js?v=9"></script><script>
+(function(){
+  function serviceType(link){
+    const direct=link.getAttribute('data-s2s-type');
+    if(direct) return direct;
+    try { return new URL(link.getAttribute('href')||'',location.href).searchParams.get('type')||'exchange'; }
+    catch(_) { return 'exchange'; }
+  }
+  function openServiceForm(type){
+    const overlay=document.getElementById('bookingOverlay');
+    if(typeof window.openS2SRequest==='function'){
+      if(overlay){overlay.classList.remove('is-open');}
+      window.openS2SRequest(type);
+      return;
+    }
+    let layer=document.getElementById('bookingOverlay');
+    if(!layer){
+      layer=document.createElement('div');layer.id='bookingOverlay';
+      layer.innerHTML='<div class="bookingOverlayBackdrop"></div><section class="bookingOverlayPanel" role="dialog" aria-modal="true" aria-label="ثبت درخواست خودرو"><button type="button" class="bookingOverlayClose" aria-label="بستن پنجره">×</button><iframe title="فرم ثبت درخواست خودرو" id="bookingOverlayFrame"></iframe></section>';
+      document.body.appendChild(layer);
+      const style=document.createElement('style');
+      style.textContent='#bookingOverlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:clamp(8px,2vw,24px)}#bookingOverlay.is-open{display:flex}#bookingOverlay .bookingOverlayBackdrop{position:absolute;inset:0;background:rgba(2,8,20,.82);backdrop-filter:blur(9px)}#bookingOverlay .bookingOverlayPanel{position:relative;z-index:1;width:min(1120px,100%);height:min(92vh,920px);background:#f3f6fb;border:1px solid #d5b56a;border-radius:22px;overflow:hidden;box-shadow:0 30px 100px #0009}#bookingOverlay iframe{display:block;width:100%;height:100%;border:0;background:#f3f6fb}#bookingOverlay .bookingOverlayClose{position:absolute;z-index:3;top:10px;left:10px;width:42px;height:42px;border:1px solid #d5b56a;background:#101114;color:#fff;border-radius:50%;font-size:30px;line-height:1;cursor:pointer}@media(max-width:600px){#bookingOverlay{padding:0}#bookingOverlay .bookingOverlayPanel{width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:0}}';
+      document.head.appendChild(style);
+      const close=()=>{layer.classList.remove('is-open');document.body.style.overflow='';const frame=layer.querySelector('iframe');if(frame)frame.src='about:blank';};
+      layer.querySelector('.bookingOverlayClose').addEventListener('click',close);
+      layer.querySelector('.bookingOverlayBackdrop').addEventListener('click',close);
+      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&layer.classList.contains('is-open'))close();});
+    }
+    const frame=layer.querySelector('iframe');
+    if(frame)frame.src='booking.html?type='+encodeURIComponent(type)+'&embedded=1';
+    layer.classList.add('is-open');document.body.style.overflow='hidden';
+  }
+  document.addEventListener('click',function(e){
+    const target=e.target;
+    const link=target&&target.closest?target.closest('a[href*="booking.html"],a[data-s2s-type]'):null;
+    if(!link)return;
+    const href=link.getAttribute('href')||'';
+    if(!href.includes('booking.html')&&!link.hasAttribute('data-s2s-type'))return;
+    const type=serviceType(link);
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    openServiceForm(type);
+  },true);
+})();
+</script>
+</body></html>
