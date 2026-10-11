@@ -338,6 +338,27 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .contactGateError{min-height:18px;margin-top:9px;color:#ffb6a9;font-size:11px;line-height:1.7}
 .contactGatePrivacy{margin-top:12px;color:#aaa598;font-size:10px;line-height:1.8}
 @media(max-width:480px){.contactGateCard{padding:23px 19px;border-radius:21px}.contactGateCard h2{font-size:21px}}
+
+/* Accessibility/readability pass: clearer Persian text on desktop and mobile */
+body{font-size:15px;line-height:1.9}
+body p{line-height:1.95}
+body small{font-size:12px!important;line-height:1.8}
+body label{font-size:13px}
+.contactGateCard p{color:#e1e7ef;font-size:14px;line-height:2}
+.contactGateFields label{color:#fff4d9;font-size:14px}
+.contactGateFields input{font-size:16px;color:#fff;background:#171717;border-color:#777}
+.contactGateFields input::placeholder{color:#c8c4b9}
+.contactGateEyebrow{font-size:12px}
+.footerBrand>p,.footerColumn>p,.footerColumn>a:not(.footerAction):not(.footerPhone),.footerContactLabel,.footerAvailability{font-size:13px;color:#d0d7de;line-height:1.95}
+.footerColumn h3{font-size:15px;color:#fff0c5}
+.footerBottom{font-size:12px;color:#c0c8d0;line-height:1.9}
+.footerTrust{font-size:13px}
+.footerAction{font-size:13px}
+.accountTop{font-size:13px}
+.contactGatePrivacy{font-size:12px;color:#d0d0c8}
+@media(max-width:800px){.footerColumn h3{font-size:14px}.footerBrand>p,.footerColumn>p,.footerColumn>a:not(.footerAction):not(.footerPhone),.footerContactLabel,.footerAvailability{font-size:13px}.footerBottom{font-size:12px}.accountTop{font-size:12px}}
+@media(max-width:480px){.contactGateCard h2{font-size:22px}.contactGateCard p{font-size:14px}.contactGateFields label{font-size:14px}}
+
 </style>
 <div class="contactGate" id="contactGate" role="dialog" aria-modal="true" aria-labelledby="contactGateTitle">
  <div class="contactGateCard">
