@@ -51,7 +51,7 @@
  function showMsg(text,kind=''){message.textContent=text;message.className='msg'+(kind?' '+kind:'')}
  function setMode(next){mode=next;phase='phone';tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));document.getElementById('formTitle').textContent=mode==='signup'?'ساخت حساب مشتری':'ورود به حساب مشتری';document.getElementById('formSub').textContent=mode==='signup'?'شماره همراه یا ایمیلت رو وارد کن؛ با کد تأیید حساب ساخته می‌شه.':'با شماره همراه یا ایمیل وارد شو. برای آزمایش بدون هزینه پیامک، ایمیل رو وارد کن.';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('otp').value='';document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد تأیید ←';message.className='msg hidden'}
  tabs.addEventListener('click',e=>{const b=e.target.closest('button[data-mode]');if(b)setMode(b.dataset.mode)});
- document.getElementById('changePhoneBtn').addEventListener('click',()=>{phase='phone';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد تأیید ←';showMsg('شماره همراه یا ایمیلت رو بررسی کن و دوباره کد بگیر.')});
+ document.getElementById('changePhoneBtn').addEventListener('click',()=>{phase='phone';document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد تأیید ←';showMsg('شماره همراه یا ایمیلت رو بررسی کن و دوباره کد بگیر.')});
  function dateFa(v){if(!v)return 'ثبت نشده';try{return new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'long',day:'numeric'}).format(new Date(v))}catch(_){return v}}
  function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  async function loadCases(session){const list=document.getElementById('caseList');list.innerHTML='<div class="empty">در حال دریافت درخواست‌ها…</div>';try{const r=await fetch(API+'?api=customer-cases',{headers:{apikey:window.SUPABASE_KEY,authorization:'Bearer '+session.access_token},cache:'no-store'});const j=await r.json();if(!r.ok)throw Error(j.error||'دریافت درخواست‌ها ناموفق بود');const cases=j.cases||[];if(!cases.length){list.innerHTML='<div class="empty">هنوز درخواستی به این حساب متصل نیست.<br>برای شروع، درخواست فروش، خرید یا معاوضه‌ات رو ثبت کن.</div>';return}list.innerHTML=cases.map(c=>{const cars=(c.vehicles||[]).map(v=>(v.vehicle_role==='target'?'خودروی موردنظر: ':'خودروی فعلی: ')+[v.brand,v.model,v.trim,v.model_year?'مدل '+v.model_year:''].filter(Boolean).join(' ')).join('<br>');const appointment=c.appointment_date?'<span>مراجعه: '+safe(dateFa(c.appointment_date))+' '+safe(c.appointment_time||'')+'</span>':'';return '<article class="case"><div class="caseTop"><span class="caseNo">پرونده شماره '+safe(c.case_number)+'</span><span class="status">'+safe(c.status_label||'در حال پیگیری')+'</span></div><h3 class="caseTitle">'+safe(c.service_label||'درخواست خودرو')+'</h3><div class="meta"><span>ثبت: '+safe(dateFa(c.created_at))+'</span>'+appointment+'<span>آخرین به‌روزرسانی: '+safe(dateFa(c.updated_at))+'</span></div>'+(cars?'<div class="vehicles">'+cars+'</div>':'')+'</article>'}).join('')}catch(e){list.innerHTML='<div class="empty">'+safe(e.message||'دریافت درخواست‌ها ناموفق بود')+'</div>'}}
@@ -72,7 +72,23 @@
        const {error}=await sb.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:mode==='signup',data:{mobile:pendingPhone}}});
        if(error)throw error;
      }
-     phase='otp';document.getElementById('mobile').disabled=true;document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;document.getElementById('formTitle').textContent=pendingMethod==='email'?'تأیید ایمیل':'تأیید شماره همراه';document.getElementById('formSub').textContent=pendingMethod==='email'?'کد تأیید ارسال‌شده به '+pendingEmail+' رو وارد کن.':'کد پیامک‌شده به '+pendingPhone+' رو وارد کن.';document.getElementById('changePhoneBtn').classList.remove('hidden');submit.textContent='تأیید کد و ورود ←';showMsg(pendingMethod==='email'?'کد تأیید به ایمیلت ارسال شد؛ پوشه هرزنامه را هم بررسی کن.':'کد پیامکی ارسال شد.','success');
+     document.getElementById('mobile').disabled=true;document.getElementById('changePhoneBtn').classList.remove('hidden');
+     if(pendingMethod==='email'){
+       phase='email-link';document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;
+       document.getElementById('formTitle').textContent='ایمیل تأیید ارسال شد';
+       document.getElementById('formSub').textContent='ایمیلت را باز کن و روی لینک «تأیید ایمیل / Confirm email» بزن. بعد از تأیید، این صفحه به‌صورت خودکار حسابت را باز می‌کند.';
+       document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';
+       submit.textContent='ارسال مجدد ایمیل تأیید ←';
+       showMsg('ایمیل ارسال شد. لازم نیست کد ۶ رقمی وارد کنی؛ صندوق ورودی و هرزنامه را بررسی کن و روی لینک تأیید بزن.','success');
+     }else{
+       phase='otp';document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;
+       document.getElementById('formTitle').textContent='تأیید شماره همراه';document.getElementById('formSub').textContent='کد پیامک‌شده به '+pendingPhone+' رو وارد کن.';
+       document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';submit.textContent='تأیید کد و ورود ←';showMsg('کد پیامکی ارسال شد.','success');
+     }
+   }else if(phase==='email-link'){
+     const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',emailRedirectTo:location.origin+'/account.html',data:{email:pendingEmail}}});
+     if(error)throw error;
+     showMsg('ایمیل تأیید دوباره ارسال شد. ایمیلت را باز کن و روی لینک تأیید بزن.','success');
    }else{
      const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
      if(!/^\d{6}$/.test(token))throw Error('کد تأیید ۶ رقمی را وارد کن.');
@@ -82,7 +98,7 @@
      if(nextUrl){location.href=nextUrl;return}
      await showDashboard(data.session);
    }
- }catch(e){showMsg(e.message||'عملیات انجام نشد. دوباره تلاش کن.','error')}finally{submit.disabled=false;submit.textContent=phase==='otp'?'تأیید کد و ورود ←':'ارسال کد تأیید ←'}});
+ }catch(e){showMsg(e.message||'عملیات انجام نشد. دوباره تلاش کن.','error')}finally{submit.disabled=false;submit.textContent=phase==='otp'?'تأیید کد و ورود ←':phase==='email-link'?'ارسال مجدد ایمیل تأیید ←':'ارسال کد تأیید ←'}});
  document.getElementById('logoutBtn').addEventListener('click',async()=>{await sb.auth.signOut();location.href='account.html'});
  async function init(){const {data}=await sb.auth.getSession();if(data.session){if(nextUrl){location.href=nextUrl;return}await showDashboard(data.session)}else if(nextUrl){setMode('login');showMsg('برای ادامه ابتدا با شماره همراه وارد شو یا حساب بساز.','')}}
  setMode('login');init();
