@@ -478,6 +478,7 @@ function showWizardStep(n){
  wizardStep=Math.max(1,Math.min(3,n));
  document.querySelectorAll('[data-page]').forEach(p=>p.classList.toggle('hidden',Number(p.dataset.page)!==wizardStep));
  document.querySelectorAll('[data-stepdot]').forEach(d=>{const k=Number(d.dataset.stepdot);d.classList.toggle('active',k===wizardStep);d.classList.toggle('done',k<wizardStep)});
+ $('currentPanel').classList.toggle('hidden',type==='buy'||wizardStep===1);
  $('currentPanel').classList.toggle('wizard-page',wizardStep===2||wizardStep===3);
  const fields=$('currentPanel').querySelector('.fields');
  if(fields){Array.from(fields.children).forEach((el,i)=>{el.classList.toggle('hidden',wizardStep===2?i>=2:wizardStep===3?i<2:false)})}
