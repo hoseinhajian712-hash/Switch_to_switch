@@ -42,7 +42,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .primaryCta:hover,.secondaryCta:hover{transform:translateY(-2px)}
 .heroMiniTrust{display:flex;flex-wrap:wrap;gap:14px;margin-top:25px;color:#b8c9dd;font-size:11px}
 .heroMiniTrust span: first-letter{color:var(--mint)}
-.heroVisual{position:relative;height:380px;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:linear-gradient(180deg,#d9e7ef 0%,#9db8c7 55%,#647c89 56%,#263644 100%);box-shadow:0 24px 60px #0006}.heroVisual:before{content:"🚘";position:absolute;z-index:0;left:50%;top:44%;transform:translate(-50%,-50%);font-size:clamp(110px,18vw,220px);line-height:1;filter:drop-shadow(0 24px 18px #08111e55)}
+.heroVisual{position:relative;height:380px;min-height:330px;align-self:stretch;overflow:hidden;border-radius:24px;border:1px solid #ffffff20;background:#172333;box-shadow:0 24px 60px #0006}.heroVisual:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,#07111fe8 0%,#07111f24 40%,transparent 70%);pointer-events:none}.heroVisual .heroPhoto{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center 58%;z-index:0;transition:transform .6s ease}.heroVisual:hover .heroPhoto{transform:scale(1.035)}
 
 .sceneSky{position:absolute;inset:0 0 38%;background:linear-gradient(145deg,#e8f1f5,#9ab7c8)}
 .sceneHill{position:absolute;left:-8%;right:-8%;height:48%;bottom:34%;background:#6f929f;clip-path:polygon(0 72%,16% 30%,27% 57%,42% 12%,59% 62%,75% 25%,100% 70%,100% 100%,0 100%);opacity:.75}
@@ -81,7 +81,7 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 </header>
 <section class="hero">
 <div class="heroCopy"><div class="kicker"><span class="liveDot"></span> سامانه تخصصی خرید، فروش و معاوضه خودرو</div><h1>معامله‌ی بعدی خودروت،<br><span>هوشمندتر شروع می‌شه.</span></h1><p>برای فروش یا معاوضه خودروی فعلی‌ات، یا پیدا کردن خودروی دلخواهت، از یک مسیر ساده و شفاف شروع کن؛ از ثبت درخواست تا کارشناسی و انجام معامله کنار تو هستیم.</p><div class="heroActions"><a class="primaryCta" href="#services">شروع درخواست <span>←</span></a><a class="secondaryCta" href="auction-access.html">ورود به مزایده <span>↗</span></a></div><div class="heroMiniTrust"><span>✓ کارشناسی تخصصی</span><span>✓ روند شفاف</span><span>✓ پیگیری مرحله‌به‌مرحله</span></div></div>
-<div class="heroVisual" role="img" aria-label="تصویر خودروی سواری">
+<div class="heroVisual" role="img" aria-label="تصویر خودروی مدرن">\n  <img class="heroPhoto" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=85" alt="خودروی اسپرت مدرن با طراحی لوکس" fetchpriority="high" decoding="async">
   <div class="sceneSky"></div>
   <div class="sceneHill hillOne"></div><div class="sceneHill hillTwo"></div>
   <div class="sceneRoad"></div>
