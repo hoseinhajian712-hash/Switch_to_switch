@@ -251,6 +251,29 @@ button,.btn,.submit,.primary{font-size:14px!important;min-height:44px}
 @media(max-width:520px){body{font-size:15px!important}.stepper .step{font-size:11px!important}.panel-head p,.hero p{font-size:14px!important}}
 
 </style>
+
+<style id="s2s-high-contrast-form">
+/* High-contrast labels for contact, brand/model, and vehicle details */
+/* Step names: bright, distinct from the dark glass background */
+.stepper .step span{color:#dbeafe!important;font-size:13px!important;font-weight:900!important;text-shadow:0 1px 2px #0008}
+.stepper .step.active span{color:#ffffff!important}
+.stepper .step.done span{color:#6ee7b7!important}
+/* Section titles and supporting copy */
+.panel-head h2,.panel h2{color:#ffffff!important;font-size:19px!important;font-weight:900!important}
+.panel-head p,.panel p{color:#d4e2f3!important;font-size:14px!important;line-height:2!important}
+/* Field labels including brand, model, trim, year, color and mileage */
+.field>span,.fields .field>span,label.field{color:#f1f7ff!important;font-size:14px!important;font-weight:900!important}
+.field em{color:#fca5a5!important}
+.field .hint,small.hint{color:#b9d8ff!important;font-size:12px!important;line-height:1.9!important}
+/* Selects and typed contact details must be clearly readable */
+#contactNameInput,#contactMobileInput,#brand,#model,#trim,#year,#color,#mileage,#fuel,#gearbox,#city,#province{color:#ffffff!important;background-color:#071a30!important;border:1px solid #6485ac!important;font-size:16px!important;font-weight:700!important}
+#contactNameInput::placeholder,#contactMobileInput::placeholder{color:#c1d1e4!important;opacity:1!important}
+select:disabled{color:#b6c7dc!important;background-color:#13243a!important;opacity:1!important}
+select option{color:#f8fbff!important;background:#0d1a2b!important}
+input:focus,select:focus,textarea:focus{border-color:#60a5fa!important;box-shadow:0 0 0 3px #3b82f633!important}
+.panel{border:1px solid #29415f!important;background:linear-gradient(145deg,#102139,#0b1728)!important}
+@media(max-width:520px){.stepper .step span{font-size:11px!important}.field>span,.fields .field>span{font-size:14px!important}.panel-head h2,.panel h2{font-size:18px!important}}
+</style>
 </head>
 <body>
 <main class="wrap">
