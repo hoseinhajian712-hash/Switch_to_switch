@@ -1,0 +1,41 @@
+/* Switch to Switch — unified luxury customer experience */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+:root{--lux-gold:#d9bc7a;--lux-gold-light:#f3dfaa;--lux-ink:#07111d;--lux-panel:#0c1928;--lux-line:rgba(217,188,122,.22);--lux-muted:#a7b4c5}
+html{scroll-behavior:smooth}
+body{font-family:'Vazirmatn',Tahoma,Arial,sans-serif!important;background-color:#060d16!important}
+button,input,select,textarea{font-family:'Vazirmatn',Tahoma,Arial,sans-serif!important}
+a{transition:all .2s ease}
+:where(.wrap,.container,main){position:relative}
+:where(.top,.topbar,.header){gap:14px}
+:where(.logo,.brand){font-weight:900!important;letter-spacing:-.5px}
+:where(.logo span,.brand span){color:var(--lux-gold-light)!important}
+:where(.nav a,.back,.ghost){border-color:#ffffff1a!important;border-radius:13px!important;transition:all .2s ease}
+:where(.nav a,.back,.ghost):hover{border-color:#d9bc7a77!important;color:#fff!important;transform:translateY(-1px)}
+:where(.hero,.intro,.panel,.card,.infoBox,.tool,.priceList,.stat,.success-card,.submit-panel,.appointment){backdrop-filter:blur(12px)}
+:where(.hero,.intro){box-shadow:0 24px 70px #0005!important}
+:where(.hero h1,.intro h1){letter-spacing:-.8px!important;text-wrap:balance}
+:where(.hero h1 span,.intro h1 span){color:var(--lux-gold-light)!important}
+:where(.eyebrow,.kicker){letter-spacing:0!important}
+:where(.card,.service-link,.infoBox,.tool,.trust div,.stat){transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+:where(.card,.service-link,.infoBox,.tool,.trust div,.stat):hover{border-color:#d9bc7a55!important;box-shadow:0 18px 42px #0003}
+:where(.primaryCta,.ctaBtn,.submit,.primary,button.primary){border-radius:14px!important;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+:where(.primaryCta,.ctaBtn,.submit,button.primary){background:linear-gradient(115deg,#f0d99e,#c7a45e)!important;border-color:#e7cd8b!important;color:#16150f!important;box-shadow:0 10px 28px #c6a45b26!important}
+:where(.primaryCta,.ctaBtn,.submit,button.primary):hover{filter:brightness(1.05);transform:translateY(-2px);box-shadow:0 14px 32px #c6a45b36!important}
+:where(.secondaryCta,.back,.ghost){border-radius:13px!important}
+:where(.panel,.account-card,.form-card){border-radius:22px!important}
+:where(input,select,textarea){border-radius:14px!important;transition:border-color .2s ease,box-shadow .2s ease!important}
+:where(input,select,textarea):focus{border-color:#d9bc7a!important;box-shadow:0 0 0 4px #d9bc7a1c!important}
+:where(.service-link.active){border-color:#d9bc7a!important;background:linear-gradient(120deg,#d9bc7a18,#ffffff08)!important}
+:where(.service-link.active .service-icon){background:#d9bc7a22!important}
+:where(.panel-number){background:#d9bc7a20!important;color:#f3dfaa!important}
+:where(.appointment){border-color:#d9bc7a30!important}
+:where(.tabs button.active){background:linear-gradient(120deg,#f0d99e,#c7a45e)!important;color:#171711!important}
+:where(.caseNo){color:#f3dfaa!important}
+:where(.status){border-color:#d9bc7a55!important;color:#f3dfaa!important;background:#d9bc7a10!important}
+:where(.footer,.small,.muted){color:#91a0b4}
+@media(max-width:700px){
+ :where(.hero){padding:24px 19px!important;border-radius:22px!important}
+ :where(.panel,.intro){padding:19px!important;border-radius:19px!important}
+ :where(.hero h1,.intro h1){line-height:1.55!important}
+ :where(.submit,.primaryCta,.ctaBtn){max-width:100%;min-width:0}
+}
