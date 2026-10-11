@@ -63,7 +63,7 @@
        pendingEmail=identifier.toLowerCase();
        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pendingEmail))throw Error('ایمیل معتبر وارد کن؛ مثال: name@example.com');
        pendingMethod='email';
-       const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',emailRedirectTo:location.origin+'/account.html',data:{email:pendingEmail}}});
+       const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',emailRedirectTo:'https://hoseinhajian712-hash.github.io/account.html',data:{email:pendingEmail}}});
        if(error)throw error;
      }else{
        pendingPhone=normalizePhone(identifier);
@@ -86,7 +86,7 @@
        document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';submit.textContent='تأیید کد و ورود ←';showMsg('کد پیامکی ارسال شد.','success');
      }
    }else if(phase==='email-link'){
-     const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',emailRedirectTo:location.origin+'/account.html',data:{email:pendingEmail}}});
+     const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',emailRedirectTo:'https://hoseinhajian712-hash.github.io/account.html',data:{email:pendingEmail}}});
      if(error)throw error;
      showMsg('ایمیل تأیید دوباره ارسال شد. ایمیلت را باز کن و روی لینک تأیید بزن.','success');
    }else{
