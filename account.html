@@ -58,11 +58,21 @@
  async function showDashboard(session){document.getElementById('authPanel').classList.add('hidden');const dash=document.getElementById('dashboard');dash.classList.remove('hidden');const profile=await sb.from('profiles').select('full_name,mobile').eq('id',session.user.id).maybeSingle();const full=profile.data?.full_name||'مشتری';document.getElementById('welcome').textContent='سلام '+full+' عزیز';await loadCases(session)}
  form.addEventListener('submit',async e=>{e.preventDefault();message.className='msg hidden';submit.disabled=true;submit.textContent='در حال انجام…';try{
    if(phase==='phone'){
-     pendingPhone=normalizePhone(document.getElementById('mobile').value);
-     if(!pendingPhone)throw Error('شماره همراه معتبر وارد کن؛ مثال: 09123456789');
-     const {error}=await sb.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:mode==='signup',data:{mobile:pendingPhone}}});
-     if(error)throw error;
-     phase='otp';document.getElementById('mobile').disabled=true;document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;document.getElementById('formTitle').textContent='تأیید شماره همراه';document.getElementById('formSub').textContent='کد پیامک‌شده به '+pendingPhone+' رو وارد کن.';document.getElementById('changePhoneBtn').classList.remove('hidden');submit.textContent='تأیید کد و ورود ←';showMsg('کد تأیید ارسال شد. اگر پیامک نرسید، تنظیمات پیامک و ورود با شماره همراه در Supabase باید فعال باشد.','success');
+     const identifier=document.getElementById('mobile').value.trim();
+     if(identifier.includes('@')){
+       pendingEmail=identifier.toLowerCase();
+       if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(pendingEmail))throw Error('ایمیل معتبر وارد کن؛ مثال: name@example.com');
+       pendingMethod='email';
+       const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',emailRedirectTo:location.origin+'/account.html',data:{email:pendingEmail}}});
+       if(error)throw error;
+     }else{
+       pendingPhone=normalizePhone(identifier);
+       if(!pendingPhone)throw Error('شماره همراه معتبر وارد کن؛ مثال: 09123456789؛ یا ایمیل وارد کن تا بدون پیامک آزمایش کنی.');
+       pendingMethod='phone';
+       const {error}=await sb.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:mode==='signup',data:{mobile:pendingPhone}}});
+       if(error)throw error;
+     }
+     phase='otp';document.getElementById('mobile').disabled=true;document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;document.getElementById('formTitle').textContent=pendingMethod==='email'?'تأیید ایمیل':'تأیید شماره همراه';document.getElementById('formSub').textContent=pendingMethod==='email'?'کد تأیید ارسال‌شده به '+pendingEmail+' رو وارد کن.':'کد پیامک‌شده به '+pendingPhone+' رو وارد کن.';document.getElementById('changePhoneBtn').classList.remove('hidden');submit.textContent='تأیید کد و ورود ←';showMsg(pendingMethod==='email'?'کد تأیید به ایمیلت ارسال شد؛ پوشه هرزنامه را هم بررسی کن.':'کد پیامکی ارسال شد.','success');
    }else{
      const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
      if(!/^\d{6}$/.test(token))throw Error('کد پیامکی ۶ رقمی را وارد کن.');
