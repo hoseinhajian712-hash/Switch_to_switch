@@ -645,9 +645,9 @@ function showWizardStep(n){
 }
 function validateWizardStep(){
  if(wizardStep===1){
-  const name=$('contactNameInput').value.trim(),mobile=normalizeDigits($('contactMobileInput').value).replace(/\\D/g,'');
+  const name=$('contactNameInput').value.trim(),mobile=normalizeDigits($('contactMobileInput').value).replace(/\D/g,'');
   if(!name){$('contactNameInput').focus();showMessage('لطفاً نام و نام خانوادگی را وارد کن.','error');return false}
-  if(!/^09\\d{9}$/.test(mobile)){$('contactMobileInput').focus();showMessage('شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد.','error');return false}
+  if(!/^09\d{9}$/.test(mobile)){$('contactMobileInput').focus();showMessage('شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد.','error');return false}
   $('customerName').value=name;$('customerMobile').value=mobile;
   try{sessionStorage.setItem('s2sContact',JSON.stringify({name,mobile}))}catch(e){}
  }
