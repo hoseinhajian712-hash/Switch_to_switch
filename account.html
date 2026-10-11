@@ -78,7 +78,7 @@
      if(pendingMethod==='email'){
        phase='otp';document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;
        document.getElementById('formTitle').textContent='تأیید ایمیل';
-       document.getElementById('formSub').textContent='کد ۸ رقمی ارسال‌شده به ایمیلت را وارد کن.';
+       document.getElementById('formSub').textContent='کد ۸ رقمی ارسال‌شده به ایمیلت را وارد کن. اگر کادر کوتاه است، صفحه را تازه‌سازی کن.';
        document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';
        document.getElementById('otpWrap').querySelector('span').textContent='کد ۸ رقمی تأیید ایمیل';
        submit.textContent='تأیید کد و ورود ←';
@@ -90,8 +90,8 @@
      }
    }else{
      const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
-     if(!(pendingMethod==='email'?/^\d{8}$/.test(token):/^\d{6}$/.test(token)))throw Error(pendingMethod==='email'?'کد تأیید ۸ رقمی ایمیل را وارد کن.':'کد تأیید ۶ رقمی را وارد کن.');
-     const {data,error}=pendingMethod==='email'?await sb.auth.verifyOtp({email:pendingEmail,token,type:mode==='signup'?'signup':'email'}):await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
+     if(!(pendingMethod==='email'?/^\d{8}$/.test(token):/^\d{6}$/.test(token)))throw Error(pendingMethod==='email'?'کد ایمیل باید دقیقاً ۸ رقم باشد؛ همهٔ رقم‌ها را وارد کن.':'کد تأیید ۶ رقمی را وارد کن.');
+     const {data,error}=pendingMethod==='email'?await sb.auth.verifyOtp({email:pendingEmail,token,type:'email'}):await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
      if(error)throw error;
      if(!data.session)throw Error('تأیید انجام نشد؛ دوباره تلاش کن.');
      if(nextUrl){location.href=nextUrl;return}
