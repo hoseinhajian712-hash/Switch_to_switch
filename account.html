@@ -74,21 +74,18 @@
      }
      document.getElementById('mobile').disabled=true;document.getElementById('changePhoneBtn').classList.remove('hidden');
      if(pendingMethod==='email'){
-       phase='email-link';document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;
-       document.getElementById('formTitle').textContent='ایمیل تأیید ارسال شد';
-       document.getElementById('formSub').textContent='ایمیلت را باز کن و روی لینک «تأیید ایمیل / Confirm email» بزن. بعد از تأیید، این صفحه به‌صورت خودکار حسابت را باز می‌کند.';
+       phase='otp';document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;
+       document.getElementById('formTitle').textContent='تأیید ایمیل';
+       document.getElementById('formSub').textContent='کد ۶ رقمی ارسال‌شده به ایمیلت را وارد کن.';
        document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';
-       submit.textContent='ارسال مجدد ایمیل تأیید ←';
-       showMsg('ایمیل ارسال شد. لازم نیست کد ۶ رقمی وارد کنی؛ صندوق ورودی و هرزنامه را بررسی کن و روی لینک تأیید بزن.','success');
+       document.getElementById('otpWrap').querySelector('span').textContent='کد تأیید ایمیل';
+       submit.textContent='تأیید کد و ورود ←';
+       showMsg('کد ۶ رقمی به ایمیلت ارسال شد. صندوق ورودی و هرزنامه را بررسی کن.','success');
      }else{
        phase='otp';document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;
        document.getElementById('formTitle').textContent='تأیید شماره همراه';document.getElementById('formSub').textContent='کد پیامک‌شده به '+pendingPhone+' رو وارد کن.';
        document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';submit.textContent='تأیید کد و ورود ←';showMsg('کد پیامکی ارسال شد.','success');
      }
-   }else if(phase==='email-link'){
-     const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',emailRedirectTo:'https://hoseinhajian712-hash.github.io/account.html',data:{email:pendingEmail}}});
-     if(error)throw error;
-     showMsg('ایمیل تأیید دوباره ارسال شد. ایمیلت را باز کن و روی لینک تأیید بزن.','success');
    }else{
      const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
      if(!/^\d{6}$/.test(token))throw Error('کد تأیید ۶ رقمی را وارد کن.');
@@ -98,7 +95,7 @@
      if(nextUrl){location.href=nextUrl;return}
      await showDashboard(data.session);
    }
- }catch(e){showMsg(e.message||'عملیات انجام نشد. دوباره تلاش کن.','error')}finally{submit.disabled=false;submit.textContent=phase==='otp'?'تأیید کد و ورود ←':phase==='email-link'?'ارسال مجدد ایمیل تأیید ←':'ارسال کد تأیید ←'}});
+ }catch(e){showMsg(e.message||'عملیات انجام نشد. دوباره تلاش کن.','error')}finally{submit.disabled=false;submit.textContent=phase==='otp'?'تأیید کد و ورود ←':'ارسال کد تأیید ←'}});
  document.getElementById('logoutBtn').addEventListener('click',async()=>{await sb.auth.signOut();location.href='account.html'});
  async function init(){const {data}=await sb.auth.getSession();if(data.session){if(nextUrl){location.href=nextUrl;return}await showDashboard(data.session)}else if(nextUrl){setMode('login');showMsg('برای ادامه ابتدا با شماره همراه وارد شو یا حساب بساز.','')}}
  setMode('login');init();
