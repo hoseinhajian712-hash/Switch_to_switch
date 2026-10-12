@@ -1,12 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 const url=Deno.env.get("SUPABASE_URL")!, key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, db=createClient(url,key);
-const ADMIN="S2S-V4-2026-ADMIN",EXPERT="S2S-V4-2026-EXPERT";
+// Staff access is granted only through short-lived, hashed staff_sessions tokens.
 const J={"content-type":"application/json; charset=utf-8","cache-control":"no-store","access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,authorization,apikey,x-client-info,prefer,accept,origin"};
 const order=["new","refer","inspection","review","auction-ready","auction","auction-end","customer","docs","deposit","contract","done"];
 const statusFa:any={new:"تماس اولیه",refer:"تأیید مراجعه کارشناس",inspection:"کارشناسی در حال انجام",review:"پایان کارشناسی","auction-ready":"انتقال به مزایده",auction:"مزایده فعال","auction-end":"پایان مزایده",customer:"مذاکره با مشتری",disagreement:"عدم توافق با مشتری",selling:"در انتظار تصمیم نهایی",docs:"تکمیل مدارک",deposit:"دریافت پیش‌پرداخت",contract:"قرارداد",done:"تکمیل معامله",cancelled:"انصراف"};
 const json=(d:any,s=200)=>new Response(JSON.stringify(d),{status:s,headers:J});
-function auth(u:URL){const k=u.searchParams.get("key")||"";return k===ADMIN?"admin":k===EXPERT?"expert":null}
+function auth(_u:URL){return null}
 async function listCases(role:string){
  const cq=role==="expert"?db.from("cases").select("*").in("status",["refer","inspection"]).order("created_at",{ascending:false}):db.from("cases").select("*").order("created_at",{ascending:false});
  const {data,error}=await cq;
