@@ -7,8 +7,8 @@ const order=["new","refer","inspection","review","auction-ready","auction","auct
 const statusFa:any={new:"تماس اولیه",refer:"تأیید مراجعه کارشناس",inspection:"کارشناسی در حال انجام",review:"پایان کارشناسی","auction-ready":"انتقال به مزایده",auction:"مزایده فعال","auction-end":"پایان مزایده",customer:"مذاکره با مشتری",disagreement:"عدم توافق با مشتری",selling:"در انتظار تصمیم نهایی",docs:"تکمیل مدارک",deposit:"دریافت پیش‌پرداخت",contract:"قرارداد",done:"تکمیل معامله",cancelled:"انصراف"};
 const json=(d:any,s=200)=>new Response(JSON.stringify(d),{status:s,headers:J});
 function auth(_u:URL){return null}
-async function listCases(role:string){
- const cq=role==="expert"?db.from("cases").select("*").in("status",["refer","inspection"]).order("created_at",{ascending:false}):db.from("cases").select("*").order("created_at",{ascending:false});
+async function listCases(role:string,staffMemberId:string=""){
+ const cq=role==="expert"?db.from("cases").select("*").eq("assigned_expert_staff_id",staffMemberId||"00000000-0000-0000-0000-000000000000").in("status",["refer","inspection"]).order("created_at",{ascending:false}):db.from("cases").select("*").order("created_at",{ascending:false});
  const {data,error}=await cq;
  if(error)return json({error:error.message},500);
  const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
@@ -247,7 +247,7 @@ async function api(req:Request,u:URL){
   }catch(_){return json({error:"اطلاعات نظر معتبر نیست."},400)}
  }
  const hex=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value)))).map((b)=>b.toString(16).padStart(2,"0")).join("");
- let role=auth(u);
+ let role=auth(u),staffMemberId="";
  if(a==="staff-login"&&req.method==="POST"){
   try{
    const b=await req.json(),want=String(b.role||""),code=String(b.personnel_code||"").trim(),password=String(b.password||"");
@@ -275,7 +275,7 @@ async function api(req:Request,u:URL){
    const sr=await db.from("staff_sessions").select("role,expires_at,staff_member_id").eq("token_hash",th).gt("expires_at",new Date().toISOString()).maybeSingle();
    if(!sr.error&&sr.data){
     const mr=sr.data.staff_member_id?await db.from("staff_members").select("active,role").eq("id",sr.data.staff_member_id).maybeSingle():null;
-    if(!mr||(!mr.error&&mr.data?.active))role=sr.data.role;
+    if(!mr||(!mr.error&&mr.data?.active)){role=sr.data.role;staffMemberId=sr.data.staff_member_id||"";}
    }
   }
  }
@@ -345,7 +345,7 @@ async function api(req:Request,u:URL){
  if(a==="market_prices")return marketPrices(u); if(a==="estimate"&&req.method==="POST")return estimate(req);
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
 if(a==="auction-members"&&role==="admin"&&req.method==="GET")return auctionMembers();if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(a==="deactivate-auction-member"&&role==="admin"&&req.method==="POST")return deactivateAuctionMember(req);if(a==="update-auction-member"&&role==="admin"&&req.method==="POST")return updateAuctionMember(req);if(!role)return json({error:"unauthorized"},401);
- if(a==="list")return listCases(role);
+ if(a==="list")return listCases(role,staffMemberId);
  if(a==="assign-case-expert"&&role==="admin"&&req.method==="POST"){
   if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
   let b:any;try{b=await req.json()}catch(_){return json({error:"درخواست نامعتبر است"},400)}
