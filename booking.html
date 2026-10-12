@@ -936,7 +936,7 @@ function initModernDropdowns(){
     b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus()});options.appendChild(b)
    })
   }
-  const openMenu=()=>{if(trigger.disabled)return;all.forEach(item=>item.close());wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');search.focus({preventScroll:true})};
+  const openMenu=()=>{if(trigger.disabled)return;all.forEach(item=>item.close());wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');/* Do not autofocus search: mobile keyboards should stay closed until the user taps the search box. */};
   sel._openModernDropdown=openMenu;
   trigger.addEventListener('click',()=>{if(trigger.disabled)return;if(wrap.classList.contains('open')){close();return}openMenu()});
   search.addEventListener('input',renderOptions);
