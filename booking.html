@@ -823,9 +823,14 @@ const productionYears={
 'Renegade':[1394,1400],'Compass':[1385,1405],'Wrangler':[1385,1405],'Grand Cherokee':[1385,1405]
 };
 function yearsFor(brand,model,trim){let range=productionYears[model]||[1390,1405];if(model==='پژو 206'&&trim==='تیپ ۵')range=[1385,1399];if(model==='پژو 206'&&trim.startsWith('SD'))range=[1385,1400];const [min,max]=range;const a=[];for(let y=max;y>=min;y--)a.push(String(y));return a}
+function openNextCarChoice(id){
+ const el=$(id),field=el?.closest('.field');
+ if(!el||!field||field.classList.contains('hidden'))return;
+ field.scrollIntoView({behavior:'smooth',block:'center'});
+ setTimeout(()=>{const trigger=field.querySelector('.modern-select-trigger');if(trigger&&!trigger.disabled)trigger.click()},220);
+}
 function setupCar(prefix){
  const brand=$(prefix+'brand'),model=$(prefix+'model'),trim=$(prefix+'trim'),year=$(prefix+'year');
- const fields=[brand,model,trim,year].map(el=>el.closest('.field'));
  const color=$(prefix==='t'?'tcolor':'color');
  const mileage=prefix===''?$('mileage'):null;
  const reveal=(el,show)=>{const f=el?.closest('.field');if(f)f.classList.toggle('hidden',!show)};
@@ -838,16 +843,22 @@ function setupCar(prefix){
   optionList(model,catalog[brand.value]||[],'انتخاب مدل');
   optionList(trim,[],'ابتدا مدل را انتخاب کن');optionList(year,[],'ابتدا تیپ را انتخاب کن');
   reveal(model,!!brand.value);reveal(trim,false);reveal(year,false);reveal(color,false);reveal(mileage,false);
+  if(brand.value)openNextCarChoice(prefix+'model');
  });
  model.addEventListener('change',()=>{
   optionList(trim,model.value?trimsFor(model.value):[],'انتخاب تیپ');optionList(year,[],'ابتدا تیپ را انتخاب کن');
-  reveal(trim,!!model.value);reveal(year,false);reveal(color,!!model.value);reveal(mileage,false);
+  reveal(trim,!!model.value);reveal(year,false);reveal(color,false);reveal(mileage,false);
+  if(model.value)openNextCarChoice(prefix+'trim');
  });
  trim.addEventListener('change',()=>{
   optionList(year,trim.value?yearsFor(brand.value,model.value,trim.value):[],'انتخاب سال');
-  reveal(year,!!trim.value);reveal(mileage,false);
+  reveal(year,!!trim.value);reveal(color,false);reveal(mileage,false);
+  if(trim.value)openNextCarChoice(prefix+'year');
  });
- year.addEventListener('change',()=>{if(mileage)reveal(mileage,!!year.value)});
+ year.addEventListener('change',()=>{
+  reveal(color,!!year.value);reveal(mileage,!!year.value);
+  if(year.value)openNextCarChoice(prefix==='t'?'tcolor':'color');
+ });
 }
 function colorsFor(brand,model){
  const iranBrands=['ایران خودرو','سایپا','پژو'];
@@ -951,7 +962,7 @@ function initBrandGridPickers(){
     logoBox.textContent=brandMonogram(opt.value);logoBox.classList.add('brand-tile-fallback');
     if(slug){const img=document.createElement('img');img.src='https://cdn.simpleicons.org/'+encodeURIComponent(slug);img.alt='';img.loading='eager';img.decoding='async';img.referrerPolicy='no-referrer';img.onload=()=>{logoBox.classList.remove('brand-tile-fallback');logoBox.classList.add('brand-tile-has-logo')};img.onerror=()=>{img.remove()};logoBox.appendChild(img)}
     const name=document.createElement('span');name.className='brand-tile-name';name.textContent=opt.textContent;tile.append(logoBox,name);
-    tile.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));render();const nextId=id==='brand'?'model':'tmodel';const next=$(nextId);if(next&&!next.closest('.field').classList.contains('hidden'))next.closest('.field').scrollIntoView({behavior:'smooth',block:'center'})});
+    tile.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));render();const nextId=id==='brand'?'model':'tmodel';const next=$(nextId);if(next&&!next.closest('.field').classList.contains('hidden'))openNextCarChoice(nextId)});
     grid.appendChild(tile);
    });
   };
