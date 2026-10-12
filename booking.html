@@ -1120,19 +1120,33 @@ function openNextCarChoice(id){
   else {const trigger=field.querySelector('.modern-select-trigger');if(trigger&&!trigger.disabled)trigger.click()}
  },350);
 }
+function normalizeCarName(value){return String(value||'').toLocaleLowerCase('fa').replace(/[ي]/g,'ی').replace(/[ك]/g,'ک').replace(/[\u200c\s_-]+/g,'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
+const vehicleTypeRules=[
+ [/وانت|پیکاپ|pickup|hilux|navara|tunland|wingle|کارا|آریسان|زامیاد|کاپرا|ریچ|کارون|۱۵۱|151|l200|musso|gladiator|t6|t8|t9/i,'وانت / پیکاپ'],
+ [/ون|کاروان|carnival|soba ?m4|سوبا ?m4|inroads|اینرودز/i,'ون'],
+ [/suv|شاسی|هایما|فیدلیتی|دیگنیتی|تیگو|tiggo|tucson|توسان|سانتافه|santa ?fe|sorento|سورنتو|sportage|اسپورتیج|rav ?4|land ?cruiser|پرادو|prado|fortuner|فورچونر|x[1-7]\b|x22|x33|x55|x77|کولئوس|koleos|داستر|duster|کپچر|captur|کونا|kona|پالیسید|palisade|پالیسیڈ|پاجرو|pajero|outlander|اوتلندر|asx|اکتیون|تیوولی|tivoli|torres|تورس|رکستون|rexton|گرند ویتارا|grand ?vitara|ویتارا|vitara|جوک|juke|قشقایی|qashqai|ایکس ?تریل|x-trail|gl[abce]|gle|gls|g-class|q[3578]|macan|cayenne|پورشه کاین|کاین|جرنی|wrangler|گرند چروکی|grand ?cherokee|compass|جیپ/i,'شاسی‌بلند / کراس‌اوور'],
+ [/هاچ.?بک|hatch|۲۰۶|206|۲۰۷|207|تیبا ?۲|تیبا2|کوئیک|کوییک|اطلس|سایپا ?111|پراید ?111|پراید۱۱۱|mvm ?110|mvm ?315|i10|i20|پیکانتو|picanto|ساندرو|sandero|استپ.?وی|stepway|گلف|golf|یاریس|yaris|swift|سوئیفت|مینی|mini|ام.?جی ?3|mg3|گک ?g[23]/i,'هاچ‌بک'],
+ [/کوپه|coupe|911|brz|tt\b|کالیفرنیا/i,'کوپه'],
+ [/کروک|کابریولت|convertible|roadster/i,'کروک / رودستر'],
+ [/سدان|sedan|دنا|تارا|سمند|سورن|پژو ?پارس|پارس|۴۰۵|405|رانا|شاهین|ساینا|تیبا(?! ?۲)|آریو|ریو|زانتیا|سراتو|cerato|اپتیما|optima|k5|کمری|camry|کرولا|corolla|النترا|elantra|سوناتا|sonata|آریزو|arrizo|جک ?j4|j7|kmc ?j7|مزدا ?3|mazda ?3|امگرند|emgrand|c-?class|e-?class|s-?class|a-?class|سری ?[1-7]|series ?[1-7]|a[3468]\b|پاسات|passat|تیانا|teana|آلتیما|altima|سنترا|sentra|اکورد|accord|سیویک|civic|آوالون|avalon|فلونس|fluence|تالیسمان|talisman/i,'سدان']
+];
+const exactFuelRules=[
+ [/lamari ?ima ?hev|لاماری ?ایما ?hev|ایما ?hev|tiggo ?8 ?pro ?e\+|تیگو ?8 ?پرو ?e\+|prius|پریوس|ioniq|آیونیک|camry ?hybrid|کمری ?هیبرید|corolla ?hybrid|کرولا ?هیبرید|rav ?4 ?hybrid|سوناتا ?هیبرید|sonata ?hybrid|lexus ?(ux|nx|rx) ?\d* ?h\b/i,['هیبرید']],
+ [/برقی|electric|\bev\b|evx|eq[abce]|\bi[34x]\b|taycan|تایکان|id\. ?[34]|آی.?دی|e-tron|etr(on|on)|e ?j7|ej7|fx ?ev|پورشه تایکان|آئودی e/i,['برقی']],
+ [/دوگانه.?سوز|cng|گازسوز/i,['بنزینی','دوگانه‌سوز']],
+ [/سورن|سمند|پراید|تیبا|ساینا|پژو ?405|پژو ?۴۰۵|پژو ?پارس|روآ|آردی|آریسان|رانا|شاهین|کوییک|کوئیک/i,['بنزینی','دوگانه‌سوز']],
+ [/لاماری ?ایما ?hev|he?v|phev|plug.?in|هیبرید|hybrid/i,['بنزینی','هیبرید']],
+ [/تسلا|tesla|model ?[s3xy]|leaf|لیف|bolt ?ev|بولت ?ev|ora ?good ?cat|گود ?کت|hongqi ?eh|هونگچی ?eh/i,['برقی']]
+];
 function vehicleMetaOptions(model,brand){
- const m=String(model||'').toLocaleLowerCase('fa');
+ const name=normalizeCarName(model), brandName=normalizeCarName(brand);
  let type='سدان';
- if(/پراید 111|تیبا 2|۲۰۶|206|۲۰۷|207|ساندرو|استپ وی|پیکانتو|یاریس/i.test(m))type='هاچ‌بک';
- else if(/وانت|کاپرا|t8|پیکاپ|۱۵۱/i.test(m))type='وانت / پیکاپ';
- else if(/هایما|فیدلیتی|دیگنیتی|tucson|سانتافه|sorento|sportage|rav4|land cruiser|x22|x33|x55|x77|tiggo|fx|s5|s3|x5|koleos|duster|glc|gle|x1|x3|x5/i.test(m))type='شاسی‌بلند / کراس‌اوور';
- else if(/ون|کاروان/i.test(m))type='ون';
- const electric=/برقی|electric|ev/i.test(m),hybrid=/هیبرید|hybrid/i.test(m);
+ for(const [rule,value] of vehicleTypeRules){if(rule.test(name)||rule.test(String(model||''))){type=value;break}}
  let fuels=['بنزینی'];
- if(/سورن|دوگانه|تیبا|ساینا|سمند|پژو ۴۰۵|پژو 405|پارس|پراید/i.test(m))fuels.push('دوگانه‌سوز');
- if(hybrid)fuels=['هیبرید'];
- if(electric)fuels=['برقی'];
- if(/corolla|rav4|کمری|camry|توسان|tucson/i.test(m)&&!hybrid)fuels.push('هیبرید');
+ for(const [rule,values] of exactFuelRules){if(rule.test(name)||rule.test(String(model||''))){fuels=values.slice();break}}
+ if(/hev|phev|hybrid|هیبرید/i.test(name))fuels=['بنزینی','هیبرید'];
+ if(/evx|electric|برقی|\bev\b|ej7|e-tron|etron|taycan/i.test(name))fuels=['برقی'];
+ if(/وانت|پیکاپ|pickup|۱۵۱|151|l200|hilux|navara|t8|t9/i.test(name))type='وانت / پیکاپ';
  return {type,fuels};
 }
 function updateVehicleMeta(prefix){
@@ -1140,12 +1154,16 @@ function updateVehicleMeta(prefix){
  if(!typeSelect||!fuelSelect)return;
  const reset=(el,label)=>{el.innerHTML='';const o=document.createElement('option');o.value='';o.textContent=label;el.appendChild(o)};
  reset(typeSelect,'انتخاب نوع خودرو');reset(fuelSelect,'انتخاب نوع سوخت');
- const chosen=model.value;typeSelect.disabled=!chosen;fuelSelect.disabled=!chosen;if(!chosen)return;
+ const chosen=model.value;typeSelect.disabled=!chosen;fuelSelect.disabled=!chosen;
+ if(!chosen){const f=typeSelect.closest('.field');if(f)f.classList.add('hidden');const ff=fuelSelect.closest('.field');if(ff)ff.classList.add('hidden');return}
  const meta=vehicleMetaOptions(chosen,brand.value);
- const types=[meta.type,'سدان','هاچ‌بک','شاسی‌بلند / کراس‌اوور','وانت / پیکاپ','کوپه','ون'].filter((v,i,a)=>a.indexOf(v)===i);
- types.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;typeSelect.appendChild(o)});typeSelect.value=meta.type;
- ['فرقی ندارد',...meta.fuels].filter((v,i,a)=>a.indexOf(v)===i).forEach(v=>{const o=document.createElement('option');o.value=v==='فرقی ندارد'?'':v;o.textContent=v;fuelSelect.appendChild(o)});
+ const typeOptions=[meta.type,'سدان','هاچ‌بک','شاسی‌بلند / کراس‌اوور','وانت / پیکاپ','کوپه','کروک / رودستر','ون'].filter((v,i,a)=>a.indexOf(v)===i);
+ typeOptions.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;typeSelect.appendChild(o)});
+ typeSelect.value=meta.type;
+ const fuelOptions=meta.fuels.length>1?['انتخاب نوع سوخت',...meta.fuels]:meta.fuels;
+ fuelOptions.forEach((v,i)=>{const o=document.createElement('option');o.value=(i===0&&meta.fuels.length>1)?'':v;o.textContent=v;fuelSelect.appendChild(o)});
  fuelSelect.value=meta.fuels.length===1?meta.fuels[0]:'';
+ const tf=typeSelect.closest('.field'),ff=fuelSelect.closest('.field');if(tf)tf.classList.remove('hidden');if(ff)ff.classList.remove('hidden');
 }
 function setupCar(prefix){
  const brand=$(prefix+'brand'),model=$(prefix+'model'),trim=$(prefix+'trim'),year=$(prefix+'year');
