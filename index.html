@@ -263,19 +263,19 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 @keyframes cinemaShade{0%{opacity:.72}100%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.sceneArtwork *{animation:none!important}}
 
-/* Two-car exchange animation */
-.exchangeArtwork{overflow:hidden}
-.exchangeTrack{position:absolute;z-index:2;inset:0;perspective:800px}
-.exchangeCar{position:absolute;width:64%;max-width:390px;filter:drop-shadow(0 18px 13px #08111c70);will-change:transform}
-.exchangeCar svg{display:block;width:100%;height:auto;overflow:visible}
-.exchangeCarOne{left:-8%;top:32%;animation:swapCarOne 6s cubic-bezier(.62,0,.32,1) infinite}
-.exchangeCarTwo{right:-8%;top:49%;animation:swapCarTwo 6s cubic-bezier(.62,0,.32,1) infinite}
-.exchangeGlow{position:absolute;z-index:1;left:50%;top:47%;width:52%;height:38%;transform:translate(-50%,-50%);border-radius:50%;background:#7ce6c11c;filter:blur(35px);animation:swapGlow 6s ease-in-out infinite}
-@keyframes swapCarOne{0%,8%{transform:translate(0,0) scale(.84)}42%,50%{transform:translate(62%,28%) scale(1.04)}92%,100%{transform:translate(0,0) scale(.84)}}
-@keyframes swapCarTwo{0%,8%{transform:translate(0,0) scale(.84)}42%,50%{transform:translate(-62%,-24%) scale(1.04)}92%,100%{transform:translate(0,0) scale(.84)}}
-@keyframes swapGlow{0%,15%,85%,100%{opacity:.25;transform:translate(-50%,-50%) scale(.75)}45%,55%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}}
-@media(max-width:800px){.exchangeCar{width:76%}.exchangeCarOne{top:31%;left:-16%}.exchangeCarTwo{top:49%;right:-16%}}
-@media(prefers-reduced-motion:reduce){.exchangeCar,.exchangeGlow{animation:none!important}}
+/* Two-car exchange animation — robust responsive positioning */
+.heroVisual .heroPhoto.exchangeArtwork{overflow:hidden;isolation:isolate}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeTrack{position:absolute;z-index:2;inset:0;overflow:hidden}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCar{position:absolute;width:68%;max-width:390px;filter:drop-shadow(0 18px 13px #08111c70);will-change:left,top,transform;animation-duration:6s;animation-timing-function:cubic-bezier(.62,0,.32,1);animation-iteration-count:infinite}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCar svg{display:block;width:100%;height:auto;overflow:visible}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne{left:-35%;top:32%;animation-name:swapCarOneFixed}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo{left:100%;top:49%;animation-name:swapCarTwoFixed}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeGlow{position:absolute;z-index:1;left:50%;top:47%;width:52%;height:38%;transform:translate(-50%,-50%);border-radius:50%;background:#7ce6c126;filter:blur(35px);animation:swapGlowFixed 6s ease-in-out infinite;pointer-events:none}
+@keyframes swapCarOneFixed{0%,8%{left:-35%;top:32%;transform:scale(.78)}42%,50%{left:38%;top:48%;transform:scale(1)}92%,100%{left:105%;top:32%;transform:scale(.78)}}
+@keyframes swapCarTwoFixed{0%,8%{left:105%;top:49%;transform:scale(.78)}42%,50%{left:-12%;top:25%;transform:scale(1)}92%,100%{left:-35%;top:49%;transform:scale(.78)}}
+@keyframes swapGlowFixed{0%,15%,85%,100%{opacity:.2;transform:translate(-50%,-50%) scale(.7)}45%,55%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}}
+@media(max-width:800px){.heroVisual .heroPhoto.exchangeArtwork .exchangeCar{width:88%}.heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne{top:31%}.heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo{top:49%}}
+@media(prefers-reduced-motion:reduce){.heroVisual .heroPhoto.exchangeArtwork .exchangeCar,.heroVisual .heroPhoto.exchangeArtwork .exchangeGlow{animation:none!important}}
 </style>
 <link rel="stylesheet" href="s2s-style.css"><script src="config.js?v=reviews1"></script>
 <style>.accountTop{display:inline-flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;padding:10px 15px;border:1px solid #d5b46e77;border-radius:13px;background:linear-gradient(120deg,#e5cc8c,#c5a05b);color:#161711;text-decoration:none;font-size:12px;font-weight:900;box-shadow:0 8px 24px #0003;transition:transform .2s,filter .2s}.accountTop:hover{transform:translateY(-2px);filter:brightness(1.06)}.accountTop span{font-size:16px}@media(max-width:800px){.top{align-items:center;gap:8px}.accountTop{padding:9px 10px;font-size:10px}.logo{font-size:20px}.nav{display:none!important}}</style>
