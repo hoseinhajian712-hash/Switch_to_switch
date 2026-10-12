@@ -389,6 +389,25 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 .modern-select-option.brand-option.selected:after{margin-right:auto}
 @media(max-width:700px){.modern-select-option.brand-option{min-height:54px}.brand-mark{width:32px;height:32px;flex-basis:32px}}
 </style>
+
+<style id="s2s-brand-grid-v1">
+/* Full-page-feel luxury brand picker: square logo tiles */
+.field.brand-grid-field{grid-column:1/-1}
+.brand-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:2px}
+.brand-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-width:0;min-height:132px;padding:15px 8px;border:1px solid #e8dfcc;border-radius:18px;background:linear-gradient(145deg,#fff 0%,#fbf8f0 100%);color:#25231f;font-family:Tahoma,Arial,sans-serif;cursor:pointer;box-shadow:0 5px 16px #20180b08;transition:transform .2s,border-color .2s,box-shadow .2s,background .2s}
+.brand-tile:hover{transform:translateY(-3px);border-color:#c4a15c;box-shadow:0 12px 25px #6b4c1717}
+.brand-tile.selected{border-color:#b28a3e;background:linear-gradient(145deg,#fffdf7,#f4ead2);box-shadow:inset 0 0 0 1px #b28a3e55,0 10px 24px #7d5b1a18}
+.brand-tile.selected:after{content:'✓';position:absolute;top:8px;left:8px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#b28a3e;color:#fff;font-size:13px;font-weight:900}
+.brand-tile-logo{width:64px;height:64px;display:grid;place-items:center;border:1px solid #eee6d7;border-radius:17px;background:#fff;box-shadow:0 5px 15px #1a140a0a;overflow:hidden}
+.brand-tile-logo img{width:46px;height:46px;object-fit:contain}
+.brand-tile-fallback{font-size:22px;font-weight:900;color:#8d6b2e;background:linear-gradient(135deg,#fff,#f3e8ce)}
+.brand-tile-name{font-size:12px;font-weight:900;line-height:1.7;text-align:center;overflow-wrap:anywhere}
+.brand-grid-note{margin:0 0 13px;color:#837a69;font-size:11px;line-height:1.9}
+.brand-grid-field>.modern-select{display:none!important}
+@media(max-width:800px){.brand-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.brand-tile{min-height:120px}}
+@media(max-width:540px){.brand-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.brand-tile{min-height:108px;padding:12px 5px;border-radius:15px;gap:9px}.brand-tile-logo{width:54px;height:54px;border-radius:14px}.brand-tile-logo img{width:39px;height:39px}.brand-tile-name{font-size:11px}}
+</style>
+
 </head>
 <body>
 <main class="wrap">
@@ -747,6 +766,41 @@ function initModernDropdowns(){
  });
  document.addEventListener('click',e=>{all.forEach(item=>{if(!item.wrap.contains(e.target))item.close()})});
 }
+
+function initBrandGridPickers(){
+ const domains={
+  'ایران خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','فونیکس':'phoenixcar.ir','بهمن':'bahman.ir','لاماری':'lamari.ir','فردا موتور':'fardamotors.com','چری':'cheryinternational.com','جیلی':'geely.com',
+  'هیوندای':'hyundai.com','کیا':'kia.com','تویوتا':'toyota.com','نیسان':'nissan-global.com','رنو':'renaultgroup.com','پژو':'peugeot.com','فولکس واگن':'volkswagen.com','مزدا':'mazda.com','هوندا':'global.honda','سوزوکی':'globalsuzuki.com',
+  'چانگان':'globalchangan.com','ام‌جی':'mgmotor.com','هاوال':'haval-global.com','بسترن':'faw.com','دونگ فنگ':'dfmc.com.cn','فوتون':'foton-global.com','مرسدس بنز':'mercedes-benz.com','بی‌ام‌و':'bmw.com','آئودی':'audi.com','لکسوس':'lexus.com','پورشه':'porsche.com','ولوو':'volvocars.com','جیپ':'jeep.com'
+ };
+ ['brand','tbrand'].forEach(id=>{
+  const sel=$(id);if(!sel)return;
+  const field=sel.closest('.field');if(!field||field.querySelector('.brand-grid'))return;
+  field.classList.add('brand-grid-field');
+  const note=document.createElement('p');note.className='brand-grid-note';note.textContent=id==='brand'?'برند خودروی فعلی‌ات را انتخاب کن':'برند خودرویی را که دنبالش هستی انتخاب کن';
+  const grid=document.createElement('div');grid.className='brand-grid';grid.setAttribute('role','listbox');grid.setAttribute('aria-label',id==='brand'?'انتخاب برند خودروی فعلی':'انتخاب برند خودروی موردنظر');
+  const render=()=>{
+   grid.innerHTML='';
+   Array.from(sel.options).filter(o=>o.value).forEach(opt=>{
+    const tile=document.createElement('button');tile.type='button';tile.className='brand-tile'+(sel.value===opt.value?' selected':'');tile.setAttribute('role','option');tile.setAttribute('aria-selected',String(sel.value===opt.value));tile.setAttribute('aria-label',opt.textContent);
+    const logoBox=document.createElement('span');logoBox.className='brand-tile-logo';
+    const domain=domains[opt.value];
+    if(domain){const img=document.createElement('img');img.src='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';img.alt='';img.loading='lazy';img.onerror=()=>{img.remove();logoBox.textContent=opt.value.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';logoBox.classList.add('brand-tile-fallback')};logoBox.appendChild(img)}
+    else{logoBox.textContent=opt.value.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';logoBox.classList.add('brand-tile-fallback')}
+    const name=document.createElement('span');name.className='brand-tile-name';name.textContent=opt.textContent;tile.append(logoBox,name);
+    tile.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));render();const nextId=id==='brand'?'model':'tmodel';const next=$(nextId);if(next&&!next.closest('.field').classList.contains('hidden'))next.closest('.field').scrollIntoView({behavior:'smooth',block:'center'})});
+    grid.appendChild(tile);
+   });
+  };
+  const modern=field.querySelector('.modern-select');
+  if(modern)modern.insertAdjacentElement('afterend',note);else field.appendChild(note);
+  note.insertAdjacentElement('afterend',grid);
+  sel.addEventListener('change',render);
+  const observer=new MutationObserver(render);observer.observe(sel,{childList:true,subtree:true});
+  render();
+ });
+}
+
 function setupDates(){const d=$('appointmentDate'),t=$('appointmentTime');const today=new Date();for(let i=0;i<10;i++){const day=new Date(today);day.setDate(today.getDate()+i);const iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');const o=document.createElement('option');o.value=iso;o.textContent=new Intl.DateTimeFormat('fa-IR',{weekday:'long',month:'long',day:'numeric'}).format(day);d.appendChild(o)}const fillTimes=()=>{t.innerHTML='';const first=document.createElement('option');first.value='';first.textContent='انتخاب ساعت';t.appendChild(first);let start=540;if(d.value){const selected=new Date(d.value+'T00:00:00');if(selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&selected.getDate()===today.getDate()){const now=new Date();start=Math.max(540,Math.ceil((now.getHours()*60+now.getMinutes()+1)/30)*30)}}for(let m=start;m<=1020;m+=30){const o=document.createElement('option');o.value=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');o.textContent=o.value;t.appendChild(o)}};d.addEventListener('change',fillTimes);fillTimes()}
 function normalizeDigits(value){return String(value).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
 function formatNumber(el){const raw=normalizeDigits(el.value).replace(/\D/g,'');el.value=raw.replace(/\B(?=(\d{3})+(?!\d))/g,',');try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
