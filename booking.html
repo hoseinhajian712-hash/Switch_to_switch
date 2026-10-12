@@ -197,8 +197,8 @@ select:hover:not(:disabled){border-color:#cdb578;background-color:#fffdf8}
 
 /* Keep the picker as a true viewport-level modal; avoid stacked pseudo overlays */
 .modern-select.open:before{display:none!important}
-.picker-backdrop{position:fixed!important;inset:0!important;z-index:2147483000!important;background:rgba(3,9,18,.68)!important;backdrop-filter:blur(4px)}
-.modern-select-menu.popup-detached{position:fixed!important;z-index:2147483001!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(430px,calc(100vw - 28px))!important;max-height:min(460px,78dvh)!important;display:block!important;overflow:hidden!important;border:1px solid #c9ad69!important;border-radius:22px!important;padding:13px!important;background:linear-gradient(160deg,#fffefa,#f8f3e7)!important;box-shadow:0 28px 90px #0009!important;backdrop-filter:none!important}
+.picker-backdrop{position:fixed!important;inset:0!important;z-index:100000!important;background:rgba(3,9,18,.68)!important;backdrop-filter:blur(4px)}
+.modern-select-menu.popup-detached{position:fixed!important;z-index:100001!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(430px,calc(100vw - 28px))!important;max-height:min(460px,78dvh)!important;display:block!important;overflow:hidden!important;border:1px solid #c9ad69!important;border-radius:22px!important;padding:13px!important;background:linear-gradient(160deg,#fffefa,#f8f3e7)!important;box-shadow:0 28px 90px #0009!important;backdrop-filter:none!important}
 .modern-select-menu.popup-detached .modern-select-options{max-height:calc(min(460px,78dvh) - 105px)!important;overflow-y:auto!important;overscroll-behavior:contain}
 .modern-select-menu.popup-detached .modern-select-option{min-height:48px!important}
 /* Isolate picker popup from neighboring fields: render above all form rows */
@@ -881,7 +881,7 @@ function initModernDropdowns(){
     b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus()});options.appendChild(b)
    })
   }
-  trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');all.forEach(item=>item.close());if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();document.body.appendChild(overlay);menu.classList.add('popup-detached');document.body.appendChild(menu);search.focus({preventScroll:true})}});
+  trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');all.forEach(item=>item.close());if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');search.focus({preventScroll:true})}});
   search.addEventListener('input',renderOptions);
   search.addEventListener('keydown',e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();const first=options.querySelector('.modern-select-option');if(first)first.click()}});
   sel.addEventListener('change',sync);
