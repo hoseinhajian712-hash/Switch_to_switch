@@ -828,11 +828,10 @@ function openNextCarChoice(id){
  if(!el||!field||field.classList.contains('hidden'))return;
  field.scrollIntoView({behavior:'smooth',block:'center'});
  setTimeout(()=>{
-  const trigger=field.querySelector('.modern-select-trigger');
-  const wrap=trigger?.closest('.modern-select');
-  // Several change handlers may request the same dropdown. Never toggle an already-open menu closed.
-  if(trigger&&!trigger.disabled&&wrap&&!wrap.classList.contains('open'))trigger.click();
- },320);
+  // Open directly instead of relying on a synthetic click.
+  if(typeof el._openModernDropdown==='function')el._openModernDropdown();
+  else {const trigger=field.querySelector('.modern-select-trigger');if(trigger&&!trigger.disabled)trigger.click()}
+ },350);
 }
 function setupCar(prefix){
  const brand=$(prefix+'brand'),model=$(prefix+'model'),trim=$(prefix+'trim'),year=$(prefix+'year');
@@ -937,7 +936,9 @@ function initModernDropdowns(){
     b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus()});options.appendChild(b)
    })
   }
-  trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');all.forEach(item=>item.close());if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');search.focus({preventScroll:true})}});
+  const openMenu=()=>{if(trigger.disabled)return;all.forEach(item=>item.close());wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');search.focus({preventScroll:true})};
+  sel._openModernDropdown=openMenu;
+  trigger.addEventListener('click',()=>{if(trigger.disabled)return;if(wrap.classList.contains('open')){close();return}openMenu()});
   search.addEventListener('input',renderOptions);
   search.addEventListener('keydown',e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();const first=options.querySelector('.modern-select-option');if(first)first.click()}});
   sel.addEventListener('change',sync);
