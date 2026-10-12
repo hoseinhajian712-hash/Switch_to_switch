@@ -1001,6 +1001,7 @@ $('contactMobileInput').addEventListener('input',e=>{e.target.value=normalizeDig
 try{const saved=JSON.parse(sessionStorage.getItem('s2sContact')||'null');if(saved){$('contactNameInput').value=saved.name||'';$('contactMobileInput').value=saved.mobile||''}}catch(e){}
 setupCar('');setupCar('t');setupColors('brand','model','color','ابتدا مدل خودرو را انتخاب کن');setupColors('tbrand','tmodel','tcolor','فرقی ندارد');setupDates();setType(new URLSearchParams(location.search).get('type')||'sell');
 initModernDropdowns();
+initBrandGridPickers();
 let initialWizardStep=1;
 try{const savedWizard=JSON.parse(sessionStorage.getItem('s2sWizardState')||'null');if(savedWizard&&savedWizard.type===type&&Number.isFinite(Number(savedWizard.step)))initialWizardStep=Number(savedWizard.step)}catch(e){}
 showWizardStep(initialWizardStep);
