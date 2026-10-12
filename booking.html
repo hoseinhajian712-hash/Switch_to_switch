@@ -224,6 +224,9 @@ select:hover:not(:disabled){border-color:#cdb578;background-color:#fffdf8}
 .modern-select-option.selected:after{color:#80632c!important}
 @media(max-width:700px){.brand-grid-search{min-height:48px;margin-bottom:10px}}
 
+
+/* Always show a clear, high-contrast title inside the detached choice popup. */
+.modern-select-menu.popup-detached>.modern-select-menu-title{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:2!important;min-height:36px!important;margin:0 0 10px!important;padding:4px 8px 11px!important;border:0!important;border-bottom:1px solid #d8c69b!important;color:#3b2e17!important;background:transparent!important;font-family:Tahoma,Arial,sans-serif!important;font-size:15px!important;font-weight:900!important;line-height:1.8!important;text-align:right!important;}
 </style>
 
 <style id="s2s-shared-homepage-theme">
@@ -900,7 +903,7 @@ function initModernDropdowns(){
   const chevron=document.createElement('span');chevron.className='select-chevron';chevron.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   trigger.append(label,chevron);
   const menu=document.createElement('div');menu.className='modern-select-menu';
-  const menuTitle=document.createElement('div');menuTitle.className='modern-select-menu-title';const fieldLabel=sel.closest('.field')?.querySelector(':scope > span');menuTitle.textContent=(fieldLabel?.innerText||sel.getAttribute('aria-label')||'انتخاب گزینه').replace('*','').trim();
+  const menuTitle=document.createElement('div');menuTitle.className='modern-select-menu-title';const pickerTitles={brand:'برند خودرو',model:'مدل خودرو',trim:'تیپ خودرو',year:'سال ساخت',color:'رنگ خودرو',mileage:'کارکرد خودرو',tbrand:'برند خودروی موردنظر',tmodel:'مدل خودروی موردنظر',ttrim:'تیپ خودروی موردنظر',tyear:'سال ساخت موردنظر',tcolor:'رنگ دلخواه',tbudget:'بازه بودجه',tmileage:'کارکرد موردنظر',tgearbox:'گیربکس موردنظر',tfuel:'نوع سوخت',appointmentDate:'روز مراجعه',appointmentTime:'ساعت مراجعه'};const fieldLabel=sel.closest('.field')?.querySelector('span');menuTitle.textContent=pickerTitles[sel.id]||(fieldLabel?.textContent||sel.getAttribute('aria-label')||'انتخاب گزینه').replace('*','').trim();menuTitle.setAttribute('aria-live','polite');
   const search=document.createElement('input');search.type='search';search.className='modern-select-search';search.placeholder='برای جست‌وجو لمس کن…';search.setAttribute('aria-label','جست‌وجو بین گزینه‌ها');search.readOnly=true;search.setAttribute('inputmode','none');const mobilePicker=window.matchMedia('(max-width: 700px), (pointer: coarse)').matches;if(!mobilePicker)search.addEventListener('pointerdown',()=>{search.readOnly=false;search.removeAttribute('inputmode')});search.addEventListener('blur',()=>{if(!wrap.classList.contains('open')){search.readOnly=true;search.setAttribute('inputmode','none')}});
   const options=document.createElement('div');options.className='modern-select-options';options.setAttribute('role','listbox');menu.append(menuTitle,search,options);wrap.append(trigger,menu);
   sel.classList.add('modern-native');sel.insertAdjacentElement('afterend',wrap);
