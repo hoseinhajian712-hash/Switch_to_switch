@@ -207,6 +207,22 @@ select:hover:not(:disabled){border-color:#cdb578;background-color:#fffdf8}
 .modern-select-menu.popup-detached .modern-select-options{max-height:calc(min(460px,78dvh) - 105px)!important;overflow-y:auto!important;overscroll-behavior:contain}
 .modern-select-menu.popup-detached .modern-select-option{min-height:48px}
 @media(max-width:700px){.modern-select-menu.popup-detached{width:calc(100vw - 24px)!important;max-height:76dvh!important;border-radius:19px!important;padding:11px!important}.modern-select-menu.popup-detached .modern-select-options{max-height:calc(76dvh - 100px)!important}}
+
+/* Warm champagne styling for selectors and searchable brand cards */
+.brand-grid-search{display:block;width:100%;min-height:50px;margin:0 0 13px;padding:13px 16px 13px 44px;border:1px solid #dfd2b3;border-radius:15px;background:#fffdf7;color:#302b20;font:inherit;font-size:13px;box-shadow:0 5px 16px #4a37100b;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23927843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 15px center}
+.brand-grid-search:focus{border-color:#b99a54;box-shadow:0 0 0 4px #c2a45a20}
+.brand-grid-search::placeholder{color:#a19885}
+.modern-select-trigger{border-color:#dfd2b3!important;background:linear-gradient(145deg,#fffefa,#f7f1e3)!important;color:#302b20!important;box-shadow:0 5px 16px #4a37100b!important}
+.modern-select-trigger:hover:not(:disabled){border-color:#c6aa6a!important;background:linear-gradient(145deg,#fffefa,#f4ead2)!important}
+.modern-select-trigger .select-chevron{background:#eee2c2!important;color:#80632c!important}
+.modern-select.open .modern-select-trigger{border-color:#b99a54!important;box-shadow:0 0 0 4px #c2a45a20!important}
+.modern-select-menu{border-color:#dfd2b3!important;background:#fffdf7!important}
+.modern-select-search{border-color:#e4d9c2!important;background:#faf6eb!important}
+.modern-select-option:hover,.modern-select-option:focus-visible{background:#f5ecd7!important;color:#765923!important}
+.modern-select-option.selected{background:linear-gradient(100deg,#eee0bd,#faf5e8)!important;color:#765923!important;box-shadow:inset 0 0 0 1px #e2d0a2!important}
+.modern-select-option.selected:after{color:#80632c!important}
+@media(max-width:700px){.brand-grid-search{min-height:48px;margin-bottom:10px}}
+
 </style>
 
 <style id="s2s-shared-homepage-theme">
@@ -924,9 +940,11 @@ function initBrandGridPickers(){
   field.classList.add('brand-grid-field');
   const note=document.createElement('p');note.className='brand-grid-note';note.textContent=id==='brand'?'برند خودروی فعلی‌ات را انتخاب کن':'برند خودرویی را که دنبالش هستی انتخاب کن';
   const grid=document.createElement('div');grid.className='brand-grid';grid.setAttribute('role','listbox');grid.setAttribute('aria-label',id==='brand'?'انتخاب برند خودروی فعلی':'انتخاب برند خودروی موردنظر');
+  const searchBox=document.createElement('input');searchBox.type='search';searchBox.className='brand-grid-search';searchBox.placeholder='جستجوی برند خودرو…';searchBox.setAttribute('aria-label','جستجوی برند خودرو');
   const render=()=>{
    grid.innerHTML='';
-   Array.from(sel.options).filter(o=>o.value).forEach(opt=>{
+   const term=searchBox.value.trim().toLocaleLowerCase('fa');
+   Array.from(sel.options).filter(o=>o.value&&o.textContent.toLocaleLowerCase('fa').includes(term)).forEach(opt=>{
     const tile=document.createElement('button');tile.type='button';tile.className='brand-tile'+(sel.value===opt.value?' selected':'');tile.setAttribute('role','option');tile.setAttribute('aria-selected',String(sel.value===opt.value));tile.setAttribute('aria-label',opt.textContent);
     const logoBox=document.createElement('span');logoBox.className='brand-tile-logo';
     const slug=domains[opt.value];
@@ -939,7 +957,9 @@ function initBrandGridPickers(){
   };
   const modern=field.querySelector('.modern-select');
   if(modern)modern.insertAdjacentElement('afterend',note);else field.appendChild(note);
-  note.insertAdjacentElement('afterend',grid);
+  note.insertAdjacentElement('afterend',searchBox);
+  searchBox.insertAdjacentElement('afterend',grid);
+  searchBox.addEventListener('input',render);
   sel.addEventListener('change',render);
   const observer=new MutationObserver(render);observer.observe(sel,{childList:true,subtree:true});
   render();
