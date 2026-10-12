@@ -1415,7 +1415,25 @@ $('wizardNext').addEventListener('click',()=>{if(validateWizardStep())showWizard
 $('wizardPrev').addEventListener('click',()=>{hideMessage();showWizardStep(wizardStep-1)});
 $('contactMobileInput').addEventListener('input',e=>{e.target.value=normalizeDigits(e.target.value).replace(/\D/g,'').slice(0,11)});
 try{const saved=JSON.parse(sessionStorage.getItem('s2sContact')||'null');if(saved){$('contactNameInput').value=saved.name||'';$('contactMobileInput').value=saved.mobile||''}}catch(e){}
-setupCar('');setupCar('t');setupColors('brand','model','color','ابتدا مدل خودرو را انتخاب کن');setupColors('tbrand','tmodel','tcolor','فرقی ندارد');setupDates();setType(new URLSearchParams(location.search).get('type')||'sell');
+setupCar('');setupCar('t');setupColors('brand','model','color','ابتدا مدل خودرو را انتخاب کن');setupColors('tbrand','tmodel','tcolor','فرقی ندارد');setupDates();
+const FORM_DRAFT_KEY='s2sBookingDraftV1';
+function saveBookingDraft(){try{const values={};document.querySelectorAll('#requestForm input,#requestForm select,#requestForm textarea').forEach(el=>{if(el.id)values[el.id]=el.value});sessionStorage.setItem(FORM_DRAFT_KEY,JSON.stringify({type,values,step:wizardStep||1}))}catch(e){}}
+function restoreBookingDraft(){let draft;try{draft=JSON.parse(sessionStorage.getItem(FORM_DRAFT_KEY)||'null')}catch(e){}if(!draft||!draft.values)return false;const v=draft.values;
+ const set=(id)=>{const el=$(id);if(el&&v[id]!==undefined&&Array.from(el.options||[]).some(o=>o.value===v[id]))el.value=v[id]};
+ ['brand','tbrand'].forEach(id=>set(id));['brand','tbrand'].forEach(id=>$(id)?.dispatchEvent(new Event('change')));
+ ['model','tmodel'].forEach(id=>set(id));['model','tmodel'].forEach(id=>$(id)?.dispatchEvent(new Event('change')));
+ ['trim','ttrim'].forEach(id=>set(id));['trim','ttrim'].forEach(id=>$(id)?.dispatchEvent(new Event('change')));
+ ['year','tyear'].forEach(id=>set(id));['year','tyear'].forEach(id=>$(id)?.dispatchEvent(new Event('change')));
+ Object.keys(v).forEach(id=>{if(!['brand','tbrand','model','tmodel','trim','ttrim','year','tyear','appointmentTime'].includes(id)){const el=$(id);if(el&&'value'in el&&(!el.tagName||el.tagName!=='SELECT'||Array.from(el.options).some(o=>o.value===v[id])))el.value=v[id]}});
+ if(v.appointmentDate!==undefined)$('appointmentDate').value=v.appointmentDate;
+ if(v.appointmentDate)$('appointmentDate').dispatchEvent(new Event('change'));
+ if(v.appointmentTime!==undefined){const time=v.appointmentTime;setTimeout(()=>{const el=$('appointmentTime');if(el&&Array.from(el.options).some(o=>o.value===time))el.value=time;saveBookingDraft()},350)}
+ if(v.contactNameInput!==undefined)$('contactNameInput').value=v.contactNameInput;
+ if(v.contactMobileInput!==undefined)$('contactMobileInput').value=v.contactMobileInput;
+ return true}
+const restoredDraft=restoreBookingDraft();
+document.querySelectorAll('#requestForm input,#requestForm select,#requestForm textarea').forEach(el=>{el.addEventListener('input',saveBookingDraft);el.addEventListener('change',saveBookingDraft)});
+setType(new URLSearchParams(location.search).get('type')||(restoredDraft?JSON.parse(sessionStorage.getItem(FORM_DRAFT_KEY)||'{}').type:null)||'sell');
 initModernDropdowns();
 initBrandGridPickers();
 let restoreStep=1;try{const savedWizard=JSON.parse(sessionStorage.getItem('s2sWizardState')||'null');if(savedWizard&&savedWizard.type===type&&Number.isFinite(Number(savedWizard.step)))restoreStep=Number(savedWizard.step)}catch(e){}
