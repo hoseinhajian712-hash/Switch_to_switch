@@ -1293,7 +1293,7 @@ function initBrandGridPickers(){
    if(!term&&matches.length>limit){
     const more=document.createElement('button');more.type='button';more.className='brand-tile brand-tile-more';more.setAttribute('aria-label',showAllBrands?'نمایش کمتر برندها':'نمایش همه برندها');
     const icon=document.createElement('span');icon.className='brand-tile-logo';icon.textContent=showAllBrands?'−':'⋯';
-    const title=document.createElement('span');title.className='brand-tile-name';title.textContent=showAllBrands?'نمایش کمتر برندها':'نمایش همه برندها  ·  '+(matches.length-limit)+' برند دیگر';
+    const title=document.createElement('span');title.className='brand-tile-name';title.textContent=showAllBrands?'نمایش کمتر برندها':'نمایش همه برندها';
     more.append(icon,title);more.addEventListener('click',()=>{showAllBrands=!showAllBrands;render()});grid.appendChild(more);
    }
   };
