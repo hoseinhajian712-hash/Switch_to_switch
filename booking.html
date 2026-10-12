@@ -377,6 +377,18 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 </style>
 
+<style id="s2s-brand-logo-picker-v1">
+.modern-select-trigger .chosen-label{display:flex;align-items:center;gap:10px;min-width:0}
+.modern-select-trigger .chosen-label>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand-mark{width:34px;height:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;border-radius:11px;background:#fff;border:1px solid #e4eaf2;overflow:hidden;box-shadow:0 2px 7px #0000000a}
+.brand-logo{display:block;width:25px;height:25px;object-fit:contain}
+.brand-mark-fallback{font-size:12px;font-weight:900;color:#24456f;background:linear-gradient(135deg,#f5f8fc,#dce8f8)}
+.modern-select-option.brand-option{justify-content:flex-start;direction:rtl;gap:11px;min-height:52px;padding:8px 10px}
+.modern-select-option.brand-option .brand-mark{width:36px;height:36px;flex-basis:36px;border-radius:12px}
+.modern-select-option.brand-option .brand-option-label{flex:1;min-width:0;text-align:right;font-size:13px;font-weight:800}
+.modern-select-option.brand-option.selected:after{margin-right:auto}
+@media(max-width:700px){.modern-select-option.brand-option{min-height:54px}.brand-mark{width:32px;height:32px;flex-basis:32px}}
+</style>
 </head>
 <body>
 <main class="wrap">
@@ -657,6 +669,7 @@ function initModernDropdowns(){
  document.querySelectorAll('select').forEach(sel=>{
   const wrap=document.createElement('div');wrap.className='modern-select';
   const trigger=document.createElement('button');trigger.type='button';trigger.className='modern-select-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+  const isBrandPicker=sel.id==='brand'||sel.id==='tbrand';
   const label=document.createElement('span');label.className='chosen-label';
   const chevron=document.createElement('span');chevron.className='select-chevron';chevron.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   trigger.append(label,chevron);
@@ -665,12 +678,40 @@ function initModernDropdowns(){
   const options=document.createElement('div');options.className='modern-select-options';options.setAttribute('role','listbox');menu.append(search,options);wrap.append(trigger,menu);
   sel.classList.add('modern-native');sel.insertAdjacentElement('afterend',wrap);
   const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');search.value='';renderOptions()};
-  const sync=()=>{const opt=sel.options[sel.selectedIndex];label.textContent=opt?opt.textContent:'انتخاب کنید';label.classList.toggle('placeholder',!sel.value);trigger.disabled=sel.disabled;trigger.setAttribute('aria-label',label.textContent);renderOptions()};
+  const sync=()=>{renderChosenLabel();renderOptions()};
+  const brandDomains={
+   'ایران خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','فونیکس':'phoenixcar.ir','بهمن':'bahman.ir','لاماری':'lamari.ir','فردا موتور':'fardamotors.com','چری':'cheryinternational.com','جیلی':'geely.com',
+   'هیوندای':'hyundai.com','کیا':'kia.com','تویوتا':'toyota.com','نیسان':'nissan-global.com','رنو':'renaultgroup.com','پژو':'peugeot.com','فولکس واگن':'volkswagen.com','مزدا':'mazda.com','هوندا':'global.honda','سوزوکی':'globalsuzuki.com',
+   'چانگان':'globalchangan.com','ام‌جی':'mgmotor.com','هاوال':'haval-global.com','بسترن':'faw.com','دونگ فنگ':'dfmc.com.cn','فوتون':'foton-global.com','مرسدس بنز':'mercedes-benz.com','بی‌ام‌و':'bmw.com','آئودی':'audi.com','لکسوس':'lexus.com','پورشه':'porsche.com','ولوو':'volvocars.com','جیپ':'jeep.com'
+  };
+  function brandMark(name){
+   const mark=document.createElement('span');mark.className='brand-mark';
+   const domain=brandDomains[name];
+   if(domain){
+    const img=document.createElement('img');img.className='brand-logo';img.alt='';img.loading='lazy';img.src='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';
+    img.addEventListener('error',()=>{img.remove();mark.textContent=name.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';mark.classList.add('brand-mark-fallback')},{once:true});
+    mark.appendChild(img);
+   }else{mark.textContent=name.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';mark.classList.add('brand-mark-fallback')}
+   return mark;
+  }
+  function renderChosenLabel(){
+   label.innerHTML='';
+   const opt=sel.options[sel.selectedIndex];
+   if(isBrandPicker&&sel.value){label.appendChild(brandMark(sel.value));const name=document.createElement('span');name.textContent=opt?opt.textContent:sel.value;label.appendChild(name)}
+   else label.textContent=opt?opt.textContent:'انتخاب کنید';
+   label.classList.toggle('placeholder',!sel.value);
+   trigger.disabled=sel.disabled;trigger.setAttribute('aria-label',opt?opt.textContent:'انتخاب کنید');
+  }
   function renderOptions(){
    options.innerHTML='';const term=search.value.trim().toLocaleLowerCase('fa');
    const list=Array.from(sel.options).filter(o=>o.value!==''&&o.textContent.toLocaleLowerCase('fa').includes(term));
    if(!list.length){const empty=document.createElement('div');empty.className='modern-select-empty';empty.textContent='گزینه‌ای پیدا نشد';options.appendChild(empty);return}
-   list.forEach(opt=>{const b=document.createElement('button');b.type='button';b.className='modern-select-option'+(opt.value===sel.value?' selected':'');b.textContent=opt.textContent;b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus()});options.appendChild(b)})
+   list.forEach(opt=>{
+    const b=document.createElement('button');b.type='button';b.className='modern-select-option'+(opt.value===sel.value?' selected':'')+(isBrandPicker?' brand-option':'');
+    if(isBrandPicker){b.appendChild(brandMark(opt.value));const name=document.createElement('span');name.className='brand-option-label';name.textContent=opt.textContent;b.appendChild(name)}
+    else b.textContent=opt.textContent;
+    b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus()});options.appendChild(b)
+   })
   }
   trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');document.querySelectorAll('.modern-select.open').forEach(w=>{w.classList.remove('open');w.querySelector('.modern-select-trigger').setAttribute('aria-expanded','false')});if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions()}});
   search.addEventListener('input',renderOptions);
