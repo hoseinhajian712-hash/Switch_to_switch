@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 const url=Deno.env.get("SUPABASE_URL")!, key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, db=createClient(url,key);
 const ADMIN="S2S-V4-2026-ADMIN",EXPERT="S2S-V4-2026-EXPERT";
-const J={"content-type":"application/json; charset=utf-8","cache-control":"no-store","access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,authorization"};
+const J={"content-type":"application/json; charset=utf-8","cache-control":"no-store","access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,authorization,apikey,x-client-info,prefer,accept,origin"};
 const order=["new","refer","inspection","review","auction-ready","auction","auction-end","customer","docs","deposit","contract","done"];
 const statusFa:any={new:"تماس اولیه",refer:"تأیید مراجعه کارشناس",inspection:"کارشناسی در حال انجام",review:"پایان کارشناسی","auction-ready":"انتقال به مزایده",auction:"مزایده فعال","auction-end":"پایان مزایده",customer:"مذاکره با مشتری",disagreement:"عدم توافق با مشتری",selling:"در انتظار تصمیم نهایی",docs:"تکمیل مدارک",deposit:"دریافت پیش‌پرداخت",contract:"قرارداد",done:"تکمیل معامله",cancelled:"انصراف"};
 const json=(d:any,s=200)=>new Response(JSON.stringify(d),{status:s,headers:J});
@@ -34,6 +34,9 @@ async function requestAuctionOtp(req:Request){const b=await req.json(),mobile=St
 async function verifyAuctionOtp(req:Request){const b=await req.json(),mobile=String(b.mobile||"").replace(/\s/g,""),code=String(b.code||"").trim();if(!/^09\d{9}$/.test(mobile)||!/^\d{6}$/.test(code))return json({error:"شماره موبایل یا کد نامعتبر است"},400);const r=await db.from("auction_otp_codes").select("*").eq("mobile",mobile).is("verified_at",null).order("created_at",{ascending:false}).limit(1).maybeSingle();if(!r.data)return json({error:"کد پیدا نشد؛ دوباره درخواست کد کنید"},400);if(new Date(r.data.expires_at).getTime()<Date.now())return json({error:"کد منقضی شده است"},400);if(Number(r.data.attempts)>=5)return json({error:"تعداد تلاش بیش از حد مجاز است"},429);const h=await sha256Hex(code);if(h!==r.data.code_hash){await db.from("auction_otp_codes").update({attempts:Number(r.data.attempts)+1}).eq("id",r.data.id);return json({error:"کد واردشده صحیح نیست"},400)}await db.from("auction_otp_codes").update({verified_at:new Date().toISOString()}).eq("id",r.data.id);const mr=await db.from("auction_members").select("*").eq("mobile",mobile).single();if(mr.error)return json({error:mr.error.message},500);const raw=randToken(),th=await sha256Hex(raw);await db.from("auction_sessions").insert({member_id:mr.data.id,token_hash:th,expires_at:new Date(Date.now()+12*60*60000).toISOString()});return json({ok:true,verified:true,subscription_required:false,token:raw,expires_in:43200})}
 async function startAuctionSubscription(req:Request){const b=await req.json(),mobile=String(b.mobile||"").replace(/\s/g,""),name=String(b.full_name||"").trim();if(!/^09\d{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست"},400);const mr=await db.from("auction_members").upsert({mobile,full_name:name||null,subscription_status:"pending",updated_at:new Date().toISOString()},{onConflict:"mobile"}).select("id,mobile,full_name,subscription_status").single();if(mr.error)return json({error:mr.error.message},500);const url=Deno.env.get("AUCTION_PAYMENT_URL")||"";return json({ok:true,member:mr.data,payment_required:true,amount:Number(Deno.env.get("AUCTION_SUBSCRIPTION_AMOUNT")||0),payment_url:url||null,message:url?"برای پرداخت اشتراک وارد درگاه شوید.":"درگاه پرداخت هنوز تنظیم نشده است."})}
 async function auctionLoginCodes(u:URL){const {data,error}=await db.from("auction_otp_codes").select("id,mobile,display_code,created_at,expires_at,verified_at").is("verified_at",null).gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(30);return error?json({error:error.message},500):json({ok:true,codes:data||[]})}
+async function auctionMembers(){const {data,error}=await db.from("auction_members").select("id,mobile,full_name,subscription_status,paid_at,paid_until,created_at,updated_at").order("created_at",{ascending:false});return error?json({error:error.message},500):json({ok:true,members:data||[]})}
+async function deactivateAuctionMember(req:Request){const b=await req.json();const mobile=String(b.mobile||"").replace(/\\s/g,"");if(!/^09\\d{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست"},400);const r=await db.from("auction_members").update({subscription_status:"inactive",updated_at:new Date().toISOString()}).eq("mobile",mobile).select("id,mobile,full_name,subscription_status,paid_until").single();return r.error?json({error:r.error.message},500):json({ok:true,member:r.data})}
+async function updateAuctionMember(req:Request){const b=await req.json();const mobile=String(b.mobile||"").replace(/\\s/g,"");const full_name=String(b.full_name||"").trim().slice(0,120);const days=Number(b.days);if(!/^09\\d{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست"},400);if(!full_name)return json({error:"نام عضو الزامی است"},400);if(!Number.isInteger(days)||days<1||days>3650)return json({error:"مدت اشتراک باید بین ۱ تا ۳۶۵۰ روز باشد"},400);const now=new Date().toISOString(),until=new Date(Date.now()+days*86400000).toISOString();const r=await db.from("auction_members").update({full_name,subscription_status:"active",paid_at:now,paid_until:until,updated_at:now}).eq("mobile",mobile).select("id,mobile,full_name,subscription_status,paid_at,paid_until").single();return r.error?json({error:r.error.message},500):json({ok:true,member:r.data})}
 async function activateAuctionMember(u:URL,req:Request){const b=await req.json();const mobile=String(b.mobile||"").replace(/\s/g,"");const days=Math.max(1,Number(b.days||30));if(!/^09\d{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست"},400);const until=new Date(Date.now()+days*86400000).toISOString();const r=await db.from("auction_members").update({subscription_status:"active",paid_at:new Date().toISOString(),paid_until:until,updated_at:new Date().toISOString()}).eq("mobile",mobile).select("id,mobile,full_name,subscription_status,paid_until").single();return r.error?json({error:r.error.message},500):json({ok:true,member:r.data})}
 async function paymentCallback(req:Request){const secret=Deno.env.get("PAYMENT_WEBHOOK_SECRET")||"",got=req.headers.get("x-payment-secret")||"";if(!secret||got!==secret)return json({error:"unauthorized"},401);const b=await req.json(),mobile=String(b.mobile||"").replace(/\s/g,"");if(b.paid!==true)return json({ok:true,ignored:true});const days=Math.max(1,Number(b.days||30));const until=new Date(Date.now()+days*86400000).toISOString();const r=await db.from("auction_members").update({subscription_status:"active",paid_at:new Date().toISOString(),paid_until:until,updated_at:new Date().toISOString()}).eq("mobile",mobile);return r.error?json({error:r.error.message},500):json({ok:true})}
 async function publicAuctions(req:Request,u:URL){const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);const {data:aucs,error}=await db.from("auctions").select("id,case_id,vehicle_id,status,starts_at,ends_at,current_bid,starting_price,created_at").eq("status","active").order("created_at",{ascending:false});if(error)return json({error:error.message},500);const out:any[]=[];for(const a of (aucs||[])){if(new Date(a.ends_at).getTime()<=Date.now()){await db.from("auctions").update({status:"ended"}).eq("id",a.id);await db.from("cases").update({status:"auction-end"}).eq("id",a.case_id);continue;}const cr=await db.from("cases").select("id,case_number").eq("id",a.case_id).single();const vr=await db.from("vehicles").select("id,brand,model,trim,model_year,color,mileage,body_condition,technical_condition,general_condition").eq("id",a.vehicle_id).maybeSingle();const ir=await db.from("inspections").select("id,summary,finished_at,status").eq("case_id",a.case_id).order("finished_at",{ascending:false}).limit(1).maybeSingle();let defects:any[]=[],photos:any[]=[];if(ir.data?.id){const dr=await db.from("inspection_defects").select("id,area,part,defect_type,explanation").eq("inspection_id",ir.data.id);defects=dr.data||[];const pr=await db.from("inspection_photos").select("id,defect_id,photo_type,label,storage_path,annotation").eq("inspection_id",ir.data.id).neq("photo_type","document");photos=pr.data||[];}const br=await db.from("bids").select("id,amount,bidder_name,created_at").eq("auction_id",a.id).order("created_at",{ascending:false});const paths=photos.map((x:any)=>x.storage_path).filter(Boolean);const signed=paths.length?(await db.storage.from("s2s-documents").createSignedUrls(paths,3600)).data||[]:[];const mediaUrl=(p:string)=>signed.find((x:any)=>x.path===p)?.signedUrl||null;const photoRows=photos.map((p:any)=>({...p,url:mediaUrl(p.storage_path)}));const enrichedDefects=defects.map((d:any)=>({...d,photos:photoRows.filter((p:any)=>p.defect_id===d.id)}));out.push({...a,case:cr.data||null,vehicle:vr.data||null,inspection:ir.data||null,defects:enrichedDefects,photos:photoRows,bids:br.data||[]});}return json({auctions:out});}
@@ -105,14 +108,205 @@ async function estimate(req:Request){
  return json({error:"method_not_allowed"},405);
 }
 async function expireAuctions(){const now=new Date().toISOString();const {data,error}=await db.from("auctions").select("id,case_id,current_bid").eq("status","active").lte("ends_at",now).limit(100);if(error||!data?.length)return;for(const a of data){const br=await db.from("bids").select("buyer_id,amount").eq("auction_id",a.id).order("amount",{ascending:false}).limit(1).maybeSingle();const winner=br.data?.buyer_id||null;const finalBid=Number(br.data?.amount||a.current_bid||0);const up=await db.from("auctions").update({status:"ended",winner_id:winner,current_bid:finalBid}).eq("id",a.id).eq("status","active").select("id").maybeSingle();if(up.data){await db.from("cases").update({status:"auction-end"}).eq("id",a.case_id).eq("status","auction");await historyAdd(a.case_id,"auction","auction-end",winner?"پایان خودکار مزایده پس از ۶۰ دقیقه؛ برنده مشخص شد":"پایان خودکار مزایده پس از ۶۰ دقیقه؛ بدون برنده");}}}
+
+async function supportStart(req:Request){
+ const b=await req.json();
+ const mobile=String(b.mobile||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\s/g,"");
+ if(!/^\+?[0-9]{10,15}$/.test(mobile))return json({error:"لطفاً شماره موبایل معتبر وارد کن."},400);
+ const token=randToken(),tokenHash=await sha256Hex(token);
+ const r=await db.from("support_conversations").insert({customer_mobile:mobile,token_hash:tokenHash,status:"open"}).select("id,customer_mobile,status,created_at").single();
+ if(r.error)return json({error:"ساخت گفت‌وگو ناموفق بود."},500);
+ const w=await db.from("support_messages").insert({conversation_id:r.data.id,sender:"admin",message:"سلام! به پشتیبانی سوییچ به سوییچ خوش آمدی. پیامت را بنویس؛ همکاران ما پاسخ می‌دهند."});
+ if(w.error)return json({error:"گفت‌وگو ساخته شد، اما پیام خوش‌آمدگویی ارسال نشد."},500);
+ return json({ok:true,conversation:r.data,token});
+}
+async function supportCustomerAuth(id:string,token:string){
+ if(!id||!token)return null;
+ const hash=await sha256Hex(token);
+ const r=await db.from("support_conversations").select("id,customer_mobile,status").eq("id",id).eq("token_hash",hash).maybeSingle();
+ return r.data||null;
+}
+async function supportPoll(u:URL){
+ const id=u.searchParams.get("id")||"",token=u.searchParams.get("token")||"";
+ const conv=await supportCustomerAuth(id,token);
+ if(!conv)return json({error:"نشست چت معتبر نیست."},401);
+ const r=await db.from("support_messages").select("id,sender,message,created_at").eq("conversation_id",id).order("created_at",{ascending:true}).limit(300);
+ return r.error?json({error:"دریافت پیام‌ها ناموفق بود."},500):json({conversation:conv,messages:r.data||[]});
+}
+async function supportSend(req:Request){
+ const b=await req.json(),id=String(b.conversation_id||""),token=String(b.token||""),message=String(b.message||"").trim();
+ if(!message||message.length>3000)return json({error:"پیام باید بین ۱ تا ۳۰۰۰ نویسه باشد."},400);
+ const conv=await supportCustomerAuth(id,token);
+ if(!conv)return json({error:"نشست چت معتبر نیست."},401);
+ if(conv.status==="closed")return json({error:"این گفت‌وگو بسته شده است."},409);
+ const r=await db.from("support_messages").insert({conversation_id:id,sender:"customer",message}).select("id,sender,message,created_at").single();
+ if(r.error)return json({error:"ارسال پیام ناموفق بود."},500);
+ await db.from("support_conversations").update({updated_at:new Date().toISOString()}).eq("id",id);
+ return json({ok:true,message:r.data});
+}
+async function supportAdminList(){
+ const r=await db.from("support_conversations").select("id,customer_mobile,status,created_at,updated_at").order("updated_at",{ascending:false}).limit(100);
+ if(r.error)return json({error:r.error.message},500);
+ const ids=(r.data||[]).map((x:any)=>x.id);
+ const mr=ids.length?await db.from("support_messages").select("id,conversation_id,sender,message,created_at").in("conversation_id",ids).order("created_at",{ascending:true}):{data:[],error:null};
+ if(mr.error)return json({error:mr.error.message},500);
+ return json({conversations:(r.data||[]).map((x:any)=>{const messages=(mr.data||[]).filter((m:any)=>m.conversation_id===x.id);const last_message=messages[messages.length-1]||null;return {...x,messages,last_message,last_message_at:last_message?.created_at||x.updated_at,status:x.status==="closed"?"closed":last_message?.sender==="admin"?"answered":"open"}})});
+}
+async function supportAdminReply(req:Request,u:URL){
+ const b=await req.json(),id=String(b.conversation_id||u.searchParams.get("id")||""),message=String(b.message||"").trim();
+ if(!id||!message||message.length>3000)return json({error:"گفت‌وگو و متن پیام الزامی است."},400);
+ const conv=await db.from("support_conversations").select("id,status").eq("id",id).maybeSingle();
+ if(conv.error||!conv.data)return json({error:"گفت‌وگو پیدا نشد."},404);
+ if(conv.data.status==="closed")return json({error:"این گفت‌وگو بسته شده است."},409);
+ const r=await db.from("support_messages").insert({conversation_id:id,sender:"admin",message}).select("id,sender,message,created_at").single();
+ if(r.error)return json({error:r.error.message},500);
+ await db.from("support_conversations").update({updated_at:new Date().toISOString()}).eq("id",id);
+ return json({ok:true,message:r.data});
+}
+async function supportAdminClose(req:Request){
+ const b=await req.json(),id=String(b.conversation_id||"");
+ if(!id)return json({error:"گفت‌وگو مشخص نشده است."},400);
+ const r=await db.from("support_conversations").update({status:"closed",updated_at:new Date().toISOString()}).eq("id",id).select("id,status").single();
+ return r.error?json({error:r.error.message},500):json({ok:true,conversation:r.data});
+}
+
+function normalizeIranMobile(value:string){
+ let x=String(value||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g,"");
+ if(x.startsWith("0098"))x=x.slice(2);
+ if(x.startsWith("98")&&x.length===12)x="0"+x.slice(2);
+ if(x.length===10&&x.startsWith("9"))x="0"+x;
+ return /^09\d{9}$/.test(x)?x:"";
+}
+
 async function api(req:Request,u:URL){
- const role=auth(u),a=u.searchParams.get("api"),id=u.searchParams.get("id")||"";
+ const a=u.searchParams.get("api"),id=u.searchParams.get("id")||"";
+ if(a==="booking-settings"&&req.method==="GET"){
+  const {data,error}=await db.from("booking_settings").select("daily_capacity,blocked_dates,blocked_slots,updated_at").eq("id",1).single();
+  if(error)return json({error:error.message},500);
+  return json({ok:true,settings:{daily_capacity:data.daily_capacity,blocked_dates:(data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10)),blocked_slots:data.blocked_slots||{},updated_at:data.updated_at}});
+ }
+ if(a==="booking-calendar"&&req.method==="GET"){
+  const start=u.searchParams.get("start")||"",days=Number(u.searchParams.get("days")||10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!Number.isInteger(days)||days<1||days>30)return json({error:"تاریخ یا بازه تقویم معتبر نیست."},400);
+  const startDate=new Date(start+"T00:00:00Z");if(Number.isNaN(startDate.getTime())||startDate.toISOString().slice(0,10)!==start)return json({error:"تاریخ معتبر نیست."},400);
+  const endDate=new Date(startDate.getTime()+(days-1)*86400000).toISOString().slice(0,10);
+  const cfg=await db.from("booking_settings").select("daily_capacity,blocked_dates,blocked_slots").eq("id",1).single();if(cfg.error)return json({error:cfg.error.message},500);
+  const q=await db.from("cases").select("appointment_date").gte("appointment_date",start).lte("appointment_date",endDate).in("appointment_status",["requested","confirmed"]).not("status","in","(cancelled,done)").not("appointment_time","is",null);
+  if(q.error)return json({error:q.error.message},500);
+  const counts:any={};for(const c of q.data||[]){const day=String(c.appointment_date).slice(0,10);counts[day]=(counts[day]||0)+1}
+  const blockedDates=(cfg.data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10));
+  const calendar=[];for(let i=0;i<days;i++){const date=new Date(startDate.getTime()+i*86400000).toISOString().slice(0,10),count=counts[date]||0,blocked=blockedDates.includes(date);calendar.push({date,booked_count:count,remaining_capacity:Math.max(0,Number(cfg.data.daily_capacity)-count),blocked,full:blocked||count>=Number(cfg.data.daily_capacity)})}
+  return json({ok:true,daily_capacity:cfg.data.daily_capacity,blocked_dates:blockedDates,blocked_slots:cfg.data.blocked_slots||{},days:calendar});
+ }
+ if(a==="booking-slots"&&req.method==="GET"){
+  const date=u.searchParams.get("date")||"";if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return json({error:"invalid_date"},400);
+  const cfg=await db.from("booking_settings").select("daily_capacity,blocked_dates,blocked_slots").eq("id",1).single();if(cfg.error)return json({error:cfg.error.message},500);
+  const {data,error}=await db.from("cases").select("appointment_time").eq("appointment_date",date).in("appointment_status",["requested","confirmed"]).not("status","in","(cancelled,done)").not("appointment_time","is",null);
+  if(error)return json({error:error.message},500);
+  const booked=(data||[]).map((x:any)=>String(x.appointment_time).slice(0,5)),blockedDates=(cfg.data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10)),blockedSlots=(cfg.data.blocked_slots||{})[date]||[];
+  return json({ok:true,booked,daily_capacity:cfg.data.daily_capacity,booked_count:booked.length,remaining_capacity:Math.max(0,Number(cfg.data.daily_capacity)-booked.length),is_blocked:blockedDates.includes(date),is_full:blockedDates.includes(date)||booked.length>=Number(cfg.data.daily_capacity),blocked_slots:blockedSlots});
+ }
+ if(a==="customer-cases"&&req.method==="GET"){
+  const header=req.headers.get("authorization")||"",token=header.replace(/^Bearer\s+/i,"").trim();
+  if(!token||token==="null"||token==="undefined")return json({error:"برای مشاهده درخواست‌ها وارد حساب مشتری شوید."},401);
+  const authResult=await db.auth.getUser(token),user=authResult.data?.user;
+  if(authResult.error||!user)return json({error:"نشست ورود معتبر نیست؛ دوباره وارد حساب شوید."},401);
+  if(user.phone&&user.phone_confirmed_at){
+   const mobile=normalizeIranMobile(user.phone);
+   if(mobile)await db.from("cases").update({customer_id:user.id}).eq("customer_mobile",mobile).is("customer_id",null);
+  }
+  const {data,error}=await db.from("cases").select("id,case_number,service_type,status,appointment_date,appointment_time,appointment_status,created_at,updated_at").eq("customer_id",user.id).order("created_at",{ascending:false});
+  if(error)return json({error:error.message},500);
+  const ids=(data||[]).map((c:any)=>c.id);let vehicles:any[]=[];
+  if(ids.length){const vr=await db.from("vehicles").select("case_id,vehicle_role,brand,model,trim,model_year").in("case_id",ids);if(vr.error)return json({error:vr.error.message},500);vehicles=vr.data||[]}
+  const serviceLabels:any={sell:"فروش خودرو",buy:"خرید خودرو",exchange:"معاوضه خودرو"};
+  const statusLabels:any={new:"در حال بررسی درخواست",refer:"هماهنگی مراجعه",inspection:"کارشناسی در حال انجام",review:"در حال پیگیری درخواست","auction-ready":"در حال پیگیری درخواست",auction:"در حال پیگیری درخواست","auction-end":"در حال پیگیری درخواست",customer:"در حال پیگیری درخواست",disagreement:"در حال پیگیری درخواست",selling:"در حال پیگیری درخواست",docs:"تکمیل مدارک",deposit:"در حال تکمیل معامله",contract:"در حال تکمیل معامله",done:"تکمیل‌شده",cancelled:"لغوشده"};
+  const appointmentLabels:any={requested:"در انتظار تأیید",confirmed:"تأییدشده",cancelled:"لغوشده",completed:"انجام‌شده"};
+  return json({cases:(data||[]).map((c:any)=>({case_number:c.case_number,service_label:serviceLabels[c.service_type]||"درخواست خودرو",status_label:statusLabels[c.status]||"در حال پیگیری درخواست",appointment_date:c.appointment_date,appointment_time:c.appointment_time?String(c.appointment_time).slice(0,5):null,appointment_status_label:appointmentLabels[c.appointment_status]||"",created_at:c.created_at,updated_at:c.updated_at,vehicles:vehicles.filter((v:any)=>v.case_id===c.id)}))});
+ }
+ if(a==="support-start"&&req.method==="POST")return supportStart(req);
+ if(a==="support-poll"&&req.method==="GET")return supportPoll(u);
+ if(a==="support-send"&&req.method==="POST")return supportSend(req);
+
+ const hex=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value)))).map((b)=>b.toString(16).padStart(2,"0")).join("");
+ let role=auth(u);
+ if(a==="staff-login"&&req.method==="POST"){
+  try{
+   const b=await req.json(),want=String(b.role||""),code=String(b.personnel_code||"").trim(),password=String(b.password||"");
+   if(!["admin","expert"].includes(want)||code.length!==4||Array.from(code).some(ch=>ch<"0"||ch>"9")||!password)return json({error:"کد پرسنلی و رمز عبور را بررسی کنید."},400);
+   const cr=await db.from("staff_credentials").select("password_hash").eq("role",want).maybeSingle();
+   if(cr.error||!cr.data)return json({error:"ورود ناموفق بود. رمز یا کد پرسنلی صحیح نیست."},401);
+   const ph=await hex(password);
+   if(ph!==cr.data.password_hash)return json({error:"ورود ناموفق بود. رمز یا کد پرسنلی صحیح نیست."},401);
+   const ch=await hex(code);
+   const mr=await db.from("staff_members").select("id,full_name,role,active").eq("personnel_code_hash",ch).eq("role",want).maybeSingle();
+   if(mr.error||!mr.data||!mr.data.active)return json({error:"کد پرسنلی نامعتبر یا غیرفعال است."},401);
+   const token=crypto.randomUUID()+crypto.randomUUID();
+   const th=await hex(token);
+   const ins=await db.from("staff_sessions").insert({token_hash:th,role:want,staff_member_id:mr.data.id,expires_at:new Date(Date.now()+12*60*60*1000).toISOString()});
+   if(ins.error)return json({error:"ساخت نشست ورود ناموفق بود."},500);
+   await db.from("staff_members").update({personnel_code_display:code}).eq("id",mr.data.id);
+   return json({ok:true,token,staff_name:mr.data.full_name,role:want});
+  }catch(_){return json({error:"درخواست ورود نامعتبر است."},400)}
+ }
+ if(!role){
+  const authHeader=req.headers.get("authorization")||"";
+  const raw=(u.searchParams.get("key")||authHeader.replace(/^Bearer\\s+/i,"")).trim();
+  if(raw){
+   const th=await hex(raw);
+   const sr=await db.from("staff_sessions").select("role,expires_at,staff_member_id").eq("token_hash",th).gt("expires_at",new Date().toISOString()).maybeSingle();
+   if(!sr.error&&sr.data){
+    const mr=sr.data.staff_member_id?await db.from("staff_members").select("active,role").eq("id",sr.data.staff_member_id).maybeSingle():null;
+    if(!mr||(!mr.error&&mr.data?.active))role=sr.data.role;
+   }
+  }
+ }
+ if(a==="booking-settings"&&req.method==="POST"&&role==="admin"){
+  try{
+   const b=await req.json(),capacity=Number(b.daily_capacity);
+   if(!Number.isInteger(capacity)||capacity<1||capacity>9)return json({error:"ظرفیت روزانه باید بین ۱ تا ۹ نوبت باشد."},400);
+   const dates=Array.isArray(b.blocked_dates)?b.blocked_dates.map((x:any)=>String(x)):[];if(dates.length>365||dates.some((x:string)=>!/^\d{4}-\d{2}-\d{2}$/.test(x)||Number.isNaN(new Date(x+"T00:00:00Z").getTime())||new Date(x+"T00:00:00Z").toISOString().slice(0,10)!==x))return json({error:"فهرست روزهای تعطیل معتبر نیست."},400);
+   const slots:any={};const incoming=b.blocked_slots&&typeof b.blocked_slots==="object"&&!Array.isArray(b.blocked_slots)?b.blocked_slots:{};
+   for(const [date,times] of Object.entries(incoming)){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Array.isArray(times)||times.length>9)return json({error:"فهرست ساعت‌های بسته‌شده معتبر نیست."},400);
+    const clean=(times as any[]).map(String);if(clean.some(t=>!/^([01]\d|2[0-3]):[0-5]\d$/.test(t)||Number(t.slice(0,2))<9||Number(t.slice(0,2))>17||Number(t.slice(3,5))!==0))return json({error:"ساعت بسته‌شده باید یکی از ساعت‌های ۰۹ تا ۱۷ باشد."},400);
+    if(clean.length)slots[date]=Array.from(new Set(clean));
+   }
+   const {data,error}=await db.from("booking_settings").update({daily_capacity:capacity,blocked_dates:dates,blocked_slots:slots,updated_at:new Date().toISOString()}).eq("id",1).select("daily_capacity,blocked_dates,blocked_slots,updated_at").single();
+   if(error)return json({error:error.message},500);
+   return json({ok:true,settings:{daily_capacity:data.daily_capacity,blocked_dates:(data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10)),blocked_slots:data.blocked_slots||{},updated_at:data.updated_at}});
+  }catch(e){return json({error:String(e)},400)}
+ }
+ if(a==="staff-password-change"&&req.method==="POST"&&(role==="admin"||role==="expert")){
+  try{
+   const b=await req.json(),current=String(b.current_password||""),next=String(b.new_password||""),confirm=String(b.confirm_password||"");
+   if(next.length<12)return json({error:"رمز جدید باید حداقل ۱۲ نویسه باشد."},400);
+   if(next!==confirm)return json({error:"تکرار رمز جدید مطابقت ندارد."},400);
+   const old=await db.from("staff_credentials").select("password_hash").eq("role",role).maybeSingle();
+   if(old.error||!old.data||await hex(current)!==old.data.password_hash)return json({error:"رمز فعلی صحیح نیست."},401);
+   const up=await db.from("staff_credentials").update({password_hash:await hex(next),updated_at:new Date().toISOString()}).eq("role",role);
+   if(up.error)return json({error:"ذخیره رمز جدید ناموفق بود."},500);
+   return json({ok:true,message:"رمز عبور با موفقیت تغییر کرد."});
+  }catch(_){return json({error:"درخواست تغییر رمز نامعتبر است."},400)}
+ }
+ if(a==="personnel-list"&&role==="admin"&&req.method==="GET"){
+  const {data,error}=await db.from("staff_members").select("id,full_name,role,active,personnel_code_display").order("created_at",{ascending:true});
+  if(error)return json({error:error.message},500);
+  return json({staff:data||[]});
+ }
+
+ if(a==="support-admin-list"&&role==="admin"&&req.method==="GET")return supportAdminList();
+ if(a==="support-admin-messages"&&role==="admin"&&req.method==="GET"){const q=await db.from("support_messages").select("id,sender,message,created_at").eq("conversation_id",id).order("created_at",{ascending:true}).limit(300);return q.error?json({error:q.error.message},500):json({messages:q.data||[]})}
+
+ if(a==="support-admin-reply"&&role==="admin"&&req.method==="POST")return supportAdminReply(req,u);
+ if(a==="support-admin-close"&&role==="admin"&&req.method==="POST")return supportAdminClose(req);
+ await expireAuctions();
  await expireAuctions();
  if(a==="public-ready-auctions"&&req.method==="GET"){const {data,error}=await db.from("cases").select("id,case_number,status,created_at").eq("status","review").order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((c:any)=>c.id);const vr=ids.length?await db.from("vehicles").select("case_id,brand,model,trim,model_year,mileage").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null};if(vr.error)return json({error:vr.error.message},500);return json({cases:(data||[]).map((c:any)=>({...c,vehicle:(vr.data||[]).find((v:any)=>v.case_id===c.id)||null}))})}if(a==="auction-request-code"&&req.method==="POST")return requestAuctionOtp(req);if(a==="auction-verify-code"&&req.method==="POST")return verifyAuctionOtp(req);if(a==="auction-start-subscription"&&req.method==="POST")return startAuctionSubscription(req);if(a==="auction-payment-callback"&&req.method==="POST")return paymentCallback(req);if(a==="public-auctions"&&req.method==="GET")return publicAuctions(req,u);
  if(a==="place-bid"&&req.method==="POST")return placeBid(req,id);
  if(a==="market_prices")return marketPrices(u); if(a==="estimate"&&req.method==="POST")return estimate(req);
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
-if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(!role)return json({error:"unauthorized"},401);
+if(a==="auction-members"&&role==="admin"&&req.method==="GET")return auctionMembers();if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(a==="deactivate-auction-member"&&role==="admin"&&req.method==="POST")return deactivateAuctionMember(req);if(a==="update-auction-member"&&role==="admin"&&req.method==="POST")return updateAuctionMember(req);if(!role)return json({error:"unauthorized"},401);
  if(a==="list")return listCases(role);
  if(a==="dispatch-address"&&role==="admin"&&req.method==="POST"){const b=await req.json();const address=String(b.address||"").trim().slice(0,1200);const cr=await db.from("cases").select("notes").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);const base=String(cr.data.notes||"").replace(/\n?\n?\[\[S2S_DISPATCH_ADDRESS\]\][\s\S]*?\[\[\/S2S_DISPATCH_ADDRESS\]\]/g,"").trim();const notes=(base?base+"\n\n":"")+(address?"[[S2S_DISPATCH_ADDRESS]]"+address+"[[/S2S_DISPATCH_ADDRESS]]":"");const up=await db.from("cases").update({notes,updated_at:new Date().toISOString()}).eq("id",id);if(up.error)return json({error:up.error.message},500);await historyAdd(id,"dispatch","dispatch","آدرس اعزام توسط مدیر "+(address?"ثبت/ویرایش شد":"پاک شد"));return json({ok:true})}
  if(a==="case-comments"&&req.method==="GET")return caseComments(req,id,role);
@@ -130,8 +324,9 @@ if(a==="update_auction_time"&&role==="admin")return json({error:"مدت هر م�
  return json({error:"not_found"},404)
 }
 Deno.serve(async(req)=>{if(req.method==="OPTIONS")return new Response(null,{status:204,headers:J});const u=new URL(req.url);if(u.searchParams.has("api"))return api(req,u);
- if(req.method==="POST"){try{const b=await req.json();if(!b.name||!b.mobile||!["sell","buy","exchange"].includes(b.type))return json({error:"نام، موبایل و نوع درخواست الزامی است"},400);const mobile=String(b.mobile).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,"");if(!/^09[0-9]{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست. شماره را با 09 و 11 رقم وارد کن."},400);const appointmentDate=b.type==="buy"?null:(b.appointment_date||null),appointmentTime=b.type==="buy"?null:(b.appointment_time||null);if(appointmentDate){const dupe=await db.from("cases").select("id").eq("customer_mobile",mobile).eq("appointment_date",appointmentDate).neq("status","cancelled").limit(1).maybeSingle();if(dupe.error)return json({error:dupe.error.message},500);if(dupe.data)return json({error:"با این شماره موبایل در این روز یک رزرو قبلاً ثبت شده است. روز دیگری انتخاب کنید.",code:"daily_booking_limit"},409)}
- const {data:c,error}=await db.from("cases").insert({service_type:b.type,customer_name:String(b.name).trim(),customer_mobile:mobile,notes:String(b.notes||"").trim()||null,appointment_date:appointmentDate,appointment_time:appointmentTime}).select("id,case_number").single();
- if(error){if(error.code==="23505"&&error.message.includes("cases_unique_mobile_daily_appointment"))return json({error:"با این شماره موبایل در این روز یک رزرو قبلاً ثبت شده است. روز دیگری انتخاب کنید.",code:"daily_booking_limit"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_appointment"))return json({error:"این روز و ساعت قبلاً رزرو شده است. لطفاً یک زمان دیگر انتخاب کنید.",code:"appointment_taken"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_mobile"))return json({error:"این شماره قبلاً پرونده فعال دارد. محدودیت قدیمی موبایل باید در پایگاه داده اصلاح شود.",code:"legacy_mobile_limit"},409);return json({error:error.message},500)}
+ if(req.method==="POST"){try{const b=await req.json();if(!b.name||!b.mobile||!["sell","buy","exchange"].includes(b.type))return json({error:"نام، موبایل و نوع درخواست الزامی است"},400);const mobile=String(b.mobile).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,"");if(!/^09[0-9]{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست. شماره را با 09 و 11 رقم وارد کن."},400);const appointmentDate=b.type==="buy"?null:(b.appointment_date||null),appointmentTime=b.type==="buy"?null:(b.appointment_time||null);
+ let customerId:string|null=null;const bearer=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"").trim();if(bearer&&bearer!=="null"&&bearer!=="undefined"){try{const ur=await db.auth.getUser(bearer);if(!ur.error&&ur.data?.user)customerId=ur.data.user.id}catch(_){customerId=null}}
+ const {data:c,error}=await db.from("cases").insert({customer_id:customerId,service_type:b.type,customer_name:String(b.name).trim(),customer_mobile:mobile,notes:String(b.notes||"").trim()||null,appointment_date:appointmentDate,appointment_time:appointmentTime}).select("id,case_number").single();
+ if(error){if(error.code==="P0001")return json({error:error.message,code:"booking_unavailable"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_appointment"))return json({error:"این روز و ساعت قبلاً رزرو شده است. لطفاً یک زمان دیگر انتخاب کنید.",code:"appointment_taken"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_mobile"))return json({error:"این شماره قبلاً پرونده فعال دارد. محدودیت قدیمی موبایل باید در پایگاه داده اصلاح شود.",code:"legacy_mobile_limit"},409);return json({error:error.message},500)}
  const vs:any[]=[];if(b.vehicle)vs.push({...b.vehicle,vehicle_role:"current"});if(b.target_vehicle)vs.push({...b.target_vehicle,vehicle_role:"target"});for(const v of vs){const x={...v,case_id:c.id};delete x.budget;const r=await db.from("vehicles").insert(x);if(r.error)return json({error:"پرونده ساخته شد اما ذخیره خودرو ناموفق بود: "+r.error.message,case_number:c.case_number,id:c.id},500)}
  return json({ok:true,case_number:c.case_number,id:c.id})}catch(e){return json({error:String(e)},500)}}return json({ok:true,service:"switch-to-switch-v4-api"})});
