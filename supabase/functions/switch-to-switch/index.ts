@@ -251,7 +251,7 @@ async function api(req:Request,u:URL){
  }
  if(!role){
   const authHeader=req.headers.get("authorization")||"";
-  const raw=(u.searchParams.get("key")||authHeader.replace(/^Bearer\\s+/i,"")).trim();
+  const raw=(u.searchParams.get("key")||authHeader.replace(/^Bearer\s+/i,"")).trim();
   if(raw){
    const th=await hex(raw);
    const sr=await db.from("staff_sessions").select("role,expires_at,staff_member_id").eq("token_hash",th).gt("expires_at",new Date().toISOString()).maybeSingle();
