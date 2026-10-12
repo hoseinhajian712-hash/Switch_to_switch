@@ -947,20 +947,4 @@ setupCar('');setupCar('t');setupColors('brand','model','color','ابتدا مد�
 initModernDropdowns();showWizardStep(1);
 </script>
 <script src="support-widget.js?v=4"></script>
-
-<script id="s2s-close-parent-modal">
-(function(){
- if(window.parent===window)return;
- document.addEventListener('click',function(event){
-  const link=event.target.closest('a[href]');
-  if(!link)return;
-  const url=new URL(link.href,location.href);
-  if(url.origin===location.origin&&(url.pathname===new URL('index.html',location.href).pathname||url.pathname==='/'||url.pathname.endsWith('/index.html'))){
-   event.preventDefault();
-   window.parent.postMessage({type:'s2s-close-request-modal'},location.origin);
-  }
- });
-})();
-</script>
-
 </body></html>
