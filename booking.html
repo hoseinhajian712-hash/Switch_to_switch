@@ -391,21 +391,23 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 </style>
 
 <style id="s2s-brand-grid-v1">
-/* Full-page-feel luxury brand picker: square logo tiles */
+/* Signature luxury brand selection — deep navy, champagne gold, responsive square tiles */
 .field.brand-grid-field{grid-column:1/-1}
-.brand-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:2px}
-.brand-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-width:0;min-height:132px;padding:15px 8px;border:1px solid #e8dfcc;border-radius:18px;background:linear-gradient(145deg,#fff 0%,#fbf8f0 100%);color:#25231f;font-family:Tahoma,Arial,sans-serif;cursor:pointer;box-shadow:0 5px 16px #20180b08;transition:transform .2s,border-color .2s,box-shadow .2s,background .2s}
-.brand-tile:hover{transform:translateY(-3px);border-color:#c4a15c;box-shadow:0 12px 25px #6b4c1717}
-.brand-tile.selected{border-color:#b28a3e;background:linear-gradient(145deg,#fffdf7,#f4ead2);box-shadow:inset 0 0 0 1px #b28a3e55,0 10px 24px #7d5b1a18}
-.brand-tile.selected:after{content:'✓';position:absolute;top:8px;left:8px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#b28a3e;color:#fff;font-size:13px;font-weight:900}
-.brand-tile-logo{width:64px;height:64px;display:grid;place-items:center;border:1px solid #eee6d7;border-radius:17px;background:#fff;box-shadow:0 5px 15px #1a140a0a;overflow:hidden}
-.brand-tile-logo img{width:46px;height:46px;object-fit:contain}
-.brand-tile-fallback{font-size:22px;font-weight:900;color:#8d6b2e;background:linear-gradient(135deg,#fff,#f3e8ce)}
-.brand-tile-name{font-size:12px;font-weight:900;line-height:1.7;text-align:center;overflow-wrap:anywhere}
-.brand-grid-note{margin:0 0 13px;color:#837a69;font-size:11px;line-height:1.9}
+.brand-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-top:4px}
+.brand-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-width:0;min-height:142px;padding:16px 9px;border:1px solid #2d4058;border-radius:20px;background:radial-gradient(circle at 50% 0%,#203650 0%,transparent 72%),linear-gradient(145deg,#101e30,#0a1422);color:#f5f1e7;font-family:Tahoma,Arial,sans-serif;cursor:pointer;box-shadow:0 9px 25px #0002,inset 0 1px #ffffff0b;transition:transform .22s,border-color .22s,box-shadow .22s,background .22s}
+.brand-tile:before{content:'';position:absolute;inset:5px;border:1px solid #ffffff08;border-radius:15px;pointer-events:none}
+.brand-tile:hover{transform:translateY(-4px);border-color:#bfa15f;box-shadow:0 15px 32px #0004,0 0 0 1px #bfa15f20;background:radial-gradient(circle at 50% 0%,#2a405a 0%,transparent 74%),linear-gradient(145deg,#14253a,#0b1523)}
+.brand-tile.selected{border-color:#d4b76d;background:radial-gradient(circle at 50% 0%,#34435a 0%,transparent 78%),linear-gradient(145deg,#1c2a3a,#111b27);box-shadow:inset 0 0 0 1px #d4b76d55,0 12px 30px #0004,0 0 26px #d4b76d13}
+.brand-tile.selected:after{content:'✓';position:absolute;top:9px;left:9px;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:linear-gradient(145deg,#f1d993,#b28a3e);color:#16130d;font-size:13px;font-weight:900;box-shadow:0 3px 10px #0003}
+.brand-tile-logo{width:68px;height:68px;display:grid;place-items:center;border:1px solid #d7c38b55;border-radius:19px;background:linear-gradient(145deg,#fff,#f5f0e3);box-shadow:0 8px 20px #0003;overflow:hidden}
+.brand-tile-logo img{width:48px;height:48px;object-fit:contain}
+.brand-tile-fallback{font-size:22px;font-weight:900;color:#8b6728;background:linear-gradient(135deg,#fff8e6,#e7d4a0)}
+.brand-tile-name{font-size:12px;font-weight:900;line-height:1.7;text-align:center;overflow-wrap:anywhere;color:#f5f0e4}
+.brand-grid-note{margin:0 0 14px;color:#b8c5d7;font-size:12px;line-height:1.9}
 .brand-grid-field>.modern-select{display:none!important}
-@media(max-width:800px){.brand-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.brand-tile{min-height:120px}}
-@media(max-width:540px){.brand-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.brand-tile{min-height:108px;padding:12px 5px;border-radius:15px;gap:9px}.brand-tile-logo{width:54px;height:54px;border-radius:14px}.brand-tile-logo img{width:39px;height:39px}.brand-tile-name{font-size:11px}}
+@media(max-width:800px){.brand-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.brand-tile{min-height:126px}}
+@media(max-width:540px){.brand-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.brand-tile{min-height:111px;padding:12px 5px;border-radius:16px;gap:9px}.brand-tile:before{inset:4px;border-radius:12px}.brand-tile-logo{width:55px;height:55px;border-radius:15px}.brand-tile-logo img{width:40px;height:40px}.brand-tile-name{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.brand-tile{transition:none}.brand-tile:hover{transform:none}}
 </style>
 
 </head>
