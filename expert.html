@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8"><meta http-equiv="Cache-Control" content="no-store">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>پنل کارشناسی | سوییچ به سوییچ</title>
 <script src="config.js?v=14"></script>
 <style>
@@ -91,6 +91,11 @@ button:hover,.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .logo{background:linear-gradient(135deg,#3b82f6,#7c3aed)!important}
 .card,.toolbar{box-shadow:0 14px 38px #0003}
 
+</style>
+<style>/* Keep mobile panels stable: avoid accidental double-tap zoom and horizontal layout shifts */
+html{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:pan-x pan-y}
+body{max-width:100%;overflow-x:hidden}
+input,select,textarea,button{touch-action:manipulation}
 </style>
 </head>
 <body><div id="staffAuthGate"><form class="auth-card" id="staffAuthForm"><h2>ورود امن پنل کارشناسی</h2><p>برای ورود، کد پرسنلی اختصاصی و رمز پنل کارشناسی را وارد کن. فقط پرونده‌های ارجاع‌شده به کد خودت نمایش داده می‌شوند.</p><input id="staffCode" type="text" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="off" placeholder="کد پرسنلی ۴ رقمی" required><input id="staffLoginPassword" type="password" autocomplete="current-password" placeholder="رمز عبور پنل کارشناسی" required><button type="submit">ورود به پنل کارشناسی</button><div id="staffAuthError"></div></form></div><div id="staffPasswordModal" role="dialog" aria-modal="true" aria-label="تغییر رمز عبور"><form class="sp-card" id="staffPasswordForm"><h3>🔐 تغییر رمز عبور</h3><p>رمز فعلی را وارد کنید و رمز جدیدی با حداقل ۱۲ نویسه بسازید. رمز جدید را با کسی به اشتراک نگذارید.</p><input id="spCurrent" type="password" autocomplete="current-password" placeholder="رمز فعلی" required><input id="spNew" type="password" autocomplete="new-password" minlength="12" placeholder="رمز جدید (حداقل ۱۲ نویسه)" required><input id="spConfirm" type="password" autocomplete="new-password" minlength="12" placeholder="تکرار رمز جدید" required><div id="staffPasswordMessage" role="status"></div><div class="sp-actions"><button class="sp-save" type="submit">ذخیره رمز جدید</button><button class="sp-close" type="button" onclick="closeStaffPasswordModal()">انصراف</button></div></form></div><div id="quickCameraModal" class="quick-camera-modal hidden" role="dialog" aria-modal="true" aria-label="عکاسی سریع"><div class="quick-camera-panel"><div class="quick-camera-head"><strong id="quickCameraTitle">عکاسی سریع</strong><button type="button" class="btn red" onclick="closeQuickCamera()">بستن دوربین ✕</button></div><video id="quickCameraVideo" autoplay playsinline muted></video><canvas id="quickCameraCanvas" class="hidden"></canvas><div id="quickCameraHint" class="notice">دوربین را روبه‌روی خودرو بگیرید.</div><button type="button" class="btn green quick-shutter" onclick="captureQuickPhoto()">📸 گرفتن عکس و رفتن به زاویه بعدی</button></div></div><main class="wrap">
