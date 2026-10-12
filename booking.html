@@ -1406,6 +1406,7 @@ async function setupDates(){
   if(data.is_full){prompt.textContent='ظرفیت این روز تکمیل شده است';t.disabled=true;return}
   const booked=Array.isArray(data.booked)?data.booked.map(x=>String(x?.appointment_time??x?.time??x??'').match(/\d{2}:\d{2}/)?.[0]).filter(Boolean):[];
   const blocked=Array.isArray(data.blocked_slots)?data.blocked_slots.map(String):[];
+  if(previous&&booked.includes(previous))prompt.textContent='این ساعت رزرو شد؛ لطفاً ساعت دیگری انتخاب کن';
   let startMinute=540;const selected=new Date(d.value+'T00:00:00'),isToday=selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&selected.getDate()===today.getDate();
   if(isToday)startMinute=Math.max(540,Math.ceil((new Date().getHours()*60+new Date().getMinutes()+1)/60)*60);
   let count=0;
@@ -1419,6 +1420,7 @@ async function setupDates(){
  };
  d.addEventListener('change',fillTimes);
  await fillTimes();
+ if(!window.__s2sBookingAvailabilityTimer)window.__s2sBookingAvailabilityTimer=setInterval(()=>{if(d.value)fillTimes()},15000);
 }
 function normalizeDigits(value){return String(value).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
 function formatNumber(el){const raw=normalizeDigits(el.value).replace(/\D/g,'');el.value=raw.replace(/\B(?=(\d{3})+(?!\d))/g,',');try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
