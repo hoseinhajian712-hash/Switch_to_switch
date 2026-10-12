@@ -573,6 +573,11 @@ body:before{background:linear-gradient(145deg,rgba(8,20,36,.3),rgba(2,7,15,.76))
 .modern-select-option.selected:after{background:linear-gradient(145deg,#7ce6c1,#20a887)!important;color:#06251f!important}
 @media(max-width:540px){.brand-tile{min-height:112px!important}.brand-tile-logo{width:55px!important;height:55px!important;border-radius:17px!important}.brand-tile-logo img{width:42px!important;height:42px!important}}
 </style>
+<style id="visible-dropdown-headings-fix">
+/* Dedicated, high-contrast headings above vehicle dropdowns */
+.modern-field-heading{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;width:100%!important;margin:0 0 8px!important;padding:0!important;color:#f1d99d!important;font-family:Tahoma,Arial,sans-serif!important;font-size:14px!important;font-weight:900!important;line-height:1.9!important;text-align:right!important;z-index:1!important}
+.field>.modern-field-heading{color:#f1d99d!important}
+</style>
 </head>
 <body>
 <main class="wrap">
@@ -907,6 +912,15 @@ function initModernDropdowns(){
   const search=document.createElement('input');search.type='search';search.className='modern-select-search';search.placeholder='برای جست‌وجو لمس کن…';search.setAttribute('aria-label','جست‌وجو بین گزینه‌ها');search.readOnly=true;search.setAttribute('inputmode','none');const mobilePicker=window.matchMedia('(max-width: 700px), (pointer: coarse)').matches;if(!mobilePicker)search.addEventListener('pointerdown',()=>{search.readOnly=false;search.removeAttribute('inputmode')});search.addEventListener('blur',()=>{if(!wrap.classList.contains('open')){search.readOnly=true;search.setAttribute('inputmode','none')}});
   const options=document.createElement('div');options.className='modern-select-options';options.setAttribute('role','listbox');menu.append(menuTitle,search,options);wrap.append(trigger,menu);
   sel.classList.add('modern-native');sel.insertAdjacentElement('afterend',wrap);
+  /* Create a dedicated visible heading directly above each custom dropdown. */
+  if(fieldLabel){
+   const heading=document.createElement('div');
+   heading.className='modern-field-heading';
+   heading.textContent=(fieldLabel.textContent||'').replace(/\\*/g,'').trim()||pickerTitles[sel.id]||'انتخاب گزینه';
+   heading.setAttribute('aria-hidden','true');
+   fieldLabel.style.setProperty('display','none','important');
+   wrap.insertAdjacentElement('beforebegin',heading);
+  }
   let overlay;const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');if(overlay)overlay.remove();menu.classList.remove('popup-detached');if(menu.parentElement===document.body)wrap.appendChild(menu);search.value='';search.readOnly=true;search.setAttribute('inputmode','none');search.blur();renderOptions()};overlay=document.createElement('div');overlay.className='picker-backdrop';overlay.addEventListener('click',close);
   const sync=()=>{renderChosenLabel();renderOptions()};
   const brandDomains={'تویوتا':'toyota','هیوندای':'hyundai','کیا':'kia','نیسان':'nissan','رنو':'renault','پژو':'peugeot','فولکس واگن':'volkswagen','مزدا':'mazda','هوندا':'honda','سوزوکی':'suzuki','چانگان':'changan','ام‌جی':'mg','هاوال':'haval','بسترن':'faw','دونگ فنگ':'dongfeng','فوتون':'foton','مرسدس بنز':'mercedesbenz','بی‌ام‌و':'bmw','آئودی':'audi','لکسوس':'lexus','پورشه':'porsche','ولوو':'volvo','جیپ':'jeep'
