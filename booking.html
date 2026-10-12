@@ -602,6 +602,8 @@ body:before{background:linear-gradient(145deg,rgba(8,20,36,.3),rgba(2,7,15,.76))
 <label class="field"><span>تیپ خودرو <em>*</em></span><select id="trim" required disabled><option value="">ابتدا مدل را انتخاب کن</option></select></label>
 <label class="field"><span>سال ساخت <em>*</em></span><select id="year" required disabled><option value="">ابتدا تیپ را انتخاب کن</option></select></label>
 <label class="field"><span>رنگ خودرو <em>*</em></span><select id="color" required disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select><small class="hint">رنگ‌های رایج متناسب با برند و مدل انتخابی نمایش داده می‌شوند.</small></label>
+<label class="field"><span>نوع خودرو</span><select id="vehicleType" disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select></label>
+<label class="field"><span>نوع سوخت</span><select id="fuel" disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select></label>
 <label class="field"><span>کارکرد خودرو (کیلومتر) <em>*</em></span><select id="mileage" required><option value="">انتخاب بازه کارکرد</option><option value="5000">کمتر از ۱۰٬۰۰۰ کیلومتر</option><option value="15000">۱۰٬۰۰۰ تا ۲۰٬۰۰۰ کیلومتر</option><option value="25000">۲۰٬۰۰۰ تا ۳۰٬۰۰۰ کیلومتر</option><option value="35000">۳۰٬۰۰۰ تا ۴۰٬۰۰۰ کیلومتر</option><option value="45000">۴۰٬۰۰۰ تا ۵۰٬۰۰۰ کیلومتر</option><option value="55000">۵۰٬۰۰۰ تا ۶۰٬۰۰۰ کیلومتر</option><option value="65000">۶۰٬۰۰۰ تا ۷۰٬۰۰۰ کیلومتر</option><option value="75000">۷۰٬۰۰۰ تا ۸۰٬۰۰۰ کیلومتر</option><option value="85000">۸۰٬۰۰۰ تا ۹۰٬۰۰۰ کیلومتر</option><option value="95000">۹۰٬۰۰۰ تا ۱۰۰٬۰۰۰ کیلومتر</option><option value="110000">۱۰۰٬۰۰۰ تا ۱۲۰٬۰۰۰ کیلومتر</option><option value="130000">۱۲۰٬۰۰۰ تا ۱۴۰٬۰۰۰ کیلومتر</option><option value="150000">۱۴۰٬۰۰۰ تا ۱۶۰٬۰۰۰ کیلومتر</option><option value="170000">۱۶۰٬۰۰۰ تا ۱۸۰٬۰۰۰ کیلومتر</option><option value="190000">۱۸۰٬۰۰۰ تا ۲۰۰٬۰۰۰ کیلومتر</option><option value="220000">بیشتر از ۲۰۰٬۰۰۰ کیلومتر</option></select><small class="hint">کارکرد را از بین بازه‌ها انتخاب کن؛ نیازی به باز کردن صفحه‌کلید نیست.</small></label>
 </div>
 <div class="notice" id="currentHint">برای نمایش مدل‌ها و تیپ‌های مرتبط، ابتدا برند خودرو را انتخاب کن.</div>
@@ -614,10 +616,11 @@ body:before{background:linear-gradient(145deg,rgba(8,20,36,.3),rgba(2,7,15,.76))
 <label class="field"><span>تیپ موردنظر</span><select id="ttrim" disabled><option value="">ابتدا مدل را انتخاب کن</option></select></label>
 <label class="field"><span>سال ساخت موردنظر</span><select id="tyear" disabled><option value="">ابتدا تیپ را انتخاب کن</option></select></label>
 <label class="field"><span>رنگ دلخواه</span><select id="tcolor" disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select><small class="hint">با انتخاب برند و مدل، رنگ‌های رایج همان خودرو نمایش داده می‌شوند.</small></label>
+<label class="field"><span>نوع خودرو</span><select id="tvehicleType" disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select></label>
 <label class="field"><span>بازه بودجه</span><select id="tbudget"><option value="">انتخاب بودجه (اختیاری)</option><option value="تا ۵۰۰ میلیون تومان">تا ۵۰۰ میلیون تومان</option><option value="۵۰۰ میلیون تا ۱ میلیارد تومان">۵۰۰ میلیون تا ۱ میلیارد تومان</option><option value="۱ تا ۱.۵ میلیارد تومان">۱ تا ۱.۵ میلیارد تومان</option><option value="۱.۵ تا ۲ میلیارد تومان">۱.۵ تا ۲ میلیارد تومان</option><option value="۲ تا ۳ میلیارد تومان">۲ تا ۳ میلیارد تومان</option><option value="۳ تا ۵ میلیارد تومان">۳ تا ۵ میلیارد تومان</option><option value="بیشتر از ۵ میلیارد تومان">بیشتر از ۵ میلیارد تومان</option><option value="قابل مذاکره">قابل مذاکره</option></select></label>
 <label class="field"><span>کارکرد موردنظر</span><select id="tmileage"><option value="">فرقی ندارد</option><option value="کمتر از ۳۰٬۰۰۰ کیلومتر">کمتر از ۳۰٬۰۰۰ کیلومتر</option><option value="۳۰٬۰۰۰ تا ۶۰٬۰۰۰ کیلومتر">۳۰٬۰۰۰ تا ۶۰٬۰۰۰ کیلومتر</option><option value="۶۰٬۰۰۰ تا ۱۰۰٬۰۰۰ کیلومتر">۶۰٬۰۰۰ تا ۱۰۰٬۰۰۰ کیلومتر</option><option value="۱۰۰٬۰۰۰ تا ۱۵۰٬۰۰۰ کیلومتر">۱۰۰٬۰۰۰ تا ۱۵۰٬۰۰۰ کیلومتر</option><option value="بیشتر از ۱۵۰٬۰۰۰ کیلومتر">بیشتر از ۱۵۰٬۰۰۰ کیلومتر</option><option value="صفر کیلومتر">صفر کیلومتر</option></select></label>
 <label class="field"><span>گیربکس موردنظر</span><select id="tgearbox"><option value="">فرقی ندارد</option><option value="دنده‌ای">دنده‌ای</option><option value="اتوماتیک">اتوماتیک</option></select></label>
-<label class="field"><span>نوع سوخت</span><select id="tfuel"><option value="">فرقی ندارد</option><option value="بنزینی">بنزینی</option><option value="دوگانه‌سوز">دوگانه‌سوز</option><option value="هیبرید">هیبرید</option><option value="برقی">برقی</option></select></label>
+<label class="field"><span>نوع سوخت موردنظر</span><select id="tfuel" disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select></label>
 
 </div>
 </section>
@@ -1117,6 +1120,33 @@ function openNextCarChoice(id){
   else {const trigger=field.querySelector('.modern-select-trigger');if(trigger&&!trigger.disabled)trigger.click()}
  },350);
 }
+function vehicleMetaOptions(model,brand){
+ const m=String(model||'').toLocaleLowerCase('fa');
+ let type='سدان';
+ if(/پراید 111|تیبا 2|۲۰۶|206|۲۰۷|207|ساندرو|استپ وی|پیکانتو|یاریس/i.test(m))type='هاچ‌بک';
+ else if(/وانت|کاپرا|t8|پیکاپ|۱۵۱/i.test(m))type='وانت / پیکاپ';
+ else if(/هایما|فیدلیتی|دیگنیتی|tucson|سانتافه|sorento|sportage|rav4|land cruiser|x22|x33|x55|x77|tiggo|fx|s5|s3|x5|koleos|duster|glc|gle|x1|x3|x5/i.test(m))type='شاسی‌بلند / کراس‌اوور';
+ else if(/ون|کاروان/i.test(m))type='ون';
+ const electric=/برقی|electric|ev/i.test(m),hybrid=/هیبرید|hybrid/i.test(m);
+ let fuels=['بنزینی'];
+ if(/سورن|دوگانه|تیبا|ساینا|سمند|پژو ۴۰۵|پژو 405|پارس|پراید/i.test(m))fuels.push('دوگانه‌سوز');
+ if(hybrid)fuels=['هیبرید'];
+ if(electric)fuels=['برقی'];
+ if(/corolla|rav4|کمری|camry|توسان|tucson/i.test(m)&&!hybrid)fuels.push('هیبرید');
+ return {type,fuels};
+}
+function updateVehicleMeta(prefix){
+ const model=$(prefix+'model'),brand=$(prefix+'brand'),typeSelect=$(prefix+'vehicleType'),fuelSelect=$(prefix+'fuel');
+ if(!typeSelect||!fuelSelect)return;
+ const reset=(el,label)=>{el.innerHTML='';const o=document.createElement('option');o.value='';o.textContent=label;el.appendChild(o)};
+ reset(typeSelect,'انتخاب نوع خودرو');reset(fuelSelect,'انتخاب نوع سوخت');
+ const chosen=model.value;typeSelect.disabled=!chosen;fuelSelect.disabled=!chosen;if(!chosen)return;
+ const meta=vehicleMetaOptions(chosen,brand.value);
+ const types=[meta.type,'سدان','هاچ‌بک','شاسی‌بلند / کراس‌اوور','وانت / پیکاپ','کوپه','ون'].filter((v,i,a)=>a.indexOf(v)===i);
+ types.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;typeSelect.appendChild(o)});typeSelect.value=meta.type;
+ ['فرقی ندارد',...meta.fuels].filter((v,i,a)=>a.indexOf(v)===i).forEach(v=>{const o=document.createElement('option');o.value=v==='فرقی ندارد'?'':v;o.textContent=v;fuelSelect.appendChild(o)});
+ fuelSelect.value=meta.fuels.length===1?meta.fuels[0]:'';
+}
 function setupCar(prefix){
  const brand=$(prefix+'brand'),model=$(prefix+'model'),trim=$(prefix+'trim'),year=$(prefix+'year');
  const color=$(prefix==='t'?'tcolor':'color');
@@ -1134,6 +1164,7 @@ function setupCar(prefix){
   if(brand.value)openNextCarChoice(prefix+'model');
  });
  model.addEventListener('change',()=>{
+  updateVehicleMeta(prefix);
   optionList(trim,model.value?trimsFor(model.value):[],'انتخاب تیپ');optionList(year,[],'ابتدا تیپ را انتخاب کن');
   reveal(trim,!!model.value);reveal(year,false);reveal(color,false);reveal(mileage,false);
   if(model.value)openNextCarChoice(prefix+'trim');
@@ -1355,7 +1386,7 @@ function validateWizardStep(){
 }
 function hideMessage(){$('message').className='message hidden';$('message').textContent=''}
 function showMessage(text,kind){$('message').className='message '+kind;$('message').textContent=text;$('message').scrollIntoView({behavior:'smooth',block:'nearest'})}
-function vehicle(prefix,role){const obj={vehicle_role:role,brand:$(prefix+'brand').value,model:$(prefix+'model').value,trim:$(prefix+'trim').value,model_year:Number($(prefix+'year').value)||null};if(prefix===''){obj.color=$('color').value;obj.mileage=Number($('mileage').value.replace(/\D/g,''))||0}else{obj.color=$('tcolor').value||null;obj.mileage_preference=$('tmileage')?.value||null;obj.budget=$('tbudget')?.value||null;obj.transmission=$('tgearbox')?.value||null;obj.fuel_type=$('tfuel')?.value||null;obj.mileage=0}return obj}
+function vehicle(prefix,role){const obj={vehicle_role:role,brand:$(prefix+'brand').value,model:$(prefix+'model').value,trim:$(prefix+'trim').value,model_year:Number($(prefix+'year').value)||null};if(prefix===''){obj.color=$('color').value;obj.vehicle_type=$('vehicleType').value||null;obj.fuel_type=$('fuel').value||null;obj.mileage=Number($('mileage').value.replace(/\D/g,''))||0}else{obj.color=$('tcolor').value||null;obj.vehicle_type=$('tvehicleType').value||null;obj.mileage_preference=$('tmileage')?.value||null;obj.budget=$('tbudget')?.value||null;obj.transmission=$('tgearbox')?.value||null;obj.fuel_type=$('tfuel')?.value||null;obj.mileage=0}return obj}
 function validCar(prefix,withCurrent){const fields=prefix===''?['brand','model']:['tbrand','tmodel'];for(const id of fields){if(!$(id).value){$(id).focus();return id}}if(prefix===''&&$('mileage').value.trim()===''){$('mileage').focus();return 'mileage'}return ''}
 $('requestForm').addEventListener('submit',async event=>{event.preventDefault();hideMessage();const {data:authResult}=await sb.auth.getSession();const session=authResult.session;if(!session){showMessage('برای ثبت درخواست و پیگیری وضعیت پرونده، ابتدا وارد حساب مشتری شو.','error');const link=document.createElement('a');link.href='account.html';link.target='_blank';link.rel='noopener';link.textContent='ورود / ثبت‌نام مشتری ←';link.style.cssText='display:inline-block;margin-top:8px;color:#1459bb;font-weight:900;text-decoration:underline';$('message').appendChild(document.createElement('br'));$('message').appendChild(link);return}const {data:profile}=await sb.from('profiles').select('full_name,mobile').eq('id',session.user.id).maybeSingle();const name=(profile?.full_name||$('customerName').value).trim(),mobile=normalizeDigits(profile?.mobile||$('customerMobile').value).replace(/\D/g,'');if(!name){$('customerName').focus();return showMessage('لطفاً نام و نام خانوادگی را وارد کن.','error')}if(!/^09\d{9}$/.test(mobile)){$('customerMobile').focus();return showMessage('شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد.','error')}if(type!=='buy'){const bad=validCar('',true);if(bad){$(bad).focus();return showMessage('لطفاً همه مشخصات ضروری خودروی فعلی را تکمیل کن.','error')}}if(type!=='sell'){const bad=validCar('t',false);if(bad){$(bad).focus();return showMessage('لطفاً برند و مدل خودروی موردنظر را انتخاب کن.','error')}}if(type!=='buy'&&(!$('appointmentDate').value||!$('appointmentTime').value))return showMessage('لطفاً روز و ساعت مراجعه را انتخاب کن.','error');const btn=$('submitBtn');btn.disabled=true;btn.textContent='در حال ثبت درخواست…';const body={name:name,mobile:mobile,type:type,notes:$('notes').value.trim(),appointment_date:type==='buy'?null:$('appointmentDate').value,appointment_time:type==='buy'?null:$('appointmentTime').value,vehicle:type==='buy'?null:vehicle('', 'current'),target_vehicle:type==='sell'?null:vehicle('t','target')};try{const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});const raw=await response.text();let result={};try{result=raw?JSON.parse(raw):{}}catch(_){result={error:raw||'پاسخ خالی از سرور'}}if(!response.ok||result.error){if(result.code==='daily_booking_limit')throw new Error('با این شماره موبایل امروز یک رزرو ثبت شده است. برای رزرو دوباره، روز دیگری انتخاب کن.');if(result.code==='appointment_taken')throw new Error('این روز و ساعت قبلاً رزرو شده؛ لطفاً زمان دیگری انتخاب کن.');if(result.code==='legacy_mobile_limit'||String(result.error||'').includes('cases_unique_active_mobile'))throw new Error('این شماره قبلاً پرونده فعال دارد. محدودیت قدیمی شماره موبایل در پایگاه داده اصلاح شده؛ صفحه را تازه‌سازی کن و دوباره امتحان کن.');const detail=String(result.error||result.message||raw||'پاسخ خالی از سرور');throw new Error('خطای سرور ('+response.status+'): '+detail)}window.location.href='success.html?case='+encodeURIComponent(result.case_number||'');}catch(error){showMessage('ثبت درخواست انجام نشد: '+error.message,'error')}finally{btn.disabled=false;btn.textContent=(type==='sell'?'ثبت درخواست فروش':type==='buy'?'ثبت درخواست خرید':'ثبت درخواست معاوضه')+' ←'}});
 $('wizardNext').addEventListener('click',()=>{if(validateWizardStep())showWizardStep(wizardStep+1)});
