@@ -508,7 +508,7 @@ body:before{background:linear-gradient(145deg,rgba(8,20,36,.3),rgba(2,7,15,.76))
 <header class="topbar"><a class="brand" href="index.html">سوییچ <span>به</span> سوییچ</a><a class="back" href="index.html">← بازگشت به سایت</a></header>
 <section class="hero"><div class="hero-inner"><span class="eyebrow"><i class="dot"></i><span id="pageEyebrow">درخواست فروش خودرو</span></span><h1 id="pageTitle">درخواست فروش خودرو</h1><p id="pageDesc">مشخصات خودروت را ثبت کن؛ تیم سوییچ به سوییچ برای بررسی و هماهنگی با تو تماس می‌گیرد.</p></div></section>
 
-<div class="stepper" aria-label="مراحل ثبت درخواست"><div class="step active" data-stepdot="1"><b>۱</b><span>اطلاعات تماس</span></div><i></i><div class="step" data-stepdot="2"><b>۲</b><span>ثبت درخواست</span></div></div>
+<div class="stepper" aria-label="مراحل ثبت درخواست"><div class="step active" data-stepdot="1"><b>۱</b><span>مشخصات تماس</span></div><i></i><div class="step" data-stepdot="2"><b>۲</b><span>مشخصات خودرو</span></div><i class="appointment-step-line"></i><div class="step" data-stepdot="3"><b>۳</b><span>زمان مراجعه</span></div></div>
 <form id="requestForm" novalidate>
 <section class="panel wizard-page" id="contactPanel" data-page="1"><div class="panel-head"><span class="panel-number">۱</span><div><h2>اول باهات آشنا بشیم</h2><p>اطلاعات تماس را وارد کن تا بتوانیم درخواستت را پیگیری کنیم.</p></div></div><div class="fields"><label class="field"><span>نام و نام خانوادگی <em>*</em></span><input id="contactNameInput" autocomplete="name" placeholder="مثلاً علی محمدی" required></label><label class="field"><span>شماره موبایل <em>*</em></span><input id="contactMobileInput" inputmode="tel" autocomplete="tel" placeholder="09xxxxxxxxx" maxlength="11" required></label></div></section>
 <input type="hidden" id="customerName"><input type="hidden" id="customerMobile">
@@ -904,22 +904,25 @@ function normalizeDigits(value){return String(value).replace(/[۰-۹]/g,d=>Strin
 function formatNumber(el){const raw=normalizeDigits(el.value).replace(/\D/g,'');el.value=raw.replace(/\B(?=(\d{3})+(?!\d))/g,',');try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
 function setType(value){type=['sell','buy','exchange'].includes(value)?value:'sell';const labels={sell:['می‌خوای ماشینتو بفروشی؟','با سوییچ به سوییچ، فروش ماشینتو هوشمندانه شروع کن؛ با کارشناسی تخصصی، روندی شفاف و پیگیری مرحله‌به‌مرحله.'],buy:['می‌خوای ماشین بخری؟','با سوییچ به سوییچ، ماشین دلخواهتو هوشمندانه پیدا کن؛ مشخصاتش رو ثبت کن تا برای هماهنگی باهات تماس بگیریم.'],exchange:['می‌خوای ماشینتو عوض کنی؟','با سوییچ به سوییچ، ماشینتو هوشمندانه معاوضه کن؛ با کارشناسی تخصصی، روندی شفاف و پیگیری مرحله‌به‌مرحله.']};const titleParts=labels[type][0].split(' ');$('pageTitle').innerHTML=type==='sell'?'می‌خوای ماشینتو<br><span>بفروشی؟</span>':type==='buy'?'می‌خوای ماشین<br><span>بخری؟</span>':'می‌خوای ماشینتو<br><span>عوض کنی؟</span>';$('pageDesc').textContent=labels[type][1];$('pageEyebrow').textContent=type==='sell'?'فروش خودرو با سوییچ به سوییچ':type==='buy'?'خرید خودرو با سوییچ به سوییچ':'معاوضه هوشمندانه خودرو';$('currentPanel').classList.toggle('hidden',type==='buy');$('targetPanel').classList.toggle('hidden',type==='sell');$('appointmentPanel').classList.toggle('hidden',type==='buy');$('currentTitle').textContent=type==='exchange'?'مشخصات خودروی فعلی':'مشخصات خودروی شما';$('currentDesc').textContent=type==='exchange'?'خودرویی را که می‌خواهی معاوضه کنی معرفی کن.':'اطلاعات خودرو را از فهرست‌ها انتخاب کن.';$('currentHint').textContent='برای نمایش مدل‌ها و تیپ‌های مرتبط، ابتدا برند خودرو را انتخاب کن.';$('targetNumber').textContent=type==='exchange'?'۲':'۱';$('appointmentNumber').textContent=type==='exchange'?'۳':'۲';$('noteNumber').textContent=type==='exchange'?'۴':(type==='sell'?'۳':'۲');$('currentPanel').querySelectorAll('[required]').forEach(el=>el.required=type!=='buy'&&['brand','model'].includes(el.id));$('targetPanel').querySelectorAll('[required]').forEach(el=>el.required=type!=='sell'&&['tbrand','tmodel'].includes(el.id));$('appointmentDate').required=type!=='buy';$('appointmentTime').required=type!=='buy';$('submitBtn').textContent=(type==='sell'?'ثبت درخواست فروش':type==='buy'?'ثبت درخواست خرید':'ثبت درخواست معاوضه')+' ←';hideMessage()}
 let wizardStep=1;
+function lastWizardStep(){return type==='buy'?2:3}
 function showWizardStep(n){
- wizardStep=Math.max(1,Math.min(2,n));
- document.querySelectorAll('[data-page]').forEach(p=>p.classList.toggle('hidden',Number(p.dataset.page)!==wizardStep));
- document.querySelectorAll('[data-stepdot]').forEach(d=>{const k=Number(d.dataset.stepdot);d.classList.toggle('active',k===wizardStep);d.classList.toggle('done',k<wizardStep)});
- $('currentPanel').classList.toggle('hidden',type==='buy'||wizardStep===1);
- $('currentPanel').classList.toggle('wizard-page',wizardStep===2);
- $('currentHint').classList.toggle('hidden',wizardStep===2);
- $('targetPanel').classList.toggle('hidden',type==='sell'||wizardStep===1);
- $('appointmentPanel').classList.toggle('hidden',type==='buy'||wizardStep!==2);
- const notePanel=$('notes').closest('.panel');notePanel.classList.toggle('hidden',wizardStep!==2);
- $('submitPanel')?.classList.toggle('hidden',wizardStep!==2);
+ const last=lastWizardStep();
+ wizardStep=Math.max(1,Math.min(last,n));
+ document.querySelectorAll('[data-stepdot]').forEach(d=>{const k=Number(d.dataset.stepdot);d.classList.toggle('active',k===wizardStep);d.classList.toggle('done',k<wizardStep);d.classList.toggle('hidden',type==='buy'&&k===3)});
+ document.querySelectorAll('.stepper>i').forEach(el=>el.classList.toggle('hidden',type==='buy'&&el.classList.contains('appointment-step-line')));
+ $('contactPanel').classList.toggle('hidden',wizardStep!==1);
+ const vehicleStep=wizardStep===2;
+ $('currentPanel').classList.toggle('hidden',type==='buy'||!vehicleStep);
+ $('targetPanel').classList.toggle('hidden',type==='sell'||!vehicleStep);
+ $('currentHint').classList.toggle('hidden',!vehicleStep);
+ $('appointmentPanel').classList.toggle('hidden',type==='buy'||wizardStep!==3);
+ const notePanel=$('notes').closest('.panel');notePanel.classList.toggle('hidden',wizardStep!==(type==='buy'?2:3));
+ $('submitPanel').classList.toggle('hidden',wizardStep!==last);
  $('wizardNav').classList.toggle('hidden',false);
  $('wizardPrev').classList.toggle('hidden',wizardStep===1);
- $('wizardNext').classList.toggle('hidden',wizardStep===2);
- $('submitBtn').classList.toggle('hidden',wizardStep!==2);
- $('wizardNext').textContent=type==='buy'?'ادامه و ثبت درخواست ←':'ادامه و انتخاب زمان ←';
+ $('wizardNext').classList.toggle('hidden',wizardStep===last);
+ $('submitBtn').classList.toggle('hidden',wizardStep!==last);
+ $('wizardNext').textContent='ادامه ←';
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function validateWizardStep(){
@@ -935,7 +938,9 @@ function validateWizardStep(){
   if(type!=='buy'&&!$('model').value){showMessage('لطفاً مدل خودرو را انتخاب کن.','error');return false}
   if(type!=='sell'&&!$('tbrand').value){showMessage('لطفاً برند خودروی موردنظر را انتخاب کن.','error');return false}
   if(type!=='sell'&&!$('tmodel').value){showMessage('لطفاً مدل خودروی موردنظر را انتخاب کن.','error');return false}
+  if(type!=='buy'){$('currentPanel').querySelectorAll('[required]').forEach(el=>{});}
  }
+ if(wizardStep===3&&type!=='buy'&&(!$('appointmentDate').value||!$('appointmentTime').value)){showMessage('لطفاً روز و ساعت مراجعه کارشناس را انتخاب کن.','error');return false}
  hideMessage();return true;
 }
 function hideMessage(){$('message').className='message hidden';$('message').textContent=''}
