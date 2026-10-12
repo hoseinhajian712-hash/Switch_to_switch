@@ -31,8 +31,10 @@ function randToken(){const b=new Uint8Array(32);crypto.getRandomValues(b);return
 async function auctionToken(req:Request,u:URL){const h=req.headers.get("authorization")||"";const q=u.searchParams.get("token")||"";const t=(h.startsWith("Bearer ")?h.slice(7):q).trim();if(!t)return null;const th=await sha256Hex(t);const r=await db.from("auction_sessions").select("id,member_id,expires_at").eq("token_hash",th).gt("expires_at",new Date().toISOString()).maybeSingle();return r.data||null}
 async function sendAuctionCode(mobile:string,code:string){const hook=Deno.env.get("SMS_WEBHOOK_URL")||"";if(!hook)return false;try{const r=await fetch(hook,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({mobile,code,template:"S2S_AUCTION_LOGIN"})});return r.ok}catch(_){return false}}
 async function requestAuctionOtp(req:Request){
- const b=await req.json(),mobile=String(b.mobile||"").replace(/\\s/g,""),name=String(b.full_name||"").trim().slice(0,120);
- if(!/^09\\d{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست"},400);
+ const b=await req.json();
+ const toEnglish=(v:string)=>v.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+ const mobile=toEnglish(String(b.mobile||"").replace(/\s/g,"")),name=String(b.full_name||"").trim().slice(0,120);
+ if(!/^09\d{9}$/.test(mobile))return json({error:"شماره موبایل باید با 09 شروع شود و دقیقاً ۱۱ رقم داشته باشد؛ مثل 09123456789"},400);
  const recent=await db.from("auction_otp_codes").select("created_at").eq("mobile",mobile).order("created_at",{ascending:false}).limit(1).maybeSingle();
  if(recent.data&&Date.now()-new Date(recent.data.created_at).getTime()<60000)return json({error:"لطفاً ۶۰ ثانیه بعد دوباره درخواست کد کنید"},429);
  const code=randCode(),hash=await sha256Hex(code);
