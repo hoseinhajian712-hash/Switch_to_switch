@@ -180,6 +180,8 @@ function normalizeIranMobile(value:string){
 
 async function api(req:Request,u:URL){
  const a=u.searchParams.get("api"),id=u.searchParams.get("id")||"";
+ // Public auction access is intentionally disabled; auction workflows remain available only to authorized staff.
+ if(["public-ready-auctions","auction-request-code","auction-verify-code","auction-start-subscription","auction-payment-callback","public-auctions","place-bid"].includes(a||""))return json({error:"not_found"},404);
  if(a==="booking-settings"&&req.method==="GET"){
   const {data,error}=await db.from("booking_settings").select("daily_capacity,blocked_dates,blocked_slots,updated_at").eq("id",1).single();
   if(error)return json({error:error.message},500);
