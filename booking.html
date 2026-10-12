@@ -857,6 +857,7 @@ function setupColors(brandId,modelId,colorId,placeholder){
  refresh();
 }
 
+function brandMonogram(name){return String(name||'').replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘'}
 function initModernDropdowns(){
  const all=[];
  document.querySelectorAll('select').forEach(sel=>{
