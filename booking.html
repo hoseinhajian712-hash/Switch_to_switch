@@ -928,8 +928,8 @@ function initBrandGridPickers(){
    Array.from(sel.options).filter(o=>o.value).forEach(opt=>{
     const tile=document.createElement('button');tile.type='button';tile.className='brand-tile'+(sel.value===opt.value?' selected':'');tile.setAttribute('role','option');tile.setAttribute('aria-selected',String(sel.value===opt.value));tile.setAttribute('aria-label',opt.textContent);
     const logoBox=document.createElement('span');logoBox.className='brand-tile-logo';
-    const domain=domains[opt.value];
-    if(domain){const img=document.createElement('img');img.src='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';img.alt='';img.loading='lazy';img.onerror=()=>{img.remove();logoBox.textContent=brandMonogram(opt.value);logoBox.classList.add('brand-tile-fallback')};logoBox.appendChild(img)}
+    const slug=domains[opt.value];
+    if(slug){const img=document.createElement('img');img.src='https://cdn.simpleicons.org/'+encodeURIComponent(slug);img.alt='';img.loading='lazy';img.onerror=()=>{img.remove();logoBox.textContent=brandMonogram(opt.value);logoBox.classList.add('brand-tile-fallback')};logoBox.appendChild(img)}
     else{logoBox.textContent=brandMonogram(opt.value);logoBox.classList.add('brand-tile-fallback')}
     const name=document.createElement('span');name.className='brand-tile-name';name.textContent=opt.textContent;tile.append(logoBox,name);
     tile.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));render();const nextId=id==='brand'?'model':'tmodel';const next=$(nextId);if(next&&!next.closest('.field').classList.contains('hidden'))next.closest('.field').scrollIntoView({behavior:'smooth',block:'center'})});
