@@ -194,6 +194,13 @@ select:hover:not(:disabled){border-color:#cdb578;background-color:#fffdf8}
 .modern-select-option.selected:after{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:#e7d6a8;color:#76561d}
 .modern-select-empty{padding:18px 10px;border-radius:12px;background:#faf7ef}
 @media(max-width:700px){.modern-select-trigger{min-height:53px;padding:12px 14px}.modern-select-menu{max-height:min(58vh,330px);border-radius:17px}.modern-select-options{max-height:min(42vh,250px)}.modern-select-option{min-height:44px}}
+
+/* Isolate picker popup from neighboring fields: render above all form rows */
+.picker-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(3,9,18,.68);backdrop-filter:blur(4px)}
+.modern-select-menu.popup-detached{position:fixed!important;z-index:9999!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(430px,calc(100vw - 28px))!important;max-height:min(460px,78dvh)!important;display:block!important;overflow:hidden!important;border:1px solid #c9ad69!important;border-radius:22px!important;padding:13px!important;background:linear-gradient(160deg,#fffefa,#f8f3e7)!important;box-shadow:0 28px 90px #0009!important;backdrop-filter:none!important}
+.modern-select-menu.popup-detached .modern-select-options{max-height:calc(min(460px,78dvh) - 105px)!important;overflow-y:auto!important;overscroll-behavior:contain}
+.modern-select-menu.popup-detached .modern-select-option{min-height:48px}
+@media(max-width:700px){.modern-select-menu.popup-detached{width:calc(100vw - 24px)!important;max-height:76dvh!important;border-radius:19px!important;padding:11px!important}.modern-select-menu.popup-detached .modern-select-options{max-height:calc(76dvh - 100px)!important}}
 </style>
 
 <style id="s2s-shared-homepage-theme">
@@ -832,7 +839,7 @@ function initModernDropdowns(){
   const search=document.createElement('input');search.type='search';search.className='modern-select-search';search.placeholder='جست‌وجو بین گزینه‌ها…';search.setAttribute('aria-label','جست‌وجو بین گزینه‌ها');
   const options=document.createElement('div');options.className='modern-select-options';options.setAttribute('role','listbox');menu.append(search,options);wrap.append(trigger,menu);
   sel.classList.add('modern-native');sel.insertAdjacentElement('afterend',wrap);
-  const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');search.value='';renderOptions()};
+  const overlay=document.createElement('div');overlay.className='picker-backdrop';overlay.addEventListener('click',close);const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');overlay.remove();menu.classList.remove('popup-detached');if(menu.parentElement===document.body)wrap.appendChild(menu);search.value='';renderOptions()};
   const sync=()=>{renderChosenLabel();renderOptions()};
   const brandDomains={
    'ایران خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','فونیکس':'phoenixcar.ir','بهمن':'bahman.ir','لاماری':'lamari.ir','فردا موتور':'fardamotors.com','چری':'cheryinternational.com','جیلی':'geely.com',
@@ -868,14 +875,14 @@ function initModernDropdowns(){
     b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus()});options.appendChild(b)
    })
   }
-  trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');document.querySelectorAll('.modern-select.open').forEach(w=>{w.classList.remove('open');w.querySelector('.modern-select-trigger').setAttribute('aria-expanded','false')});if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions()}});
+  trigger.addEventListener('click',()=>{if(trigger.disabled)return;const opening=!wrap.classList.contains('open');all.forEach(item=>item.close());if(opening){wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();document.body.appendChild(overlay);menu.classList.add('popup-detached');document.body.appendChild(menu);search.focus({preventScroll:true})}});
   search.addEventListener('input',renderOptions);
   search.addEventListener('keydown',e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();const first=options.querySelector('.modern-select-option');if(first)first.click()}});
   sel.addEventListener('change',sync);
   const observer=new MutationObserver(sync);observer.observe(sel,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','selected']});
-  all.push({wrap,close});sync();
+  all.push({wrap,menu,close});sync();
  });
- document.addEventListener('click',e=>{all.forEach(item=>{if(!item.wrap.contains(e.target))item.close()})});
+ document.addEventListener('click',e=>{all.forEach(item=>{if(!item.wrap.contains(e.target)&&!item.menu.contains(e.target))item.close()})});
 }
 
 function initBrandGridPickers(){
