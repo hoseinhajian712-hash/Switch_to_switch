@@ -1447,7 +1447,7 @@ async function initializeCustomerWizard(){
    const meta=session.user.user_metadata||{};
    const name=String(profile?.full_name||meta.full_name||meta.name||'').trim();
    const mobile=normalizeDigits(String(profile?.mobile||meta.mobile||session.user.phone||'')).replace(/\D/g,'');
-   if(name&&/^09\\d{9}$/.test(mobile)){
+   if(name&&/^09\d{9}$/.test(mobile)){
     hasAccount=true;
     $('customerName').value=name;$('customerMobile').value=mobile;
     $('contactNameInput').value=name;$('contactMobileInput').value=mobile;
