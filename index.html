@@ -276,6 +276,9 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 .heroVisual .heroPhoto.exchangeArtwork .exchangeCar svg{display:block;width:100%;height:auto;overflow:visible}
 .heroVisual .heroPhoto.exchangeArtwork .exchangeCar:after{content:"switch";position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);z-index:4;padding:5px 13px;border:1px solid #ffffffa6;border-radius:7px;background:linear-gradient(135deg,#071521eF,#102b3eeF);color:#fff;font-family:Arial,sans-serif;font-size:clamp(11px,1.35vw,16px);font-weight:900;letter-spacing:2px;text-transform:lowercase;text-shadow:0 0 12px #76e7d8;box-shadow:0 4px 16px #0009,0 0 12px #75e6d544;white-space:nowrap;pointer-events:none}
 .heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo:after{border-color:#80d8ff;background:linear-gradient(135deg,#041426f2,#12518bf2);color:#e8f8ff;text-shadow:0 0 12px #42baff;box-shadow:0 4px 16px #0009,0 0 14px #42baff66}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeTrack:after{content:"to";position:absolute;z-index:6;left:50%;top:47%;transform:translate(-50%,-50%) scale(.55);opacity:0;padding:7px 14px;border:1px solid #b9fff0;border-radius:9px;background:linear-gradient(135deg,#071720f5,#123b45f5);color:#d9fff7;font-family:Arial,sans-serif;font-size:clamp(15px,2vw,23px);font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #7ce6c1;box-shadow:0 0 24px #7ce6c177,0 6px 20px #0009;animation:showToAtMeet 7s ease-in-out infinite;pointer-events:none}
+@keyframes showToAtMeet{0%,24%,61%,100%{opacity:0;transform:translate(-50%,-50%) scale(.55)}35%,50%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
 
 .heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne{left:-40%;top:30%;animation-name:luxSwapOne}
 .heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo{left:108%;top:47%;animation-name:luxSwapTwo}
