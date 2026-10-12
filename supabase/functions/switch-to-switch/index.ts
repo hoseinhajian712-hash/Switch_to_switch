@@ -346,6 +346,22 @@ async function api(req:Request,u:URL){
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
 if(a==="auction-members"&&role==="admin"&&req.method==="GET")return auctionMembers();if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(a==="deactivate-auction-member"&&role==="admin"&&req.method==="POST")return deactivateAuctionMember(req);if(a==="update-auction-member"&&role==="admin"&&req.method==="POST")return updateAuctionMember(req);if(!role)return json({error:"unauthorized"},401);
  if(a==="list")return listCases(role);
+ if(a==="assign-case-expert"&&role==="admin"&&req.method==="POST"){
+  if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
+  let b:any;try{b=await req.json()}catch(_){return json({error:"درخواست نامعتبر است"},400)}
+  const personnelId=String(b.personnel_id||"").trim();
+  if(!personnelId)return json({error:"ابتدا کارشناس را انتخاب کنید"},400);
+  const sr=await db.from("staff_members").select("id,full_name,role,active").eq("id",personnelId).maybeSingle();
+  if(sr.error)return json({error:sr.error.message},500);
+  if(!sr.data||sr.data.role!=="expert"||!sr.data.active)return json({error:"کارشناس انتخاب‌شده پیدا نشد یا غیرفعال است"},400);
+  const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();
+  if(cr.error)return json({error:cr.error.message},500);
+  if(!cr.data)return json({error:"پرونده پیدا نشد"},404);
+  const up=await db.from("cases").update({assigned_expert_staff_id:sr.data.id,assigned_expert_name:sr.data.full_name,status:"refer",updated_at:new Date().toISOString()}).eq("id",id);
+  if(up.error)return json({error:up.error.message},500);
+  await historyAdd(id,cr.data.status||"new","refer","ارجاع پرونده به کارشناس: "+sr.data.full_name);
+  return json({ok:true,expert:{id:sr.data.id,full_name:sr.data.full_name},status:"refer"});
+ }
  if(a==="dispatch-address"&&role==="admin"&&req.method==="POST"){const b=await req.json();const address=String(b.address||"").trim().slice(0,1200);const cr=await db.from("cases").select("notes").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);const base=String(cr.data.notes||"").replace(/\n?\n?\[\[S2S_DISPATCH_ADDRESS\]\][\s\S]*?\[\[\/S2S_DISPATCH_ADDRESS\]\]/g,"").trim();const notes=(base?base+"\n\n":"")+(address?"[[S2S_DISPATCH_ADDRESS]]"+address+"[[/S2S_DISPATCH_ADDRESS]]":"");const up=await db.from("cases").update({notes,updated_at:new Date().toISOString()}).eq("id",id);if(up.error)return json({error:up.error.message},500);await historyAdd(id,"dispatch","dispatch","آدرس اعزام توسط مدیر "+(address?"ثبت/ویرایش شد":"پاک شد"));return json({ok:true})}
  if(a==="case-comments"&&req.method==="GET")return caseComments(req,id,role);
  if(a==="case-comment"&&req.method==="POST")return caseComments(req,id,role);
