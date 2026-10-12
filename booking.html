@@ -1362,7 +1362,64 @@ function initBrandGridPickers(){
  });
 }
 
-function setupDates(){const d=$('appointmentDate'),t=$('appointmentTime');const now=new Date();const today=new Date();const firstDayOffset=(now.getHours()>=16)?1:0;for(let i=firstDayOffset;i<10+firstDayOffset;i++){const day=new Date(today);day.setDate(today.getDate()+i);const iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');const o=document.createElement('option');o.value=iso;o.textContent=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{calendar:'persian',weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(day);d.appendChild(o)}const fillTimes=async()=>{const previous=t.value;t.innerHTML='';const first=document.createElement('option');first.value='';first.textContent='در حال بررسی ساعت‌های آزاد…';t.appendChild(first);t.disabled=true;let booked=[];if(d.value){try{const r=await fetch(API+'?api=booking-slots&date='+encodeURIComponent(d.value)+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY,'Cache-Control':'no-cache'}});const data=await r.json();if(!r.ok||data.error)throw new Error(data.error||'availability');booked=Array.isArray(data.booked)?data.booked.map(x=>String(x?.appointment_time??x?.time??x??'').match(/\\d{2}:\\d{2}/)?.[0]).filter(Boolean):[]}catch(e){first.textContent='خطا در دریافت ساعت‌های رزرو؛ دوباره روز را انتخاب کن';return}}t.innerHTML='';const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='انتخاب ساعت';t.appendChild(placeholder);let startMinute=540;const selected=d.value?new Date(d.value+'T00:00:00'):null;const isToday=!!selected&&selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&selected.getDate()===today.getDate();if(isToday){const current=new Date();startMinute=Math.max(540,Math.ceil((current.getHours()*60+current.getMinutes()+1)/60)*60)}let count=0;for(let m=startMinute;m<=1020;m+=60){const value=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');if(booked.includes(value))continue;const o=document.createElement('option');o.value=value;o.textContent=value;t.appendChild(o);count++}if(count===0){const o=document.createElement('option');o.value='';o.textContent='برای این روز ساعت آزادی باقی نمانده';o.disabled=true;t.appendChild(o)}t.disabled=false;if(previous&&!booked.includes(previous)&&Array.from(t.options).some(o=>o.value===previous))t.value=previous};d.addEventListener('change',fillTimes);fillTimes()}
+async function setupDates(){
+ const d=$('appointmentDate'),t=$('appointmentTime'),now=new Date(),today=new Date();
+ const firstDayOffset=(now.getHours()>=16)?1:0,dates=[];
+ for(let i=firstDayOffset;i<10+firstDayOffset;i++){
+  const day=new Date(today);day.setDate(today.getDate()+i);
+  const iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+  dates.push({iso,day});
+ }
+ let calendar={};
+ try{
+  if(dates.length){
+   const r=await fetch(API+'?api=booking-calendar&start='+encodeURIComponent(dates[0].iso)+'&days='+dates.length+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY,'Cache-Control':'no-cache'}});
+   const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'calendar');
+   calendar=Object.fromEntries((j.days||[]).map(x=>[x.date,x]));
+  }
+ }catch(e){console.warn('Booking calendar settings unavailable',e)}
+ d.innerHTML='';
+ const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='انتخاب روز مراجعه';d.appendChild(placeholder);
+ for(const item of dates){
+  const state=calendar[item.iso]||{},o=document.createElement('option');o.value=item.iso;
+  o.textContent=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{calendar:'persian',weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(item.day);
+  if(state.blocked){o.disabled=true;o.textContent+=' — تعطیل'}
+  else if(state.full){o.disabled=true;o.textContent+=' — تکمیل ظرفیت'}
+  d.appendChild(o);
+ }
+ const firstAvailable=dates.find(x=>!(calendar[x.iso]?.full));
+ if(firstAvailable)d.value=firstAvailable.iso;
+ const fillTimes=async()=>{
+  const previous=t.value;
+  t.innerHTML='';
+  const addMessage=(message,disabled=true)=>{const o=document.createElement('option');o.value='';o.textContent=message;o.disabled=disabled;t.appendChild(o);t.disabled=disabled};
+  if(!d.value){addMessage('ابتدا روز مراجعه را انتخاب کن');return}
+  addMessage('در حال بررسی ساعت‌های آزاد…');
+  let data;
+  try{
+   const r=await fetch(API+'?api=booking-slots&date='+encodeURIComponent(d.value)+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY,'Cache-Control':'no-cache'}});
+   data=await r.json();if(!r.ok||data.error)throw new Error(data.error||'availability');
+  }catch(e){t.innerHTML='';addMessage('خطا در دریافت ساعت‌های آزاد؛ روز را دوباره انتخاب کن');return}
+  t.innerHTML='';
+  const prompt=document.createElement('option');prompt.value='';prompt.textContent='انتخاب ساعت';t.appendChild(prompt);
+  if(data.is_blocked){prompt.textContent='این روز برای رزرو بسته است';t.disabled=true;return}
+  if(data.is_full){prompt.textContent='ظرفیت این روز تکمیل شده است';t.disabled=true;return}
+  const booked=Array.isArray(data.booked)?data.booked.map(x=>String(x?.appointment_time??x?.time??x??'').match(/\d{2}:\d{2}/)?.[0]).filter(Boolean):[];
+  const blocked=Array.isArray(data.blocked_slots)?data.blocked_slots.map(String):[];
+  let startMinute=540;const selected=new Date(d.value+'T00:00:00'),isToday=selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&selected.getDate()===today.getDate();
+  if(isToday)startMinute=Math.max(540,Math.ceil((new Date().getHours()*60+new Date().getMinutes()+1)/60)*60);
+  let count=0;
+  for(let m=startMinute;m<=1020;m+=60){
+   const value=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+   if(booked.includes(value)||blocked.includes(value))continue;
+   const o=document.createElement('option');o.value=value;o.textContent=value;t.appendChild(o);count++;
+  }
+  if(count===0){prompt.textContent='برای این روز ساعت آزادی باقی نمانده';t.disabled=true;return}
+  t.disabled=false;if(previous&&!booked.includes(previous)&&!blocked.includes(previous)&&Array.from(t.options).some(o=>o.value===previous))t.value=previous;
+ };
+ d.addEventListener('change',fillTimes);
+ await fillTimes();
+}
 function normalizeDigits(value){return String(value).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
 function formatNumber(el){const raw=normalizeDigits(el.value).replace(/\D/g,'');el.value=raw.replace(/\B(?=(\d{3})+(?!\d))/g,',');try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
 function setType(value){type=['sell','buy','exchange'].includes(value)?value:'sell';const labels={sell:['می‌خوای ماشینتو بفروشی؟','با سوییچ به سوییچ، فروش ماشینتو هوشمندانه شروع کن؛ با کارشناسی تخصصی، روندی شفاف و پیگیری مرحله‌به‌مرحله.'],buy:['می‌خوای ماشین بخری؟','با سوییچ به سوییچ، ماشین دلخواهتو هوشمندانه پیدا کن؛ مشخصاتش رو ثبت کن تا برای هماهنگی باهات تماس بگیریم.'],exchange:['می‌خوای ماشینتو عوض کنی؟','با سوییچ به سوییچ، ماشینتو هوشمندانه معاوضه کن؛ با کارشناسی تخصصی، روندی شفاف و پیگیری مرحله‌به‌مرحله.']};const titleParts=labels[type][0].split(' ');$('pageTitle').innerHTML=type==='sell'?'می‌خوای ماشینتو<br><span>بفروشی؟</span>':type==='buy'?'می‌خوای ماشین<br><span>بخری؟</span>':'می‌خوای ماشینتو<br><span>عوض کنی؟</span>';$('pageDesc').textContent=labels[type][1];$('pageEyebrow').textContent=type==='sell'?'فروش خودرو با سوییچ به سوییچ':type==='buy'?'خرید خودرو با سوییچ به سوییچ':'معاوضه هوشمندانه خودرو';$('currentPanel').classList.toggle('hidden',type==='buy');$('targetPanel').classList.toggle('hidden',type==='sell');$('appointmentPanel').classList.toggle('hidden',type==='buy');$('currentTitle').textContent=type==='exchange'?'مشخصات خودروی فعلی':'مشخصات خودروی شما';$('currentDesc').textContent=type==='exchange'?'خودرویی را که می‌خواهی معاوضه کنی معرفی کن.':'اطلاعات خودرو را از فهرست‌ها انتخاب کن.';$('currentHint').textContent='برای نمایش مدل‌ها و تیپ‌های مرتبط، ابتدا برند خودرو را انتخاب کن.';$('targetNumber').textContent=type==='exchange'?'۲':'۱';$('appointmentNumber').textContent=type==='exchange'?'۳':'۲';$('noteNumber').textContent=type==='exchange'?'۴':(type==='sell'?'۳':'۲');$('currentPanel').querySelectorAll('[required]').forEach(el=>el.required=type!=='buy'&&['brand','model'].includes(el.id));$('targetPanel').querySelectorAll('[required]').forEach(el=>el.required=type!=='sell'&&['tbrand','tmodel'].includes(el.id));$('appointmentDate').required=type!=='buy';$('appointmentTime').required=type!=='buy';$('submitBtn').textContent=(type==='sell'?'ثبت درخواست فروش':type==='buy'?'ثبت درخواست خرید':'ثبت درخواست معاوضه')+' ←';hideMessage()}
