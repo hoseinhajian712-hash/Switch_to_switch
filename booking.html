@@ -195,6 +195,12 @@ select:hover:not(:disabled){border-color:#cdb578;background-color:#fffdf8}
 .modern-select-empty{padding:18px 10px;border-radius:12px;background:#faf7ef}
 @media(max-width:700px){.modern-select-trigger{min-height:53px;padding:12px 14px}.modern-select-menu{max-height:min(58vh,330px);border-radius:17px}.modern-select-options{max-height:min(42vh,250px)}.modern-select-option{min-height:44px}}
 
+/* Keep the picker as a true viewport-level modal; avoid stacked pseudo overlays */
+.modern-select.open:before{display:none!important}
+.picker-backdrop{position:fixed!important;inset:0!important;z-index:2147483000!important;background:rgba(3,9,18,.68)!important;backdrop-filter:blur(4px)}
+.modern-select-menu.popup-detached{position:fixed!important;z-index:2147483001!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(430px,calc(100vw - 28px))!important;max-height:min(460px,78dvh)!important;display:block!important;overflow:hidden!important;border:1px solid #c9ad69!important;border-radius:22px!important;padding:13px!important;background:linear-gradient(160deg,#fffefa,#f8f3e7)!important;box-shadow:0 28px 90px #0009!important;backdrop-filter:none!important}
+.modern-select-menu.popup-detached .modern-select-options{max-height:calc(min(460px,78dvh) - 105px)!important;overflow-y:auto!important;overscroll-behavior:contain}
+.modern-select-menu.popup-detached .modern-select-option{min-height:48px!important}
 /* Isolate picker popup from neighboring fields: render above all form rows */
 .picker-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(3,9,18,.68);backdrop-filter:blur(4px)}
 .modern-select-menu.popup-detached{position:fixed!important;z-index:9999!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(430px,calc(100vw - 28px))!important;max-height:min(460px,78dvh)!important;display:block!important;overflow:hidden!important;border:1px solid #c9ad69!important;border-radius:22px!important;padding:13px!important;background:linear-gradient(160deg,#fffefa,#f8f3e7)!important;box-shadow:0 28px 90px #0009!important;backdrop-filter:none!important}
@@ -928,6 +934,7 @@ function lastWizardStep(){return type==='buy'?2:3}
 function showWizardStep(n){
  const last=lastWizardStep();
  wizardStep=Math.max(1,Math.min(last,n));
+ try{sessionStorage.setItem('s2sWizardState',JSON.stringify({type,step:wizardStep}))}catch(e){}
  document.querySelectorAll('[data-stepdot]').forEach(d=>{const k=Number(d.dataset.stepdot);d.classList.toggle('active',k===wizardStep);d.classList.toggle('done',k<wizardStep);d.classList.toggle('hidden',type==='buy'&&k===3)});
  document.querySelectorAll('.stepper>i').forEach(el=>el.classList.toggle('hidden',type==='buy'&&el.classList.contains('appointment-step-line')));
  $('contactPanel').classList.toggle('hidden',wizardStep!==1);
@@ -973,7 +980,10 @@ $('wizardPrev').addEventListener('click',()=>{hideMessage();showWizardStep(wizar
 $('contactMobileInput').addEventListener('input',e=>{e.target.value=normalizeDigits(e.target.value).replace(/\D/g,'').slice(0,11)});
 try{const saved=JSON.parse(sessionStorage.getItem('s2sContact')||'null');if(saved){$('contactNameInput').value=saved.name||'';$('contactMobileInput').value=saved.mobile||''}}catch(e){}
 setupCar('');setupCar('t');setupColors('brand','model','color','ابتدا مدل خودرو را انتخاب کن');setupColors('tbrand','tmodel','tcolor','فرقی ندارد');setupDates();setType(new URLSearchParams(location.search).get('type')||'sell');
-initModernDropdowns();showWizardStep(1);
+initModernDropdowns();
+let initialWizardStep=1;
+try{const savedWizard=JSON.parse(sessionStorage.getItem('s2sWizardState')||'null');if(savedWizard&&savedWizard.type===type&&Number.isFinite(Number(savedWizard.step)))initialWizardStep=Number(savedWizard.step)}catch(e){}
+showWizardStep(initialWizardStep);
 </script>
 <script src="support-widget.js?v=4"></script>
 </body></html>
