@@ -263,19 +263,28 @@ body:before{background:radial-gradient(ellipse at 8% 0%,#2563eb30,transparent 38
 @keyframes cinemaShade{0%{opacity:.72}100%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.sceneArtwork *{animation:none!important}}
 
-/* Two-car exchange animation — robust responsive positioning */
-.heroVisual .heroPhoto.exchangeArtwork{overflow:hidden;isolation:isolate}
+/* Luxury exchange showroom — polished animated scene */
+.heroVisual .heroPhoto.exchangeArtwork{overflow:hidden;isolation:isolate;background:#07121d}
+.heroVisual .heroPhoto.exchangeArtwork:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,#72e6d01c,transparent 40%),linear-gradient(180deg,#07121d0a 15%,#06101a22 58%,#03070de8 100%)}
+.heroVisual .heroPhoto.exchangeArtwork .sceneSky{inset:0;background:radial-gradient(ellipse at 50% 0%,#4e829c 0%,#182e43 43%,#09131f 80%);animation:luxSky 8s ease-in-out infinite alternate}
+.heroVisual .heroPhoto.exchangeArtwork .sceneHill{left:-10%;right:-10%;bottom:32%;height:42%;background:linear-gradient(140deg,#1d4351,#0a1a28);clip-path:polygon(0 80%,15% 45%,30% 65%,48% 16%,65% 59%,81% 25%,100% 70%,100% 100%,0 100%);opacity:.72}
+.heroVisual .heroPhoto.exchangeArtwork .hillTwo{bottom:24%;background:linear-gradient(140deg,#0d2a36,#07111b);opacity:.9}
+.heroVisual .heroPhoto.exchangeArtwork .sceneRoad{bottom:-28%;height:59%;border-top:2px solid #7ce6c188;background:repeating-linear-gradient(90deg,transparent 0 16%,#d5e8ed10 16.3% 16.7%,transparent 17% 32%),linear-gradient(180deg,#263945,#090f17 70%);transform:perspective(240px) rotateX(12deg)}
+.heroVisual .heroPhoto.exchangeArtwork .sceneRoad:after{top:12%;height:3px;background:linear-gradient(90deg,transparent,#7ce6c1,#d8f8ff,#7ce6c1,transparent);filter:blur(3px);animation:roadLight 2.4s ease-in-out infinite}
 .heroVisual .heroPhoto.exchangeArtwork .exchangeTrack{position:absolute;z-index:2;inset:0;overflow:hidden}
-.heroVisual .heroPhoto.exchangeArtwork .exchangeCar{position:absolute;width:68%;max-width:390px;filter:drop-shadow(0 18px 13px #08111c70);will-change:left,top,transform;animation-duration:6s;animation-timing-function:cubic-bezier(.62,0,.32,1);animation-iteration-count:infinite}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCar{position:absolute;width:72%;max-width:400px;filter:drop-shadow(0 22px 15px #000b) drop-shadow(0 0 13px #76d9ff25);will-change:left,top,transform;animation-duration:7s;animation-timing-function:cubic-bezier(.62,0,.32,1);animation-iteration-count:infinite}
 .heroVisual .heroPhoto.exchangeArtwork .exchangeCar svg{display:block;width:100%;height:auto;overflow:visible}
-.heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne{left:-35%;top:32%;animation-name:swapCarOneFixed}
-.heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo{left:100%;top:49%;animation-name:swapCarTwoFixed}
-.heroVisual .heroPhoto.exchangeArtwork .exchangeGlow{position:absolute;z-index:1;left:50%;top:47%;width:52%;height:38%;transform:translate(-50%,-50%);border-radius:50%;background:#7ce6c126;filter:blur(35px);animation:swapGlowFixed 6s ease-in-out infinite;pointer-events:none}
-@keyframes swapCarOneFixed{0%,8%{left:-35%;top:32%;transform:scale(.78)}42%,50%{left:38%;top:48%;transform:scale(1)}92%,100%{left:105%;top:32%;transform:scale(.78)}}
-@keyframes swapCarTwoFixed{0%,8%{left:105%;top:49%;transform:scale(.78)}42%,50%{left:-12%;top:25%;transform:scale(1)}92%,100%{left:-35%;top:49%;transform:scale(.78)}}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne{left:-40%;top:30%;animation-name:luxSwapOne}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo{left:108%;top:47%;animation-name:luxSwapTwo}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeGlow{position:absolute;z-index:1;left:50%;top:52%;width:62%;height:34%;transform:translate(-50%,-50%);border-radius:50%;background:#7ce6c12e;filter:blur(38px);animation:swapGlowFixed 7s ease-in-out infinite;pointer-events:none}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne svg{filter:drop-shadow(0 0 5px #e3f6ff45)}
+.heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo svg{filter:drop-shadow(0 0 7px #39b9ff55)}
+@keyframes luxSky{0%{filter:saturate(.85) brightness(.82)}100%{filter:saturate(1.18) brightness(1.12)}}
+@keyframes luxSwapOne{0%,7%{left:-40%;top:30%;transform:scale(.7) rotate(-2deg)}38%,50%{left:31%;top:43%;transform:scale(1.02) rotate(0)}90%,100%{left:108%;top:30%;transform:scale(.7) rotate(2deg)}}
+@keyframes luxSwapTwo{0%,7%{left:108%;top:48%;transform:scale(.7) rotate(2deg)}38%,50%{left:-7%;top:25%;transform:scale(1.02) rotate(0)}90%,100%{left:-40%;top:48%;transform:scale(.7) rotate(-2deg)}}
 @keyframes swapGlowFixed{0%,15%,85%,100%{opacity:.2;transform:translate(-50%,-50%) scale(.7)}45%,55%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}}
-@media(max-width:800px){.heroVisual .heroPhoto.exchangeArtwork .exchangeCar{width:88%}.heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne{top:31%}.heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo{top:49%}}
-@media(prefers-reduced-motion:reduce){.heroVisual .heroPhoto.exchangeArtwork .exchangeCar,.heroVisual .heroPhoto.exchangeArtwork .exchangeGlow{animation:none!important}}
+@media(max-width:800px){.heroVisual .heroPhoto.exchangeArtwork .exchangeCar{width:92%}.heroVisual .heroPhoto.exchangeArtwork .exchangeCarOne{top:31%}.heroVisual .heroPhoto.exchangeArtwork .exchangeCarTwo{top:48%}}
+@media(prefers-reduced-motion:reduce){.heroVisual .heroPhoto.exchangeArtwork .exchangeCar,.heroVisual .heroPhoto.exchangeArtwork .exchangeGlow,.heroVisual .heroPhoto.exchangeArtwork .sceneSky{animation:none!important}}
 </style>
 <link rel="stylesheet" href="s2s-style.css"><script src="config.js?v=reviews1"></script>
 <style>.accountTop{display:inline-flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;padding:10px 15px;border:1px solid #d5b46e77;border-radius:13px;background:linear-gradient(120deg,#e5cc8c,#c5a05b);color:#161711;text-decoration:none;font-size:12px;font-weight:900;box-shadow:0 8px 24px #0003;transition:transform .2s,filter .2s}.accountTop:hover{transform:translateY(-2px);filter:brightness(1.06)}.accountTop span{font-size:16px}@media(max-width:800px){.top{align-items:center;gap:8px}.accountTop{padding:9px 10px;font-size:10px}.logo{font-size:20px}.nav{display:none!important}}</style>
