@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#071a32">
 <title>ثبت درخواست خودرو | سوییچ به سوییچ</title>
 <script src="config.js"></script>
@@ -583,6 +583,11 @@ body:before{background:linear-gradient(145deg,rgba(8,20,36,.3),rgba(2,7,15,.76))
 /* Dedicated, high-contrast headings above vehicle dropdowns */
 .modern-field-heading{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;width:100%!important;margin:0 0 8px!important;padding:0!important;color:#f1d99d!important;font-family:Tahoma,Arial,sans-serif!important;font-size:14px!important;font-weight:900!important;line-height:1.9!important;text-align:right!important;z-index:1!important}
 .field>.modern-field-heading{color:#f1d99d!important}
+</style>
+<style>/* Keep mobile panels stable: avoid accidental double-tap zoom and horizontal layout shifts */
+html{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:pan-x pan-y}
+body{max-width:100%;overflow-x:hidden}
+input,select,textarea,button{touch-action:manipulation}
 </style>
 </head>
 <body>
