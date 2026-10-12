@@ -873,16 +873,16 @@ function initModernDropdowns(){
   let overlay;const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');if(overlay)overlay.remove();menu.classList.remove('popup-detached');if(menu.parentElement===document.body)wrap.appendChild(menu);search.value='';renderOptions()};overlay=document.createElement('div');overlay.className='picker-backdrop';overlay.addEventListener('click',close);
   const sync=()=>{renderChosenLabel();renderOptions()};
   const brandDomains={
-   'ایران خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','فونیکس':'phoenixcar.ir','بهمن':'bahman.ir','لاماری':'lamari.ir','فردا موتور':'fardamotors.com','چری':'cheryinternational.com','جیلی':'geely.com',
-   'هیوندای':'hyundai.com','کیا':'kia.com','تویوتا':'toyota.com','نیسان':'nissan-global.com','رنو':'renaultgroup.com','پژو':'peugeot.com','فولکس واگن':'volkswagen.com','مزدا':'mazda.com','هوندا':'global.honda','سوزوکی':'globalsuzuki.com',
-   'چانگان':'globalchangan.com','ام‌جی':'mgmotor.com','هاوال':'haval-global.com','بسترن':'faw.com','دونگ فنگ':'dfmc.com.cn','فوتون':'foton-global.com','مرسدس بنز':'mercedes-benz.com','بی‌ام‌و':'bmw.com','آئودی':'audi.com','لکسوس':'lexus.com','پورشه':'porsche.com','ولوو':'volvocars.com','جیپ':'jeep.com'
+   'تویوتا':'toyota','هیوندای':'hyundai','کیا':'kia','نیسان':'nissan','رنو':'renault','پژو':'peugeot','فولکس واگن':'volkswagen','مزدا':'mazda','هوندا':'honda','سوزوکی':'suzuki','چانگان':'changan','ام‌جی':'mg','هاوال':'haval','مرسدس بنز':'mercedesbenz','بی‌ام‌و':'bmw','آئودی':'audi','لکسوس':'lexus','پورشه':'porsche','ولوو':'volvo','جیپ':'jeep',
+   'هیوندای':'hyundai','کیا':'kia','تویوتا':'toyota','نیسان':'nissan','رنو':'renault','پژو':'peugeot','فولکس واگن':'volkswagen','مزدا':'mazda','هوندا':'honda','سوزوکی':'suzuki',
+   'چانگان':'changan','ام‌جی':'mg','هاوال':'haval','بسترن':'faw','دونگ فنگ':'dongfeng','فوتون':'foton','مرسدس بنز':'mercedesbenz','بی‌ام‌و':'bmw','آئودی':'audi','لکسوس':'lexus','پورشه':'porsche','ولوو':'volvo','جیپ':'jeep'
   };
   function brandMonogram(name){const clean=String(name||'').replace(/[^\u0600-\u06FF\w]/g,'');return clean.slice(0,2)||'🚘'}
   function brandMark(name){
    const mark=document.createElement('span');mark.className='brand-mark';
-   const domain=brandDomains[name];
-   if(domain){
-    const img=document.createElement('img');img.className='brand-logo';img.alt='';img.loading='lazy';img.src='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';
+   const slug=brandDomains[name];
+   if(slug){
+    const img=document.createElement('img');img.className='brand-logo';img.alt='';img.loading='lazy';img.src='https://cdn.simpleicons.org/'+encodeURIComponent(slug);
     img.addEventListener('error',()=>{img.remove();mark.textContent=brandMonogram(name);mark.classList.add('brand-mark-fallback')},{once:true});
     mark.appendChild(img);
    }else{mark.textContent=name.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';mark.classList.add('brand-mark-fallback')}
@@ -919,9 +919,9 @@ function initModernDropdowns(){
 
 function initBrandGridPickers(){
  const domains={
-  'ایران خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','فونیکس':'phoenixcar.ir','بهمن':'bahman.ir','لاماری':'lamari.ir','فردا موتور':'fardamotors.com','چری':'cheryinternational.com','جیلی':'geely.com',
-  'هیوندای':'hyundai.com','کیا':'kia.com','تویوتا':'toyota.com','نیسان':'nissan-global.com','رنو':'renaultgroup.com','پژو':'peugeot.com','فولکس واگن':'volkswagen.com','مزدا':'mazda.com','هوندا':'global.honda','سوزوکی':'globalsuzuki.com',
-  'چانگان':'globalchangan.com','ام‌جی':'mgmotor.com','هاوال':'haval-global.com','بسترن':'faw.com','دونگ فنگ':'dfmc.com.cn','فوتون':'foton-global.com','مرسدس بنز':'mercedes-benz.com','بی‌ام‌و':'bmw.com','آئودی':'audi.com','لکسوس':'lexus.com','پورشه':'porsche.com','ولوو':'volvocars.com','جیپ':'jeep.com'
+  'تویوتا':'toyota','هیوندای':'hyundai','کیا':'kia','نیسان':'nissan','رنو':'renault','پژو':'peugeot','فولکس واگن':'volkswagen','مزدا':'mazda','هوندا':'honda','سوزوکی':'suzuki','چانگان':'changan','ام‌جی':'mg','هاوال':'haval','مرسدس بنز':'mercedesbenz','بی‌ام‌و':'bmw','آئودی':'audi','لکسوس':'lexus','پورشه':'porsche','ولوو':'volvo','جیپ':'jeep',
+  'هیوندای':'hyundai','کیا':'kia','تویوتا':'toyota','نیسان':'nissan','رنو':'renault','پژو':'peugeot','فولکس واگن':'volkswagen','مزدا':'mazda','هوندا':'honda','سوزوکی':'suzuki',
+  'چانگان':'changan','ام‌جی':'mg','هاوال':'haval','بسترن':'faw','دونگ فنگ':'dongfeng','فوتون':'foton','مرسدس بنز':'mercedesbenz','بی‌ام‌و':'bmw','آئودی':'audi','لکسوس':'lexus','پورشه':'porsche','ولوو':'volvo','جیپ':'jeep'
  };
  ['brand','tbrand'].forEach(id=>{
   const sel=$(id);if(!sel)return;
