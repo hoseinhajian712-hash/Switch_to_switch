@@ -230,6 +230,22 @@ async function api(req:Request,u:URL){
  if(a==="support-poll"&&req.method==="GET")return supportPoll(u);
  if(a==="support-send"&&req.method==="POST")return supportSend(req);
 
+ if(a==="reviews"&&req.method==="GET"){
+  const {data,error}=await db.from("customer_reviews").select("id,customer_name,rating,message,created_at").eq("is_approved",true).order("created_at",{ascending:false}).limit(30);
+  if(error)return json({error:"دریافت نظرها ناموفق بود."},500);
+  return json({reviews:data||[]});
+ }
+ if(a==="reviews"&&req.method==="POST"){
+  try{
+   const b=await req.json(),name=String(b.name||"").trim(),message=String(b.message||"").trim(),rating=Number(b.rating);
+   if(name.length<2||name.length>80)return json({error:"نام باید بین ۲ تا ۸۰ نویسه باشد."},400);
+   if(!Number.isInteger(rating)||rating<1||rating>5)return json({error:"لطفاً امتیاز یک تا پنج ستاره را انتخاب کن."},400);
+   if(message.length<5||message.length>1200)return json({error:"متن نظر باید بین ۵ تا ۱۲۰۰ نویسه باشد."},400);
+   const {error}=await db.from("customer_reviews").insert({customer_name:name,rating,message,is_approved:false});
+   if(error)return json({error:"ذخیره نظر انجام نشد. لطفاً کمی بعد دوباره تلاش کن."},500);
+   return json({ok:true,message:"نظر شما ثبت شد و پس از تأیید مدیر منتشر می‌شود."},201);
+  }catch(_){return json({error:"اطلاعات نظر معتبر نیست."},400)}
+ }
  const hex=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value)))).map((b)=>b.toString(16).padStart(2,"0")).join("");
  let role=auth(u);
  if(a==="staff-login"&&req.method==="POST"){
@@ -262,6 +278,26 @@ async function api(req:Request,u:URL){
     if(!mr||(!mr.error&&mr.data?.active))role=sr.data.role;
    }
   }
+ }
+ if(a==="reviews-admin-list"&&role==="admin"&&req.method==="GET"){
+  const {data,error}=await db.from("customer_reviews").select("id,customer_name,rating,message,is_approved,created_at,approved_at").order("created_at",{ascending:false}).limit(500);
+  if(error)return json({error:"دریافت نظرها ناموفق بود."},500);
+  return json({reviews:data||[]});
+ }
+ if(a==="reviews-admin-approve"&&role==="admin"&&req.method==="POST"){
+  const approvedAt=(await db.from("customer_reviews").select("is_approved").eq("id",id).maybeSingle());
+  if(approvedAt.error)return json({error:"بررسی نظر ناموفق بود."},500);
+  if(!approvedAt.data)return json({error:"نظر پیدا نشد."},404);
+  const next=!approvedAt.data.is_approved;
+  const {data,error}=await db.from("customer_reviews").update({is_approved:next,approved_at:next?new Date().toISOString():null}).eq("id",id).select("id,is_approved").single();
+  if(error)return json({error:"تغییر وضعیت انتشار نظر ناموفق بود."},500);
+  return json({ok:true,is_approved:data.is_approved});
+ }
+ if(a==="reviews-admin-delete"&&role==="admin"&&req.method==="POST"){
+  if(!id)return json({error:"شناسه نظر مشخص نشده است."},400);
+  const {error}=await db.from("customer_reviews").delete().eq("id",id);
+  if(error)return json({error:"حذف نظر انجام نشد."},500);
+  return json({ok:true});
  }
  if(a==="booking-settings"&&req.method==="POST"&&role==="admin"){
   try{
