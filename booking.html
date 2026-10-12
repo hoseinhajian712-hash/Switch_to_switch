@@ -164,6 +164,19 @@ select:hover:not(:disabled){border-color:#cdb578;background-color:#fffdf8}
 .wizard-prev{border:1px solid #e3dccd;background:#fff;color:#655c4a}
 .wizard-next{border:1px solid #d2b66f;background:linear-gradient(120deg,#191919,#4a402b);color:#f6e7bd;box-shadow:0 10px 22px #17130c1b}
 @media(max-width:520px){.stepper{gap:6px;padding:13px 7px}.stepper .step{gap:5px;font-size:9px}.stepper .step b{width:28px;height:28px}.stepper>i{width:5vw}.wizard-nav button{padding:14px 10px}}
+
+/* انتخاب‌ها به‌صورت پنجره کوچک شناور، نه منوی چسبیده به فیلد */
+.modern-select{position:relative}
+.modern-select.open{z-index:1200}
+.modern-select.open:before{content:"";position:fixed;inset:0;z-index:1198;background:rgba(3,10,20,.62);backdrop-filter:blur(3px)}
+.modern-select.open .modern-select-menu{position:fixed;z-index:1199;top:50%;left:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 30px));max-height:min(430px,76vh);padding:14px;border:1px solid #c9ad69;border-radius:22px;background:linear-gradient(160deg,#fffefa,#f8f3e7);box-shadow:0 28px 90px #0008;overflow:hidden}
+.modern-select.open .modern-select-options{max-height:calc(min(430px,76vh) - 100px);overflow-y:auto}
+.modern-select.open .modern-select-search{min-height:48px;font-size:13px}
+.modern-select.open .modern-select-option{min-height:48px;font-size:13px}
+.modern-select.open .modern-select-menu{animation:pickerPop .18s ease-out}
+@keyframes pickerPop{from{opacity:0;transform:translate(-50%,-47%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media(max-width:700px){.modern-select.open .modern-select-menu{width:calc(100vw - 26px);max-height:74vh;border-radius:20px;padding:11px}.modern-select.open .modern-select-options{max-height:calc(74vh - 98px)}}
+
 /* Premium dropdown polish for the actual booking page */
 .modern-select-trigger{min-height:58px;padding:14px 17px;border-radius:17px;border-color:#e1d5b8;background:linear-gradient(145deg,#fffefa,#f8f4e9);box-shadow:0 7px 20px #4937190d,inset 0 1px #fff;gap:14px}
 .modern-select-trigger:hover:not(:disabled){transform:translateY(-1px);border-color:#c7a75e;box-shadow:0 10px 24px #8a682015}
