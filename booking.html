@@ -661,7 +661,7 @@ function setupCar(prefix){
  });
  trim.addEventListener('change',()=>{
   optionList(year,trim.value?yearsFor(brand.value,model.value,trim.value):[],'انتخاب سال');
-  reveal(year,!!trim.value);reveal(mileage,!!trim.value);
+  reveal(year,!!trim.value);reveal(mileage,false);
  });
  year.addEventListener('change',()=>{if(mileage)reveal(mileage,!!year.value)});
 }
