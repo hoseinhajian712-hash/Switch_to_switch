@@ -16,7 +16,7 @@
 <footer>سوییچ به سوییچ · اطلاعات کارشناسی برای کمک به تصمیم‌گیری خریدار ارائه می‌شود.</footer></main>
 <script src="config.js"></script><script>
 (function(){
-const base=(window.SUPABASE_URL||"")+" /functions/v1/switch-to-switch".replace(/^ /,"");
+const base=(window.SUPABASE_URL||"")+"/functions/v1/switch-to-switch";
 const $=id=>document.getElementById(id);let token=localStorage.getItem("s2s_auction_buyer_token")||"", auctions=[];
 function fa(v){return Number(v||0).toLocaleString("fa-IR")}function money(v){return fa(v)+" تومان"}function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function msg(t,kind){$("message").innerHTML=t?'<div class="msg '+(kind||"")+'">'+esc(t)+'</div>':""}
