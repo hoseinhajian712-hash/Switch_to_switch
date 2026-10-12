@@ -827,7 +827,12 @@ function openNextCarChoice(id){
  const el=$(id),field=el?.closest('.field');
  if(!el||!field||field.classList.contains('hidden'))return;
  field.scrollIntoView({behavior:'smooth',block:'center'});
- setTimeout(()=>{const trigger=field.querySelector('.modern-select-trigger');if(trigger&&!trigger.disabled)trigger.click()},220);
+ setTimeout(()=>{
+  const trigger=field.querySelector('.modern-select-trigger');
+  const wrap=trigger?.closest('.modern-select');
+  // Several change handlers may request the same dropdown. Never toggle an already-open menu closed.
+  if(trigger&&!trigger.disabled&&wrap&&!wrap.classList.contains('open'))trigger.click();
+ },320);
 }
 function setupCar(prefix){
  const brand=$(prefix+'brand'),model=$(prefix+'model'),trim=$(prefix+'trim'),year=$(prefix+'year');
