@@ -227,6 +227,7 @@ async function pollReviewsNotifications(){
    if(arrived){
     if(typeof playSupportNotification==='function')playSupportNotification();
     if('Notification'in window&&Notification.permission==='granted'&&document.hidden){try{new Notification('نظر جدید مشتری',{body:'یک نظر جدید برای بررسی و تأیید ثبت شده است.'})}catch(e){}}
+    loadCustomerReviewsAdmin();
    }
   }
   reviewsKnownPendingIds=ids;reviewsNotificationInitialized=true;
