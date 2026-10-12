@@ -1158,13 +1158,12 @@ function updateVehicleMeta(prefix){
  const model=$(prefix+'model'),brand=$(prefix+'brand'),typeSelect=$(prefix+'vehicleType'),fuelSelect=$(prefix+'fuel');
  if(!typeSelect||!fuelSelect)return;
  const reset=(el,label)=>{el.innerHTML='';const o=document.createElement('option');o.value='';o.textContent=label;el.appendChild(o)};
- reset(typeSelect,'انتخاب نوع خودرو');reset(fuelSelect,'انتخاب نوع سوخت');
- const chosen=model.value;typeSelect.disabled=!chosen;fuelSelect.disabled=!chosen;
+ reset(typeSelect,'ابتدا مدل خودرو را انتخاب کن');reset(fuelSelect,'انتخاب نوع سوخت');
+ const chosen=model.value;typeSelect.disabled=true;fuelSelect.disabled=!chosen;
  if(!chosen){const f=typeSelect.closest('.field');if(f)f.classList.add('hidden');const ff=fuelSelect.closest('.field');if(ff)ff.classList.add('hidden');return}
  const meta=vehicleMetaOptions(chosen,brand.value);
- const typeOptions=[meta.type,'سدان','هاچ‌بک','شاسی‌بلند / کراس‌اوور','وانت / پیکاپ','کوپه','کروک / رودستر','ون'].filter((v,i,a)=>a.indexOf(v)===i);
- typeOptions.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;typeSelect.appendChild(o)});
- typeSelect.value=meta.type;
+ const typeOption=document.createElement('option');typeOption.value=meta.type;typeOption.textContent=meta.type;typeSelect.appendChild(typeOption);
+ typeSelect.value=meta.type;typeSelect.disabled=true;
  const fuelOptions=meta.fuels.length>1?['انتخاب نوع سوخت',...meta.fuels]:meta.fuels;
  fuelOptions.forEach((v,i)=>{const o=document.createElement('option');o.value=(i===0&&meta.fuels.length>1)?'':v;o.textContent=v;fuelSelect.appendChild(o)});
  fuelSelect.value=meta.fuels.length===1?meta.fuels[0]:'';
