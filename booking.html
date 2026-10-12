@@ -315,6 +315,65 @@ input:focus,select:focus,textarea:focus{border-color:#60a5fa!important;box-shado
 </style>
 <link rel="stylesheet" href="luxury.css?v=1">
 <link rel="stylesheet" href="booking-luxury.css?v=1">
+
+<style id="s2s-luxury-service-pages-v4">
+:root{--navy:#090909;--navy2:#171614;--blue:#c8a45d;--blue2:#e2c783;--ink:#f7f2e7;--muted:#b7b0a1;--line:#39352c;--soft:#11110f;--green:#d5b66d;color-scheme:dark}
+html,body{background:#090909!important;color:#f7f2e7!important;font-family:'Vazirmatn',Tahoma,Arial,sans-serif!important}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 8% 0%,#c8a45d13,transparent 38%),radial-gradient(ellipse at 95% 35%,#8d6b2710,transparent 34%);z-index:0}
+.wrap{position:relative;z-index:1;width:min(1120px,100%);padding:22px 18px 60px}
+.topbar{margin-bottom:22px}
+.brand{color:#fff4d8;font-size:22px;letter-spacing:-.6px}
+.brand span{color:#d6b86f}
+.back{color:#e5d7b5;background:#151411;border:1px solid #c8a45d55;border-radius:13px;padding:11px 15px;transition:.2s}
+.back:hover{background:#252116;border-color:#d8bd78}
+.hero{margin-bottom:20px;padding:clamp(25px,4vw,42px);border-radius:27px;background:linear-gradient(125deg,#22201b,#121211 60%,#19160f);border:1px solid #c8a45d66;box-shadow:0 24px 65px #0009}
+.hero:before{background:radial-gradient(circle,#d6b86f24,transparent 70%);width:360px;height:360px;left:-100px;top:-180px}
+.eyebrow{background:#d6b66b12;border-color:#d6b66b66;color:#f1d99e;padding:8px 13px;font-size:12px}
+.dot{background:#d6b66b;box-shadow:0 0 0 4px #d6b66b22}
+.hero h1{font-size:clamp(27px,4.2vw,40px);line-height:1.55;letter-spacing:-.8px;color:#fff9ec}
+.hero h1 span{color:#e2c47d}
+.hero p{color:#d0c9bb;font-size:14px;line-height:2.15}
+.stepper{padding:16px 20px;margin:0 auto 20px;max-width:700px;border:1px solid #ffffff12;border-radius:19px;background:#121210;box-shadow:0 10px 30px #0003}
+.step{gap:10px;color:#9d988c}
+.step b{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#211f19;border:1px solid #51452d;color:#d7c18d}
+.step.active{color:#f8e8bd}.step.active b{background:linear-gradient(135deg,#e1c780,#ae8840);border-color:#e6ce8c;color:#17130a;box-shadow:0 4px 18px #c8a45d2a}
+.stepper>i{background:#4a4130}
+.panel,.submit-panel{margin:0 0 17px;padding:clamp(19px,3vw,29px);border-radius:23px;background:linear-gradient(145deg,#171715,#10100f 75%);border:1px solid #ffffff13;box-shadow:0 15px 38px #0004}
+.panel-head{gap:14px;margin-bottom:22px}
+.panel-number{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(140deg,#e0c47b,#a8823a);color:#18140a;font-size:15px;font-weight:900;box-shadow:0 7px 18px #c8a45d20}
+.panel-head h2{margin:0 0 4px;color:#fff4dc;font-size:19px;line-height:1.7;font-weight:900}
+.panel-head p{margin:0;color:#aaa394;font-size:12px;line-height:2}
+.fields{gap:17px}
+.field{gap:9px;color:#e7dfce;font-size:13px;font-weight:800}
+.field em{color:#e5c477}
+.field input,.field select,.field textarea,.contact-fields input,select,input,textarea{font-family:inherit}
+.field input,.field select,.field textarea{width:100%;min-height:54px;padding:14px 15px;border:1px solid #403b30;border-radius:15px;background:linear-gradient(180deg,#20201d,#171715);color:#fff8e9;font-size:14px;outline:none;box-shadow:inset 0 1px #ffffff08;transition:border-color .2s,box-shadow .2s,background .2s}
+.field select{padding-left:42px;cursor:pointer;appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d6b86f 50%),linear-gradient(135deg,#d6b86f 50%,transparent 50%);background-position:calc(100% - 21px) 24px,calc(100% - 15px) 24px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+.field select option{background:#171715;color:#fff8e9}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#c8a45d;box-shadow:0 0 0 4px #c8a45d19;background:#22211c}
+.field input::placeholder,.field textarea::placeholder{color:#827d71}
+.field select:disabled{opacity:.55;cursor:not-allowed;background-color:#121210}
+.field .hint{color:#a59d8c;font-size:11px;line-height:1.9}
+.notice{margin-top:16px;padding:13px 15px;border-radius:13px;background:#c8a45d0c;border:1px solid #c8a45d26;color:#d4c7a7;font-size:12px;line-height:2}
+.appointment{padding:17px;border-radius:18px;background:#0d0d0c;border:1px solid #ffffff0e}
+.wizard-nav{display:flex;gap:12px;justify-content:space-between;margin:20px 0}
+.wizard-prev,.wizard-next,.submit-row button,.submit-btn,#submitBtn{min-height:52px;border-radius:15px;font-family:inherit;font-size:14px;font-weight:900;transition:transform .2s,filter .2s}
+.wizard-prev{padding:12px 19px;background:#191916;color:#e6d7b4;border:1px solid #655333}
+.wizard-next,.submit-row button,.submit-btn,#submitBtn{padding:13px 23px;background:linear-gradient(115deg,#e3ca84,#b28b43);color:#19150c;border:1px solid #e8d08c;box-shadow:0 9px 25px #c8a45d20}
+.wizard-next:hover,.submit-row button:hover,#submitBtn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.wizard-prev:hover{background:#26231b}
+.submit-panel{background:linear-gradient(135deg,#19170f,#11110f);border-color:#c8a45d3a}
+.privacy{color:#d0c7b3;font-size:12px;line-height:2}.privacy strong{color:#f5e6bd}
+.service-switch{gap:10px;margin-bottom:18px}
+.service-link{background:#131311;border-color:#ffffff12;color:#d9d0bd;border-radius:15px;box-shadow:none}
+.service-link:hover{border-color:#c8a45d66;background:#201e18}
+.hidden{display:none!important}
+.message,.form-message,[role=alert]{line-height:1.9}
+@media(min-width:801px){.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.panel-head{align-items:center}}
+@media(max-width:800px){.wrap{padding:13px 12px 36px}.topbar{gap:10px}.brand{font-size:19px}.hero{padding:23px 20px;border-radius:22px}.hero h1{font-size:29px}.hero p{font-size:13px}.stepper{padding:13px 10px;gap:8px}.step{font-size:10px;gap:6px}.step b{width:30px;height:30px}.panel,.submit-panel{padding:19px 15px;border-radius:19px}.panel-head{margin-bottom:18px;align-items:flex-start}.panel-head h2{font-size:17px}.panel-number{width:35px;height:35px;flex-basis:35px}.fields{grid-template-columns:1fr;gap:15px}.field input,.field select,.field textarea{min-height:53px;font-size:16px}.wizard-nav{gap:9px}.wizard-prev,.wizard-next{flex:1;padding:12px 9px;font-size:13px}.service-switch{display:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+
 </head>
 <body>
 <main class="wrap">
