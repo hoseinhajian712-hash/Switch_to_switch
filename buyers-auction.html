@@ -19,7 +19,7 @@
 <section id="auctionArea" class="hidden">
 <div class="top" style="align-items:center;margin:18px 0 12px"><div><h2>داشبورد خریدار</h2><p class="sub">خودروهای من، جریمه‌ها، پیام‌ها و مزایده‌های فعال</p></div><div style="display:flex;gap:8px"><button class="btn" id="refresh">↻ بروزرسانی</button><button class="btn" id="logout">خروج</button></div></div>
 <section id="identityGate" class="panel hidden"><h2>🔐 احراز هویت خریدار</h2><p id="identityStatus" class="sub">برای ورود به مزایده باید عکس کارت ملی خودت را بارگذاری کنی. مدیریت آن را بررسی و تأیید می‌کند.</p><form id="identityForm" class="login-grid"><input id="identityFile" class="field wide" type="file" accept="image/*" required><button id="identitySubmit" class="btn primary wide">بارگذاری کارت ملی</button></form></section>
-<nav class="buyer-tabs"><button class="btn active" data-tab="auctions">مزایده‌های فعال</button><button class="btn" data-tab="cars">خودروهای من</button><button class="btn" data-tab="fines">جریمه‌های من</button><button class="btn" data-tab="messages">پیام‌های من</button></nav>
+<div id="buyerAlerts"></div><nav class="buyer-tabs"><button class="btn active" data-tab="auctions">مزایده‌های فعال</button><button class="btn" data-tab="cars">خودروهای من</button><button class="btn" data-tab="fines">جریمه‌های من</button><button class="btn" data-tab="messages">پیام‌های من</button></nav>
 <section id="tab-auctions" class="buyer-tab"><div id="auctionAccessNotice"></div><div id="cars" class="grid"><div class="empty">در حال دریافت خودروها…</div></div></section>
 <section id="tab-cars" class="buyer-tab hidden"><div id="myCars" class="grid"></div></section>
 <section id="tab-fines" class="buyer-tab hidden"><div id="myFines" class="grid"></div></section>
@@ -69,6 +69,7 @@ async function compressedDataUrl(file,maxSize=1500,quality=.78){
 }
 async function renderDashboard(d){
  const m=d.member||{},gate=$("identityGate"),status=$("identityStatus"),list=$("tab-auctions"),notice=$("auctionAccessNotice");
+ const important=(d.notifications||[]).find(n=>/برنده مزایده شدی|پیش‌پرداخت تأیید شد|تسویه تأیید شد/.test(n.title||""));$("buyerAlerts").innerHTML=important?'<div class="msg ok"><b>'+esc(important.title)+'</b><br>'+esc(important.message)+' <button type="button" class="btn" data-tab="cars">رفتن به خودروهای من</button></div>':"";
  gate.classList.toggle("hidden",!!m.identity_verified);
  if(m.identity_verified){$("identityFile").required=false;notice.innerHTML="";}else{$("identityFile").required=true;status.textContent=m.identity_document_path?(m.identity_review_note?"توضیح مدیریت: "+m.identity_review_note:"عکس کارت ملی دریافت شد؛ منتظر تأیید مدیریت هستی."):"برای ورود به مزایده ابتدا عکس کارت ملی خودت را بارگذاری کن. بعد از تأیید مدیریت، خودروها و امکان پیشنهاد قیمت باز می‌شود.";notice.innerHTML='<div class="msg">'+esc(m.identity_document_path?"احراز هویت هنوز تأیید نشده است.":"ابتدا عکس کارت ملی را بارگذاری کن.")+'</div>';$("cars").innerHTML='<div class="empty">پس از تأیید کارت ملی، مزایده‌های فعال اینجا نمایش داده می‌شوند.</div>';}
  const owned=d.auctions||[];
@@ -99,6 +100,8 @@ $("identityForm").addEventListener("submit",async e=>{e.preventDefault();const f
 async function placeBid(e){e.preventDefault();let f=e.currentTarget,id=f.dataset.bid,field=f.elements.amount,amount=Number(field.value.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[,٬،\s]/g,""));if(!Number.isSafeInteger(amount)||amount<=0)return msg("مبلغ پیشنهاد را به تومان و به‌صورت عدد معتبر وارد کن.","err");let a=auctions.find(x=>x.id===id);if(a&&amount<=Number(a.current_bid))return msg("پیشنهاد باید از بالاترین قیمت فعلی بیشتر باشد.","err");let btn=f.querySelector("button");btn.disabled=true;try{await api("place-bid",id,{amount});msg("پیشنهاد قیمت با موفقیت ثبت شد.","ok");await load()}catch(e){msg(e.message,"err")}finally{btn.disabled=false}}
 $("requestCode").addEventListener("submit",sendCode);$("verifyCode").addEventListener("submit",verify);$("backBtn").onclick=()=>{$("verifyCode").classList.add("hidden");$("requestCode").classList.remove("hidden");msg("")};$("refresh").onclick=load;$("logout").onclick=()=>{token="";localStorage.removeItem("s2s_auction_buyer_token");showLoggedIn(false);msg("از حساب خریدار خارج شدی.","ok")};
 setInterval(()=>document.querySelectorAll("[data-end]").forEach(el=>{let n=Math.max(0,Math.ceil((new Date(el.dataset.end).getTime()-Date.now())/1000));el.textContent=n?String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0"):"۰۰:۰۰"}),1000);
+async function refreshBuyerAlerts(){if(!token)return;try{const d=await api("buyer-dashboard"),important=(d.notifications||[]).find(n=>/برنده مزایده شدی|پیش‌پرداخت تأیید شد|تسویه تأیید شد/.test(n.title||""));$("buyerAlerts").innerHTML=important?'<div class="msg ok"><b>'+esc(important.title)+'</b><br>'+esc(important.message)+' <button type="button" class="btn" data-tab="cars">رفتن به خودروهای من</button></div>':""}catch(_){}}
+setInterval(refreshBuyerAlerts,12000);
 if(token){showLoggedIn(true);load()}else showLoggedIn(false);
 })();
 </script></body></html>
