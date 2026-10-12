@@ -528,6 +528,31 @@ body:before{background:linear-gradient(145deg,rgba(8,20,36,.3),rgba(2,7,15,.76))
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
+<style id="s2s-home-matched-brand-polish-v2">
+/* Match the homepage's midnight-blue, electric-blue and mint signature */
+.brand-grid-note{color:#b8c9dc!important}
+.brand-tile{
+ position:relative!important;isolation:isolate!important;min-height:132px!important;padding:14px 8px!important;
+ border:1px solid rgba(148,180,215,.18)!important;border-radius:21px!important;
+ background:radial-gradient(ellipse at 50% 0%,rgba(96,165,250,.15),transparent 68%),linear-gradient(145deg,#14243a 0%,#0a1422 82%)!important;
+ box-shadow:0 13px 30px #0003,inset 0 1px #ffffff0a!important;
+ transition:transform .2s,border-color .2s,box-shadow .2s,background .2s!important
+}
+.brand-tile:before{border-color:#ffffff0d!important}
+.brand-tile:hover{transform:translateY(-3px)!important;border-color:#70b7ff99!important;background:radial-gradient(ellipse at 50% 0%,#2563eb35,transparent 72%),linear-gradient(145deg,#172d47,#0a1727)!important;box-shadow:0 17px 34px #0005,0 0 0 1px #70b7ff1c!important}
+.brand-tile.selected{border-color:#7ce6c1!important;background:radial-gradient(ellipse at 50% 0%,#7ce6c126,transparent 72%),linear-gradient(145deg,#10312f,#0a1d27)!important;box-shadow:inset 0 0 0 1px #7ce6c155,0 12px 30px #0005,0 0 22px #7ce6c112!important}
+.brand-tile.selected:after{background:linear-gradient(145deg,#7ce6c1,#20a887)!important;color:#06251f!important}
+.brand-tile-logo{width:66px!important;height:66px!important;border:1px solid #a7d6ff38!important;border-radius:20px!important;background:linear-gradient(145deg,#f8fbff,#dfeaf5)!important;box-shadow:0 9px 23px #0004,inset 0 1px #fff!important}
+.brand-tile-logo img{width:49px!important;height:49px!important;object-fit:contain!important}
+.brand-tile-fallback,.brand-mark-fallback{display:grid!important;place-items:center!important;color:#f3f8ff!important;background:radial-gradient(circle at 30% 20%,#70b7ff,#2455a4 68%,#142b4c)!important;border:1px solid #b8dcff88!important;box-shadow:inset 0 1px #ffffff55,0 5px 13px #0002!important;font-size:19px!important;font-weight:950!important;letter-spacing:-.7px!important}
+.brand-tile-name{color:#f2f7ff!important;font-size:12px!important;font-weight:900!important}
+.brand-mark{background:linear-gradient(145deg,#f8fbff,#dfeaf5)!important;border-color:#a7d6ff38!important}
+.modern-select-option.brand-option .brand-mark-fallback{font-size:12px!important}
+.modern-select-menu{border-color:#70b7ff55!important;background:linear-gradient(145deg,#11243a,#081523)!important}
+.modern-select-option.selected{background:linear-gradient(105deg,#10312f,#122940)!important;color:#bff8e8!important;box-shadow:inset 0 0 0 1px #7ce6c155!important}
+.modern-select-option.selected:after{background:linear-gradient(145deg,#7ce6c1,#20a887)!important;color:#06251f!important}
+@media(max-width:540px){.brand-tile{min-height:112px!important}.brand-tile-logo{width:55px!important;height:55px!important;border-radius:17px!important}.brand-tile-logo img{width:42px!important;height:42px!important}}
+</style>
 </head>
 <body>
 <main class="wrap">
@@ -857,7 +882,7 @@ function initModernDropdowns(){
    const domain=brandDomains[name];
    if(domain){
     const img=document.createElement('img');img.className='brand-logo';img.alt='';img.loading='lazy';img.src='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';
-    img.addEventListener('error',()=>{img.remove();mark.textContent=name.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';mark.classList.add('brand-mark-fallback')},{once:true});
+    img.addEventListener('error',()=>{img.remove();mark.textContent=brandMonogram(name);mark.classList.add('brand-mark-fallback')},{once:true});
     mark.appendChild(img);
    }else{mark.textContent=name.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';mark.classList.add('brand-mark-fallback')}
    return mark;
@@ -909,8 +934,8 @@ function initBrandGridPickers(){
     const tile=document.createElement('button');tile.type='button';tile.className='brand-tile'+(sel.value===opt.value?' selected':'');tile.setAttribute('role','option');tile.setAttribute('aria-selected',String(sel.value===opt.value));tile.setAttribute('aria-label',opt.textContent);
     const logoBox=document.createElement('span');logoBox.className='brand-tile-logo';
     const domain=domains[opt.value];
-    if(domain){const img=document.createElement('img');img.src='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';img.alt='';img.loading='lazy';img.onerror=()=>{img.remove();logoBox.textContent=opt.value.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';logoBox.classList.add('brand-tile-fallback')};logoBox.appendChild(img)}
-    else{logoBox.textContent=opt.value.replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘';logoBox.classList.add('brand-tile-fallback')}
+    if(domain){const img=document.createElement('img');img.src='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';img.alt='';img.loading='lazy';img.onerror=()=>{img.remove();logoBox.textContent=brandMonogram(opt.value);logoBox.classList.add('brand-tile-fallback')};logoBox.appendChild(img)}
+    else{logoBox.textContent=brandMonogram(opt.value);logoBox.classList.add('brand-tile-fallback')}
     const name=document.createElement('span');name.className='brand-tile-name';name.textContent=opt.textContent;tile.append(logoBox,name);
     tile.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));render();const nextId=id==='brand'?'model':'tmodel';const next=$(nextId);if(next&&!next.closest('.field').classList.contains('hidden'))next.closest('.field').scrollIntoView({behavior:'smooth',block:'center'})});
     grid.appendChild(tile);
