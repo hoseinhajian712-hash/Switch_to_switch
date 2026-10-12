@@ -845,7 +845,7 @@ function initModernDropdowns(){
   const search=document.createElement('input');search.type='search';search.className='modern-select-search';search.placeholder='جست‌وجو بین گزینه‌ها…';search.setAttribute('aria-label','جست‌وجو بین گزینه‌ها');
   const options=document.createElement('div');options.className='modern-select-options';options.setAttribute('role','listbox');menu.append(search,options);wrap.append(trigger,menu);
   sel.classList.add('modern-native');sel.insertAdjacentElement('afterend',wrap);
-  const overlay=document.createElement('div');overlay.className='picker-backdrop';overlay.addEventListener('click',close);const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');overlay.remove();menu.classList.remove('popup-detached');if(menu.parentElement===document.body)wrap.appendChild(menu);search.value='';renderOptions()};
+  let overlay;const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');if(overlay)overlay.remove();menu.classList.remove('popup-detached');if(menu.parentElement===document.body)wrap.appendChild(menu);search.value='';renderOptions()};overlay=document.createElement('div');overlay.className='picker-backdrop';overlay.addEventListener('click',close);
   const sync=()=>{renderChosenLabel();renderOptions()};
   const brandDomains={
    'ایران خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','فونیکس':'phoenixcar.ir','بهمن':'bahman.ir','لاماری':'lamari.ir','فردا موتور':'fardamotors.com','چری':'cheryinternational.com','جیلی':'geely.com',
