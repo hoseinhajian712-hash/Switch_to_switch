@@ -877,6 +877,7 @@ function initModernDropdowns(){
    'هیوندای':'hyundai.com','کیا':'kia.com','تویوتا':'toyota.com','نیسان':'nissan-global.com','رنو':'renaultgroup.com','پژو':'peugeot.com','فولکس واگن':'volkswagen.com','مزدا':'mazda.com','هوندا':'global.honda','سوزوکی':'globalsuzuki.com',
    'چانگان':'globalchangan.com','ام‌جی':'mgmotor.com','هاوال':'haval-global.com','بسترن':'faw.com','دونگ فنگ':'dfmc.com.cn','فوتون':'foton-global.com','مرسدس بنز':'mercedes-benz.com','بی‌ام‌و':'bmw.com','آئودی':'audi.com','لکسوس':'lexus.com','پورشه':'porsche.com','ولوو':'volvocars.com','جیپ':'jeep.com'
   };
+  function brandMonogram(name){const clean=String(name||'').replace(/[^\u0600-\u06FF\w]/g,'');return clean.slice(0,2)||'🚘'}
   function brandMark(name){
    const mark=document.createElement('span');mark.className='brand-mark';
    const domain=brandDomains[name];
