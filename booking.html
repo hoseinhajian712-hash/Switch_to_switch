@@ -566,10 +566,12 @@ body:before{background:linear-gradient(145deg,rgba(8,20,36,.3),rgba(2,7,15,.76))
 .brand-tile-logo img{width:49px!important;height:49px!important;object-fit:contain!important;background:#fff!important;border-radius:12px!important}
 .brand-tile-fallback,.brand-mark-fallback{display:grid!important;place-items:center!important;color:#f3f8ff!important;background:radial-gradient(circle at 30% 20%,#70b7ff,#2455a4 68%,#142b4c)!important;border:1px solid #b8dcff88!important;box-shadow:inset 0 1px #ffffff55,0 5px 13px #0002!important;font-size:19px!important;font-weight:950!important;letter-spacing:-.7px!important}
 .brand-tile-name{color:#f2f7ff!important;font-size:12px!important;font-weight:900!important}
- .brand-tile-more{border-style:dashed!important;border-color:#7cbcff!important;background:linear-gradient(145deg,#102843,#0b1929)!important;color:#dceeff!important;cursor:pointer}
- .brand-tile-more .brand-tile-logo{font-size:26px!important;color:#e4f2ff!important;background:linear-gradient(145deg,#214c78,#142e4d)!important;border-color:#8cc7ff66!important}
- .brand-tile-more .brand-tile-name{color:#e4f2ff!important}
- .brand-tile-more:hover{border-color:#7ce6c1!important;box-shadow:0 12px 28px #0004!important}
+ .brand-tile-more{grid-column:1/-1!important;min-height:66px!important;flex-direction:row!important;justify-content:center!important;gap:14px!important;padding:10px 18px!important;border:1px solid #d4b76d88!important;border-style:solid!important;border-radius:18px!important;background:radial-gradient(ellipse at 50% 0%,#d4b76d18,transparent 75%),linear-gradient(110deg,#14283e,#0b1828)!important;box-shadow:inset 0 1px #ffffff0c,0 8px 20px #0002!important;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease!important}
+.brand-tile-more .brand-tile-logo{width:42px!important;height:42px!important;flex:0 0 42px!important;border-radius:14px!important;font-size:25px!important;font-weight:500!important;color:#f3d98e!important;background:linear-gradient(145deg,#35465a,#172a40)!important;border:1px solid #d4b76d66!important;box-shadow:inset 0 1px #ffffff12!important}
+.brand-tile-more .brand-tile-name{color:#f2dfad!important;font-size:13px!important;font-weight:900!important;letter-spacing:-.1px!important}
+.brand-tile-more:hover{transform:translateY(-2px)!important;border-color:#d4b76d!important;box-shadow:0 12px 25px #0003,0 0 0 3px #d4b76d12!important}
+.brand-tile-more:active{transform:scale(.99)!important}
+@media(max-width:540px){.brand-tile-more{min-height:58px!important;border-radius:15px!important}.brand-tile-more .brand-tile-logo{width:38px!important;height:38px!important;flex-basis:38px!important}.brand-tile-more .brand-tile-name{font-size:12px!important}}
 .brand-mark{background:linear-gradient(145deg,#f8fbff,#dfeaf5)!important;border-color:#a7d6ff38!important}
 .modern-select-option.brand-option .brand-mark-fallback{font-size:12px!important}
 .modern-select-menu{border-color:#70b7ff55!important;background:linear-gradient(145deg,#11243a,#081523)!important}
@@ -1291,7 +1293,7 @@ function initBrandGridPickers(){
    if(!term&&matches.length>limit){
     const more=document.createElement('button');more.type='button';more.className='brand-tile brand-tile-more';more.setAttribute('aria-label',showAllBrands?'نمایش کمتر برندها':'نمایش همه برندها');
     const icon=document.createElement('span');icon.className='brand-tile-logo';icon.textContent=showAllBrands?'−':'⋯';
-    const title=document.createElement('span');title.className='brand-tile-name';title.textContent=showAllBrands?'نمایش کمتر':'بیشتر ('+(matches.length-limit)+')';
+    const title=document.createElement('span');title.className='brand-tile-name';title.textContent=showAllBrands?'نمایش کمتر برندها':'نمایش همه برندها  ·  '+(matches.length-limit)+' برند دیگر';
     more.append(icon,title);more.addEventListener('click',()=>{showAllBrands=!showAllBrands;render()});grid.appendChild(more);
    }
   };
