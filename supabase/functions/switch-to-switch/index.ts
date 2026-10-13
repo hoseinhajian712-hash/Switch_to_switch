@@ -130,8 +130,9 @@ async function buyerDashboard(req:Request,u:URL){
  ]);
  for(const x of [ar,fr,pr,nr,br,wr])if(x.error)return json({error:x.error.message},500);
  const walletBalance=(wr.data||[]).reduce((sum:any,t:any)=>sum+(t.direction==="credit"?1:-1)*Number(t.amount||0),0);
- const ids=(ar.data||[]).map((x:any)=>x.case_id).filter(Boolean);const vr=ids.length?await db.from("vehicles").select("case_id,brand,model,trim,model_year,color").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null};
- const auctions=(ar.data||[]).map((a:any)=>({...a,vehicle:(vr.data||[]).find((v:any)=>v.case_id===a.case_id)||null}));
+ const ids=(ar.data||[]).map((x:any)=>x.case_id).filter(Boolean);const [vr,cr]=await Promise.all([ids.length?db.from("vehicles").select("case_id,brand,model,trim,model_year,color").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null},ids.length?db.from("cases").select("id,case_number").in("id",ids):{data:[],error:null}]);
+ if(vr.error||cr.error)return json({error:vr.error?.message||cr.error?.message},500);
+ const auctions=(ar.data||[]).map((a:any)=>({...a,case_number:(cr.data||[]).find((c:any)=>c.id===a.case_id)?.case_number||null,vehicle:(vr.data||[]).find((v:any)=>v.case_id===a.case_id)||null}));
  return json({member:mr.data,auctions,fines:fr.data||[],payments:pr.data||[],notifications:nr.data||[],my_bids:br.data||[],wallet:{balance:walletBalance,transactions:wr.data||[]}});
 }
 async function buyerMarkNotificationRead(req:Request,u:URL){
@@ -181,17 +182,18 @@ async function buyerPayPrepaymentWallet(req:Request,u:URL,id:string){
 }
 async function buyerCancelPurchase(req:Request,u:URL,id:string){
  const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);
- const ar=await db.from("auctions").select("id,case_id,winner_id,status,cancellation_fine_amount").eq("id",id).maybeSingle();
+ const ar=await db.from("auctions").select("id,case_id,winner_id,status,purchase_stage,cancellation_fine_amount").eq("id",id).maybeSingle();
  if(ar.error)return json({error:"خطا در دریافت مزایده: "+ar.error.message},500);
  if(!ar.data||ar.data.winner_id!==sess.member_id||ar.data.status!=="ended")return json({error:"این خودرو قابل انصراف از طرف حساب شما نیست"},403);
  if(ar.data.purchase_stage==="cancelled")return json({error:"انصراف این مزایده قبلاً ثبت شده است"},409);
+ if(!["awaiting_seller_approval","awaiting_admin_prepayment","prepayment"].includes(ar.data.purchase_stage||""))return json({error:"مهلت انصراف پایان یافته است؛ پس از پرداخت پیش‌پرداخت امکان انصراف وجود ندارد."},409);
  const amount=Number(ar.data.cancellation_fine_amount||0);if(amount<=0)return json({error:"مبلغ جریمه انصراف هنوز توسط مدیریت تعیین نشده است."},400);
  const exists=await db.from("fines").select("id").eq("buyer_id",sess.member_id).eq("auction_id",id).maybeSingle();
  if(exists.error)return json({error:"خطا در بررسی جریمه: "+exists.error.message},500);
  if(exists.data)return json({error:"برای این انصراف قبلاً جریمه ثبت شده است"},409);
  const fine=await db.from("fines").insert({buyer_id:sess.member_id,auction_id:id,amount,reason:"انصراف پس از برنده‌شدن در مزایده",status:"unpaid"}).select("id,amount,status").single();
  if(fine.error)return json({error:"ثبت جریمه انصراف ناموفق بود: "+fine.error.message},500);
- const upd=await db.from("auctions").update({purchase_stage:"cancelled"}).eq("id",id).eq("winner_id",sess.member_id).select("id").maybeSingle();
+ const upd=await db.from("auctions").update({purchase_stage:"cancelled"}).eq("id",id).eq("winner_id",sess.member_id).eq("status","ended").in("purchase_stage",["awaiting_seller_approval","awaiting_admin_prepayment","prepayment"]).select("id").maybeSingle();
  if(upd.error||!upd.data)return json({error:"جریمه ثبت شد اما تغییر وضعیت مزایده ناموفق بود؛ لطفاً با مدیریت تماس بگیرید."},500);
  if(ar.data.case_id){
   const mr=await db.from("auction_members").select("full_name,mobile").eq("id",sess.member_id).maybeSingle();
