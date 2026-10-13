@@ -397,5 +397,8 @@ if(memberState!==lastMemberState||purchaseState!==lastPurchaseState){lastMemberS
 refreshBuyerAlerts();setInterval(refreshBuyerAlerts,2000);window.addEventListener("focus",refreshBuyerAlerts);
 loadReadyQueue();setInterval(loadReadyQueue,5000);connectBidRealtime();refreshFastBidState();setInterval(refreshFastBidState,2000);setInterval(refreshAuctionLists,4000);
 if(token){showLoggedIn(true);load()}else showLoggedIn(false);
+// Inline form handlers must be exposed outside this IIFE, otherwise the receipt picker and submit button cannot call them.
+window.showWalletReceiptName=showWalletReceiptName;
+window.submitWalletTopup=submitWalletTopup;
 })();
 </script></body></html>
