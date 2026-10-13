@@ -616,7 +616,46 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   await historyAdd(id,cr.data.status||"new","refer","ارجاع پرونده به کارشناس: "+sr.data.full_name);
   return json({ok:true,expert:{id:sr.data.id,full_name:sr.data.full_name},status:"refer"});
  }
- if(a==="dispatch-address"&&role==="admin"&&req.method==="POST"){const b=await req.json();const address=String(b.address||"").trim().slice(0,1200);const cr=await db.from("cases").select("notes").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);const base=String(cr.data.notes||"").replace(/\n?\n?\[\[S2S_DISPATCH_ADDRESS\]\][\s\S]*?\[\[\/S2S_DISPATCH_ADDRESS\]\]/g,"").trim();const notes=(base?base+"\n\n":"")+(address?"[[S2S_DISPATCH_ADDRESS]]"+address+"[[/S2S_DISPATCH_ADDRESS]]":"");const up=await db.from("cases").update({notes,updated_at:new Date().toISOString()}).eq("id",id);if(up.error)return json({error:up.error.message},500);await historyAdd(id,"dispatch","dispatch","آدرس اعزام توسط مدیر "+(address?"ثبت/ویرایش شد":"پاک شد"));return json({ok:true})}
+ if(a==="delivery-record"&&role==="admin"&&req.method==="POST"){
+   if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
+   let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات تحویل نامعتبر است"},400)}
+   const cr=await db.from("cases").select("id,status,notes,case_number").eq("id",id).maybeSingle();
+   if(cr.error)return json({error:cr.error.message},500);if(!cr.data)return json({error:"پرونده پیدا نشد"},404);
+   const ar=await db.from("auctions").select("id,winner_id,purchase_stage,status").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(ar.error)return json({error:ar.error.message},500);
+   if(!ar.data||ar.data.status!=="ended"||ar.data.purchase_stage!=="vehicle-filed")return json({error:"تحویل فقط پس از تأیید تسویه کامل خریدار امکان‌پذیر است."},409);
+   const notes=String(cr.data.notes||"");
+   const oldMatch=notes.match(/\[\[S2S_DELIVERY\]\]([\s\S]*?)\[\[\/S2S_DELIVERY\]\]/);
+   let previous:any={};try{previous=oldMatch?JSON.parse(oldMatch[1]):{}}catch(_){}
+   const action=String(b.action||"save");
+   const data:any={
+    scheduled_date:String(b.scheduled_date||"").slice(0,10),scheduled_time:String(b.scheduled_time||"").slice(0,5),
+    location:String(b.location||"").trim().slice(0,500),recipient_name:String(b.recipient_name||"").trim().slice(0,120),
+    recipient_id:String(b.recipient_id||"").trim().slice(0,40),odometer:String(b.odometer||"").replace(/[^0-9۰-۹٠-٩]/g,"").slice(0,15),
+    spare_key:b.spare_key===true,fuel_card:b.fuel_card===true,documents:b.documents===true,vehicle_photos:b.vehicle_photos===true,
+    receipt_note:String(b.receipt_note||"").trim().slice(0,1000),delivery_notes:String(b.delivery_notes||"").trim().slice(0,1500),
+    updated_at:new Date().toISOString(),completed:previous.completed===true
+   };
+   if(!data.scheduled_date||!/^\d{4}-\d{2}-\d{2}$/.test(data.scheduled_date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(data.scheduled_time)||!data.location)return json({error:"تاریخ، ساعت و محل تحویل را کامل وارد کنید."},400);
+   if(action==="complete"){
+    if(!data.recipient_name||!data.recipient_id||!data.odometer||!data.receipt_note)return json({error:"نام و کد شناسایی تحویل‌گیرنده، کیلومتر و مشخصات رسید تحویل الزامی است."},400);
+    if(!data.documents||!data.vehicle_photos)return json({error:"برای نهایی‌سازی، تأیید مدارک و ثبت تصاویر خودرو را علامت بزنید."},400);
+    data.completed=true;data.completed_at=new Date().toISOString();
+   }else if(action!=="save")return json({error:"عملیات تحویل نامعتبر است"},400);
+   const nextNotes=notes.replace(/\n?\n?\[\[S2S_DELIVERY\]\][\s\S]*?\[\[\/S2S_DELIVERY\]\]/g,"").trim();
+   const merged=(nextNotes?nextNotes+"\n\n":"")+"[[S2S_DELIVERY]]"+JSON.stringify(data)+"[[/S2S_DELIVERY]]";
+   const up=await db.from("cases").update({notes:merged,updated_at:new Date().toISOString(),...(data.completed?{status:"done"}:{})}).eq("id",id);
+   if(up.error)return json({error:up.error.message},500);
+   await historyAdd(id,cr.data.status||"docs",data.completed?"done":"delivery","تحویل خودرو: "+(data.completed?"تحویل نهایی ثبت شد":("زمان "+data.scheduled_date+" ساعت "+data.scheduled_time+" ثبت/به‌روزرسانی شد")));
+   if(ar.data.winner_id){
+    const title=data.completed?"خودرو تحویل شد":"زمان تحویل خودرو ثبت شد";
+    const message=data.completed?"تحویل خودرو در پرونده ثبت و نهایی شد.":("زمان تحویل خودرو: "+data.scheduled_date+" ساعت "+data.scheduled_time+"؛ محل: "+data.location);
+    const dup=await db.from("buyer_notifications").select("id").eq("buyer_id",ar.data.winner_id).eq("auction_id",ar.data.id).eq("title",title).order("created_at",{ascending:false}).limit(1);
+    if(!dup.data?.length||data.completed)await db.from("buyer_notifications").insert({buyer_id:ar.data.winner_id,auction_id:ar.data.id,title,message});
+   }
+   return json({ok:true,delivery:data,status:data.completed?"done":cr.data.status});
+  }
+  if(a==="dispatch-address"&&role==="admin"&&req.method==="POST"){const b=await req.json();const address=String(b.address||"").trim().slice(0,1200);const cr=await db.from("cases").select("notes").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);const base=String(cr.data.notes||"").replace(/\n?\n?\[\[S2S_DISPATCH_ADDRESS\]\][\s\S]*?\[\[\/S2S_DISPATCH_ADDRESS\]\]/g,"").trim();const notes=(base?base+"\n\n":"")+(address?"[[S2S_DISPATCH_ADDRESS]]"+address+"[[/S2S_DISPATCH_ADDRESS]]":"");const up=await db.from("cases").update({notes,updated_at:new Date().toISOString()}).eq("id",id);if(up.error)return json({error:up.error.message},500);await historyAdd(id,"dispatch","dispatch","آدرس اعزام توسط مدیر "+(address?"ثبت/ویرایش شد":"پاک شد"));return json({ok:true})}
  if(a==="case-comments"&&req.method==="GET")return caseComments(req,id,role);
  if(a==="case-comment"&&req.method==="POST")return caseComments(req,id,role);
  if(a==="draft"&&role==="expert"&&req.method==="GET")return getDraft(id);
