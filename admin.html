@@ -146,8 +146,9 @@ function caseNo(v){const n=Number(v);return Number.isFinite(n)&&n>0?'S'+n:'S—'
 async function loadAssignmentExperts(){try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=personnel-list&_='+Date.now(),{cache:'no-store'}),j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'فهرست کارشناسان دریافت نشد');assignmentExperts=(j.staff||[]).filter(p=>p.role==='expert'&&p.active)}catch(e){assignmentExperts=[]}}
 let adminCasesSignature='';
 let adminLoadBusy=false;
+let adminLoadPendingManual=false;
 async function load(silent=false){
- if(adminLoadBusy)return;
+ if(adminLoadBusy){if(!silent)adminLoadPendingManual=true;return;}
  adminLoadBusy=true;
  try{
   const activeToken=sessionStorage.getItem('s2s_admin_token_v2')||KEY;
@@ -170,7 +171,7 @@ async function load(silent=false){
   if(stamp){stamp.textContent='● خطا در همگام‌سازی؛ تلاش مجدد…';stamp.style.color='#fca5a5'}
   if(/unauthorized|401/i.test(e.message||'')){sessionStorage.removeItem('s2s_admin_token_v2');sessionStorage.removeItem('s2s_admin_name');document.documentElement.classList.add('s2s-locked');show('نشست ورود منقضی یا نامعتبر است. لطفاً دوباره وارد شوید.',true);return}
   if(!silent){show('❌ '+e.message,true);document.getElementById('board').innerHTML='<div class="empty">پرونده‌ها قابل دریافت نیستند. دوباره بروزرسانی کنید.</div>'}
- }finally{adminLoadBusy=false}
+ }finally{adminLoadBusy=false;if(adminLoadPendingManual){adminLoadPendingManual=false;load(false)}}
 }
 window.refreshAdminDashboard=async function(){const b=document.getElementById('adminRefreshButton');if(b){b.disabled=true;b.textContent='در حال بروزرسانی…'}try{await load();await loadAuctionCodes();await loadAuctionMembers();await loadBuyerPayments();await loadSupport()}finally{if(b){b.disabled=false;b.textContent='↻ بروزرسانی'}}};
 async function loadAuctionCodes(){try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=auction-login-codes&_='+Date.now(),{cache:'no-store'});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'خطا');const list=Array.isArray(j.codes)?j.codes:[];document.getElementById('auctionCodesBody').innerHTML=list.length?list.map(x=>'<div class="auction-code" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span>'+esc(x.mobile)+'</span><b style="font-size:18px;letter-spacing:3px;color:#60a5fa">'+esc(x.display_code||'—')+'</b><span>اعتبار تا '+new Date(x.expires_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</span></div>').join(''):'<span class="sub">کد فعالی نیست؛ خریدار ابتدا در صفحه مزایده درخواست کد بدهد.</span>'}catch(e){document.getElementById('auctionCodesBody').innerHTML='<span class="sub">کدها قابل دریافت نیستند: '+esc(e.message)+'</span>'}}
