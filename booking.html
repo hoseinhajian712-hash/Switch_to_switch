@@ -1373,7 +1373,7 @@ async function setupDates(){
  let calendar={};
  try{
   if(dates.length){
-   const r=await fetch(API+'?api=booking-calendar&start='+encodeURIComponent(dates[0].iso)+'&days='+dates.length+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY,'Cache-Control':'no-cache'}});
+   const r=await fetch(API+'?api=booking-calendar&start='+encodeURIComponent(dates[0].iso)+'&days='+dates.length+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY}});
    const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||'calendar');
    calendar=Object.fromEntries((j.days||[]).map(x=>[x.date,x]));
   }
@@ -1397,7 +1397,7 @@ async function setupDates(){
   addMessage('در حال بررسی ساعت‌های آزاد…');
   let data;
   try{
-   const r=await fetch(API+'?api=booking-slots&date='+encodeURIComponent(d.value)+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY,'Cache-Control':'no-cache'}});
+   const r=await fetch(API+'?api=booking-slots&date='+encodeURIComponent(d.value)+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY}});
    data=await r.json();if(!r.ok||data.error)throw new Error(data.error||'availability');
   }catch(e){console.warn('Booking slots unavailable; keeping times hidden until availability is confirmed',e);t.innerHTML='';const prompt=document.createElement('option');prompt.value='';prompt.textContent='در حال حاضر امکان بررسی ساعت‌های آزاد نیست؛ دوباره تلاش می‌کنیم';prompt.disabled=true;t.appendChild(prompt);t.disabled=true;return}
   t.innerHTML='';
