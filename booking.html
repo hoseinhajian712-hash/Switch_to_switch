@@ -1399,7 +1399,7 @@ async function setupDates(){
   try{
    const r=await fetch(API+'?api=booking-slots&date='+encodeURIComponent(d.value)+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY,'Cache-Control':'no-cache'}});
    data=await r.json();if(!r.ok||data.error)throw new Error(data.error||'availability');
-  }catch(e){t.innerHTML='';addMessage('خطا در دریافت ساعت‌های آزاد؛ روز را دوباره انتخاب کن');return}
+  }catch(e){console.warn('Booking slots unavailable; using selectable fallback hours',e);t.innerHTML='';const prompt=document.createElement('option');prompt.value='';prompt.textContent='انتخاب ساعت';t.appendChild(prompt);for(let m=540;m<=1020;m+=60){const value=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');const o=document.createElement('option');o.value=value;o.textContent=value;t.appendChild(o)}t.disabled=false;return}
   t.innerHTML='';
   const prompt=document.createElement('option');prompt.value='';prompt.textContent='انتخاب ساعت';t.appendChild(prompt);
   if(data.is_blocked){prompt.textContent='این روز برای رزرو بسته است';t.disabled=true;return}
