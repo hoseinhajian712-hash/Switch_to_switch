@@ -1250,7 +1250,7 @@ function setupColors(brandId,modelId,colorId,placeholder){
 function brandMonogram(name){return String(name||'').replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘'}
 function initModernDropdowns(){
  const all=[];
- document.querySelectorAll('select').forEach(sel=>{
+ document.querySelectorAll('select:not(#appointmentTime)').forEach(sel=>{
   const wrap=document.createElement('div');wrap.className='modern-select';
   const trigger=document.createElement('button');trigger.type='button';trigger.className='modern-select-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
   const isBrandPicker=sel.id==='brand'||sel.id==='tbrand';
