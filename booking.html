@@ -1420,7 +1420,9 @@ async function setupDates(){
  };
  d.addEventListener('change',fillTimes);
  await fillTimes();
- if(!window.__s2sBookingAvailabilityTimer)window.__s2sBookingAvailabilityTimer=setInterval(()=>{if(d.value)fillTimes()},15000);
+ if(!window.__s2sBookingAvailabilityTimer)window.__s2sBookingAvailabilityTimer=setInterval(()=>{if(!document.hidden&&d.value)fillTimes()},2500);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&d.value)fillTimes()});
+ window.addEventListener('focus',()=>{if(d.value)fillTimes()});
 }
 function normalizeDigits(value){return String(value).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
 function formatNumber(el){const raw=normalizeDigits(el.value).replace(/\D/g,'');el.value=raw.replace(/\B(?=(\d{3})+(?!\d))/g,',');try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
