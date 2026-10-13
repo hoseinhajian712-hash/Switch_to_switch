@@ -632,7 +632,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
     scheduled_date:String(b.scheduled_date||"").slice(0,10),scheduled_time:String(b.scheduled_time||"").slice(0,5),
     location:String(b.location||"").trim().slice(0,500),recipient_name:String(b.recipient_name||"").trim().slice(0,120),
     recipient_id:String(b.recipient_id||"").trim().slice(0,40),odometer:String(b.odometer||"").replace(/[^0-9۰-۹٠-٩]/g,"").slice(0,15),
-    spare_key:b.spare_key===true,fuel_card:b.fuel_card===true,documents:b.documents===true,vehicle_photos:b.vehicle_photos===true,
+    spare_key:b.spare_key===true,fuel_card:b.fuel_card===true,documents:b.documents===true,vehicle_photos:b.vehicle_photos===true,checklist:Object.fromEntries(["GreenCard","VehicleCard","Insurance","Inspection","MainKey","SpareTire","Jack","Tools","Manual","Plates","BuyerViewed","TestDrive","Defects","Possession"].map(k=>[k,!!(b.checklist&&b.checklist[k]===true)])),
     receipt_note:String(b.receipt_note||"").trim().slice(0,1000),delivery_notes:String(b.delivery_notes||"").trim().slice(0,1500),
     updated_at:new Date().toISOString(),completed:previous.completed===true
    };
