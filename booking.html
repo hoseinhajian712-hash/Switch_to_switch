@@ -1405,18 +1405,20 @@ async function setupDates(){
   if(data.is_blocked){prompt.textContent='این روز برای رزرو بسته است';t.disabled=true;return}
   if(data.is_full){prompt.textContent='ظرفیت این روز تکمیل شده است';t.disabled=true;return}
   const booked=Array.isArray(data.booked)?data.booked.map(x=>String(x?.appointment_time??x?.time??x??'').match(/\d{2}:\d{2}/)?.[0]).filter(Boolean):[];
+  const bookedCounts=booked.reduce((acc,time)=>{acc[time]=(acc[time]||0)+1;return acc},{});
+  const slotCapacity=Math.max(1,Number(data.slot_capacity)||1);
   const blocked=Array.isArray(data.blocked_slots)?data.blocked_slots.map(String):[];
-  if(previous&&booked.includes(previous))prompt.textContent='این ساعت رزرو شد؛ لطفاً ساعت دیگری انتخاب کن';
+  if(previous&&(bookedCounts[previous]||0)>=slotCapacity)prompt.textContent='ظرفیت این ساعت تکمیل شد؛ لطفاً ساعت دیگری انتخاب کن';
   let startMinute=540;const selected=new Date(d.value+'T00:00:00'),isToday=selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&selected.getDate()===today.getDate();
   if(isToday)startMinute=Math.max(540,Math.ceil((new Date().getHours()*60+new Date().getMinutes()+1)/60)*60);
   let count=0;
   for(let m=startMinute;m<=1020;m+=60){
    const value=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
-   if(booked.includes(value)||blocked.includes(value))continue;
+   if((bookedCounts[value]||0)>=slotCapacity||blocked.includes(value))continue;
    const o=document.createElement('option');o.value=value;o.textContent=value;t.appendChild(o);count++;
   }
   if(count===0){prompt.textContent='برای این روز ساعت آزادی باقی نمانده';t.disabled=true;return}
-  t.disabled=false;if(previous&&!booked.includes(previous)&&!blocked.includes(previous)&&Array.from(t.options).some(o=>o.value===previous))t.value=previous;
+  t.disabled=false;if(previous&&(bookedCounts[previous]||0)<slotCapacity&&!blocked.includes(previous)&&Array.from(t.options).some(o=>o.value===previous))t.value=previous;
  };
  d.addEventListener('change',fillTimes);
  await fillTimes();
