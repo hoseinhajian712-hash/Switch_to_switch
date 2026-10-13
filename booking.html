@@ -1250,7 +1250,7 @@ function setupColors(brandId,modelId,colorId,placeholder){
 function brandMonogram(name){return String(name||'').replace(/[^\u0600-\u06FF\w]/g,'').slice(0,2)||'🚘'}
 function initModernDropdowns(){
  const all=[];
- document.querySelectorAll('select:not(#appointmentTime)').forEach(sel=>{
+ document.querySelectorAll('select').forEach(sel=>{
   const wrap=document.createElement('div');wrap.className='modern-select';
   const trigger=document.createElement('button');trigger.type='button';trigger.className='modern-select-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
   const isBrandPicker=sel.id==='brand'||sel.id==='tbrand';
@@ -1271,7 +1271,7 @@ function initModernDropdowns(){
    fieldLabel.style.setProperty('display','none','important');
    wrap.insertAdjacentElement('beforebegin',heading);
   }
-  let overlay;const close=()=>{wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');if(overlay)overlay.remove();menu.classList.remove('popup-detached');if(menu.parentElement===document.body)wrap.appendChild(menu);search.value='';search.readOnly=true;search.setAttribute('inputmode','none');search.blur();renderOptions()};overlay=document.createElement('div');overlay.className='picker-backdrop';overlay.addEventListener('click',close);
+  let overlay;const close=()=>{sel._modernMenuOpen=false;wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');if(overlay)overlay.remove();menu.classList.remove('popup-detached');if(menu.parentElement===document.body)wrap.appendChild(menu);search.value='';search.readOnly=true;search.setAttribute('inputmode','none');search.blur();renderOptions()};overlay=document.createElement('div');overlay.className='picker-backdrop';overlay.addEventListener('click',close);
   const sync=()=>{renderChosenLabel();renderOptions()};
   const brandDomains={'تویوتا':'toyota','هیوندای':'hyundai','کیا':'kia','نیسان':'nissan','رنو':'renault','پژو':'peugeot','فولکس‌واگن':'volkswagen','مزدا':'mazda','هوندا':'honda','سوزوکی':'suzuki','چانگان':'changan','ام‌جی':'mg','هاوال':'haval','بسترن':'faw','دونگ فنگ':'dongfeng','فوتون':'foton','مرسدس بنز':'mercedesbenz','بی‌ام‌و':'bmw','آئودی':'audi','لکسوس':'lexus','پورشه':'porsche','ولوو':'volvo','جیپ':'jeep'
   };
@@ -1305,7 +1305,7 @@ function initModernDropdowns(){
     b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();if(!mobilePicker)trigger.focus()});options.appendChild(b)
    })
   }
-  const openMenu=()=>{if(trigger.disabled)return;all.forEach(item=>item.close());search.blur();search.readOnly=true;search.setAttribute('inputmode','none');if(mobilePicker)search.disabled=true;wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');};
+  const openMenu=()=>{if(trigger.disabled)return;all.forEach(item=>item.close());sel._modernMenuOpen=true;search.blur();search.readOnly=true;search.setAttribute('inputmode','none');if(mobilePicker)search.disabled=true;wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');};
   sel._openModernDropdown=openMenu;
   trigger.addEventListener('click',()=>{if(trigger.disabled)return;if(wrap.classList.contains('open')){close();return}openMenu()});
   search.addEventListener('input',renderOptions);
@@ -1420,9 +1420,9 @@ async function setupDates(){
  };
  d.addEventListener('change',fillTimes);
  await fillTimes();
- if(!window.__s2sBookingAvailabilityTimer)window.__s2sBookingAvailabilityTimer=setInterval(()=>{if(!document.hidden&&d.value)fillTimes()},2500);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&d.value)fillTimes()});
- window.addEventListener('focus',()=>{if(d.value)fillTimes()});
+ if(!window.__s2sBookingAvailabilityTimer)window.__s2sBookingAvailabilityTimer=setInterval(()=>{if(!document.hidden&&d.value&&!t._modernMenuOpen)fillTimes()},5000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&d.value&&!t._modernMenuOpen)fillTimes()});
+ window.addEventListener('focus',()=>{if(d.value&&!t._modernMenuOpen)fillTimes()});
 }
 function normalizeDigits(value){return String(value).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
 function formatNumber(el){const raw=normalizeDigits(el.value).replace(/\D/g,'');el.value=raw.replace(/\B(?=(\d{3})+(?!\d))/g,',');try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
