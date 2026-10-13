@@ -139,9 +139,37 @@ $("identityForm").addEventListener("submit",async e=>{e.preventDefault();const f
 async function placeBid(e){e.preventDefault();const f=e.currentTarget,id=f.dataset.bid,field=f.elements.amount,normalize=v=>String(v||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[,٬،\s]/g,""),amount=Number(normalize(field.value)),a=auctions.find(x=>x.id===id),base=Number(a?.current_bid||a?.starting_price||0);if(!Number.isSafeInteger(amount)||amount<=0){msg("مبلغ پیشنهاد را به تومان و به‌صورت عدد معتبر وارد کن.","err");field.focus();return}if(amount<base+minIncrement||((amount-base)%minIncrement)!==0){msg("پیشنهاد باید حداقل "+money(minIncrement)+" بیشتر باشد و با همین گام افزایش یابد.","err");field.focus();return}const btn=f.querySelector("button.primary");if(!btn)return;btn.disabled=true;btn.textContent="در حال ثبت پیشنهاد…";try{const r=await api("place-bid",id,{amount});msg("✅ پیشنهاد "+money(r.bid?.amount||amount)+" با موفقیت ثبت شد.","ok");await load()}catch(e){msg("ثبت پیشنهاد انجام نشد: "+e.message,"err")}finally{btn.disabled=false;btn.textContent="ثبت پیشنهاد"}}
 function openSidebar(){$("buyerSidebar").classList.add("open");$("sidebarShade").classList.add("open");$("menuToggle").setAttribute("aria-expanded","true")}function closeSidebar(){$("buyerSidebar").classList.remove("open");$("sidebarShade").classList.remove("open");$("menuToggle").setAttribute("aria-expanded","false")}$("menuToggle").addEventListener("click",openSidebar);$("sidebarClose").addEventListener("click",closeSidebar);$("sidebarShade").addEventListener("click",closeSidebar);document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSidebar()});$("requestCode").addEventListener("submit",sendCode);$("verifyCode").addEventListener("submit",verify);$("backBtn").onclick=()=>{$("verifyCode").classList.add("hidden");$("requestCode").classList.remove("hidden");msg("")};$("refresh").onclick=load;$("logout").onclick=()=>{token="";localStorage.removeItem("s2s_auction_buyer_token");showLoggedIn(false);msg("از حساب خریدار خارج شدی.","ok")};
 function auctionTimeLabel(n){const days=Math.floor(n/86400),totalHours=Math.floor(n/3600),hours=Math.floor((n%86400)/3600),minutes=Math.floor((n%3600)/60),secs=n%60,digits=v=>String(v).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[Number(d)]),clock=digits(hours).padStart(2,"۰")+":"+digits(minutes).padStart(2,"۰")+":"+digits(secs).padStart(2,"۰");return days?digits(days)+" روز و "+clock:digits(totalHours).padStart(2,"۰")+":"+digits(minutes).padStart(2,"۰")+":"+digits(secs).padStart(2,"۰")}setInterval(()=>document.querySelectorAll("[data-end]").forEach(el=>{const n=Math.max(0,Math.ceil((new Date(el.dataset.end).getTime()-Date.now())/1000));el.textContent=n?auctionTimeLabel(n):"۰۰:۰۰:۰۰"}),1000);
+let auctionPollBusy=false,lastAuctionPollSignature="",lastQueuePollSignature="";
+async function refreshAuctionLists(){
+ if(auctionPollBusy)return;auctionPollBusy=true;
+ try{
+  if(token){
+   const dash=await api("buyer-dashboard");
+   if(dash.member&&dash.member.identity_verified){
+    const r=await api("public-auctions");
+    minIncrement=Number(r.min_increment||5000000);
+    const next=Array.isArray(r.auctions)?r.auctions:[];
+    const sig=JSON.stringify(next.map(a=>[a.id,a.status,a.current_bid,a.ends_at,a.target_price,a.fair_price,(a.bids||[]).length]));
+    if(sig!==lastAuctionPollSignature){
+     lastAuctionPollSignature=sig;auctions=next;
+     $("cars").innerHTML=auctions.length?auctions.map(render).join(""):'<div class="empty">در حال حاضر مزایده فعالی وجود ندارد.</div>';
+     document.querySelectorAll("[data-bid]").forEach(f=>f.addEventListener("submit",placeBid));
+    }
+   }
+  }
+  const q=await fetch(base+"?api=public-ready-auctions&_="+Date.now(),{cache:"no-store"});
+  const d=await q.json();
+  if(q.ok&&!d.error){
+   const rows=Array.isArray(d.cases)?d.cases:[];
+   const sig=JSON.stringify(rows.map(c=>[c.id,c.status,c.vehicle?.brand,c.vehicle?.model,c.vehicle?.trim]));
+   if(sig!==lastQueuePollSignature){lastQueuePollSignature=sig;await loadReadyQueue()}
+  }
+ }catch(_){}
+ finally{auctionPollBusy=false}
+}
 async function refreshBuyerAlerts(){if(!token)return;try{const d=await api("buyer-dashboard"),important=(d.notifications||[]).find(n=>/برنده مزایده شدی|پیش‌پرداخت تأیید شد|تسویه تأیید شد/.test(n.title||""));$("buyerAlerts").innerHTML=important?'<div class="msg ok"><b>'+esc(important.title)+'</b><br>'+esc(important.message)+' <button type="button" class="btn" data-tab="cars">رفتن به خودروهای من</button></div>':""}catch(_){}}
 setInterval(refreshBuyerAlerts,12000);
-loadReadyQueue();setInterval(loadReadyQueue,30000);
+loadReadyQueue();setInterval(loadReadyQueue,5000);setInterval(refreshAuctionLists,3000);
 if(token){showLoggedIn(true);load()}else showLoggedIn(false);
 })();
 </script></body></html>
