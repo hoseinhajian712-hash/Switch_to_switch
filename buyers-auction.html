@@ -135,7 +135,7 @@ async function load(){
  showLoggedIn(true);$("cars").innerHTML='<div class="empty">در حال دریافت اطلاعات پنل…</div>';
  try{
   const dash=await api("buyer-dashboard");await renderDashboard(dash);
-  if(dash.member&&dash.member.identity_verified){try{let r=await api("public-auctions");minIncrement=Number(r.min_increment||5000000);auctions=r.auctions||[];$("cars").innerHTML=auctions.length?auctions.map(render).join(""):'<div class="empty">در حال حاضر مزایده فعالی وجود ندارد.</div>';document.querySelectorAll("[data-bid]").forEach(f=>f.addEventListener("submit",placeBid));}catch(e){$("cars").innerHTML='<div class="empty">'+esc(e.message)+'</div>';}}
+  if(dash.member&&dash.member.identity_verified){try{let r=await api("public-auctions");minIncrement=Number(r.min_increment||5000000);auctions=r.auctions||[];lastAuctionStructureSignature=JSON.stringify(auctions.map(a=>[a.id,a.status,a.ends_at,a.starting_price,a.target_price,a.fair_price,(a.photos||[]).map(p=>[p.id,p.url,p.label,p.updated_at]),(a.defects||[]).map(d=>[d.id,d.area,d.part,d.defect_type,(d.photos||[]).map(p=>[p.id,p.url,p.label])])]));lastAuctionPollSignature=JSON.stringify(auctions.map(a=>[a.id,a.current_bid,(a.bids||[]).length]));$("cars").innerHTML=auctions.length?auctions.map(render).join(""):'<div class="empty">در حال حاضر مزایده فعالی وجود ندارد.</div>';document.querySelectorAll("[data-bid]").forEach(f=>f.addEventListener("submit",placeBid));}catch(e){$("cars").innerHTML='<div class="empty">'+esc(e.message)+'</div>';}}
   else {auctions=[];}
  }catch(e){if(/auction_login_required|ورود|نشست/i.test(e.message)){token="";localStorage.removeItem("s2s_auction_buyer_token");showLoggedIn(false)}msg(e.message,"err")}
 }
