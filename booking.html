@@ -1292,12 +1292,12 @@ function initModernDropdowns(){
    if(isBrandPicker&&sel.value){label.appendChild(brandMark(sel.value));const name=document.createElement('span');name.textContent=opt?opt.textContent:sel.value;label.appendChild(name)}
    else label.textContent=opt?opt.textContent:'انتخاب کنید';
    label.classList.toggle('placeholder',!sel.value);
-   trigger.disabled=sel.disabled;trigger.setAttribute('aria-label',opt?opt.textContent:'انتخاب کنید');
+   trigger.disabled=sel.disabled&&sel.id!=='appointmentTime';trigger.setAttribute('aria-label',opt?opt.textContent:'انتخاب کنید');
   }
   function renderOptions(){
    options.innerHTML='';const term=search.value.trim().toLocaleLowerCase('fa');
    const list=Array.from(sel.options).filter(o=>o.value!==''&&o.textContent.toLocaleLowerCase('fa').includes(term));
-   if(!list.length){const empty=document.createElement('div');empty.className='modern-select-empty';empty.textContent='گزینه‌ای پیدا نشد';options.appendChild(empty);return}
+   if(!list.length){const empty=document.createElement('div');empty.className='modern-select-empty';empty.textContent=sel.id==='appointmentTime'?(sel.options[0]?.textContent||'در حال حاضر ساعت آزادی وجود ندارد'):'گزینه‌ای پیدا نشد';options.appendChild(empty);return}
    list.forEach(opt=>{
     const b=document.createElement('button');b.type='button';b.className='modern-select-option'+(opt.value===sel.value?' selected':'')+(isBrandPicker?' brand-option':'');
     if(isBrandPicker){b.appendChild(brandMark(opt.value));const name=document.createElement('span');name.className='brand-option-label';name.textContent=opt.textContent;b.appendChild(name)}
@@ -1305,7 +1305,7 @@ function initModernDropdowns(){
     b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===sel.value));b.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));close();if(!mobilePicker)trigger.focus()});options.appendChild(b)
    })
   }
-  const openMenu=()=>{if(trigger.disabled)return;all.forEach(item=>item.close());sel._modernMenuOpen=true;search.blur();search.readOnly=true;search.setAttribute('inputmode','none');if(mobilePicker)search.disabled=true;wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');};
+  const openMenu=()=>{if(trigger.disabled&&sel.id!=='appointmentTime')return;all.forEach(item=>item.close());sel._modernMenuOpen=true;search.blur();search.readOnly=true;search.setAttribute('inputmode','none');if(mobilePicker)search.disabled=true;wrap.classList.add('open');trigger.setAttribute('aria-expanded','true');search.value='';renderOptions();menu.classList.add('popup-detached');document.body.appendChild(overlay);document.body.appendChild(menu);menu.style.setProperty('z-index','100001','important');overlay.style.setProperty('z-index','100000','important');};
   sel._openModernDropdown=openMenu;
   trigger.addEventListener('click',()=>{if(trigger.disabled)return;if(wrap.classList.contains('open')){close();return}openMenu()});
   search.addEventListener('input',renderOptions);
