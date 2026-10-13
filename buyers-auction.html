@@ -145,7 +145,7 @@
 <section id="tab-messages" class="buyer-tab hidden"><div id="myMessages" class="grid"></div></section>
 </section>
 <div id="photoModal" class="photo-modal" role="dialog" aria-modal="true"><div class="photo-nav"><button type="button" id="prevPhoto" aria-label="عکس قبلی">‹</button><button type="button" id="zoomOut" aria-label="کوچک‌نمایی">−</button><button type="button" id="zoomReset">اندازه عادی</button><button type="button" id="zoomIn" aria-label="بزرگ‌نمایی">＋</button><button type="button" id="closePhotoModal">✕ بستن</button><button type="button" id="nextPhoto" aria-label="عکس بعدی">›</button></div><img id="photoModalImg" alt="عکس بزرگ‌شده"><div id="photoModalCaption" class="modal-caption"></div><div class="sub">برای دیدن عکس بعدی یا قبلی، انگشت را به چپ یا راست بکش</div></div><footer>سوییچ به سوییچ · اطلاعات کارشناسی برای کمک به تصمیم‌گیری خریدار ارائه می‌شود.</footer></main>
-<script src="config.js"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script>
 (function(){
 const base=(window.SUPABASE_URL||"")+"/functions/v1/switch-to-switch";
 const $=id=>document.getElementById(id);let token=localStorage.getItem("s2s_auction_buyer_token")||"", auctions=[], minIncrement=5000000, subscriptionActive=false;
@@ -229,29 +229,45 @@ async function placeBid(e){e.preventDefault();if(!subscriptionActive){msg("اش�
 function openSidebar(){$("buyerSidebar").classList.add("open");$("sidebarShade").classList.add("open");$("menuToggle").setAttribute("aria-expanded","true")}function closeSidebar(){$("buyerSidebar").classList.remove("open");$("sidebarShade").classList.remove("open");$("menuToggle").setAttribute("aria-expanded","false")}$("menuToggle").addEventListener("click",openSidebar);$("sidebarClose").addEventListener("click",closeSidebar);$("sidebarShade").addEventListener("click",closeSidebar);document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("photoModal").classList.remove("open");closeSidebar()}});$("requestCode").addEventListener("submit",sendCode);$("verifyCode").addEventListener("submit",verify);$("backBtn").onclick=()=>{$("verifyCode").classList.add("hidden");$("requestCode").classList.remove("hidden");msg("")};$("logout").onclick=()=>{token="";localStorage.removeItem("s2s_auction_buyer_token");showLoggedIn(false);msg("از حساب خریدار خارج شدی.","ok")};
 function auctionTimeLabel(n){const days=Math.floor(n/86400),totalHours=Math.floor(n/3600),hours=Math.floor((n%86400)/3600),minutes=Math.floor((n%3600)/60),secs=n%60,digits=v=>String(v).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[Number(d)]),clock=digits(hours).padStart(2,"۰")+":"+digits(minutes).padStart(2,"۰")+":"+digits(secs).padStart(2,"۰");return days?digits(days)+" روز و "+clock:digits(totalHours).padStart(2,"۰")+":"+digits(minutes).padStart(2,"۰")+":"+digits(secs).padStart(2,"۰")}setInterval(()=>document.querySelectorAll("[data-end]").forEach(el=>{const n=Math.max(0,Math.ceil((new Date(el.dataset.end).getTime()-Date.now())/1000));el.textContent=n?auctionTimeLabel(n):"۰۰:۰۰:۰۰"}),1000);
 let fastBidPollBusy=false;
-async function refreshFastBidState(){
- if(fastBidPollBusy||!token||document.visibilityState==="hidden")return;fastBidPollBusy=true;
- try{
-  const d=await api("auction-bid-state");const rows=Array.isArray(d.auctions)?d.auctions:[];
-  rows.forEach(a=>{
-   const base=Number(a.current_bid||a.starting_price||0),card=document.querySelector('[data-auction-card="'+a.id+'"]');if(!card)return;
-   const old=Number(card.dataset.currentBase||0),display=card.querySelector("[data-current-bid-display]");
-   if(display)display.textContent=money(base);
-   if(base!==old){
-    card.dataset.currentBase=String(base);
-    const known=auctions.find(x=>x.id===a.id);if(known)known.current_bid=base;
-    const form=card.querySelector("[data-bid]"),field=form&&form.elements.amount;
-    if(field&&document.activeElement!==field)field.value=fa(base+minIncrement);
-    form?.querySelectorAll(".suggestion-chip").forEach(chip=>{
-     chip.classList.remove("selected");
-     const step=Math.max(1,Number(chip.dataset.suggest)||1);
-     chip.textContent=money(base+step*minIncrement);
+ function applyFastBidRow(a){
+  const base=Number(a.current_bid||a.starting_price||0),card=document.querySelector('[data-auction-card="'+a.id+'"]');if(!card)return;
+  const old=Number(card.dataset.currentBase||0),display=card.querySelector("[data-current-bid-display]");
+  if(display)display.textContent=money(base);
+  if(a.ends_at){card.querySelectorAll("[data-end]").forEach(el=>el.dataset.end=a.ends_at);}
+  if(base!==old){
+   card.dataset.currentBase=String(base);
+   const known=auctions.find(x=>x.id===a.id);if(known)known.current_bid=base;
+   const form=card.querySelector("[data-bid]"),field=form&&form.elements.amount;
+   if(field&&document.activeElement!==field)field.value=fa(base+minIncrement);
+   form?.querySelectorAll(".suggestion-chip").forEach(chip=>{
+    chip.classList.remove("selected");
+    const step=Math.max(1,Number(chip.dataset.suggest)||1);
+    chip.textContent=money(base+step*minIncrement);
+   });
+  }
+ }
+ async function refreshFastBidState(){
+  if(fastBidPollBusy||!token||document.visibilityState==="hidden")return;fastBidPollBusy=true;
+  try{
+   const d=await api("auction-bid-state");const rows=Array.isArray(d.auctions)?d.auctions:[];
+   rows.forEach(applyFastBidRow);
+  }catch(_){}finally{fastBidPollBusy=false}
+ }
+ let bidRealtimeChannel=null;
+ function connectBidRealtime(){
+  if(!window.supabase?.createClient||!window.SUPABASE_URL||!window.SUPABASE_KEY)return;
+  try{
+   const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY,{realtime:{params:{eventsPerSecond:10}}});
+   bidRealtimeChannel=client.channel("auction-bid-state",{config:{private:false}})
+    .on("broadcast",{event:"bid_state"},({payload})=>{
+      if(payload&&payload.id)applyFastBidRow(payload);
+    })
+    .subscribe(status=>{
+      if(status==="SUBSCRIBED")refreshFastBidState();
     });
-   }
-  });
- }catch(_){}finally{fastBidPollBusy=false}
-}
-let auctionPollBusy=false,lastAuctionPollSignature="",lastAuctionStructureSignature="",lastReadyQueueFetch=0;
+  }catch(_){}
+ }
+ let auctionPollBusy=false,lastAuctionPollSignature="",lastAuctionStructureSignature="",lastReadyQueueFetch=0;
 async function refreshAuctionLists(){
  if(auctionPollBusy)return;auctionPollBusy=true;
  try{
@@ -296,7 +312,7 @@ async function refreshAuctionLists(){
 }
 async function refreshBuyerAlerts(){if(!token)return;try{const d=await api("buyer-dashboard"),m=d.member||{};const liveName=(m.full_name||"خریدار").trim();if($("profileName"))$("profileName").textContent=liveName;if($("profileMobile"))$("profileMobile").textContent=m.mobile||"حساب کاربری";if($("profileAvatar"))$("profileAvatar").textContent=liveName.charAt(0)||"خ";subscriptionActive=m.subscription_status==="active"&&!!m.paid_until&&new Date(m.paid_until).getTime()>Date.now();applySubscriptionGate();if((d.auctions||[]).some(a=>a.purchase_stage==="prepayment")&&$("myCars").textContent.includes("منتظر موافقت فروشنده"))await renderDashboard(d);const notice=$("auctionAccessNotice");if(m.identity_verified&&notice)notice.innerHTML=subscriptionActive?"":'<div class="msg">کارت ملی تأیید شده است؛ برای ثبت پیشنهاد قیمت باید اشتراک مزایده فعال و معتبر باشد.</div>';const important=(d.notifications||[]).find(n=>/برنده مزایده شدی|منتظر نظر فروشنده|موافقت کرد؛ پیش‌پرداخت|پیش‌پرداخت تأیید شد|تسویه تأیید شد/.test(n.title||""));$("buyerAlerts").innerHTML=important?'<div class="msg ok"><b>'+esc(important.title)+'</b><br>'+esc(important.message)+' <button type="button" class="btn" data-tab="cars">رفتن به خودروهای من</button></div>':""}catch(_){}}
 refreshBuyerAlerts();setInterval(refreshBuyerAlerts,2000);window.addEventListener("focus",refreshBuyerAlerts);
-loadReadyQueue();setInterval(loadReadyQueue,5000);refreshFastBidState();setInterval(refreshFastBidState,500);setInterval(refreshAuctionLists,12000);
+loadReadyQueue();setInterval(loadReadyQueue,5000);connectBidRealtime();refreshFastBidState();setInterval(refreshFastBidState,2000);setInterval(refreshAuctionLists,12000);
 if(token){showLoggedIn(true);load()}else showLoggedIn(false);
 })();
 </script></body></html>
