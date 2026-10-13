@@ -93,7 +93,7 @@ function stepPhoto(n){if(!modalPhotos.length)return;modalIndex=(modalIndex+n+mod
 document.addEventListener("click",function(e){
  const p=e.target.closest("[data-photo-url]");if(p){openPhoto(p);return}
  const adj=e.target.closest("[data-adjust]");if(adj){const form=document.querySelector('[data-bid="'+adj.dataset.auction+'"]');if(form){const field=form.elements.amount;const normalized=String(field.value||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[,٬،\s]/g,"");const current=Number(normalized)||0;field.value=String(Math.max(1,current+Number(adj.dataset.adjust)));field.focus()}return}
- if(e.target.id==="closePhotoModal"||e.target.id==="photoModal")$("photoModal").classList.remove("open");if(e.target.id==="zoomIn")changePhotoZoom(.5);if(e.target.id==="zoomOut")changePhotoZoom(-.5);if(e.target.id==="zoomReset"){photoZoom=1;applyPhotoZoom()}
+ if(e.target.id==="closePhotoModal"||e.target.id==="photoModal")$("photoModal").classList.remove("open");
  if(e.target.id==="prevPhoto")stepPhoto(-1);if(e.target.id==="nextPhoto")stepPhoto(1);
  const tab=e.target.closest("[data-tab]");if(tab){document.querySelectorAll(".sidebar-link[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab.dataset.tab));document.querySelectorAll(".buyer-tab").forEach(x=>x.classList.toggle("hidden",x.id!=="tab-"+tab.dataset.tab));closeSidebar();}
  const cancel=e.target.closest("[data-cancel-purchase]");if(cancel){if(confirm("انصراف از خرید پس از برنده‌شدن ممکن است جریمه داشته باشد. مطمئنی؟"))cancelPurchase(cancel.dataset.cancelPurchase)}
