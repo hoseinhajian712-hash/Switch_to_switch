@@ -269,6 +269,83 @@ button,a,input,select,textarea{touch-action:manipulation}
  .photo-nav button{min-width:34px;padding:5px 8px}
 }
 
+
+/* نوار حرفه‌ای کنترل عکس: همیشه روی عکس و چسبیده به پایین صفحه */
+.photo-modal{
+  box-sizing:border-box;
+  padding:12px 12px calc(94px + env(safe-area-inset-bottom)) !important;
+}
+.photo-modal img{
+  max-height:calc(100dvh - 245px) !important;
+  position:relative;
+  z-index:1;
+}
+.photo-modal .photo-nav{
+  position:fixed !important;
+  left:auto !important;
+  right:14px !important;
+  bottom:calc(12px + env(safe-area-inset-bottom)) !important;
+  transform:none !important;
+  z-index:10002 !important;
+  width:auto !important;
+  max-width:calc(100vw - 28px) !important;
+  display:flex !important;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:7px;
+  padding:8px;
+  border:1px solid #d8b66a66;
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(16,31,50,.97),rgba(5,13,24,.98));
+  box-shadow:0 12px 36px #000b,0 0 0 1px #ffffff0a;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.photo-modal .photo-nav button{
+  position:relative;
+  z-index:1;
+  min-width:42px;
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
+  box-shadow:0 3px 10px #0003;
+  touch-action:manipulation;
+}
+.photo-modal .photo-nav #closePhotoModal{
+  order:10;
+  min-width:84px;
+  border-color:#c46a70;
+  background:linear-gradient(145deg,#7d3039,#431c25);
+  color:#fff;
+  font-weight:800;
+}
+.photo-modal .photo-nav #zoomIn,
+.photo-modal .photo-nav #zoomOut,
+.photo-modal .photo-nav #zoomReset{
+  border-color:#8d7546;
+  background:linear-gradient(145deg,#49391e,#211d17);
+  color:#ffe6a6;
+}
+.photo-modal .modal-caption,
+.photo-modal .sub{position:relative;z-index:1}
+@media(max-width:520px){
+  .photo-modal{padding:8px 8px calc(112px + env(safe-area-inset-bottom)) !important;gap:8px}
+  .photo-modal img{max-width:96vw !important;max-height:calc(100dvh - 260px) !important}
+  .photo-modal .photo-nav{
+    right:8px !important;
+    bottom:calc(8px + env(safe-area-inset-bottom)) !important;
+    max-width:calc(100vw - 16px) !important;
+    gap:5px;
+    padding:6px;
+    border-radius:14px;
+  }
+  .photo-modal .photo-nav button{min-width:38px;min-height:40px;padding:6px 9px;font-size:12px}
+  .photo-modal .photo-nav #closePhotoModal{min-width:70px}
+}
+
 </style>
 </head>
 <body><main class="wrap">
