@@ -116,7 +116,54 @@ async function auctionBidState(req:Request,u:URL){
  if(error)return json({error:error.message},500);
  return json({auctions:(data||[]).filter((a:any)=>new Date(a.ends_at).getTime()>Date.now()).map((a:any)=>({id:a.id,status:a.status,ends_at:a.ends_at,current_bid:a.current_bid,starting_price:a.starting_price}))});
 }
-async function publicAuctions(req:Request,u:URL){const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);const buyer=await db.from("auction_members").select("identity_verified").eq("id",sess.member_id).single();if(buyer.error||!buyer.data?.identity_verified)return json({error:"احراز هویت کارت ملی باید توسط مدیریت تأیید شود."},403);const setting=await db.from("auction_settings").select("min_increment").eq("id",true).maybeSingle();const minIncrement=Number(setting.data?.min_increment||5000000);const {data:aucs,error}=await db.from("auctions").select("id,case_id,vehicle_id,status,starts_at,ends_at,current_bid,starting_price,target_price,fair_price,created_at,prepayment_amount,purchase_stage,seller_account_name,seller_account_number,cancellation_fine_amount").eq("status","active").order("created_at",{ascending:false});if(error)return json({error:error.message},500);const out:any[]=[];for(const a of (aucs||[])){if(new Date(a.ends_at).getTime()<=Date.now()){await db.from("auctions").update({status:"ended"}).eq("id",a.id);await db.from("cases").update({status:"auction-end"}).eq("id",a.case_id);continue;}const cr=await db.from("cases").select("id,case_number").eq("id",a.case_id).single();const vr=await db.from("vehicles").select("id,brand,model,trim,model_year,color,mileage,body_condition,technical_condition,general_condition,spare_key,fuel_card,power_of_attorney,green_card,factory_invoice,car_document").eq("id",a.vehicle_id).maybeSingle();const ir=await db.from("inspections").select("id,summary,finished_at,status").eq("case_id",a.case_id).order("finished_at",{ascending:false}).limit(1).maybeSingle();let defects:any[]=[],photos:any[]=[];if(ir.data?.id){const dr=await db.from("inspection_defects").select("id,area,part,defect_type,explanation").eq("inspection_id",ir.data.id);defects=dr.data||[];const pr=await db.from("inspection_photos").select("id,defect_id,photo_type,label,storage_path,annotation").eq("inspection_id",ir.data.id).neq("photo_type","document");photos=pr.data||[];}const br=await db.from("bids").select("id,amount,created_at").eq("auction_id",a.id).order("amount",{ascending:false});const paths=photos.map((x:any)=>x.storage_path).filter(Boolean);const storage=db.storage.from("s2s-documents");const [signedResult,thumbResult]=paths.length?await Promise.all([storage.createSignedUrls(paths,3600),storage.createSignedUrls(paths,3600,{transform:{width:420,height:315,quality:65,format:"webp"}})]):[{data:[]},{data:[]}];const signed=signedResult.data||[],thumbs=thumbResult.data||[];const mediaUrl=(p:string)=>signed.find((x:any)=>x.path===p)?.signedUrl||null;const thumbUrl=(p:string)=>thumbs.find((x:any)=>x.path===p)?.signedUrl||mediaUrl(p);const photoRows=photos.map((p:any)=>({...p,url:mediaUrl(p.storage_path),preview_url:thumbUrl(p.storage_path)}));const enrichedDefects=defects.map((d:any)=>({...d,photos:photoRows.filter((p:any)=>p.defect_id===d.id)}));const docs=await db.from("documents").select("document_type").eq("case_id",a.case_id);const types=(docs.data||[]).map((x:any)=>String(x.document_type||""));const vehicle_documents={green_card:types.includes("green_card"),factory_invoice:types.includes("factory_invoice"),car_document:types.includes("car_document_front")&&types.includes("car_document_back")};out.push({...a,case:cr.data||null,vehicle:vr.data||null,vehicle_documents,inspection:ir.data||null,defects:enrichedDefects,photos:photoRows,bids:(br.data||[]).map((x:any)=>({amount:x.amount,created_at:x.created_at}))});}return json({auctions:out,min_increment:minIncrement});}
+async function publicAuctions(req:Request,u:URL){
+ const sess=await auctionToken(req,u);
+ if(!sess)return json({error:"auction_login_required"},401);
+ const buyer=await db.from("auction_members").select("identity_verified").eq("id",sess.member_id).single();
+ if(buyer.error||!buyer.data?.identity_verified)return json({error:"احراز هویت کارت ملی باید توسط مدیریت تأیید شود."},403);
+ const [setting,auctionResult]=await Promise.all([
+  db.from("auction_settings").select("min_increment").eq("id",true).maybeSingle(),
+  db.from("auctions").select("id,case_id,vehicle_id,status,starts_at,ends_at,current_bid,starting_price,target_price,fair_price,created_at,prepayment_amount,purchase_stage,seller_account_name,seller_account_number,cancellation_fine_amount").eq("status","active").order("created_at",{ascending:false})
+ ]);
+ if(auctionResult.error)return json({error:auctionResult.error.message},500);
+ const active=(auctionResult.data||[]).filter((a:any)=>new Date(a.ends_at).getTime()>Date.now());
+ const expired=(auctionResult.data||[]).filter((a:any)=>new Date(a.ends_at).getTime()<=Date.now());
+ if(expired.length)await Promise.all(expired.map(async(a:any)=>Promise.all([
+  db.from("auctions").update({status:"ended"}).eq("id",a.id),
+  db.from("cases").update({status:"auction-end"}).eq("id",a.case_id)
+ ])));
+ const out=await Promise.all(active.map(async(a:any)=>{
+  const [cr,vr,ir,br,docs]=await Promise.all([
+   db.from("cases").select("id,case_number").eq("id",a.case_id).maybeSingle(),
+   db.from("vehicles").select("id,brand,model,trim,model_year,color,mileage,body_condition,technical_condition,general_condition,spare_key,fuel_card,power_of_attorney,green_card,factory_invoice,car_document").eq("id",a.vehicle_id).maybeSingle(),
+   db.from("inspections").select("id,summary,finished_at,status").eq("case_id",a.case_id).order("finished_at",{ascending:false}).limit(1).maybeSingle(),
+   db.from("bids").select("id,amount,created_at").eq("auction_id",a.id).order("amount",{ascending:false}),
+   db.from("documents").select("document_type").eq("case_id",a.case_id)
+  ]);
+  let defects:any[]=[],photos:any[]=[];
+  if(ir.data?.id){
+   const [dr,pr]=await Promise.all([
+    db.from("inspection_defects").select("id,area,part,defect_type,explanation").eq("inspection_id",ir.data.id),
+    db.from("inspection_photos").select("id,defect_id,photo_type,label,storage_path,annotation").eq("inspection_id",ir.data.id).neq("photo_type","document")
+   ]);
+   defects=dr.data||[];photos=pr.data||[];
+  }
+  const paths=[...new Set(photos.map((x:any)=>x.storage_path).filter(Boolean))] as string[];
+  const storage=db.storage.from("s2s-documents");
+  // Only request transformed previews once in a batch; original URLs remain available for zoom/fallback.
+  const [signedResult,thumbResult]=paths.length?await Promise.all([
+   storage.createSignedUrls(paths,3600),
+   storage.createSignedUrls(paths,3600,{transform:{width:420,height:315,quality:60,format:"webp"}})
+  ]):[{data:[]},{data:[]}];
+  const signed=signedResult.data||[],thumbs=thumbResult.data||[];
+  const mediaUrl=(p:string)=>signed.find((x:any)=>x.path===p)?.signedUrl||null;
+  const thumbUrl=(p:string)=>thumbs.find((x:any)=>x.path===p)?.signedUrl||mediaUrl(p);
+  const photoRows=photos.map((p:any)=>({...p,url:mediaUrl(p.storage_path),preview_url:thumbUrl(p.storage_path)}));
+  const types=(docs.data||[]).map((x:any)=>String(x.document_type||""));
+  return {...a,case:cr.data||null,vehicle:vr.data||null,vehicle_documents:{green_card:types.includes("green_card"),factory_invoice:types.includes("factory_invoice"),car_document:types.includes("car_document_front")&&types.includes("car_document_back")},inspection:ir.data||null,defects:defects.map((d:any)=>({...d,photos:photoRows.filter((p:any)=>p.defect_id===d.id)})),photos:photoRows,bids:(br.data||[]).map((x:any)=>({amount:x.amount,created_at:x.created_at}))};
+ }));
+ return json({auctions:out,min_increment:Number(setting.data?.min_increment||5000000)});
+}
 async function buyerDashboard(req:Request,u:URL){
  const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);
  const mr=await db.from("auction_members").select("id,mobile,full_name,identity_document_path,identity_uploaded_at,identity_verified,identity_review_note,subscription_status,paid_until").eq("id",sess.member_id).single();if(mr.error)return json({error:"خریدار پیدا نشد"},404);
