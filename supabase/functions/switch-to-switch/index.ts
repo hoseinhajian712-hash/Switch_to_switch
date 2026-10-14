@@ -400,13 +400,24 @@ async function supportSend(req:Request){
  await db.from("support_conversations").update({updated_at:new Date().toISOString()}).eq("id",id);
  return json({ok:true,message:r.data});
 }
-async function supportAdminList(){
+async function supportAdminList(u:URL){
  const r=await db.from("support_conversations").select("id,customer_mobile,status,created_at,updated_at").order("updated_at",{ascending:false}).limit(100);
  if(r.error)return json({error:r.error.message},500);
- const ids=(r.data||[]).map((x:any)=>x.id);
- const mr=ids.length?await db.from("support_messages").select("id,conversation_id,sender,message,created_at").in("conversation_id",ids).order("created_at",{ascending:true}):{data:[],error:null};
+ const rows=r.data||[],ids=rows.map((x:any)=>x.id),mobiles=[...new Set(rows.map((x:any)=>String(x.customer_mobile||"")).filter(Boolean))];
+ const [mr,caseNames,auctionNames]=await Promise.all([
+  ids.length?db.from("support_messages").select("id,conversation_id,sender,message,created_at").in("conversation_id",ids).order("created_at",{ascending:true}):Promise.resolve({data:[],error:null}),
+  mobiles.length?db.from("cases").select("customer_mobile,customer_name").in("customer_mobile",mobiles).order("created_at",{ascending:false}):Promise.resolve({data:[],error:null}),
+  mobiles.length?db.from("auction_members").select("mobile,full_name").in("mobile",mobiles):Promise.resolve({data:[],error:null})
+ ]);
  if(mr.error)return json({error:mr.error.message},500);
- return json({conversations:(r.data||[]).map((x:any)=>{const messages=(mr.data||[]).filter((m:any)=>m.conversation_id===x.id);const last_message=messages[messages.length-1]||null;return {...x,messages,last_message,last_message_at:last_message?.created_at||x.updated_at,status:x.status==="closed"?"closed":last_message?.sender==="admin"?"answered":"open"}})});
+ if(caseNames.error)return json({error:caseNames.error.message},500);
+ if(auctionNames.error)return json({error:auctionNames.error.message},500);
+ const channel=u.searchParams.get("channel")==="auction";
+ const normalize=(v:any)=>String(v||"").replace(/[^0-9]/g,"").replace(/^98/,"0");
+ const caseByMobile=new Map<string,string>(),auctionByMobile=new Map<string,string>();
+ for(const c of caseNames.data||[]){const key=normalize(c.customer_mobile);if(key&&c.customer_name&&!caseByMobile.has(key))caseByMobile.set(key,String(c.customer_name).trim())}
+ for(const m of auctionNames.data||[]){const key=normalize(m.mobile);if(key&&m.full_name)auctionByMobile.set(key,String(m.full_name).trim())}
+ return json({conversations:rows.map((x:any)=>{const messages=(mr.data||[]).filter((m:any)=>m.conversation_id===x.id),last_message=messages[messages.length-1]||null,key=normalize(x.customer_mobile),customer_name=(channel?auctionByMobile.get(key):caseByMobile.get(key))||auctionByMobile.get(key)||caseByMobile.get(key)||"";return {...x,customer_name,messages,last_message,last_message_at:last_message?.created_at||x.updated_at,status:x.status==="closed"?"closed":last_message?.sender==="admin"?"answered":"open"}})});
 }
 async function supportAdminReply(req:Request,u:URL){
  const b=await req.json(),id=String(b.conversation_id||u.searchParams.get("id")||""),message=String(b.message||"").trim();
@@ -587,7 +598,7 @@ async function api(req:Request,u:URL){
   return json({staff:data||[]});
  }
 
- if(a==="support-admin-list"&&role==="admin"&&req.method==="GET")return supportAdminList();
+ if(a==="support-admin-list"&&role==="admin"&&req.method==="GET")return supportAdminList(u);
  if(a==="support-admin-messages"&&role==="admin"&&req.method==="GET"){const q=await db.from("support_messages").select("id,sender,message,created_at").eq("conversation_id",id).order("created_at",{ascending:true}).limit(300);return q.error?json({error:q.error.message},500):json({messages:q.data||[]})}
 
  if(a==="support-admin-reply"&&role==="admin"&&req.method==="POST")return supportAdminReply(req,u);
