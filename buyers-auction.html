@@ -369,6 +369,34 @@ button,a,input,select,textarea{touch-action:manipulation}
 #tab-support .support-bubble.customer{justify-self:start;background:#173b31;border-color:#34735d}
 #tab-support .support-bubble .support-meta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-size:10px;color:var(--muted);margin-top:6px}#tab-support .support-bubble .support-sender{font-weight:700;color:#dce8f7}#tab-support .support-bubble .support-time{font-size:9px;opacity:.8}
 #tab-support textarea.field{min-height:95px;resize:vertical}
+
+/* رابط کاربری لوکس چت پشتیبانی مزایده */
+#tab-support .panel{position:relative;overflow:hidden;border:1px solid #d8b76f45;background:radial-gradient(ellipse at 100% 0%,#23415b66 0%,transparent 44%),linear-gradient(145deg,#101f31 0%,#091522 100%);box-shadow:0 18px 48px #0005}
+#tab-support h2{display:flex;align-items:center;gap:10px;margin-bottom:18px;color:#f7e4b4;font-size:clamp(18px,3vw,23px);font-weight:900;letter-spacing:-.3px}
+#tab-support h2::before{content:"";display:block;width:4px;height:28px;border-radius:5px;background:linear-gradient(#f5d995,#b88a3c);box-shadow:0 0 16px #e4c27b55}
+#tab-support #buyerSupportStart{margin-top:16px}
+#tab-support .support-chat{gap:13px}
+#tab-support .support-messages{direction:rtl;min-height:190px;max-height:52vh;gap:12px;padding:16px;background:linear-gradient(180deg,#07111e,#0a1928);border:1px solid #d8b76f36;border-radius:18px;box-shadow:inset 0 1px 0 #ffffff08;scrollbar-width:thin;scrollbar-color:#9c7a40 #0a1928}
+#tab-support .support-bubble{position:relative;justify-self:end;max-width:min(88%,560px);padding:12px 14px;border:1px solid #d8b76f38;border-radius:17px 17px 5px 17px;background:linear-gradient(145deg,#1a3550,#12273b);color:#f1f5fa;font-size:13px;line-height:1.9;box-shadow:0 7px 18px #0002;white-space:pre-wrap}
+#tab-support .support-bubble.customer{justify-self:start;border-color:#3f8d6e70;border-radius:17px 17px 17px 5px;background:linear-gradient(145deg,#164737,#10382e)}
+#tab-support .support-bubble .support-meta{align-items:flex-start;gap:3px;margin-top:8px;padding-top:7px;border-top:1px solid #ffffff12}
+#tab-support .support-bubble .support-sender{font-size:10px;color:#f4d998}
+#tab-support .support-bubble.customer .support-sender{color:#a9e7c8}
+#tab-support .support-bubble .support-time{font-size:9px;color:#aebed0;opacity:.9}
+#tab-support #buyerSupportSend{display:grid;gap:9px}
+#tab-support #buyerSupportText.field{width:100%;min-height:100px;padding:14px 15px;border:1px solid #d8b76f4d;border-radius:15px;background:#0a1725;color:#f5f7fb;line-height:1.9;box-shadow:inset 0 2px 8px #0002;transition:border-color .18s,box-shadow .18s}
+#tab-support #buyerSupportText.field:focus{outline:none;border-color:#e4c27b;box-shadow:0 0 0 3px #e4c27b20}
+#tab-support #buyerSupportText::placeholder{color:#8fa2b8}
+#tab-support #buyerSupportSendBtn{width:100%;min-height:47px;border-radius:13px;font-weight:900;box-shadow:0 8px 20px #0003}
+#tab-support #buyerSupportNew{justify-self:start;border:1px solid #ffffff20;border-radius:12px;background:#ffffff08;color:#d9e3ef}
+#tab-support #buyerSupportNotice{margin-top:12px;border-radius:12px}
+#tab-support .support-messages>.empty{align-self:center;justify-self:center;max-width:280px;padding:16px;text-align:center;color:#9fb0c3;font-size:12px;line-height:1.9}
+@media(max-width:540px){
+ #tab-support .panel{padding:14px}
+ #tab-support .support-messages{min-height:170px;max-height:55vh;padding:10px;border-radius:15px}
+ #tab-support .support-bubble{max-width:94%;padding:10px 12px;font-size:12px}
+ #tab-support #buyerSupportText.field{min-height:88px}
+}
 .photo-modal{overflow:hidden}
 .photo-modal img{touch-action:none!important;user-select:none;-webkit-user-select:none;will-change:transform}
 
