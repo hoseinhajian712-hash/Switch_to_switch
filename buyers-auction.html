@@ -684,6 +684,7 @@ refreshBuyerAlerts();setInterval(refreshBuyerAlerts,4000);window.addEventListene
 loadReadyQueue();connectBidRealtime();refreshFastBidState();setInterval(refreshFastBidState,1000);refreshAuctionLists();setInterval(refreshAuctionLists,4000);window.addEventListener("focus",refreshAuctionLists);document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAuctionLists()});
 const savedBuyerTab=localStorage.getItem("s2s_auction_buyer_active_tab");if(savedBuyerTab&&document.getElementById("tab-"+savedBuyerTab)){document.querySelectorAll(".sidebar-link[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===savedBuyerTab));document.querySelectorAll(".buyer-tab").forEach(x=>x.classList.toggle("hidden",x.id!=="tab-"+savedBuyerTab));if($("auctionToolbar"))$("auctionToolbar").classList.toggle("hidden",savedBuyerTab!=="auctions");}else if($("auctionToolbar"))$("auctionToolbar").classList.remove("hidden");if(token){showLoggedIn(true);load()}else showLoggedIn(false);
 // Inline form handlers must be exposed outside this IIFE, otherwise the receipt picker and submit button cannot call them.
+window.formatAmountInput=formatAmountInput;
 window.showWalletReceiptName=showWalletReceiptName;
 window.submitWalletTopup=submitWalletTopup;
 
