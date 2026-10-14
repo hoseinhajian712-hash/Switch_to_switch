@@ -182,6 +182,21 @@ async function buyerDashboard(req:Request,u:URL){
  const auctions=(ar.data||[]).map((a:any)=>({...a,case_number:(cr.data||[]).find((c:any)=>c.id===a.case_id)?.case_number||null,vehicle:(vr.data||[]).find((v:any)=>v.case_id===a.case_id)||null}));
  return json({member:mr.data,auctions,fines:fr.data||[],payments:pr.data||[],notifications:nr.data||[],my_bids:br.data||[],wallet:{balance:walletBalance,transactions:wr.data||[]}});
 }
+async function buyerDeliveryDetails(req:Request,u:URL,id:string){
+ const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);
+ if(!id)return json({error:"شناسه خودرو مشخص نیست"},400);
+ const ar=await db.from("auctions").select("id,case_id,status,purchase_stage,winner_id").eq("id",id).maybeSingle();
+ if(ar.error)return json({error:ar.error.message},500);
+ if(!ar.data||ar.data.winner_id!==sess.member_id)return json({error:"این خودرو در پرونده شما نیست"},403);
+ if(ar.data.status!=="ended"||ar.data.purchase_stage!=="vehicle-filed")return json({error:"نشانی تحویل پس از تأیید تسویه کامل نمایش داده می‌شود."},409);
+ const cr=await db.from("cases").select("notes").eq("id",ar.data.case_id).maybeSingle();
+ if(cr.error)return json({error:cr.error.message},500);
+ const notes=String(cr.data?.notes||""),match=notes.match(/\[\[S2S_DELIVERY\]\]([\s\S]*?)\[\[\/S2S_DELIVERY\]\]/);
+ if(!match)return json({error:"مدیریت هنوز آدرس و زمان تحویل را ثبت نکرده است."},404);
+ let delivery:any;try{delivery=JSON.parse(match[1])}catch(_){return json({error:"اطلاعات تحویل نامعتبر است."},500)}
+ if(!delivery.location)return json({error:"مدیریت هنوز نشانی تحویل را ثبت نکرده است."},404);
+ return json({delivery:{location:delivery.location,scheduled_date:delivery.scheduled_date,scheduled_time:delivery.scheduled_time}});
+}
 async function buyerMarkNotificationRead(req:Request,u:URL){
  const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);
  const b=await req.json(),notificationId=String(b.notification_id||"");
@@ -652,7 +667,7 @@ async function api(req:Request,u:URL){
  if(a==="support-admin-close"&&role==="admin"&&req.method==="POST")return supportAdminClose(req);
  await expireAuctions();
  await expireAuctions();
- if(a==="auction-bid-state"&&req.method==="GET")return auctionBidState(req,u);if(a==="public-ready-auctions"&&req.method==="GET"){const {data,error}=await db.from("cases").select("id,case_number,status,created_at").in("status",["review","auction-ready"]).order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((c:any)=>c.id);const vr=ids.length?await db.from("vehicles").select("case_id,brand,model,trim,model_year,mileage").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null};if(vr.error)return json({error:vr.error.message},500);return json({cases:(data||[]).map((c:any)=>({...c,vehicle:(vr.data||[]).find((v:any)=>v.case_id===c.id)||null}))})}if(a==="auction-request-code"&&req.method==="POST")return requestAuctionOtp(req);if(a==="auction-verify-code"&&req.method==="POST")return verifyAuctionOtp(req);if(a==="auction-start-subscription"&&req.method==="POST")return startAuctionSubscription(req);if(a==="auction-payment-callback"&&req.method==="POST")return paymentCallback(req);if(a==="public-auctions"&&req.method==="GET")return publicAuctions(req,u);if(a==="buyer-dashboard"&&req.method==="GET")return buyerDashboard(req,u);if(a==="buyer-mark-notification-read"&&req.method==="POST")return buyerMarkNotificationRead(req,u);if(a==="buyer-upload-identity"&&req.method==="POST")return buyerUploadIdentity(req,u);if(a==="buyer-submit-payment"&&req.method==="POST")return buyerSubmitPayment(req,u,id);if(a==="buyer-pay-prepayment-wallet"&&req.method==="POST")return buyerPayPrepaymentWallet(req,u,id);if(a==="buyer-cancel-purchase"&&req.method==="POST")return buyerCancelPurchase(req,u,id);
+ if(a==="auction-bid-state"&&req.method==="GET")return auctionBidState(req,u);if(a==="public-ready-auctions"&&req.method==="GET"){const {data,error}=await db.from("cases").select("id,case_number,status,created_at").in("status",["review","auction-ready"]).order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((c:any)=>c.id);const vr=ids.length?await db.from("vehicles").select("case_id,brand,model,trim,model_year,mileage").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null};if(vr.error)return json({error:vr.error.message},500);return json({cases:(data||[]).map((c:any)=>({...c,vehicle:(vr.data||[]).find((v:any)=>v.case_id===c.id)||null}))})}if(a==="auction-request-code"&&req.method==="POST")return requestAuctionOtp(req);if(a==="auction-verify-code"&&req.method==="POST")return verifyAuctionOtp(req);if(a==="auction-start-subscription"&&req.method==="POST")return startAuctionSubscription(req);if(a==="auction-payment-callback"&&req.method==="POST")return paymentCallback(req);if(a==="public-auctions"&&req.method==="GET")return publicAuctions(req,u);if(a==="buyer-dashboard"&&req.method==="GET")return buyerDashboard(req,u);if(a==="buyer-delivery-details"&&req.method==="GET")return buyerDeliveryDetails(req,u,id);if(a==="buyer-mark-notification-read"&&req.method==="POST")return buyerMarkNotificationRead(req,u);if(a==="buyer-upload-identity"&&req.method==="POST")return buyerUploadIdentity(req,u);if(a==="buyer-submit-payment"&&req.method==="POST")return buyerSubmitPayment(req,u,id);if(a==="buyer-pay-prepayment-wallet"&&req.method==="POST")return buyerPayPrepaymentWallet(req,u,id);if(a==="buyer-cancel-purchase"&&req.method==="POST")return buyerCancelPurchase(req,u,id);
  if(a==="place-bid"&&req.method==="POST")return placeBid(req,id);
  if(a==="market_prices")return marketPrices(u); if(a==="estimate"&&req.method==="POST")return estimate(req);
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
