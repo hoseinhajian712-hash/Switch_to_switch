@@ -1,8 +1,6 @@
 (function(){
 'use strict';
-const faDigits='۰۱۲۳۴۵۶۷۸۹';
 function digits(v){return String(v==null?'':v).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));}
-function grouped(v){const raw=digits(v).replace(/[^0-9]/g,'');if(!raw)return '';return Number(raw).toLocaleString('fa-IR');}
 function moneyContext(el){
  const attrs=[el.id,el.name,el.placeholder,el.getAttribute('aria-label'),el.getAttribute('data-label')].filter(Boolean).join(' ');
  const label=el.closest('label')?.innerText||el.parentElement?.innerText||'';
@@ -26,6 +24,9 @@ function formatCurrencyText(root){
   if(/(?:تومان|ریال)/.test(t)&&/[0-9۰-۹٠-٩]/.test(t)){
    t=t.replace(/([0-9۰-۹٠-٩][0-9۰-۹٠-٩,٬،.\s]*)(\s*(?:تومان|ریال))/g,(all,n,unit)=>{const raw=digits(n).replace(/[^0-9]/g,'');return raw?Number(raw).toLocaleString('fa-IR')+unit:all;});
    if(t!==node.nodeValue)node.nodeValue=t;
+  }else if(/^\s*[0-9۰-۹٠-٩][0-9۰-۹٠-٩,٬،.\s]*\s*$/.test(t)){
+   const near=[node.previousSibling,node.nextSibling,p.previousSibling,p.nextSibling].filter(Boolean).map(n=>n.textContent||'').join(' ');
+   if(/(?:تومان|ریال)/.test(near)){const raw=digits(t).replace(/[^0-9]/g,'');if(raw){const formatted=Number(raw).toLocaleString('fa-IR');if(formatted!==t)node.nodeValue=formatted;}}
   }
  }
 }
