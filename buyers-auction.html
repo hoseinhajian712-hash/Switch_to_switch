@@ -661,6 +661,7 @@ async function refreshAuctionLists(){
       }
      });
     }
+  }
   if(Date.now()-lastReadyQueueFetch>=5000){lastReadyQueueFetch=Date.now();const q=await fetch(base+"?api=public-ready-auctions&_="+Date.now(),{cache:"no-store"});
    const d=await q.json();
    if(q.ok&&!d.error){
