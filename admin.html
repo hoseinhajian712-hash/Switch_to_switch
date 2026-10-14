@@ -315,24 +315,23 @@ async function pollAuctionCancellationNotice(){
   list.innerHTML=cancelled.map(x=>{
    const v=x.vehicle||{},name=[v.brand,v.model,v.trim].filter(Boolean).join(' ')||('پرونده '+(x.case_number||'مزایده'));
    const when=x.updated_at||x.created_at;
-   return '<div class="auction-cancel-live-item"><span><b>'+esc(name)+'</b><br>برنده از خرید انصراف داده است. مبلغ آخرین پیشنهاد: <b>'+Number(x.current_bid||0).toLocaleString('fa-IR')+' تومان</b>'+(when?' · '+esc(new Date(when).toLocaleString('fa-IR')):'')+'</span><button type="button" onclick="openCancelledAuctionCase(\''+esc(x.case_id)+'\')">مشاهده و پیشنهاد به نفر دوم/سوم</button></div>';
+   return '<div class="auction-cancel-live-item" data-auction-cancel-id="'+esc(x.id)+'"><span><b>'+esc(name)+'</b><br>برنده از خرید انصراف داده است. مبلغ آخرین پیشنهاد: <b>'+Number(x.current_bid||0).toLocaleString('fa-IR')+' تومان</b>'+(when?' · '+esc(new Date(when).toLocaleString('fa-IR')):'')+'</span><button type="button" onclick="openCancelledAuctionCase(\''+esc(x.case_id)+'\',\''+esc(x.id)+'\')">مشاهده و پیشنهاد به نفر دوم/سوم</button></div>';
   }).join('');
   box.classList.add('show');
  }catch(e){/* خطای موقت شبکه نباید پنل مدیریت را مختل کند */}
  finally{auctionCancellationNoticeBusy=false}
 }
-function openCancelledAuctionCase(caseId){
+function openCancelledAuctionCase(caseId,auctionId){
+ if(auctionId)auctionCancellationNoticeDismissed.add(String(auctionId));
  const box=document.getElementById('auctionCancellationLiveNotice');
  if(box)box.classList.remove('show');
  openCaseAuction(caseId);
 }
 function dismissAuctionCancellationNotice(){
  const box=document.getElementById('auctionCancellationLiveNotice');
- if(box)box.classList.remove('show');
  const list=document.getElementById('auctionCancellationLiveList');
- if(list)list.querySelectorAll('button[onclick]').forEach(()=>{});
- // بستن فقط هشدار فعلی است؛ هشدار تا وقتی وضعیت انصراف باقی است با بازشدن مجدد پنل/بارگذاری دوباره قابل مشاهده خواهد بود.
- auctionCancellationNoticeDismissed=new Set();
+ if(list)list.querySelectorAll('[data-auction-cancel-id]').forEach(el=>auctionCancellationNoticeDismissed.add(String(el.dataset.auctionCancelId)));
+ if(box)box.classList.remove('show');
 }
 
 load();loadAuctionCodes();loadAuctionMembers();loadBuyerPayments();
