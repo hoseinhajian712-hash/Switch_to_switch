@@ -218,6 +218,57 @@
 .vehicle-section-select-button:focus-visible{outline:2px solid #f0d694;outline-offset:2px}
 @keyframes vehicleMenuIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.vehicle-section-options{animation:none}.vehicle-section-select-button .vehicle-section-select-chevron,.vehicle-section-option{transition:none}}
+
+/* بهینه‌سازی نمایش در موبایل و دسکتاپ، بدون زوم ناخواسته صفحه */
+html{overscroll-behavior-y:none;overscroll-behavior-x:none;-webkit-text-size-adjust:100%;text-size-adjust:100%;scrollbar-gutter:stable}
+body{overscroll-behavior: none; -webkit-tap-highlight-color:transparent}
+button,a,input,select,textarea{touch-action:manipulation}
+.wrap{width:100%;max-width:1180px;margin-inline:auto}
+.car-card,.panel,.dashboard-card,.queue-panel{min-width:0;overflow-wrap:anywhere}
+.hero-photo{display:grid;grid-template-rows:minmax(150px,auto) auto;place-items:center;box-shadow:0 8px 24px #0003;transition:border-color .18s,box-shadow .18s}
+.hero-photo:hover{border-color:#b89552;box-shadow:0 12px 28px #0004}
+.hero-photo img,.car-card .hero-photo img{width:100%;height:clamp(150px,27vw,300px);max-height:300px;aspect-ratio:16/9;object-fit:contain;background:linear-gradient(145deg,#0b1929,#06101c);padding:5px}
+.photo-thumb{border-radius:12px;border-color:#ffffff22;box-shadow:0 4px 12px #0002;transition:transform .15s,border-color .15s}
+.photo-thumb:active{transform:scale(.98)}
+.photo-thumb img,.car-card .photo-thumb img{width:100%;height:88px;object-fit:contain;background:#081322;padding:3px}
+.photos{gap:7px;padding:7px 1px;scrollbar-width:thin;overscroll-behavior-x:contain}
+.photo-modal{padding:10px;gap:10px}
+.photo-modal img{max-width:min(94vw,1200px);max-height:calc(100dvh - 155px);border-radius:14px;touch-action:pan-y pinch-zoom}
+.photo-nav{gap:6px}
+.photo-nav button{min-height:40px;border-radius:10px}
+.defect-filters{position:relative;margin:8px 0;padding:9px;border-radius:12px}
+.defect-filter-heading{margin-bottom:6px;font-size:11px}
+.vehicle-section-select-button{min-height:42px!important;padding:8px 36px 8px 32px!important;border-radius:11px!important;font-size:11px!important;box-shadow:0 4px 12px #0002}
+.vehicle-section-select-icon{right:10px;font-size:15px}
+.vehicle-section-select-button .vehicle-section-select-chevron{font-size:16px}
+.vehicle-section-options{max-height:min(230px,42dvh);padding:5px;border-radius:12px}
+.vehicle-section-option{padding:8px 10px;font-size:11px}
+.defect-filter-count{margin-top:5px;padding-top:5px;font-size:9px}
+.schematic-box{margin:6px 0;padding:7px;border-radius:11px}
+.schematic-box>summary{font-size:10px}
+.schematic-box svg{max-width:290px;max-height:160px;margin:4px auto}
+.schematic-legend{font-size:8px;gap:5px}
+.schematic-caption{font-size:8px}
+@media(max-width:720px){
+ .wrap{padding:10px}
+ .panel{padding:12px;border-radius:14px}
+ .car-card{padding:10px;border-radius:14px}
+ .hero-photo{margin:8px 0 5px;border-radius:12px}
+ .hero-photo img,.car-card .hero-photo img{height:clamp(145px,44vw,220px);max-height:220px}
+ .car-card .photo-thumb{width:88px;flex-basis:88px;height:78px}
+ .car-card .photo-thumb img{height:55px;flex-basis:55px}
+ .schematic-box svg{max-width:245px;max-height:138px}
+}
+@media(max-width:380px){
+ .wrap{padding:7px}
+ .bar{gap:7px}
+ .logo{width:36px;height:36px;border-radius:11px}
+ .hero-photo img,.car-card .hero-photo img{height:145px}
+ .defect-filter-selects{grid-template-columns:minmax(0,1fr)}
+ .photo-modal{padding:6px}
+ .photo-nav button{min-width:34px;padding:5px 8px}
+}
+
 </style>
 </head>
 <body><main class="wrap">
@@ -436,11 +487,27 @@ const memberState=JSON.stringify([m.identity_verified,m.subscription_status,m.pa
 const purchaseState=JSON.stringify((d.auctions||[]).map(x=>[x.id,x.purchase_stage,x.winner_id,x.prepayment_amount,x.seller_account_name,x.seller_account_number,x.current_bid]));
 if(memberState!==lastMemberState||purchaseState!==lastPurchaseState){lastMemberState=memberState;lastPurchaseState=purchaseState;await renderDashboard(d);
  if(m.identity_verified){try{const r=await api("public-auctions");const next=r.auctions||[];const sig=JSON.stringify(next.map(x=>[x.id,x.status,x.ends_at,x.starting_price,x.target_price,x.fair_price,(x.photos||[]).map(p=>[p.id,p.label]),(x.defects||[]).map(z=>[z.id,z.area,z.part,z.defect_type,(z.photos||[]).map(p=>[p.id,p.label])])]));if(sig!==lastAuctionStructureSignature){lastAuctionStructureSignature=sig;auctions=next;$("cars").innerHTML=renderAuctionList(auctions);document.querySelectorAll("[data-bid]").forEach(f=>f.addEventListener("submit",placeBid));applySubscriptionGate();}}catch(_){}}}const notice=$("auctionAccessNotice");if(m.identity_verified&&notice)notice.innerHTML=subscriptionActive?"":'<div class="msg">کارت ملی تأیید شده است؛ برای ثبت پیشنهاد قیمت باید اشتراک مزایده فعال و معتبر باشد.</div>';const important=(d.notifications||[]).find(n=>!n.read_at&&!shownNoticeIds.has(n.id)&&/احراز هویت تأیید شد|کارت ملی تأیید شد|اشتراک مزایده فعال شد|برنده مزایده شدی|منتظر نظر فروشنده|موافقت کرد؛ پیش‌پرداخت|پیش‌پرداخت تأیید شد|تسویه تأیید شد/.test(n.title||""));if(important)showImportantNotification(important)}catch(_){}}
-refreshBuyerAlerts();setInterval(refreshBuyerAlerts,2000);window.addEventListener("focus",refreshBuyerAlerts);
-loadReadyQueue();setInterval(loadReadyQueue,5000);connectBidRealtime();refreshFastBidState();setInterval(refreshFastBidState,2000);refreshAuctionLists();setInterval(refreshAuctionLists,1500);window.addEventListener("focus",refreshAuctionLists);document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAuctionLists()});
+refreshBuyerAlerts();setInterval(refreshBuyerAlerts,1000);window.addEventListener("focus",refreshBuyerAlerts);
+loadReadyQueue();setInterval(loadReadyQueue,5000);connectBidRealtime();refreshFastBidState();setInterval(refreshFastBidState,1000);refreshAuctionLists();setInterval(refreshAuctionLists,1000);window.addEventListener("focus",refreshAuctionLists);document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAuctionLists()});
 const savedBuyerTab=localStorage.getItem("s2s_auction_buyer_active_tab");if(savedBuyerTab&&document.getElementById("tab-"+savedBuyerTab)){document.querySelectorAll(".sidebar-link[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===savedBuyerTab));document.querySelectorAll(".buyer-tab").forEach(x=>x.classList.toggle("hidden",x.id!=="tab-"+savedBuyerTab));if($("auctionToolbar"))$("auctionToolbar").classList.toggle("hidden",savedBuyerTab!=="auctions");}else if($("auctionToolbar"))$("auctionToolbar").classList.remove("hidden");if(token){showLoggedIn(true);load()}else showLoggedIn(false);
 // Inline form handlers must be exposed outside this IIFE, otherwise the receipt picker and submit button cannot call them.
 window.showWalletReceiptName=showWalletReceiptName;
 window.submitWalletTopup=submitWalletTopup;
+
+/* جلوگیری از pull-to-refresh در ابتدای صفحه؛ رفرش داده‌ها به‌صورت خودکار انجام می‌شود */
+let pullStartY=0,pullStartX=0,blockPullGesture=false;
+document.addEventListener("touchstart",function(e){
+ if(e.touches.length!==1){blockPullGesture=false;return}
+ pullStartY=e.touches[0].clientY;pullStartX=e.touches[0].clientX;
+ blockPullGesture=(window.scrollY<=1 && pullStartY<90);
+},{passive:true});
+document.addEventListener("touchmove",function(e){
+ if(!blockPullGesture||e.touches.length!==1)return;
+ const dy=e.touches[0].clientY-pullStartY,dx=e.touches[0].clientX-pullStartX;
+ if(dy>8&&Math.abs(dy)>Math.abs(dx)*1.15&&window.scrollY<=1)e.preventDefault();
+},{passive:false});
+document.addEventListener("touchend",function(){blockPullGesture=false},{passive:true});
+document.addEventListener("touchcancel",function(){blockPullGesture=false},{passive:true});
+
 })();
 </script></body></html>
