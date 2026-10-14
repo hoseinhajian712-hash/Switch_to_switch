@@ -397,6 +397,38 @@ button,a,input,select,textarea{touch-action:manipulation}
  #tab-support .support-bubble{max-width:94%;padding:10px 12px;font-size:12px}
  #tab-support #buyerSupportText.field{min-height:88px}
 }
+
+/* پرداخت نهایی طراحی: پنل گفت‌وگوی ممتاز */
+#tab-support .panel{isolation:isolate;padding:clamp(16px,3vw,26px)}
+#tab-support .panel::before{content:"";position:absolute;z-index:-1;top:-90px;left:-70px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,#d8b76f17 0%,transparent 70%);pointer-events:none}
+#tab-support h2{position:relative;padding-bottom:15px;border-bottom:1px solid #d8b76f2b}
+#tab-support h2::after{content:"گفت‌وگوی اختصاصی";margin-right:auto;padding:5px 9px;border:1px solid #d8b76f45;border-radius:999px;background:#d8b76f0c;color:#e7d4a5;font-size:10px;font-weight:700;white-space:nowrap;letter-spacing:0}
+#tab-support #buyerSupportStart{margin-top:20px}
+#tab-support #buyerSupportStart .btn{min-height:54px;border:1px solid #e5c77d88;border-radius:15px;background:linear-gradient(110deg,#e3c57e 0%,#b98c43 100%);color:#172334;font-size:14px;font-weight:900;box-shadow:0 10px 24px #0004,inset 0 1px 0 #fff7;transition:transform .18s,filter .18s,box-shadow .18s}
+#tab-support #buyerSupportStart .btn:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 14px 28px #0005}
+#tab-support .support-messages{scroll-behavior:smooth;overscroll-behavior:contain;background-image:radial-gradient(#ffffff08 .7px,transparent .7px),linear-gradient(180deg,#07111e,#0a1928);background-size:15px 15px,auto}
+#tab-support .support-bubble{animation:supportBubbleIn .22s ease-out both;transition:border-color .18s,transform .18s,box-shadow .18s}
+#tab-support .support-bubble:hover{border-color:#d8b76f70;box-shadow:0 10px 24px #0003;transform:translateY(-1px)}
+#tab-support .support-bubble::before{content:"";position:absolute;top:0;right:14px;width:34px;height:2px;border-radius:0 0 4px 4px;background:#e4c27b80}
+#tab-support .support-bubble.customer::before{right:auto;left:14px;background:#75cba0a0}
+#tab-support .support-bubble>div{overflow-wrap:anywhere}
+#tab-support .support-bubble .support-meta{flex-direction:row;align-items:center;justify-content:space-between;gap:14px}
+#tab-support .support-bubble .support-time{direction:rtl}
+#tab-support #buyerSupportSend{position:relative;gap:10px;padding:12px;border:1px solid #d8b76f30;border-radius:17px;background:#ffffff04}
+#tab-support #buyerSupportText.field{min-height:84px;border-radius:12px;background:#071321}
+#tab-support #buyerSupportSendBtn{min-height:49px;border:1px solid #e5c77d80;border-radius:12px;background:linear-gradient(110deg,#e3c57e,#b98c43);color:#172334;font-size:14px;font-weight:900;transition:filter .18s,transform .18s}
+#tab-support #buyerSupportSendBtn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+#tab-support #buyerSupportNew{min-height:40px;padding:9px 13px;border-radius:11px;transition:background .18s,border-color .18s}
+#tab-support #buyerSupportNew:hover{border-color:#d8b76f66;background:#d8b76f10}
+#tab-support #buyerSupportNotice{padding:10px 13px}
+@keyframes supportBubbleIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:540px){
+ #tab-support h2{align-items:flex-start;flex-wrap:wrap;font-size:18px}
+ #tab-support h2::after{margin-right:0}
+ #tab-support .support-bubble .support-meta{gap:8px}
+ #tab-support #buyerSupportSend{padding:9px}
+}
+@media(prefers-reduced-motion:reduce){#tab-support .support-bubble,#tab-support #buyerSupportStart .btn,#tab-support #buyerSupportSendBtn{animation:none;transition:none}}
 .photo-modal{overflow:hidden}
 .photo-modal img{touch-action:none!important;user-select:none;-webkit-user-select:none;will-change:transform}
 
