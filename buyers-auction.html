@@ -561,6 +561,18 @@ body.dashboard-open #auctionArea:not(.hidden) #tab-fines{padding-bottom:calc(90p
 .bid-submit-row .bid-inline-timer{min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;padding:10px!important}
 .bid-submit-row .bid-submit{min-height:62px!important;padding:16px 12px!important;font-size:17px!important;font-weight:900!important;border-radius:14px!important;white-space:normal;line-height:1.5;box-shadow:0 7px 20px #0004}
 @media(max-width:480px){.auction-card-actions{grid-template-columns:1fr}.auction-card-timer{flex-direction:row;align-items:center;justify-content:space-between}.bid-submit-row{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:7px}.bid-submit-row .bid-submit{font-size:15px!important;min-height:60px!important;padding:13px 8px!important}.bid-submit-row .bid-inline-timer{padding:8px!important}.bid-submit-row .bid-inline-timer b{font-size:12px!important}}
+
+/* اصلاح قطعی اسکرول طبیعی در تمام تب‌های داشبورد؛ استفاده از اسکرول خود مرورگر */
+html,body{height:auto!important;min-height:100%!important;max-height:none!important;overflow-y:auto!important;overscroll-behavior-y:auto!important}
+body.dashboard-open{display:block!important;position:static!important;height:auto!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important}
+body.dashboard-open .wrap,body.dashboard-open main.wrap{height:auto!important;max-height:none!important;overflow:visible!important}
+body.dashboard-open #auctionArea:not(.hidden){position:relative!important;display:block!important;height:auto!important;max-height:none!important;overflow:visible!important;touch-action:pan-y!important}
+body.dashboard-open #auctionArea:not(.hidden) .buyer-tab,body.dashboard-open #auctionArea:not(.hidden) .buyer-tab:not(.hidden),body.dashboard-open #auctionArea:not(.hidden) .panel,body.dashboard-open #auctionArea:not(.hidden) .grid{height:auto!important;max-height:none!important;overflow:visible!important;overscroll-behavior:auto!important}
+body.dashboard-open #auctionArea:not(.hidden) .buyer-tab.hidden{display:none!important}
+body.dashboard-open #buyerSidebar{max-height:100vh!important;max-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
+body.dashboard-open #auctionArea:not(.hidden){padding-bottom:calc(170px + env(safe-area-inset-bottom))!important}
+@media(min-width:700px){body.dashboard-open #auctionArea:not(.hidden){padding-bottom:100px!important}}
+
 </style>
 </head>
 <body><main class="wrap">
