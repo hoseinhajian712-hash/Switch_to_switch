@@ -449,6 +449,11 @@ button,a,input,select,textarea{touch-action:manipulation}
 .vehicle-section-options .vehicle-section-option.selected{border-color:#d8b76f!important;background:linear-gradient(100deg,#4a3b20,#1b344d)!important;color:#ffe5a5!important;box-shadow:inset -3px 0 #e4c27b!important}
 .vehicle-section-options .vehicle-section-option.selected::after{content:'✓';transform:none;opacity:1;background:#e4c27b22;color:#ffe5a5;font-size:13px;font-weight:900}
 @media(max-width:540px){.vehicle-section-select-button.vehicle-section-select{min-height:53px!important;font-size:12px!important}.vehicle-section-options.vehicle-section-options{max-height:48vh!important;padding:6px!important}.vehicle-section-options .vehicle-section-option{min-height:44px!important;padding:10px!important}}
+
+/* تصویر اصلی خودرو: تمام کادر را پر کند و حاشیه تیره نداشته باشد */
+.car-card .hero-photo{padding:0!important;overflow:hidden;background:transparent!important}
+.car-card .hero-photo img{display:block;width:100%!important;height:clamp(190px,32vw,320px)!important;max-height:none!important;aspect-ratio:auto!important;object-fit:cover!important;object-position:center!important;background:transparent!important;padding:0!important;border:0!important}
+@media(max-width:520px){.car-card .hero-photo img{height:210px!important}}
 </style>
 </head>
 <body><main class="wrap">
