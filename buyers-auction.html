@@ -533,6 +533,14 @@ body{min-height:100vh;overflow-x:hidden;overflow-y:auto!important;overscroll-beh
 #auctionArea,.buyer-tab{height:auto;min-height:0;overflow:visible!important}
 .wrap{height:auto;min-height:100vh}
 #tab-fines{padding-bottom:calc(36px + env(safe-area-inset-bottom))}
+
+/* اصلاح قطعی اسکرول خود داشبورد در موبایل و دسکتاپ */
+html,body{width:100%;height:auto!important;min-height:100%;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;position:relative!important}
+body{overscroll-behavior-y:auto!important;touch-action:pan-y!important}
+#auctionArea:not(.hidden){display:block!important;position:relative!important;height:calc(100vh - 88px)!important;height:calc(100dvh - 88px)!important;min-height:260px!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
+#auctionArea:not(.hidden) .buyer-tab{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+#auctionArea:not(.hidden) #tab-auctions{padding-bottom:30px!important}
+@media(min-width:700px){#auctionArea:not(.hidden){height:calc(100vh - 105px)!important;height:calc(100dvh - 105px)!important}}
 </style>
 </head>
 <body><main class="wrap">
