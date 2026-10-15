@@ -729,4 +729,17 @@ document.addEventListener("touchcancel",function(){blockPullGesture=false},{pass
 <button type="button" data-bottom-tab="wallet"><span class="bottom-icon">💳</span><span>کیف پول</span></button>
 <button type="button" class="active" data-bottom-tab="account"><span class="bottom-icon">♙</span><span>حساب کاربری</span></button>
 </nav>
+<script>
+(function(){
+  var nav=document.getElementById("bottomAuctionNav");
+  var login=document.getElementById("login");
+  if(!nav||!login)return;
+  function syncBuyerNav(){
+    var loggedIn=login.classList.contains("hidden");
+    nav.classList.toggle("hidden",!loggedIn);
+  }
+  syncBuyerNav();
+  new MutationObserver(syncBuyerNav).observe(login,{attributes:true,attributeFilter:["class"]});
+})();
+</script>
 </body></html>
