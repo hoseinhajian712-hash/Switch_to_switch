@@ -644,6 +644,13 @@ body.profile-required .buyer-tab,body.profile-required #identityGate,body.profil
 .subscription-panel.show-payment-page>h2,.subscription-panel.show-payment-page>#subscriptionDetails,.subscription-panel.show-payment-page>p,.subscription-panel.show-payment-page>.subscription-plans-title,.subscription-panel.show-payment-page>.subscription-plans,.subscription-panel.show-payment-page>#subscriptionPlanNotice,.subscription-panel.show-payment-page>#subscriptionPaymentHistory{display:none!important}
 .subscription-panel.show-payment-page>#subscriptionPaymentPanel{display:block!important;margin-top:0!important;min-height:55vh;animation:subscriptionPageIn .18s ease-out}
 @keyframes subscriptionPageIn{from{opacity:.6;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* نمایش کامل متن پذیرش قوانین در موبایل و لپ‌تاپ */
+.terms-accept{display:flex!important;flex-wrap:wrap!important;white-space:normal!important;overflow:visible!important;justify-content:center!important;align-items:center!important;line-height:1.9!important;gap:4px!important;min-height:42px;box-sizing:border-box}
+.terms-accept span{flex:0 1 auto!important;white-space:normal!important}
+.terms-link{flex:0 0 auto!important;white-space:nowrap!important}
+.terms-modal:not(.hidden){display:flex!important}
+.terms-dialog{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain}
 </style>
 </head>
 <body><main class="wrap">
