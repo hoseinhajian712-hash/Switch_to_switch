@@ -536,7 +536,6 @@ body.dashboard-open #auctionArea:not(.hidden) .buyer-tab{position:relative!impor
 body.dashboard-open #auctionArea:not(.hidden) #tab-auctions{padding-bottom:40px!important}
 body.dashboard-open #auctionArea:not(.hidden) #tab-fines{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important}
 @media(min-width:700px){body.dashboard-open #auctionArea:not(.hidden){height:calc(100vh - 100px)!important;height:calc(100dvh - 100px)!important;padding-left:18px!important;padding-right:18px!important}}
-
 </style>
 </head>
 <body><main class="wrap">
@@ -840,7 +839,5 @@ document.addEventListener("touchcancel",function(){blockPullGesture=false},{pass
 
 /* دکمه ثابت پایین صفحه، فرم مزایده‌ای را ارسال می‌کند که کارت آن در دید کاربر است */
 (function setupFixedBidBar(){const bar=document.getElementById("fixedBidBar"),button=document.getElementById("fixedBidSubmit");if(!bar||!button)return;let lastShow=null;function sync(){const area=document.getElementById("auctionArea"),login=document.getElementById("login"),tab=document.getElementById("tab-auctions");const show=!!(area&&login&&tab&&!area.classList.contains("hidden")&&login.classList.contains("hidden")&&!tab.classList.contains("hidden"));bar.classList.toggle("hidden",!show);document.body.classList.toggle("has-fixed-bid-bar",show);if(show!==lastShow){lastShow=show;document.body.style.paddingBottom=show?"calc(92px + env(safe-area-inset-bottom))":""}}button.addEventListener("click",function(){const forms=[...document.querySelectorAll("form[data-bid]")];const visibleForms=forms.filter(f=>{const card=f.closest("[data-auction-card]")||f.closest("article")||f;const r=card.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight});const form=visibleForms[0]||forms[0];if(!form){const target=document.getElementById("auctionArea");if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return}if(!visibleForms.length)form.scrollIntoView({behavior:"smooth",block:"center"});form.requestSubmit()});const observer=new MutationObserver(sync);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style"]});window.addEventListener("scroll",sync,{passive:true});window.addEventListener("resize",sync);document.addEventListener("visibilitychange",sync);sync()})();
-
-
 </script><script src="money-format.js"></script><div id="fixedBidBar" class="hidden" role="region" aria-label="ثبت پیشنهاد مزایده"><div class="fixed-bid-copy"><strong>ثبت پیشنهاد قیمت</strong><span>مبلغ را از داخل کارت خودرو انتخاب کن</span></div><button id="fixedBidSubmit" type="button">✓ ثبت پیشنهاد</button></div>
 </body></html>
