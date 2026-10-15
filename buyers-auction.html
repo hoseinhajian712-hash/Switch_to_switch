@@ -812,6 +812,31 @@ document.addEventListener("touchcancel",function(){blockPullGesture=false},{pass
 
 })();
 
+/* پشتیبان اسکرول لمسی داشبورد؛ رفع گیرکردن اسکرول در برخی مرورگرهای اندروید */
+(function(){
+ const area=document.getElementById("auctionArea");
+ if(!area||area.dataset.touchScrollReady)return;
+ area.dataset.touchScrollReady="1";
+ let startY=0,startTop=0,tracking=false;
+ area.addEventListener("touchstart",function(e){
+  if(e.touches.length!==1){tracking=false;return}
+  const target=e.target;
+  if(target&&target.closest("input,textarea,select,button,a,summary,[contenteditable=true],.photos,.buyer-tabs,.photo-modal")){tracking=false;return}
+  startY=e.touches[0].clientY;startTop=area.scrollTop;tracking=true;
+ },{passive:true});
+ area.addEventListener("touchmove",function(e){
+  if(!tracking||e.touches.length!==1)return;
+  const y=e.touches[0].clientY,delta=startY-y;
+  if(Math.abs(delta)<3)return;
+  if(area.scrollHeight>area.clientHeight+2){
+   area.scrollTop=startTop+delta;
+   if(e.cancelable)e.preventDefault();
+  }
+ },{passive:false});
+ area.addEventListener("touchend",function(){tracking=false},{passive:true});
+ area.addEventListener("touchcancel",function(){tracking=false},{passive:true});
+})();
+
 /* دکمه ثابت پایین صفحه، فرم مزایده‌ای را ارسال می‌کند که کارت آن در دید کاربر است */
 (function setupFixedBidBar(){const bar=document.getElementById("fixedBidBar"),button=document.getElementById("fixedBidSubmit");if(!bar||!button)return;let lastShow=null;function sync(){const area=document.getElementById("auctionArea"),login=document.getElementById("login"),tab=document.getElementById("tab-auctions");const show=!!(area&&login&&tab&&!area.classList.contains("hidden")&&login.classList.contains("hidden")&&!tab.classList.contains("hidden"));bar.classList.toggle("hidden",!show);document.body.classList.toggle("has-fixed-bid-bar",show);if(show!==lastShow){lastShow=show;document.body.style.paddingBottom=show?"calc(92px + env(safe-area-inset-bottom))":""}}button.addEventListener("click",function(){const forms=[...document.querySelectorAll("form[data-bid]")];const visibleForms=forms.filter(f=>{const card=f.closest("[data-auction-card]")||f.closest("article")||f;const r=card.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight});const form=visibleForms[0]||forms[0];if(!form){const target=document.getElementById("auctionArea");if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return}if(!visibleForms.length)form.scrollIntoView({behavior:"smooth",block:"center"});form.requestSubmit()});const observer=new MutationObserver(sync);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style"]});window.addEventListener("scroll",sync,{passive:true});window.addEventListener("resize",sync);document.addEventListener("visibilitychange",sync);sync()})();
 </script><script src="money-format.js"></script><div id="fixedBidBar" class="hidden" role="region" aria-label="ثبت پیشنهاد مزایده"><div class="fixed-bid-copy"><strong>ثبت پیشنهاد قیمت</strong><span>مبلغ را از داخل کارت خودرو انتخاب کن</span></div><button id="fixedBidSubmit" type="button">✓ ثبت پیشنهاد</button></div>
