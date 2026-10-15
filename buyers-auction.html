@@ -454,6 +454,12 @@ button,a,input,select,textarea{touch-action:manipulation}
 .car-card .hero-photo{padding:0!important;overflow:hidden;background:transparent!important}
 .car-card .hero-photo img{display:block;width:100%!important;height:clamp(190px,32vw,320px)!important;max-height:none!important;aspect-ratio:auto!important;object-fit:cover!important;object-position:center!important;background:transparent!important;padding:0!important;border:0!important}
 @media(max-width:520px){.car-card .hero-photo img{height:210px!important}}
+
+/* دکمه ثبت پیشنهاد ثابت در پایین صفحه */
+#fixedBidBar{position:fixed;z-index:10010;left:0;right:0;bottom:0;display:flex;align-items:center;gap:12px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#101f32f2,#07111ffb);border-top:1px solid #b8955277;box-shadow:0 -8px 28px #0006;backdrop-filter:blur(12px)}
+#fixedBidBar .fixed-bid-copy{flex:1;min-width:0;font-size:11px;color:#c7d4e3}#fixedBidBar .fixed-bid-copy strong{display:block;color:#ffe5a5;font-size:13px}
+#fixedBidBar button{flex:0 0 auto;min-width:155px;font:inherit;font-size:13px;font-weight:900;padding:11px 16px;border:0;border-radius:12px;background:linear-gradient(120deg,#f0d694,#bd9145);color:#201a0e;box-shadow:0 4px 14px #0004;cursor:pointer}#fixedBidBar button:disabled{opacity:.55;cursor:not-allowed}body.has-fixed-bid-bar{padding-bottom:88px}
+@media(max-width:420px){#fixedBidBar{gap:8px;padding-left:10px;padding-right:10px}#fixedBidBar .fixed-bid-copy{font-size:10px}#fixedBidBar .fixed-bid-copy strong{font-size:12px}#fixedBidBar button{min-width:132px;padding:10px 11px;font-size:12px}}
 </style>
 </head>
 <body><main class="wrap">
@@ -709,4 +715,8 @@ document.addEventListener("touchend",function(){blockPullGesture=false},{passive
 document.addEventListener("touchcancel",function(){blockPullGesture=false},{passive:true});
 
 })();
-</script><script src="money-format.js"></script></body></html>
+
+/* دکمه ثابت پایین صفحه، فرم مزایده‌ای را ارسال می‌کند که کارت آن در دید کاربر است */
+(function setupFixedBidBar(){const bar=document.getElementById("fixedBidBar"),button=document.getElementById("fixedBidSubmit");if(!bar||!button)return;function sync(){const tab=document.querySelector(".buyer-tab:not(.hidden)");const show=!!(tab&&tab.id==="tab-auctions"&&document.querySelector("form[data-bid]"));bar.classList.toggle("hidden",!show);document.body.classList.toggle("has-fixed-bid-bar",show)}button.addEventListener("click",function(){const forms=[...document.querySelectorAll("form[data-bid]")];const form=forms.find(f=>{const card=f.closest("[data-auction-card]")||f.closest("article")||f;const r=card.getBoundingClientRect();return r.bottom>90&&r.top<window.innerHeight-70});if(!form){if(forms[0])forms[0].scrollIntoView({behavior:"smooth",block:"center"});return}form.requestSubmit()});new MutationObserver(sync).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class"]});window.addEventListener("scroll",sync,{passive:true});window.addEventListener("resize",sync);setInterval(sync,1000);sync()})();
+</script><script src="money-format.js"></script><div id="fixedBidBar" class="hidden" role="region" aria-label="ثبت پیشنهاد مزایده"><div class="fixed-bid-copy"><strong>ثبت پیشنهاد قیمت</strong><span>مبلغ را از داخل کارت خودرو انتخاب کن</span></div><button id="fixedBidSubmit" type="button">✓ ثبت پیشنهاد</button></div>
+</body></html>
