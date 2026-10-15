@@ -542,16 +542,17 @@ body{overscroll-behavior-y:auto!important;touch-action:pan-y!important}
 #auctionArea:not(.hidden) #tab-auctions{padding-bottom:30px!important}
 @media(min-width:700px){#auctionArea:not(.hidden){height:calc(100vh - 105px)!important;height:calc(100dvh - 105px)!important}}
 
-/* اسکرول واقعی محتوای داشبورد؛ ظرف اسکرول داخل قاب ثابت */
-html:has(body.dashboard-open),html:has(body.dashboard-open) body{height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;overscroll-behavior:none!important}
-body.dashboard-open{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;padding:0!important;margin:0!important;touch-action:pan-x pan-y!important}
-body.dashboard-open .wrap{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;height:100dvh!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;padding:7px 10px 0!important;box-sizing:border-box!important}
-body.dashboard-open .bar{position:absolute!important;top:7px!important;left:10px!important;right:10px!important;z-index:8!important;margin:0!important}
-body.dashboard-open #message{display:none!important}
-body.dashboard-open #auctionArea:not(.hidden){display:block!important;position:absolute!important;top:86px!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:8px 10px calc(125px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;scrollbar-width:thin;background:var(--bg)!important;z-index:5!important}
+/* اسکرول داشبورد بدون قفل کردن بدنه؛ جلوگیری از مخفی شدن پنل */
+html,body{width:100%;height:auto!important;min-height:100%;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;position:relative!important}
+body{overscroll-behavior-y:auto!important;touch-action:pan-y!important}
+body.dashboard-open{position:relative!important;inset:auto!important;height:auto!important;min-height:100vh!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;padding:0!important;margin:0!important}
+body.dashboard-open .wrap{position:relative!important;inset:auto!important;height:auto!important;height:auto!important;min-height:100vh!important;max-height:none!important;overflow:visible!important;padding:7px 10px!important;box-sizing:border-box!important}
+body.dashboard-open .bar{position:relative!important;top:auto!important;left:auto!important;right:auto!important;z-index:8!important;margin-bottom:8px!important}
+body.dashboard-open #message{display:block!important}
+body.dashboard-open #auctionArea:not(.hidden){display:block!important;position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;width:auto!important;height:calc(100vh - 88px)!important;height:calc(100dvh - 88px)!important;min-height:260px!important;max-height:none!important;margin:0!important;padding:8px 10px calc(125px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;scrollbar-width:thin;background:var(--bg)!important;z-index:auto!important}
 body.dashboard-open #auctionArea:not(.hidden) .buyer-tab{position:relative!important;overflow:visible!important;max-height:none!important;height:auto!important;min-height:0!important}
 body.dashboard-open #auctionArea:not(.hidden) .buyer-tabs{touch-action:pan-x!important}
-@media(min-width:700px){body.dashboard-open .wrap{padding-left:18px!important;padding-right:18px!important}body.dashboard-open .bar{left:18px!important;right:18px!important}body.dashboard-open #auctionArea:not(.hidden){top:96px!important;padding-left:18px!important;padding-right:18px!important}}
+@media(min-width:700px){body.dashboard-open .wrap{padding-left:18px!important;padding-right:18px!important}body.dashboard-open #auctionArea:not(.hidden){height:calc(100vh - 105px)!important;height:calc(100dvh - 105px)!important;padding-left:18px!important;padding-right:18px!important}}
 </style>
 </head>
 <body><main class="wrap">
