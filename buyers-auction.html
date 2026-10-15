@@ -453,7 +453,7 @@ button,a,input,select,textarea{touch-action:manipulation}
 /* نوار پیمایش پایین پنل مزایده */
 .bottom-auction-nav{position:fixed;z-index:9998;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:linear-gradient(180deg,#102238f5,#081322f7);border-top:1px solid #b8955270;backdrop-filter:blur(16px);box-shadow:0 -8px 28px #0005}
 .bottom-auction-nav a,.bottom-auction-nav button{display:flex;min-width:0;align-items:center;justify-content:center;flex-direction:column;gap:2px;padding:6px 2px;border:1px solid transparent;border-radius:11px;background:transparent;color:#a8bad0;text-decoration:none;font:inherit;font-size:10px;cursor:pointer;white-space:nowrap}
-.bottom-auction-nav .bottom-icon{font-size:19px;line-height:1.3}.bottom-auction-nav .active{color:#ffe5a5;border-color:#b8955266;background:#332b1c}
+.bottom-auction-nav .bottom-icon{font-size:19px;line-height:1.3;color:inherit;filter:grayscale(1)}.bottom-auction-nav .active{color:#ffe5a5;border-color:#b8955266;background:#332b1c}
 body{padding-bottom:calc(82px + env(safe-area-inset-bottom))}
 @media(min-width:721px){.bottom-auction-nav{left:50%;right:auto;transform:translateX(-50%);width:min(760px,96vw);border:1px solid #b8955266;border-bottom:0;border-radius:16px 16px 0 0}}
 </style>
@@ -723,11 +723,11 @@ document.addEventListener("touchcancel",function(){blockPullGesture=false},{pass
 
 })();
 </script><script src="money-format.js"></script><nav class="bottom-auction-nav hidden" id="bottomAuctionNav" aria-label="پیمایش اصلی پنل مزایده">
-<button type="button" data-bottom-tab="active-auctions"><span class="bottom-icon">🚘</span><span>مزایده فعال</span></button>
-<button type="button" data-bottom-tab="bids"><span class="bottom-icon">↗</span><span>پیشنهادهای من</span></button>
-<button type="button" data-bottom-tab="cars"><span class="bottom-icon">🚗</span><span>خودروهای من</span></button>
-<button type="button" data-bottom-tab="wallet"><span class="bottom-icon">💳</span><span>کیف پول</span></button>
-<button type="button" class="active" data-bottom-tab="account"><span class="bottom-icon">♙</span><span>حساب کاربری</span></button>
+<button type="button" data-bottom-tab="active-auctions"><span class="bottom-icon" aria-hidden="true">◇</span><span>مزایده فعال</span></button>
+<button type="button" data-bottom-tab="bids"><span class="bottom-icon" aria-hidden="true">↗</span><span>پیشنهادهای من</span></button>
+<button type="button" data-bottom-tab="cars"><span class="bottom-icon" aria-hidden="true">□</span><span>خودروهای من</span></button>
+<button type="button" data-bottom-tab="wallet"><span class="bottom-icon" aria-hidden="true">▤</span><span>کیف پول</span></button>
+<button type="button" class="active" data-bottom-tab="account"><span class="bottom-icon" aria-hidden="true">♙</span><span>حساب کاربری</span></button>
 </nav>
 <script>
 (function(){
