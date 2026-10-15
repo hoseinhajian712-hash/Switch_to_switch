@@ -841,23 +841,6 @@ document.addEventListener("touchcancel",function(){blockPullGesture=false},{pass
 /* دکمه ثابت پایین صفحه، فرم مزایده‌ای را ارسال می‌کند که کارت آن در دید کاربر است */
 (function setupFixedBidBar(){const bar=document.getElementById("fixedBidBar"),button=document.getElementById("fixedBidSubmit");if(!bar||!button)return;let lastShow=null;function sync(){const area=document.getElementById("auctionArea"),login=document.getElementById("login"),tab=document.getElementById("tab-auctions");const show=!!(area&&login&&tab&&!area.classList.contains("hidden")&&login.classList.contains("hidden")&&!tab.classList.contains("hidden"));bar.classList.toggle("hidden",!show);document.body.classList.toggle("has-fixed-bid-bar",show);if(show!==lastShow){lastShow=show;document.body.style.paddingBottom=show?"calc(92px + env(safe-area-inset-bottom))":""}}button.addEventListener("click",function(){const forms=[...document.querySelectorAll("form[data-bid]")];const visibleForms=forms.filter(f=>{const card=f.closest("[data-auction-card]")||f.closest("article")||f;const r=card.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight});const form=visibleForms[0]||forms[0];if(!form){const target=document.getElementById("auctionArea");if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return}if(!visibleForms.length)form.scrollIntoView({behavior:"smooth",block:"center"});form.requestSubmit()});const observer=new MutationObserver(sync);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style"]});window.addEventListener("scroll",sync,{passive:true});window.addEventListener("resize",sync);document.addEventListener("visibilitychange",sync);sync()})();
 
-<script>
-/* کنترل نوار اسکرول کنار داشبورد خریدار */
-(function(){
- const area=document.getElementById("auctionArea"),rail=document.getElementById("buyerScrollRail"),track=document.getElementById("buyerScrollTrack"),thumb=document.getElementById("buyerScrollThumb"),up=document.getElementById("buyerScrollUp"),down=document.getElementById("buyerScrollDown");
- if(!area||!rail||!track||!thumb)return;
- let dragging=false,startY=0,startTop=0;
- function sync(){const max=Math.max(0,area.scrollHeight-area.clientHeight),trackH=track.clientHeight,thumbH=max?Math.max(34,trackH*area.clientHeight/area.scrollHeight):trackH,travel=Math.max(0,trackH-thumbH),ratio=max?area.scrollTop/max:0;thumb.style.height=thumbH+"px";thumb.style.transform="translateY("+(travel*ratio)+"px)";track.setAttribute("aria-valuenow",String(Math.round(ratio*100)));rail.style.opacity=max>2?"1":".35";}
- function goToRatio(r){const max=Math.max(0,area.scrollHeight-area.clientHeight);area.scrollTop=Math.max(0,Math.min(1,r))*max;sync()}
- function thumbStart(e){if(e.button!==undefined&&e.button!==0)return;dragging=true;startY=e.clientY;startTop=area.scrollTop;thumb.setPointerCapture?.(e.pointerId);e.preventDefault()}
- function thumbMove(e){if(!dragging)return;const max=Math.max(0,area.scrollHeight-area.clientHeight),travel=Math.max(1,track.clientHeight-thumb.offsetHeight);area.scrollTop=startTop+(e.clientY-startY)*max/travel;sync()}
- function thumbEnd(){dragging=false}
- thumb.addEventListener("pointerdown",thumbStart);window.addEventListener("pointermove",thumbMove);window.addEventListener("pointerup",thumbEnd);window.addEventListener("pointercancel",thumbEnd);
- track.addEventListener("pointerdown",e=>{if(e.target===thumb)return;const r=track.getBoundingClientRect();goToRatio((e.clientY-r.top-thumb.offsetHeight/2)/Math.max(1,r.height-thumb.offsetHeight));});
- up.addEventListener("click",()=>area.scrollBy({top:-Math.max(220,area.clientHeight*.7),behavior:"smooth"}));down.addEventListener("click",()=>area.scrollBy({top:Math.max(220,area.clientHeight*.7),behavior:"smooth"}));
- track.addEventListener("keydown",e=>{if(e.key==="ArrowUp"){area.scrollBy({top:-120,behavior:"smooth"});e.preventDefault()}else if(e.key==="ArrowDown"){area.scrollBy({top:120,behavior:"smooth"});e.preventDefault()}else if(e.key==="Home"){area.scrollTo({top:0,behavior:"smooth"});e.preventDefault()}else if(e.key==="End"){area.scrollTo({top:area.scrollHeight,behavior:"smooth"});e.preventDefault()}});
- area.addEventListener("scroll",sync,{passive:true});window.addEventListener("resize",sync);new MutationObserver(sync).observe(area,{subtree:true,childList:true,attributes:true,characterData:true});setInterval(sync,1200);sync();
-})();
-</script>
+
 </script><script src="money-format.js"></script><div id="fixedBidBar" class="hidden" role="region" aria-label="ثبت پیشنهاد مزایده"><div class="fixed-bid-copy"><strong>ثبت پیشنهاد قیمت</strong><span>مبلغ را از داخل کارت خودرو انتخاب کن</span></div><button id="fixedBidSubmit" type="button">✓ ثبت پیشنهاد</button></div>
 </body></html>
