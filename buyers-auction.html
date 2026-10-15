@@ -536,6 +536,12 @@ body.dashboard-open #auctionArea:not(.hidden) .buyer-tab{position:relative!impor
 body.dashboard-open #auctionArea:not(.hidden) #tab-auctions{padding-bottom:40px!important}
 body.dashboard-open #auctionArea:not(.hidden) #tab-fines{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important}
 @media(min-width:700px){body.dashboard-open #auctionArea:not(.hidden){height:calc(100vh - 100px)!important;height:calc(100dvh - 100px)!important;padding-left:18px!important;padding-right:18px!important}}
+
+/* نوارهای اسکرول در پنل مزایده نمایش داده نشوند؛ اسکرول لمسی همچنان فعال بماند */
+body.dashboard-open #auctionArea,
+body.dashboard-open #auctionArea *{scrollbar-width:none!important;-ms-overflow-style:none!important}
+body.dashboard-open #auctionArea::-webkit-scrollbar,
+body.dashboard-open #auctionArea *::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
 </style>
 </head>
 <body><main class="wrap">
