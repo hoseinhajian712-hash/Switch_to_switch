@@ -541,6 +541,16 @@ body{overscroll-behavior-y:auto!important;touch-action:pan-y!important}
 #auctionArea:not(.hidden) .buyer-tab{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
 #auctionArea:not(.hidden) #tab-auctions{padding-bottom:30px!important}
 @media(min-width:700px){#auctionArea:not(.hidden){height:calc(100vh - 105px)!important;height:calc(100dvh - 105px)!important}}
+
+/* قفل اسکرول صفحه پشت داشبورد؛ فقط خود پنل اسکرول می‌شود */
+html:has(body.dashboard-open),body.dashboard-open{height:100%!important;min-height:100%!important;overflow:hidden!important;overscroll-behavior:none!important}
+body.dashboard-open{position:fixed!important;inset:0!important;width:100%!important;padding:0!important}
+body.dashboard-open .wrap{height:100%!important;min-height:0!important;overflow:hidden!important;padding:7px 10px!important;box-sizing:border-box!important}
+body.dashboard-open .bar{position:relative!important;z-index:2!important;margin-bottom:8px!important}
+body.dashboard-open #auctionArea:not(.hidden){position:fixed!important;top:86px!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:8px 10px calc(110px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:scroll!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;background:var(--bg)!important;z-index:5!important}
+body.dashboard-open #auctionArea:not(.hidden) .buyer-tab{position:relative!important;overflow:visible!important;max-height:none!important;height:auto!important}
+body.dashboard-open #auctionArea:not(.hidden) .buyer-tabs{touch-action:pan-x!important}
+@media(min-width:700px){body.dashboard-open #auctionArea:not(.hidden){top:96px!important;padding-left:18px!important;padding-right:18px!important}}
 </style>
 </head>
 <body><main class="wrap">
@@ -568,7 +578,7 @@ async function loadReadyQueue(){const count=$("queueCount"),target=$("queueCars"
 function normalizeAmount(v){return String(v==null?"":v).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,"")}function formatAmountInput(input){const n=normalizeAmount(input.value);input.value=n?Number(n).toLocaleString("fa-IR"):""}function fa(v){return Number(v||0).toLocaleString("fa-IR")}function money(v){return fa(v)+" تومان"}function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function msg(t,kind){$("message").innerHTML=t?'<div class="msg '+(kind||"")+'">'+esc(t)+'</div>':""}
 function readAuctionToken(){let saved="";try{saved=localStorage.getItem("s2s_auction_buyer_token")||""}catch(_){}if(!saved){const m=document.cookie.match(/(?:^|;\\s*)s2s_auction_buyer_token=([^;]+)/);if(m)try{saved=decodeURIComponent(m[1])}catch(_){}}return saved}function saveAuctionToken(value){token=value;try{localStorage.setItem("s2s_auction_buyer_token",value)}catch(_){}document.cookie="s2s_auction_buyer_token="+encodeURIComponent(value)+"; Max-Age=7776000; Path=/; SameSite=Lax; Secure"}function clearAuctionToken(){token="";try{localStorage.removeItem("s2s_auction_buyer_token")}catch(_){}document.cookie="s2s_auction_buyer_token=; Max-Age=0; Path=/; SameSite=Lax; Secure"}async function api(name,id,body){const saved=readAuctionToken();if(saved)token=saved;let url=base+"?api="+encodeURIComponent(name)+(id?"&id="+encodeURIComponent(id):"")+(token?"&token="+encodeURIComponent(token):"")+"&_="+Date.now();const headers=body?{"content-type":"application/json"}:{};/* نشست مزایده از طریق پارامتر token بررسی می‌شود؛ هدر Authorization لازم نیست و حذفش درخواست‌های GET موبایل را بدون preflight نگه می‌دارد. */let res=await fetch(url,{method:body?"POST":"GET",headers,body:body?JSON.stringify(body):undefined,cache:"no-store"});let data;try{data=await res.json()}catch(e){throw Error("پاسخ سرور قابل خواندن نیست")}if(!res.ok||data.error)throw Error(data.error||"درخواست ناموفق بود");return data}
-function showLoggedIn(yes){$("login").classList.toggle("hidden",yes);$("auctionArea").classList.toggle("hidden",!yes);$("menuToggle").style.display=yes?"flex":"none";if(!yes)closeSidebar()}
+function showLoggedIn(yes){$("login").classList.toggle("hidden",yes);$("auctionArea").classList.toggle("hidden",!yes);document.body.classList.toggle("dashboard-open",yes);$("menuToggle").style.display=yes?"flex":"none";if(!yes)closeSidebar()}
 const supportConversationKey="s2s_buyer_auction_support_conversation",supportTokenKey="s2s_buyer_auction_support_token";
 let buyerSupportConversation=localStorage.getItem(supportConversationKey)||"",buyerSupportToken=localStorage.getItem(supportTokenKey)||"",buyerSupportPollBusy=false;
 function buyerSupportNotice(message,isError=false){const el=$("buyerSupportNotice");el.textContent=message;el.classList.remove("hidden","err","ok");el.classList.add(isError?"err":"ok")}
