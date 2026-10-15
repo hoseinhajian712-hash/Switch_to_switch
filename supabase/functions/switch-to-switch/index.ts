@@ -291,7 +291,7 @@ async function buyerMarkNotificationRead(req:Request,u:URL){
 async function buyerSaveProfile(req:Request,u:URL){
  const sess=await auctionToken(req,u);if(!sess)return json({error:"نشست ورود معتبر نیست؛ دوباره وارد حساب شو."},401);
  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات فرم قابل خواندن نیست."},400)}
- const digits=(v:string)=>v.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+ const digits=(v:string)=>v.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[０-９]/g,d=>"０１２３４５６７８９".indexOf(d)).replace(/[\u200B-\u200D\uFEFF]/g,"");
  const nationalId=digits(String(b.national_id||"")).replace(/\D/g,""),address=String(b.address||"").trim().replace(/\s+/g," ").slice(0,1000);
  // Validate format here; the uploaded national-ID card is reviewed manually before auction access is approved.
  if(!/^\d{10}$/.test(nationalId)||/^([0-9])\1{9}$/.test(nationalId))return json({error:"کد ملی باید ۱۰ رقم داشته باشد؛ لطفاً ارقام را بررسی کن."},400);
