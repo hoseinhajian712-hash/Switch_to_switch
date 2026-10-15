@@ -781,6 +781,7 @@ function showImportantNotification(n){
  $("buyerAlerts").innerHTML='<div class="msg ok"><b>'+esc(n.title)+'</b><br>'+esc(n.message)+' <button type="button" class="btn" data-tab="'+(isIdentity?'auctions':'cars')+'" data-notification-dismiss="'+esc(n.id)+'">'+(isIdentity?'ورود به مزایده':'رفتن به خودروهای من')+'</button></div>';
  api("buyer-mark-notification-read",null,{notification_id:n.id}).catch(()=>{});
 }
+function buyerNameWithSubscription(name,m){const until=m&&m.paid_until?new Date(m.paid_until).getTime():0;if(m&&m.subscription_status==="active"&&until>Date.now()){const days=Math.ceil((until-Date.now())/86400000);return name+" · "+days.toLocaleString("fa-IR")+" روز باقی‌مانده"}if(m&&m.subscription_status==="pending")return name+" · در انتظار فعال‌سازی";return name+" · اشتراک منقضی/غیرفعال"}
 function updateSubscriptionPanel(m){
  const el=$("subscriptionDetails");if(!el)return;
  const active=m.subscription_status==="active"&&!!m.paid_until&&new Date(m.paid_until).getTime()>Date.now();
@@ -799,7 +800,7 @@ async function renderDashboard(d){updateWalletBankInfo();updateSubscriptionBankI
  $("buyerNationalId").value=m.national_id||"";$("buyerAddress").value=m.address||"";
  if(!profileComplete){gate.classList.add("hidden");document.querySelectorAll(".buyer-tab").forEach(x=>x.classList.add("hidden"));$("buyerAlerts").classList.add("hidden");$("menuToggle").style.display="none";return;}
  $("buyerAlerts").classList.remove("hidden");
- const profileName=m.full_name||"خریدار";$("profileName").textContent=profileName;$("profileMobile").textContent=m.mobile||"حساب کاربری";$("profileAvatar").textContent=profileName.trim().charAt(0)||"خ";
+ const profileName=m.full_name||"خریدار";$("profileName").textContent=buyerNameWithSubscription(profileName,m);$("profileMobile").textContent=m.mobile||"حساب کاربری";$("profileAvatar").textContent=profileName.trim().charAt(0)||"خ";
  const important=(d.notifications||[]).find(n=>!n.read_at&&/احراز هویت تأیید شد|کارت ملی تأیید شد|اشتراک مزایده فعال شد|برنده مزایده شدی|نوبت شما شد؛ برنده مزایده هستید|منتظر نظر فروشنده|موافقت کرد؛ پیش‌پرداخت|پیش‌پرداخت تأیید شد|تسویه تأیید شد/.test(n.title||""));if(important)showImportantNotification(important);
  updateSubscriptionPanel(m);
  subscriptionActive=m.subscription_status==="active"&&!!m.paid_until&&new Date(m.paid_until).getTime()>Date.now();
@@ -933,7 +934,7 @@ async function refreshAuctionLists(){
  finally{auctionPollBusy=false}
 }
 let lastMemberState="",lastPurchaseState="";
-let buyerAlertsBusy=false;async function refreshBuyerAlerts(){if(!token||buyerAlertsBusy||document.visibilityState==="hidden")return;buyerAlertsBusy=true;try{const d=await api("buyer-dashboard"),m=d.member||{};buyerIdentityVerified=!!m.identity_verified;const liveName=(m.full_name||"خریدار").trim();if($("profileName"))$("profileName").textContent=liveName;if($("profileMobile"))$("profileMobile").textContent=m.mobile||"حساب کاربری";if($("profileAvatar"))$("profileAvatar").textContent=liveName.charAt(0)||"خ";subscriptionActive=m.subscription_status==="active"&&!!m.paid_until&&new Date(m.paid_until).getTime()>Date.now();applySubscriptionGate();updateSubscriptionPanel(m);
+let buyerAlertsBusy=false;async function refreshBuyerAlerts(){if(!token||buyerAlertsBusy||document.visibilityState==="hidden")return;buyerAlertsBusy=true;try{const d=await api("buyer-dashboard"),m=d.member||{};buyerIdentityVerified=!!m.identity_verified;const liveName=(m.full_name||"خریدار").trim();if($("profileName"))$("profileName").textContent=buyerNameWithSubscription(liveName,m);if($("profileMobile"))$("profileMobile").textContent=m.mobile||"حساب کاربری";if($("profileAvatar"))$("profileAvatar").textContent=liveName.charAt(0)||"خ";subscriptionActive=m.subscription_status==="active"&&!!m.paid_until&&new Date(m.paid_until).getTime()>Date.now();applySubscriptionGate();updateSubscriptionPanel(m);
 const memberState=JSON.stringify([m.identity_verified,m.subscription_status,m.paid_until]);
 const purchaseState=JSON.stringify((d.auctions||[]).map(x=>[x.id,x.purchase_stage,x.winner_id,x.prepayment_amount,x.seller_account_name,x.seller_account_number,x.current_bid]));
 if(memberState!==lastMemberState||purchaseState!==lastPurchaseState){lastMemberState=memberState;lastPurchaseState=purchaseState;await renderDashboard(d);
