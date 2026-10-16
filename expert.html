@@ -432,20 +432,23 @@ function parseVehicleCardText(raw){
     const hit=String(s||'').replace(/[^A-Z0-9]/g,'');
     if((hit.length===16||hit.length===17)&&/[A-Z]/.test(hit)&&/[0-9]/.test(hit))vinCandidates.push(hit);
   };
-  // First look for the distinctive motorcycle VIN prefix, allowing OCR spaces,
-  // dashes, or line breaks between characters.
-  const compactAll=normalized.replace(/[^A-Z0-9]/g,'');
-  const compactLines=lines.map(x=>x.replace(/[^A-Z0-9]/g,''));
-  const allCompact=[compactAll,...compactLines];
-  for(const compact of allCompact){
-    const re=/IRAM[A-Z0-9]{12,13}/g; let m;
-    while((m=re.exec(compact))!==null)addVin(m[0]);
-  }
-  // Also handle conventional 16/17-character IDs where OCR separates characters.
+  // Never concatenate the entire OCR page: that can accidentally join the VIN
+  // to unrelated words and produce a wrong identifier. Search only local lines.
+  const segments=[];
   for(let i=0;i<lines.length;i++){
-    const segment=[lines[i],lines[i+1]||''].join(' ');
-    const re=/(?:[A-Z0-9][\s-]*){16,17}/g;let m;
-    while((m=re.exec(segment))!==null)addVin(m[0]);
+    segments.push(lines[i]);
+    if(lines[i+1])segments.push(lines[i]+' '+lines[i+1]);
+  }
+  for(const segment of segments){
+    const compact=segment.replace(/[^A-Z0-9]/g,'');
+    let pos=0;
+    while((pos=compact.indexOf('IRAM',pos))!==-1){
+      for(const len of [16,17])addVin(compact.slice(pos,pos+len));
+      pos+=4;
+    }
+    // Conventional VIN candidates must remain within one visual token.
+    const tokens=segment.match(/[A-Z0-9]{16,17}/g)||[];
+    for(const token of tokens)addVin(token);
   }
   const uniqueVins=[...new Set(vinCandidates)];
   const iramVins=uniqueVins.filter(x=>x.startsWith('IRAM'));
@@ -456,11 +459,8 @@ function parseVehicleCardText(raw){
     if(!engineLabel.test(lines[i]))continue;
     const sameLine=lines[i].replace(engineLabel,' ').trim();
     const nearby=[sameLine,lines[i+1]||'',lines[i+2]||''].join(' ');
-    // First parse distinct OCR tokens, then try joined chunks for spaced engine IDs.
-    const tokens=nearby.match(/[A-Z0-9]{5,18}/g)||[];
-    for(const token of tokens){
-      if(/[0-9]/.test(token)&&!/^(?:19|20)\d{2}$/.test(token))engineCandidates.push(token);
-    }
+    const hits=nearby.match(/[A-Z0-9]{5,18}/g)||[];
+    for(const hit of hits)if(/[0-9]/.test(hit)&&!/^(?:19|20)\d{2}$/.test(hit))engineCandidates.push(hit);
   }
   const uniqueEngines=[...new Set(engineCandidates)];
   const engine=uniqueEngines.length===1?uniqueEngines[0]:'';
@@ -506,9 +506,7 @@ async function extractVehicleCardData(imageData){
   // If one OCR pass clearly finds a unique identifier and the other finds none, keep the clear result.
   // If both passes find different identifiers, leave the field untouched for safety.
   const sameVin=!!p1.vin&&p1.vin===p2.vin;
-  const oneClearVin=!!(p1.vin&&!p2.vin)&&((p1.vinCandidates||[]).filter(x=>x.startsWith('IRAM')).length===1||p1.vinCandidates?.length===1)?p1.vin:
-                    (!!(p2.vin&&!p1.vin)&&((p2.vinCandidates||[]).filter(x=>x.startsWith('IRAM')).length===1||p2.vinCandidates?.length===1)?p2.vin:'');
-  const chosenVin=sameVin?p1.vin:oneClearVin;
+  const chosenVin=sameVin?p1.vin:'';
   const sameEngine=!!p1.engine&&p1.engine===p2.engine;
   const oneClearEngine=!!(p1.engine&&!p2.engine)&&p1.engineCandidates?.length===1?p1.engine:
                        (!!(p2.engine&&!p1.engine)&&p2.engineCandidates?.length===1?p2.engine:'');
