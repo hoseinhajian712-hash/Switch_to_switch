@@ -290,6 +290,10 @@ html,body{font-size:17px!important}
  .defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions .camera-btn,
  .defect-card.defect-part-dropdown .inline-drawer>.camera-btn{min-width:96px!important;min-height:32px!important;padding:6px 8px!important;font-size:11px!important}
 }
+
+/* Prevent pull-to-refresh on the expert panel while preserving normal scrolling */
+html,body{overscroll-behavior-y:none;overscroll-behavior-x:none;}
+body{touch-action:pan-x pan-y;}
 </style>
 
 </head>
@@ -964,4 +968,8 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 .defect-card.defect-part-dropdown .inline-drawer .drawer-preview img{cursor:pointer}
 .defect-card.defect-part-dropdown .inline-drawer .drawer-preview .photo-item::after{content:'✎';position:absolute;left:6px;bottom:6px;display:flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:8px;background:#082b25e8;border:1px solid #36c9a0;color:#fff;font-size:15px;pointer-events:none}
 </style>
+<script>
+/* Block only downward pull-to-refresh gestures that start at the top of the page. */
+(()=>{let startX=0,startY=0,tracking=false;document.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;tracking=(window.scrollY<=0);},{passive:true});document.addEventListener('touchmove',e=>{if(!tracking||e.touches.length!==1)return;const dx=e.touches[0].clientX-startX,dy=e.touches[0].clientY-startY;if(dy>8&&dy>Math.abs(dx)&&window.scrollY<=0){e.preventDefault()}},{passive:false});document.addEventListener('touchend',()=>{tracking=false},{passive:true});document.addEventListener('touchcancel',()=>{tracking=false},{passive:true});})();
+</script>
 </body></html>
