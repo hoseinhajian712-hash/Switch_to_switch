@@ -767,6 +767,22 @@ async function api(req:Request,u:URL){
    return json({ok:true,message:"درخواست ثبت شد. پس از تأیید مدیر، کد ورود را از او دریافت کنید."},201);
   }catch(_){return json({error:"اطلاعات درخواست معتبر نیست."},400)}
  }
+
+ if(a==="customer-code-login"&&req.method==="POST"){
+  try{
+   const b=await req.json(),toEnglish=(v:string)=>String(v||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)),mobile=toEnglish(String(b.mobile||"").replace(/\D/g,"")),code=toEnglish(String(b.code||"").replace(/\D/g,""));
+   if(!/^09\d{9}$/.test(mobile)||!/^\d{8}$/.test(code))return json({error:"شماره موبایل یا کد ورود معتبر نیست."},400);
+   const r=await db.from("customer_access_requests").select("id,auth_user_id,status,code_hash,code_expires_at,code_used_at,mobile").eq("mobile",mobile).maybeSingle();
+   if(r.error||!r.data||r.data.status!=="approved"||!r.data.auth_user_id||!r.data.code_hash||r.data.code_used_at||!r.data.code_expires_at||new Date(r.data.code_expires_at).getTime()<Date.now()||await hex(code)!==r.data.code_hash)return json({error:"کد ورود اشتباه است، منقضی شده یا قبلاً استفاده شده است."},401);
+   const ur=await db.auth.admin.getUserById(r.data.auth_user_id);
+   if(ur.error||!ur.data.user?.email)return json({error:"حساب مشتری پیدا نشد؛ از مدیر بخواه کد تازه صادر کند."},401);
+   const link=await db.auth.admin.generateLink({type:"magiclink",email:ur.data.user.email});
+   if(link.error||!link.data?.properties?.hashed_token)return json({error:"ساخت نشست ورود انجام نشد؛ مدیر باید کد تازه صادر کند."},500);
+   const used=await db.from("customer_access_requests").update({display_code:null,code_hash:null,code_expires_at:null,code_used_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",r.data.id).is("code_used_at",null).eq("code_hash",r.data.code_hash);
+   if(used.error)return json({error:"ثبت استفاده از کد ناموفق بود."},500);
+   return json({ok:true,token_hash:link.data.properties.hashed_token,type:"magiclink"});
+  }catch(_){return json({error:"ورود با کد مدیر انجام نشد."},400)}
+ }
  if(a==="customer-code-used"&&req.method==="POST"){
   const bearer=(req.headers.get("authorization")||"").replace(/^Bearer\\s+/i,"").trim();
   if(!bearer)return json({error:"unauthorized"},401);
