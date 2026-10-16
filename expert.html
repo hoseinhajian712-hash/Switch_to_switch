@@ -1349,6 +1349,11 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 /* Restore vertical scrolling on expert panel while keeping horizontal overflow and pull-to-refresh controlled. */
 html, body { height:auto!important; min-height:100%!important; overflow-y:auto!important; overflow-x:hidden!important; touch-action:pan-x pan-y!important; }
 body { position:relative!important; -webkit-overflow-scrolling:touch!important; }
+
+/* Mobile fix: allow the whole expert page to scroll vertically. */
+html { height:auto!important; min-height:100%!important; overflow-x:hidden!important; overflow-y:scroll!important; }
+body { display:block!important; height:auto!important; min-height:100vh!important; max-height:none!important; overflow-x:hidden!important; overflow-y:visible!important; position:static!important; touch-action:pan-y!important; -webkit-overflow-scrolling:touch!important; }
+body > .wrap { height:auto!important; min-height:100vh!important; max-height:none!important; overflow:visible!important; }
 </style>
 
 
