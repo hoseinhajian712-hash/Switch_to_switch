@@ -457,16 +457,14 @@ async function adminApproveSeller(req:Request){
 async function adminSetCancellationFine(req:Request){
  const b=await req.json(),auctionId=String(b.auction_id||"").trim();
  if(!auctionId)return json({error:"شناسه مزایده الزامی است"},400);
- const raw=b.cancellation_fine_amount;
- const amount=raw===null||raw===""?null:Number(raw);
- if(amount!==null&&(!Number.isFinite(amount)||amount<0))return json({error:"مبلغ جریمه باید عدد معتبر و صفر یا بیشتر باشد"},400);
- const ar=await db.from("auctions").select("id,case_id,purchase_stage,cancellation_fine_amount").eq("id",auctionId).maybeSingle();
+ const ar=await db.from("auctions").select("id,case_id,purchase_stage,cancellation_fine_amount,current_bid,starting_price").eq("id",auctionId).maybeSingle();
  if(ar.error)return json({error:ar.error.message},500);
  if(!ar.data)return json({error:"مزایده پیدا نشد"},404);
- const up=await db.from("auctions").update({cancellation_fine_amount:amount}).eq("id",auctionId).select("id,case_id,purchase_stage,cancellation_fine_amount").single();
+ const price=Number(ar.data.current_bid||ar.data.starting_price||0),amount=calculateCancellationFine(price);
+ const up=await db.from("auctions").update({cancellation_fine_amount:amount}).eq("id",auctionId).select("id,case_id,purchase_stage,cancellation_fine_amount,current_bid").single();
  if(up.error)return json({error:up.error.message},500);
- await historyAdd(ar.data.case_id,ar.data.purchase_stage||"customer",ar.data.purchase_stage||"customer",amount===null?"مبلغ جریمه انصراف پاک شد":"مبلغ جریمه انصراف جداگانه توسط مدیریت تنظیم شد: "+amount);
- return json({ok:true,auction:up.data});
+ await historyAdd(ar.data.case_id,ar.data.purchase_stage||"customer",ar.data.purchase_stage||"customer","مبلغ وجه التزام انصراف به‌صورت خودکار طبق جدول شرایط مزایده و قیمت فعلی محاسبه شد: "+amount.toLocaleString("fa-IR")+" تومان؛ این مبلغ به‌صورت خودکار از کیف پول برداشت نمی‌شود.");
+ return json({ok:true,automatic:true,auction:up.data,calculated_from_price:price});
 }
 async function adminReviewBuyerPayment(req:Request){
  const b=await req.json(),paymentId=String(b.payment_id||""),status=String(b.status||""),note=String(b.note||"").slice(0,500);if(!paymentId||!["approved","rejected"].includes(status))return json({error:"درخواست بررسی پرداخت نامعتبر است"},400);
