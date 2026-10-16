@@ -512,7 +512,7 @@ body label{font-size:13px}
   if(mode==='signup'){
    const n=name.value.trim(),nid=norm(national.value).replace(/\D/g,'');if(n.length<3)throw Error('نام و نام خانوادگی را کامل وارد کن.');if(!/^\d{10}$/.test(nid))throw Error('کد ملی باید دقیقاً ۱۰ رقم باشد.');
    const r=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({full_name:n,mobile:p,national_id:nid}),cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ثبت درخواست انجام نشد.');
-   say(j.message||'ثبت‌نامت بدون کد انجام شد و منتظر بررسی مدیر است.','ok');form.reset();setMode('signup');
+   form.reset();setMode('signup');say(j.message||'ثبت‌نامت بدون کد انجام شد و منتظر بررسی مدیر است.','ok');
   }else{
    const code=norm(codeInput.value).replace(/\D/g,'');if(!/^\d{8}$/.test(code))throw Error('کد ورود باید دقیقاً ۸ رقم باشد.');
    const r=await fetch(API+'?api=customer-code-login',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({mobile:p,code}),cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ورود انجام نشد.');
