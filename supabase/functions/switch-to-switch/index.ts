@@ -383,22 +383,20 @@ function calculateCancellationFine(price:number){const p=Number(price||0);if(!Nu
  if(!ar.data||ar.data.winner_id!==sess.member_id||ar.data.status!=="ended")return json({error:"این خودرو قابل انصراف از طرف حساب شما نیست"},403);
  if(ar.data.purchase_stage==="cancelled")return json({error:"انصراف این مزایده قبلاً ثبت شده است"},409);
  if(!["awaiting_seller_approval","awaiting_admin_prepayment","prepayment"].includes(ar.data.purchase_stage||""))return json({error:"مهلت انصراف پایان یافته است؛ پس از پرداخت پیش‌پرداخت امکان انصراف وجود ندارد."},409);
- const finalPrice=Number(ar.data.current_bid||ar.data.starting_price||0);const calculatedFine=calculateCancellationFine(finalPrice);const amount=calculatedFine;
- let fineData:any=null;if(amount>0){const exists=await db.from("fines").select("id").eq("buyer_id",sess.member_id).eq("auction_id",id).maybeSingle();
- if(exists.error)return json({error:"خطا در بررسی جریمه: "+exists.error.message},500);
- if(exists.data)return json({error:"برای این انصراف قبلاً جریمه ثبت شده است"},409);
- const fine=await db.from("fines").insert({buyer_id:sess.member_id,auction_id:id,amount,reason:"وجه التزام انصراف طبق جدول اعلام‌شده در شرایط مزایده",status:"unpaid"}).select("id,amount,status").single();
- if(fine.error)return json({error:"ثبت جریمه انصراف ناموفق بود: "+fine.error.message},500);
- fineData=fine.data;}
- const upd=await db.from("auctions").update({purchase_stage:"cancelled"}).eq("id",id).eq("winner_id",sess.member_id).eq("status","ended").in("purchase_stage",["awaiting_seller_approval","awaiting_admin_prepayment","prepayment"]).select("id").maybeSingle();
- if(upd.error||!upd.data)return json({error:"جریمه ثبت شد اما تغییر وضعیت مزایده ناموفق بود؛ لطفاً با مدیریت تماس بگیرید."},500);
+ const finalPrice=Number(ar.data.current_bid||ar.data.starting_price||0);
+ const amount=calculateCancellationFine(finalPrice);
+ const result=await db.rpc("register_auction_cancellation_with_wallet",{p_auction_id:id,p_buyer_id:sess.member_id,p_fine_amount:amount});
+ if(result.error)return json({error:"ثبت انصراف و تسویه کیف پول انجام نشد: "+result.error.message},409);
+ const settlement=result.data||{};
  if(ar.data.case_id){
   const mr=await db.from("auction_members").select("full_name,mobile").eq("id",sess.member_id).maybeSingle();
   const who=mr.data?.full_name||"خریدار";
-  await historyAdd(ar.data.case_id,"customer","customer","⚠️ انصراف خریدار از خرید پس از برنده‌شدن در مزایده؛ نام: "+who+"؛ موبایل: "+(mr.data?.mobile||"ثبت نشده")+"؛ زمان: "+new Date().toLocaleString("fa-IR")+"؛ مبلغ وجه التزام طبق جدول شرایط مزایده: "+amount.toLocaleString("fa-IR")+" تومان");
+  await historyAdd(ar.data.case_id,"customer","customer","⚠️ انصراف خریدار از خرید پس از برنده‌شدن؛ نام: "+who+"؛ موبایل: "+(mr.data?.mobile||"ثبت نشده")+"؛ زمان: "+new Date().toLocaleString("fa-IR")+"؛ وجه التزام: "+amount.toLocaleString("fa-IR")+" تومان؛ کسرشده از کیف پول: "+Number(settlement.deducted_amount||0).toLocaleString("fa-IR")+" تومان؛ مانده پرداخت‌نشده: "+Number(settlement.remaining_amount||0).toLocaleString("fa-IR")+" تومان");
  }
- await db.from("buyer_notifications").insert({buyer_id:sess.member_id,auction_id:id,title:"انصراف از خرید",message:amount>0?"انصراف ثبت شد. مبلغ وجه التزام طبق جدول شرایط مزایده در بخش جریمه‌های من نمایش داده می‌شود. مبلغ به‌صورت خودکار از کیف پول کسر نشده است.":"انصراف ثبت شد؛ طبق جدول شرایط اعلام‌شده برای این بازه قیمت، وجه التزامی ثبت نشد."});
- return json({ok:true,fine:fineData,cancellation_fine_amount:amount,automatic:true});
+ const deducted=Number(settlement.deducted_amount||0),remaining=Number(settlement.remaining_amount||0);
+ const message=amount<=0?"انصراف ثبت شد؛ طبق جدول شرایط مزایده برای این بازه قیمت وجه التزامی تعیین نشده است.":deducted>=amount?"انصراف ثبت شد و کل وجه التزام "+amount.toLocaleString("fa-IR")+" تومان از کیف پول شما کسر شد.":"انصراف ثبت شد. مبلغ "+deducted.toLocaleString("fa-IR")+" تومان از موجودی کیف پول کسر شد؛ به‌دلیل کافی نبودن موجودی، "+remaining.toLocaleString("fa-IR")+" تومان از وجه التزام باقی مانده و پرداخت‌نشده است.";
+ await db.from("buyer_notifications").insert({buyer_id:sess.member_id,auction_id:id,title:"انصراف از خرید و تسویه وجه التزام",message});
+ return json({ok:true,fine:amount>0?{id:settlement.fine_id,amount,status:settlement.status,paid_amount:deducted}:null,cancellation_fine_amount:amount,deducted_amount:deducted,remaining_amount:remaining,automatic:true});
 }
 async function adminUpdateVehicle(req:Request){
  const b=await req.json(),vehicleId=String(b.vehicle_id||"");
