@@ -662,7 +662,7 @@ async function extractVehicleCardData(imageData){
  finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ بررسی دوباره شماره‌های کارت خودرو'}}
 }function selectedPhoto(id){const cam=document.getElementById(id+'Cam'),gal=document.getElementById(id+'Gal');return cam?.files?.[0]||gal?.files?.[0]||null}
 function selectedPhotoGroup(cls,i){return [...document.querySelectorAll('.'+cls)].filter(x=>x.id.endsWith('_'+i)||x.id==='maincam_'+i).flatMap(x=>[...x.files])}
-function previewDef(input){const drawer=input.closest('.inline-drawer'),box=drawer.querySelector('.drawer-preview'),name=drawer.querySelector('.file-name'),files=[...drawer.querySelectorAll('.defphoto')].flatMap(x=>[...x.files]);box.innerHTML='';if(name)name.textContent=files.length?(files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';files.forEach(f=>{const im=document.createElement('img');im.src=URL.createObjectURL(f);box.appendChild(im)});if(files.length)addDeletePhotoButton(box);const file=files[0];if(file){const can=drawer.querySelector('canvas'),ctx=can.getContext('2d'),im=new Image();im.onload=()=>{const scale=Math.min(1,1600/im.naturalWidth,1600/im.naturalHeight);can.width=Math.max(1,Math.round(im.naturalWidth*scale));can.height=Math.max(1,Math.round(im.naturalHeight*scale));can._baseImage=im;ctx.clearRect(0,0,can.width,can.height);ctx.drawImage(im,0,0,can.width,can.height)};im.src=URL.createObjectURL(file)}saveDefectPhotoDraft(input)}
+function previewDef(input){const drawer=input.closest('.inline-drawer'),box=drawer.querySelector('.drawer-preview'),name=drawer.querySelector('.file-name'),files=[...drawer.querySelectorAll('.defphoto')].flatMap(x=>[...x.files]);box.innerHTML='';if(name)name.textContent=files.length?(files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';files.forEach(f=>{const im=document.createElement('img');im.src=URL.createObjectURL(f);box.appendChild(im)});if(files.length)addDeletePhotoButton(box);const file=files[0];if(file){const can=drawer.querySelector('canvas'),ctx=can.getContext('2d'),im=new Image();im.onload=()=>{const scale=Math.min(1,1600/im.naturalWidth,1600/im.naturalHeight);can.width=Math.max(1,Math.round(im.naturalWidth*scale));can.height=Math.max(1,Math.round(im.naturalHeight*scale));can._baseImage=im;ctx.clearRect(0,0,can.width,can.height);ctx.drawImage(im,0,0,can.width,can.height)};im.src=URL.createObjectURL(file)}const saveJob=saveDefectPhotoDraft(input);pendingDefectPhotoSaves.add(saveJob);saveJob.finally(()=>pendingDefectPhotoSaves.delete(saveJob))}
 function enableDraw(btn){const can=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=can.getContext('2d');ctx.lineWidth=5;ctx.lineCap='round';ctx.strokeStyle='#ef4444';let drawing=false;const pos=e=>{const r=can.getBoundingClientRect();return{x:(e.clientX-r.left)*can.width/r.width,y:(e.clientY-r.top)*can.height/r.height}};can.onpointerdown=e=>{e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};can.onpointermove=e=>{if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};can.onpointerup=()=>drawing=false;can.onpointerleave=()=>drawing=false;btn.textContent='✏️ قلم فعال است'}
 function clearDraw(btn){const c=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);if(c._baseImage)ctx.drawImage(c._baseImage,0,0,c.width,c.height)}
 function markSaved(btn){btn.textContent='✓ علامت ثبت شد'}
@@ -683,6 +683,7 @@ async function readFile(f){
  }catch(e){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
 }
 let photoDraftDbPromise;
+const pendingDefectPhotoSaves=new Set();
 function photoDraftDb(){if(!photoDraftDbPromise)photoDraftDbPromise=new Promise((resolve,reject)=>{const q=indexedDB.open('s2s_expert_photo_drafts',1);q.onupgradeneeded=()=>q.result.createObjectStore('drafts');q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)});return photoDraftDbPromise}
 async function readPhotoDraft(){if(!current)return {main:{},docs:{}};try{const db=await photoDraftDb();return await new Promise((resolve,reject)=>{const q=db.transaction('drafts').objectStore('drafts').get(String(current.id));q.onsuccess=()=>resolve(q.result||{main:{},docs:{}});q.onerror=()=>reject(q.error)})}catch(e){return {main:{},docs:{}}}}
 async function writePhotoDraft(d){if(!current)return;try{const db=await photoDraftDb();await new Promise((resolve,reject)=>{const q=db.transaction('drafts','readwrite').objectStore('drafts').put(d,String(current.id));q.onsuccess=resolve;q.onerror=()=>reject(q.error)})}catch(e){console.warn('ذخیره موقت عکس ناموفق بود',e)}}
@@ -810,7 +811,7 @@ async function saveInspection(){
  try{
   if(!current)return msg.textContent='پرونده را انتخاب کنید.';
   if(!vin.value||!engine.value||!plate.value)return msg.textContent='VIN، شماره موتور و پلاک الزامی است.';
-  const photoDraftBeforeSave=await readPhotoDraft();if(!selectedPhoto('national')&&!photoDraftBeforeSave.docs?.national)return msg.textContent='عکس کارت ملی مالک الزامی است.';
+  if(pendingDefectPhotoSaves.size)await Promise.all([...pendingDefectPhotoSaves]);const photoDraftBeforeSave=await readPhotoDraft();if(!selectedPhoto('national')&&!photoDraftBeforeSave.docs?.national)return msg.textContent='عکس کارت ملی مالک الزامی است.';
   window.s2sSavingInspection=true;if(submitBtn){submitBtn.disabled=true;submitBtn.style.opacity='.7';submitBtn.textContent='⏳ در حال ثبت سریع...'}msg.textContent='ثبت شروع شد؛ عکس‌ها هم‌زمان آماده و ارسال می‌شوند...';
   sessionStorage.setItem('s2s_done_case',JSON.stringify(current));await persistDraft();
   const photoDraft=await readPhotoDraft();msg.textContent='در حال فشرده‌سازی و آماده‌سازی عکس‌ها...';const docSpecs=[['carDocFront','car_document_front'],['carDocBack','car_document_back'],['greenDoc','green_card'],['factoryDoc','factory_invoice'],['techDoc','technical_inspection'],['insuranceDoc','insurance'],['insuranceBack','insurance_back'],['transferDoc','transfer_document'],['otherDoc','other']];const docs=(await Promise.all(docSpecs.map(async([id,type])=>{const f=selectedPhoto(id),saved=photoDraft.docs?.[id];if(f)return {type,data_url:await readFile(f)};if(saved)return {type,data_url:saved};return null}))).filter(Boolean);
@@ -893,4 +894,11 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 
 <style id="s2s-expert-notes-compact">.defect-card.defect-part-dropdown .inline-drawer .defect-notes-action,.defect-card.defect-part-dropdown .inline-drawer textarea.defnote{display:none!important}.defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions{display:flex!important;grid-template-columns:1fr!important}</style>
 
+
+<style id="s2s-defect-photo-persistence-fix">
+/* عکس‌های هر ایراد باید دیده شوند و کنترل ویرایش/حذف داشته باشند */
+.defect-card.defect-part-dropdown .inline-drawer .drawer-preview{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin-top:8px!important}
+.defect-card.defect-part-dropdown .inline-drawer .drawer-preview:empty{display:none!important}
+.defect-card.defect-part-dropdown .inline-drawer .drawer-preview img{display:block!important;width:100%!important;max-width:100%!important;aspect-ratio:1/1!important;object-fit:cover!important;border-radius:9px!important;cursor:pointer!important}
+</style>
 </body></html>
