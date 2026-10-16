@@ -427,7 +427,7 @@ function parseVehicleCardText(raw){
   const text=String(raw||'').replace(/\r/g,'\n');
   const normalized=latinDigits(text).toUpperCase();
   const lines=normalized.split(/\n+/).map(x=>x.replace(/[|¦]/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
-  const vinPattern=/\b[A-HJ-NPR-Z0-9]{17}\b/g;
+  const vinPattern=/\b[A-Z0-9]{17}\b/g;
   const vinCandidates=[];
   for(const line of lines){
     const hits=line.match(vinPattern)||[];
