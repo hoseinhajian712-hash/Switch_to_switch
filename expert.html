@@ -290,6 +290,55 @@ html,body{font-size:17px!important}
  .defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions .camera-btn,
  .defect-card.defect-part-dropdown .inline-drawer>.camera-btn{min-width:96px!important;min-height:32px!important;padding:6px 8px!important;font-size:11px!important}
 }
+/* Premium phone layout: fit the expert workspace to narrow screens */
+@media (max-width: 600px) {
+  html, body { width:100%; max-width:100%; overflow-x:clip; }
+  .wrap { width:100%; max-width:100%; padding:10px 10px calc(24px + env(safe-area-inset-bottom))!important; margin:0 auto; }
+  .top { display:flex; flex-direction:column; align-items:stretch; gap:13px; padding:15px 13px!important; border-radius:18px!important; }
+  .brand { min-width:0; align-items:center; gap:10px; }
+  .logo { width:42px; height:42px; flex:0 0 42px; border-radius:13px; font-size:17px; }
+  .brand h1 { font-size:16px!important; line-height:1.65; margin:0 0 3px; }
+  .top .sub { font-size:11px!important; line-height:1.8; }
+  .top-actions { display:grid; grid-template-columns:1fr; gap:8px; width:100%; }
+  .top-actions .session-badge { justify-self:start; }
+  .top-actions button { width:100%; min-height:43px; }
+  .card { min-width:0; margin-top:10px!important; padding:12px!important; border-radius:16px!important; }
+  .rowhead { align-items:flex-start; flex-wrap:wrap; gap:10px; }
+  .rowhead > * { min-width:0; max-width:100%; }
+  .rowhead > button, .rowhead .btn { width:100%; }
+  .section-title { align-items:flex-start; flex-wrap:wrap; }
+  .section-title > * { min-width:0; }
+  .grid { grid-template-columns:minmax(0,1fr)!important; gap:10px!important; }
+  .case { grid-template-columns:minmax(0,1fr)!important; gap:7px!important; padding:13px!important; border-radius:14px!important; }
+  .case > * { min-width:0; overflow-wrap:anywhere; }
+  .case .btn, .case button { width:100%; min-height:42px; }
+  .toolbar { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; padding:10px!important; }
+  .toolbar > *, .toolbar button, .toolbar .btn { width:100%; min-width:0!important; }
+  .photo-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important; }
+  .photo-box { min-width:0; padding:8px!important; }
+  .vehicle-checklist .checks { grid-template-columns:minmax(0,1fr)!important; }
+  .vehicle-check-row { padding:11px!important; gap:9px!important; }
+  .binary-options { flex-wrap:wrap; }
+  .binary-options label { min-height:40px; }
+  input:not([type=checkbox]):not([type=radio]):not([type=file]),
+  select, textarea { width:100%; max-width:100%; min-width:0; font-size:16px!important; }
+  button, .btn { max-width:100%; min-height:40px; white-space:normal; line-height:1.6; }
+  .completed-dropdown-toggle { width:100%; gap:8px; padding:13px 10px!important; }
+  .completed-dropdown-toggle > span:first-child { min-width:0; text-align:right; }
+  .completed-toggle-side { flex-wrap:wrap; justify-content:flex-end; }
+  .inspection-section, #formArea, .defect-group, .defect-list { min-width:0!important; }
+  .photo-source-overlay { padding:10px 10px calc(10px + env(safe-area-inset-bottom)); }
+  .photo-source-sheet { width:100%; max-width:440px; padding:15px!important; border-radius:19px!important; }
+  .quick-camera-panel { width:100%; max-width:100%; }
+  .expert-comments-list { max-height:34vh!important; }
+}
+@media (max-width:380px) {
+  .wrap { padding-left:7px!important; padding-right:7px!important; }
+  .top { padding:12px 10px!important; }
+  .brand h1 { font-size:14px!important; }
+  .card { padding:10px!important; }
+  .photo-grid { gap:6px!important; }
+}
 </style>
 
 <script id="disable-expert-pull-refresh">
