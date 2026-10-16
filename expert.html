@@ -1306,7 +1306,7 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 (function(){
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./expert-service-worker.js', {scope:'./'}).catch(function(err){
+      navigator.serviceWorker.register('./service-worker.js', {scope:'./'}).catch(function(err){
         console.warn('ثبت اپلیکیشن کارشناسی انجام نشد:', err);
       });
     });
