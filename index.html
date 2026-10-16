@@ -329,7 +329,7 @@ input,select,textarea,button{touch-action:manipulation}
   <form id="customerAuthForm">
    <label class="authField authHidden" id="customerNameWrap"><span>نام و نام خانوادگی</span><input id="customerFullName" name="full_name" autocomplete="name" maxlength="100" placeholder="نام و نام خانوادگی"></label>
    <label class="authField"><span>شماره موبایل ایران</span><input id="customerPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required placeholder="09123456789"></label>
-   <label class="authField authHidden" id="customerNationalIdWrap"><span>کد ملی</span><input id="customerNationalId" name="national_id" inputmode="numeric" maxlength="10" placeholder="کد ملی ۱۰ رقمی"></label>
+   
    <label class="authField authHidden" id="customerOtpWrap"><span>کد ورود ۸ رقمی مدیر</span><input id="customerOtp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" pattern="[0-9۰-۹٠-٩]{8}" placeholder="کد ورود دریافتی از مدیر"></label>
    <button class="authSubmit" id="customerAuthSubmit" type="submit">ورود با کد مدیر</button>
    <div class="authMsg" id="customerAuthMessage" role="status" aria-live="polite"></div>
@@ -496,12 +496,12 @@ body label{font-size:13px}
 (function(){
  const modal=document.getElementById('customerAuthModal');if(!modal)return;
  const sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY),API=window.SUPABASE_URL+'/functions/v1/switch-to-switch';
- const form=document.getElementById('customerAuthForm'),phone=document.getElementById('customerPhone'),name=document.getElementById('customerFullName'),national=document.getElementById('customerNationalId'),nameWrap=document.getElementById('customerNameWrap'),nidWrap=document.getElementById('customerNationalIdWrap'),codeWrap=document.getElementById('customerOtpWrap'),codeInput=document.getElementById('customerOtp'),submit=document.getElementById('customerAuthSubmit'),message=document.getElementById('customerAuthMessage'),sub=document.getElementById('customerAuthSub');
+ const form=document.getElementById('customerAuthForm'),phone=document.getElementById('customerPhone'),name=document.getElementById('customerFullName'),nameWrap=document.getElementById('customerNameWrap'),codeWrap=document.getElementById('customerOtpWrap'),codeInput=document.getElementById('customerOtp'),submit=document.getElementById('customerAuthSubmit'),message=document.getElementById('customerAuthMessage'),sub=document.getElementById('customerAuthSub');
  let mode='login';
  function norm(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
  function mobile(v){let p=norm(v).replace(/\D/g,'');if(/^09\d{9}$/.test(p))return p;if(/^989\d{9}$/.test(p))return '0'+p.slice(2);if(/^9\d{9}$/.test(p))return '0'+p;return ''}
  function say(t,type){message.textContent=t;message.className='authMsg'+(type?' '+type:'')}
- function setMode(next){mode=next;document.querySelectorAll('#customerAuthTabs [data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));nameWrap.classList.toggle('authHidden',mode!=='signup');nidWrap.classList.toggle('authHidden',mode!=='signup');codeWrap.classList.toggle('authHidden',mode!=='login');name.required=mode==='signup';national.required=mode==='signup';codeInput.required=mode==='login';codeInput.value='';phone.disabled=false;submit.textContent=mode==='signup'?'ثبت‌نام بدون کد':'ورود با کد مدیر';sub.textContent=mode==='signup'?'نام، شماره موبایل و کد ملی را وارد کن. درخواست ثبت‌نام بدون هیچ کدی برای بررسی مدیر ثبت می‌شود.': 'شماره موبایل و کد ۸ رقمی صادرشده توسط مدیر را وارد کن.';say('')}
+ function setMode(next){mode=next;document.querySelectorAll('#customerAuthTabs [data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));nameWrap.classList.toggle('authHidden',mode!=='signup');codeWrap.classList.toggle('authHidden',mode!=='login');name.required=mode==='signup';codeInput.required=mode==='login';codeInput.value='';phone.disabled=false;submit.textContent=mode==='signup'?'ثبت‌نام بدون کد':'ورود با کد مدیر';sub.textContent=mode==='signup'?'نام، شماره موبایل و نامت را وارد کن. درخواست ثبت‌نام بدون کد برای بررسی مدیر ثبت می‌شود.': 'شماره موبایل و کد ۸ رقمی صادرشده توسط مدیر را وارد کن.';say('')}
  function open(){modal.hidden=false;document.body.style.overflow='hidden';setMode('login');setTimeout(()=>phone.focus(),30)}
  function close(){modal.hidden=true;document.body.style.overflow=''}
  document.getElementById('openCustomerAuth').addEventListener('click',open);document.getElementById('closeCustomerAuth').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close()});
@@ -510,8 +510,8 @@ body label{font-size:13px}
  try{
   const p=mobile(phone.value);if(!p)throw Error('شماره موبایل باید ۱۱ رقم و با 09 شروع شود.');
   if(mode==='signup'){
-   const n=name.value.trim(),nid=norm(national.value).replace(/\D/g,'');if(n.length<3)throw Error('نام و نام خانوادگی را کامل وارد کن.');if(!/^\d{10}$/.test(nid))throw Error('کد ملی باید دقیقاً ۱۰ رقم باشد.');
-   const r=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({full_name:n,mobile:p,national_id:nid}),cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ثبت درخواست انجام نشد.');
+   const n=name.value.trim();if(n.length<3)throw Error('نام و نام خانوادگی را کامل وارد کن.');
+   const r=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({full_name:n,mobile:p}),cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ثبت درخواست انجام نشد.');
    form.reset();setMode('signup');say(j.message||'ثبت‌نامت بدون کد انجام شد و منتظر بررسی مدیر است.','ok');
   }else{
    const code=norm(codeInput.value).replace(/\D/g,'');if(!/^\d{8}$/.test(code))throw Error('کد ورود باید دقیقاً ۸ رقم باشد.');
