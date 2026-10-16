@@ -439,12 +439,15 @@ function parseVehicleCardText(raw){
   }
   const uniqueVins=[...new Set(vinCandidates)];
   const vin=uniqueVins.length===1?uniqueVins[0]:'';
-  const engineLabel=/شماره\s*موتور|موتور|ENGINE\s*(?:NO|NUMBER|#)?/i;
-  const engineLines=lines.filter(x=>engineLabel.test(x));
+  const engineLabel=/شماره\s*موتور|موتور|ENGINE\s*(?:NO|NUMBER|#)?|ENG\.?\s*(?:NO|NUMBER|#)?/i;
   const engineCandidates=[];
-  for(const line of engineLines){
-    const tail=line.replace(engineLabel,' ').replace(/^\s*[:：\-–—|]+\s*/,' ').trim();
-    const hits=(tail.match(/\b[A-Z0-9]{5,18}\b/g)||[]).filter(x=>/[0-9]/.test(x)&&!/[A-Z]{4,}/.test(x));
+  for(let i=0;i<lines.length;i++){
+    if(!engineLabel.test(lines[i]))continue;
+    // On some motorcycle cards the label and stamped number are on adjacent OCR lines.
+    const sameLine=lines[i].replace(engineLabel,' ').replace(/^\s*[:：\-–—|]+\s*/,' ').trim();
+    const nearby=[sameLine,lines[i+1]||'',lines[i+2]||''].join(' ');
+    const hits=(nearby.match(/\b[A-Z0-9]{5,18}\b/g)||[])
+      .filter(x=>/[0-9]/.test(x)&&!/^(?:19|20)\d{2}$/.test(x));
     for(const hit of hits)engineCandidates.push(hit);
   }
   const uniqueEngines=[...new Set(engineCandidates)];
@@ -480,7 +483,7 @@ async function extractVehicleCardData(imageData){
  if(!source){vehicleOcrStatus('ابتدا عکس «کارت خودرو — روی کارت» را انتخاب کنید؛ سپس استخراج را بزنید.',true);openPhotoSourceMenu('carDocFrontCam','carDocFrontGal');return}
  if(!window.Tesseract){vehicleOcrStatus('موتور تشخیص متن هنوز بارگذاری نشده است. اتصال اینترنت را بررسی و دوباره امتحان کنید.',true);return}
  vehicleCardOcrBusy=true;const btn=document.querySelector('button[onclick="extractVehicleCardData()"]');if(btn){btn.disabled=true;btn.textContent='⏳ بررسی چندمرحله‌ای شماره‌ها...'}
- vehicleOcrStatus('برای جلوگیری از شماره اشتباه، عکس را با دو روش می‌خوانیم و فقط نتیجه‌های یکسان را پیشنهاد می‌کنیم.');
+ vehicleOcrStatus('برای جلوگیری از شماره اشتباه، عکس را با دو روش می‌خوانیم و فقط نتیجه‌های یکسان را پیشنهاد می‌کنیم؛ برای شماره موتور، برچسب و سطرهای بعدی کارت هم بررسی می‌شود.');
  try{
   const enhanced=await makeEnhancedOcrImage(source);
   const runOcr=async(img,lang)=>window.Tesseract.recognize(img,lang,{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال بررسی تصویر و تطبیق شماره‌ها… '+Math.round(m.progress*100)+'٪')}});
@@ -501,7 +504,7 @@ async function extractVehicleCardData(imageData){
   if(!sameEngine)mismatch.push('شماره موتور');
   if(found===2)vehicleOcrStatus('هر دو شماره در دو خوانش یکسان بودند و به‌عنوان پیشنهاد وارد شدند. قبل از ثبت نهایی، با کارت اصلی تطبیق بده.',false);
   else if(found===1)vehicleOcrStatus('فقط '+(sameVin?'VIN':'شماره موتور')+' در هر دو خوانش یکسان بود. '+mismatch.join(' و ')+' به دلیل اختلاف خوانش خودکار وارد نشد؛ آن را دستی بررسی کن.',true);
-  else vehicleOcrStatus('دو خوانش با هم مطابقت نداشتند؛ برای خودرو یا موتورسیکلت، شماره روی کارت را بررسی کن و در صورت نیاز دستی در فیلد «شماره شاسی / VIN» وارد کن. متن هر دو خوانش را می‌توانی در بخش «مشاهده متن خوانده‌شده از کارت» ببینی.',true);
+  else vehicleOcrStatus('دو خوانش با هم مطابقت نداشتند؛ برای خودرو یا موتورسیکلت، شماره‌های روی کارت را بررسی کن؛ شماره موتور ممکن است در سطر بعد از عنوانش باشد. در صورت نیاز شماره موتور را دستی وارد کن. متن هر دو خوانش را می‌توانی در بخش «مشاهده متن خوانده‌شده از کارت» ببینی. متن هر دو خوانش را می‌توانی در بخش «مشاهده متن خوانده‌شده از کارت» ببینی.',true);
  }catch(e){vehicleOcrStatus('خواندن کارت انجام نشد. کارت را صاف، از روبه‌رو و بدون بازتاب نور عکس بگیر. '+(e?.message||''),true)}
  finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ بررسی دوباره شماره‌های کارت خودرو'}}
 }function selectedPhoto(id){const cam=document.getElementById(id+'Cam'),gal=document.getElementById(id+'Gal');return cam?.files?.[0]||gal?.files?.[0]||null}
