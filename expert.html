@@ -461,11 +461,6 @@ function parseVehicleCardText(raw){
     for(const token of tokens){
       if(/[0-9]/.test(token)&&!/^(?:19|20)\d{2}$/.test(token))engineCandidates.push(token);
     }
-    const compact=nearby.replace(engineLabel,' ').replace(/[^A-Z0-9]/g,'');
-    const compactHits=compact.match(/[A-Z0-9]{5,18}/g)||[];
-    for(const hit of compactHits){
-      if(/[0-9]/.test(hit)&&!/^(?:19|20)\d{2}$/.test(hit))engineCandidates.push(hit);
-    }
   }
   const uniqueEngines=[...new Set(engineCandidates)];
   const engine=uniqueEngines.length===1?uniqueEngines[0]:'';
@@ -511,8 +506,8 @@ async function extractVehicleCardData(imageData){
   // If one OCR pass clearly finds a unique identifier and the other finds none, keep the clear result.
   // If both passes find different identifiers, leave the field untouched for safety.
   const sameVin=!!p1.vin&&p1.vin===p2.vin;
-  const oneClearVin=!!(p1.vin&&!p2.vin)&&p1.vinCandidates?.length===1? p1.vin:
-                    (!!(p2.vin&&!p1.vin)&&p2.vinCandidates?.length===1?p2.vin:'');
+  const oneClearVin=!!(p1.vin&&!p2.vin)&&((p1.vinCandidates||[]).filter(x=>x.startsWith('IRAM')).length===1||p1.vinCandidates?.length===1)?p1.vin:
+                    (!!(p2.vin&&!p1.vin)&&((p2.vinCandidates||[]).filter(x=>x.startsWith('IRAM')).length===1||p2.vinCandidates?.length===1)?p2.vin:'');
   const chosenVin=sameVin?p1.vin:oneClearVin;
   const sameEngine=!!p1.engine&&p1.engine===p2.engine;
   const oneClearEngine=!!(p1.engine&&!p2.engine)&&p1.engineCandidates?.length===1?p1.engine:
