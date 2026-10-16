@@ -1085,64 +1085,22 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 
 
 <style id="s2s-luxury-plate-letter">
-/* فقط کشوی انتخاب حرف پلاک؛ ورودی‌های عددی بدون تغییر */
-.plate-letter-field{position:relative}
-.plate-letter-field .plate-letter-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;left:0!important;bottom:0!important}
-.plate-letter-trigger{width:100%;min-width:0;min-height:47px;display:flex;align-items:center;justify-content:space-between;gap:7px;padding:7px 10px;border:1px solid #4c8d88;border-radius:12px;background:linear-gradient(145deg,#163b4b 0%,#0b202f 58%,#0a1826 100%);color:#f4fffd;box-shadow:inset 0 1px 0 #ffffff1c,0 5px 14px #0003;cursor:pointer;font:inherit;transition:border-color .18s,box-shadow .18s,transform .18s}
-.plate-letter-trigger:hover,.plate-letter-trigger[aria-expanded="true"]{border-color:#77e0c9;box-shadow:0 0 0 3px #5ed9bf20,inset 0 1px 0 #ffffff20}
-.plate-letter-trigger:active{transform:scale(.985)}
-.plate-letter-trigger .plate-letter-current{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;min-height:30px;border-radius:8px;background:linear-gradient(180deg,#f9fffe,#d8f1eb);color:#123b42;font-size:21px;font-weight:950;line-height:1.2;box-shadow:inset 0 1px 2px #092b2b20}
-.plate-letter-trigger .plate-letter-current.is-placeholder{font-size:11px;font-weight:800;background:transparent;color:#bdd2dc;box-shadow:none}
-.plate-letter-trigger .plate-letter-chevron{width:0;height:0;flex-shrink:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #7de5d0;transition:transform .18s}
-.plate-letter-trigger[aria-expanded="true"] .plate-letter-chevron{transform:rotate(180deg)}
-.plate-letter-menu{position:absolute;z-index:1000;top:calc(100% + 8px);right:0;left:0;padding:10px;border:1px solid #315d6b;border-radius:15px;background:linear-gradient(145deg,#122b3c,#081521);box-shadow:0 16px 38px #0009,inset 0 1px 0 #ffffff12}
-.plate-letter-menu[hidden]{display:none!important}
-.plate-letter-menu-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 9px;color:#dffbf4;font-size:11px;font-weight:900}
-.plate-letter-menu-head span:last-child{color:#80b7b5;font-size:9px;font-weight:700}
-.plate-letter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.plate-letter-option{min-width:0;min-height:39px;border:1px solid #2b495a;border-radius:9px;background:linear-gradient(180deg,#173247,#102333);color:#e8f6ff;font-size:17px;font-weight:900;cursor:pointer;box-shadow:inset 0 1px 0 #ffffff0b;transition:background .15s,border-color .15s,transform .15s}
-.plate-letter-option:hover{border-color:#5ed9bf;background:linear-gradient(180deg,#1c4b55,#123343)}
-.plate-letter-option:active{transform:scale(.96)}
-.plate-letter-option[aria-selected="true"]{border-color:#7de5ce;background:linear-gradient(145deg,#b8f2e4,#61cbb5);color:#092c32;box-shadow:0 0 0 2px #6be0c326}
-@media(max-width:420px){.plate-letter-trigger{min-height:44px;padding:6px 8px}.plate-letter-menu{padding:8px}.plate-letter-grid{gap:5px}.plate-letter-option{min-height:37px}}
+/* انتخابگر ساده و خلوتِ حرف پلاک؛ سایر اجزای پلاک بدون تغییر */
+.plate-letter-field{position:relative;min-width:0}
+.plate-letter-field select#plateLetter{
+ display:block!important;position:relative!important;opacity:1!important;pointer-events:auto!important;
+ width:100%!important;min-width:0!important;height:47px!important;box-sizing:border-box!important;
+ appearance:none!important;-webkit-appearance:none!important;
+ padding:0 12px 0 30px!important;border:1px solid #426779!important;border-radius:11px!important;
+ background-color:#102737!important;color:#f1fbff!important;
+ background-image:linear-gradient(45deg,transparent 50%,#9dd9d0 50%),linear-gradient(135deg,#9dd9d0 50%,transparent 50%)!important;
+ background-position:left 13px center,left 8px center!important;background-size:5px 5px,5px 5px!important;background-repeat:no-repeat!important;
+ font-family:inherit!important;font-size:15px!important;font-weight:800!important;text-align:center!important;
+ box-shadow:inset 0 1px 0 #ffffff0d!important;cursor:pointer!important;outline:none!important;
+}
+.plate-letter-field select#plateLetter:hover{border-color:#79bdb4!important}
+.plate-letter-field select#plateLetter:focus{border-color:#75d8c7!important;box-shadow:0 0 0 3px #75d8c71b!important}
+.plate-letter-field select#plateLetter option{background:#102737!important;color:#f1fbff!important;font-weight:700}
+@media(max-width:420px){.plate-letter-field select#plateLetter{height:44px!important;font-size:14px!important;padding-right:6px!important}}
 </style>
-<script id="s2s-luxury-plate-letter-logic">
-(function(){
- const select=document.getElementById('plateLetter');
- if(!select||select.dataset.luxuryReady==='1')return;
- select.dataset.luxuryReady='1';
- select.classList.add('plate-letter-native');
- const host=select.parentElement;
- const trigger=document.createElement('button');
- trigger.type='button';trigger.className='plate-letter-trigger';trigger.setAttribute('aria-haspopup','dialog');trigger.setAttribute('aria-expanded','false');
- trigger.innerHTML='<span class="plate-letter-current is-placeholder">انتخاب حرف</span><span class="plate-letter-chevron" aria-hidden="true"></span>';
- const menu=document.createElement('div');menu.className='plate-letter-menu';menu.hidden=true;menu.setAttribute('role','dialog');menu.setAttribute('aria-label','انتخاب حرف پلاک');
- menu.innerHTML='<div class="plate-letter-menu-head"><span>حرف پلاک را انتخاب کنید</span><span>حروف فارسی</span></div><div class="plate-letter-grid" role="listbox"></div>';
- const grid=menu.querySelector('.plate-letter-grid');
- [...select.options].filter(o=>o.value).forEach(o=>{
-  const b=document.createElement('button');b.type='button';b.className='plate-letter-option';b.textContent=o.textContent;b.dataset.value=o.value;b.setAttribute('role','option');
-  b.addEventListener('click',()=>{
-   select.value=o.value;select.dispatchEvent(new Event('change',{bubbles:true}));
-   closeMenu();refresh();trigger.focus();
-  });
-  grid.appendChild(b);
- });
- host.appendChild(trigger);host.appendChild(menu);
- function refresh(){
-  const chosen=select.value,display=trigger.querySelector('.plate-letter-current');
-  display.textContent=chosen||'انتخاب حرف';display.classList.toggle('is-placeholder',!chosen);
-  grid.querySelectorAll('.plate-letter-option').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.value===chosen)));
- }
- function closeMenu(){menu.hidden=true;trigger.setAttribute('aria-expanded','false')}
- function openMenu(){menu.hidden=false;trigger.setAttribute('aria-expanded','true')}
- trigger.addEventListener('click',()=>menu.hidden?openMenu():closeMenu());
- document.addEventListener('click',e=>{if(!host.contains(e.target))closeMenu()});
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){closeMenu();trigger.focus()}});
- const originalSet=window.setPlateValue;
- window.setPlateValue=function(raw){if(typeof originalSet==='function')originalSet(raw);refresh()};
- select.addEventListener('change',refresh);
- refresh();
-})();
-</script>
-
 </body></html>
