@@ -341,29 +341,12 @@ html,body{font-size:17px!important}
 }
 </style>
 
-<script id="disable-expert-pull-refresh">
-/* Block only a downward pull gesture at the very top; leave normal scrolling untouched. */
-(function(){
-  let startY=0, startX=0, tracking=false;
-  document.addEventListener('touchstart',function(e){
-    if(!e.touches || e.touches.length!==1){tracking=false;return;}
-    startY=e.touches[0].clientY; startX=e.touches[0].clientX; tracking=true;
-  },{passive:true,capture:true});
-  document.addEventListener('touchmove',function(e){
-    if(!tracking || !e.touches || e.touches.length!==1)return;
-    const dy=e.touches[0].clientY-startY;
-    const dx=e.touches[0].clientX-startX;
-    const scroller=document.scrollingElement||document.documentElement;
-    if(scroller.scrollTop<=0 && dy>12 && Math.abs(dy)>Math.abs(dx)*1.15){
-      const target=e.target instanceof Element?e.target:null;
-      const nested=target&&target.closest('.expert-comments-list, .gallery-edit-stage, canvas, [data-allow-touch-scroll]');
-      if(!nested)e.preventDefault();
-    }
-  },{passive:false,capture:true});
-  document.addEventListener('touchend',function(){tracking=false;},{passive:true,capture:true});
-  document.addEventListener('touchcancel',function(){tracking=false;},{passive:true,capture:true});
-})();
-</script>
+<style id="disable-expert-pull-refresh">
+/* Stop browser pull-to-refresh at the document boundary without intercepting touch events. */
+html {
+  overscroll-behavior-y: none !important;
+}
+</style>
 </head>
 <body><div id="staffAuthGate"><form class="auth-card" id="staffAuthForm"><h2>ورود امن پنل کارشناسی</h2><p>برای ورود، کد پرسنلی اختصاصی و رمز پنل کارشناسی را وارد کن. فقط پرونده‌های ارجاع‌شده به کد خودت نمایش داده می‌شوند.</p><input id="staffCode" type="text" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="off" placeholder="کد پرسنلی ۴ رقمی" required><input id="staffLoginPassword" type="password" autocomplete="current-password" placeholder="رمز عبور پنل کارشناسی" required><button type="submit">ورود به پنل کارشناسی</button><div id="staffAuthError"></div></form></div><div id="staffPasswordModal" role="dialog" aria-modal="true" aria-label="تغییر رمز عبور"><form class="sp-card" id="staffPasswordForm"><h3>🔐 تغییر رمز عبور</h3><p>رمز فعلی را وارد کنید و رمز جدیدی با حداقل ۱۲ نویسه بسازید. رمز جدید را با کسی به اشتراک نگذارید.</p><input id="spCurrent" type="password" autocomplete="current-password" placeholder="رمز فعلی" required><input id="spNew" type="password" autocomplete="new-password" minlength="12" placeholder="رمز جدید (حداقل ۱۲ نویسه)" required><input id="spConfirm" type="password" autocomplete="new-password" minlength="12" placeholder="تکرار رمز جدید" required><div id="staffPasswordMessage" role="status"></div><div class="sp-actions"><button class="sp-save" type="submit">ذخیره رمز جدید</button><button class="sp-close" type="button" onclick="closeStaffPasswordModal()">انصراف</button></div></form></div><div id="quickCameraModal" class="quick-camera-modal hidden" role="dialog" aria-modal="true" aria-label="عکاسی سریع"><div class="quick-camera-panel"><div class="quick-camera-head"><strong id="quickCameraTitle">عکاسی سریع</strong><button type="button" class="btn red" onclick="closeQuickCamera()">بستن دوربین ✕</button></div><video id="quickCameraVideo" autoplay playsinline muted></video><canvas id="quickCameraCanvas" class="hidden"></canvas><div id="quickCameraHint" class="notice">دوربین را روبه‌روی خودرو بگیرید.</div><button type="button" class="btn green quick-shutter" onclick="captureQuickPhoto()">📸 گرفتن عکس و رفتن به زاویه بعدی</button></div></div><main class="wrap">
 <header class="top">
