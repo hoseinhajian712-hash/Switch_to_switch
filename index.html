@@ -493,7 +493,7 @@ body label{font-size:13px}
 <script>
 (function(){
  const modal=document.getElementById('customerAuthModal');if(!modal)return;
- const API=window.SUPABASE_URL+'/functions/v1/switch-to-switch';
+ const sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY),API=window.SUPABASE_URL+'/functions/v1/switch-to-switch';
  const form=document.getElementById('customerAuthForm'),phone=document.getElementById('customerPhone'),firstName=document.getElementById('customerFirstName'),lastName=document.getElementById('customerLastName'),submit=document.getElementById('customerAuthSubmit'),message=document.getElementById('customerAuthMessage');
  function norm(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
  function mobile(v){let p=norm(v).replace(/\D/g,'');if(/^09\d{9}$/.test(p))return p;if(/^989\d{9}$/.test(p))return '0'+p.slice(2);if(/^9\d{9}$/.test(p))return '0'+p;return ''}
@@ -509,7 +509,10 @@ body label{font-size:13px}
   if(!p)throw Error('شماره موبایل باید ۱۱ رقم و با 09 شروع شود.');
   const r=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({full_name:f+' '+l,mobile:p}),cache:'no-store'});
   const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ثبت‌نام انجام نشد.');
-  form.reset();say('ثبت‌نام با موفقیت ثبت شد. هیچ کدی از مدیر لازم نیست.','ok');
+  if(!j.token_hash)throw Error('حساب ساخته شد اما نشست ورود دریافت نشد؛ صفحه را دوباره باز کن و در صورت تکرار پیام بده.');
+  const {data,error}=await sb.auth.verifyOtp({token_hash:j.token_hash,type:j.type||'magiclink'});
+  if(error)throw error;if(!data.session)throw Error('حساب ساخته شد اما ورود خودکار کامل نشد.');
+  say('حساب و پروفایل ساخته شد؛ در حال ورود…','ok');location.href='account.html';
  }catch(err){say(err?.message||'ثبت‌نام انجام نشد؛ دوباره تلاش کن.','err')}
  finally{submit.disabled=false;submit.textContent='ثبت‌نام'}
  });
