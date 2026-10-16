@@ -163,7 +163,7 @@ input,select,textarea,button{touch-action:manipulation}
 <div id="formArea" class="hidden">
  <div id="section-identity" class="inspection-section card hidden">
   <div class="section-title"><h3>۱. اطلاعات شناسایی خودرو</h3><span class="badge">شناسه خودرو</span></div>
-  <div class="notice" style="margin-top:12px">🤖 با بارگذاری عکس روی کارت در بخش «مدارک خودرو»، سیستم فقط شماره موتور و VIN را به‌صورت خودکار پیدا می‌کند. پلاک، مدل و سال ساخت را دستی وارد کنید. حتماً دو شماره را با کارت اصلی تطبیق دهید.</div>
+  <div class="notice" style="margin-top:12px">🤖 سیستم تصویر را با دو روش می‌خواند و فقط شماره موتور و VIN یکسان در هر دو خوانش را پیشنهاد می‌کند. نتیجه را پیش از ثبت با کارت اصلی تطبیق بده؛ اگر خوانش‌ها متفاوت باشند، شماره را دستی وارد کن.</div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
    <button type="button" class="btn" onclick="extractVehicleCardData()">✨ استخراج هوشمند از کارت خودرو</button>
    <button type="button" class="btn secondary" onclick="openPhotoSourceMenu('carDocFrontCam','carDocFrontGal')">📷 انتخاب عکس کارت خودرو</button>
@@ -189,7 +189,7 @@ input,select,textarea,button{touch-action:manipulation}
   <div class="section-title"><h3>۲. مدارک خودرو</h3><span class="badge">کارت ملی مالک الزامی</span></div>
   <div class="photo-grid" id="docsGrid"></div>
   <div id="vehicleOcrDocsStatus" class="notice hidden" role="status" aria-live="polite" style="margin-top:12px"></div>
-  <div class="notice">🤖 با انتخاب عکس «کارت خودرو — روی کارت»، سیستم به‌صورت خودکار تلاش می‌کند VIN، شماره موتور، پلاک، مدل و سال را در فیلدهای اطلاعات شناسایی وارد کند؛ نیازی به زدن دکمه جداگانه نیست. لطفاً نتیجه را با کارت اصلی بررسی کنید.</div>
+  <div class="notice">🤖 با انتخاب عکس کارت خودرو، دو بار خوانش انجام می‌شود. فقط VIN و شماره موتوری که در هر دو خوانش یکسان باشند پیشنهاد می‌شوند؛ پلاک، مدل و سال را دستی وارد کنید.</div>
   <div class="notice">📄 مدارک ثبت‌شده داخل گزارش پرونده مدیریت نمایش داده می‌شوند.</div>
  </div>
 
@@ -428,22 +428,42 @@ function parseVehicleCardText(raw){
   const normalized=latinDigits(text).toUpperCase();
   const lines=normalized.split(/\n+/).map(x=>x.replace(/[|¦]/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
   const vinPattern=/\b[A-HJ-NPR-Z0-9]{17}\b/g;
-  let vin='';
-  // VIN must be a single 17-character token on one OCR line; never build one by joining unrelated text.
+  const vinCandidates=[];
   for(const line of lines){
     const hits=line.match(vinPattern)||[];
-    const valid=hits.filter(x=>/[A-Z]/.test(x)&&/[0-9]/.test(x));
-    if(valid.length===1){vin=valid[0];break}
+    for(const hit of hits)if(/[A-Z]/.test(hit)&&/[0-9]/.test(hit))vinCandidates.push(hit);
   }
+  const uniqueVins=[...new Set(vinCandidates)];
+  const vin=uniqueVins.length===1?uniqueVins[0]:'';
   const engineLabel=/شماره\s*موتور|موتور|ENGINE\s*(?:NO|NUMBER|#)?/i;
-  const engineLine=lines.find(x=>engineLabel.test(x))||'';
-  let engine='';
-  if(engineLine){
-    const tail=engineLine.replace(engineLabel,' ').replace(/^\s*[:：\-–—|]+\s*/,' ').trim();
-    const candidates=(tail.match(/\b[A-Z0-9]{5,18}\b/g)||[]).filter(x=>/[0-9]/.test(x)&&!/[A-Z]{4,}/.test(x));
-    if(candidates.length===1)engine=candidates[0];
+  const engineLines=lines.filter(x=>engineLabel.test(x));
+  const engineCandidates=[];
+  for(const line of engineLines){
+    const tail=line.replace(engineLabel,' ').replace(/^\s*[:：\-–—|]+\s*/,' ').trim();
+    const hits=(tail.match(/\b[A-Z0-9]{5,18}\b/g)||[]).filter(x=>/[0-9]/.test(x)&&!/[A-Z]{4,}/.test(x));
+    for(const hit of hits)engineCandidates.push(hit);
   }
+  const uniqueEngines=[...new Set(engineCandidates)];
+  const engine=uniqueEngines.length===1?uniqueEngines[0]:'';
   return {vin,engine,text};
+}
+async function makeEnhancedOcrImage(source){
+ return await new Promise((resolve,reject)=>{
+  const im=new Image();
+  im.onload=()=>{
+   try{
+    const scale=Math.min(3,Math.max(2,1800/Math.max(im.naturalWidth,im.naturalHeight)));
+    const canvas=document.createElement('canvas');
+    canvas.width=Math.max(1,Math.round(im.naturalWidth*scale));canvas.height=Math.max(1,Math.round(im.naturalHeight*scale));
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(im,0,0,canvas.width,canvas.height);
+    const pixels=ctx.getImageData(0,0,canvas.width,canvas.height),d=pixels.data;
+    for(let i=0;i<d.length;i+=4){const gray=.299*d[i]+.587*d[i+1]+.114*d[i+2];const contrast=Math.max(0,Math.min(255,(gray-128)*1.45+128));const bw=contrast>178?255:(contrast<105?0:contrast);d[i]=d[i+1]=d[i+2]=bw}
+    ctx.putImageData(pixels,0,0);resolve(canvas.toDataURL('image/png'));
+   }catch(e){reject(e)}
+  };
+  im.onerror=()=>reject(new Error('تصویر برای پردازش باز نشد'));
+  im.src=source;
+ });
 }
 async function extractVehicleCardData(imageData){
  if(vehicleCardOcrBusy)return;
@@ -455,21 +475,32 @@ async function extractVehicleCardData(imageData){
  }
  if(!source){vehicleOcrStatus('ابتدا عکس «کارت خودرو — روی کارت» را انتخاب کنید؛ سپس استخراج را بزنید.',true);openPhotoSourceMenu('carDocFrontCam','carDocFrontGal');return}
  if(!window.Tesseract){vehicleOcrStatus('موتور تشخیص متن هنوز بارگذاری نشده است. اتصال اینترنت را بررسی و دوباره امتحان کنید.',true);return}
- vehicleCardOcrBusy=true;const btn=document.querySelector('button[onclick="extractVehicleCardData()"]');if(btn){btn.disabled=true;btn.textContent='⏳ در حال خواندن کارت...'}
- vehicleOcrStatus('در حال خواندن نوشته‌های کارت خودرو؛ ممکن است چند ثانیه طول بکشد…');
+ vehicleCardOcrBusy=true;const btn=document.querySelector('button[onclick="extractVehicleCardData()"]');if(btn){btn.disabled=true;btn.textContent='⏳ بررسی چندمرحله‌ای شماره‌ها...'}
+ vehicleOcrStatus('برای جلوگیری از شماره اشتباه، عکس را با دو روش می‌خوانیم و فقط نتیجه‌های یکسان را پیشنهاد می‌کنیم.');
  try{
-  let result;try{result=await window.Tesseract.recognize(source,'fas+eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص متن کارت خودرو… '+Math.round(m.progress*100)+'٪')}})}catch(firstError){vehicleOcrStatus('بارگذاری زبان فارسی ناموفق بود؛ تلاش دوباره با تشخیص انگلیسی و اعداد…');result=await window.Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص شماره‌های کارت… '+Math.round(m.progress*100)+'٪')}})}
-  const parsed=parseVehicleCardText(result.data?.text||'');
-  const put=(id,value)=>{const el=document.getElementById(id);if(el&&value){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))}};
+  const enhanced=await makeEnhancedOcrImage(source);
+  const runOcr=async(img,lang)=>window.Tesseract.recognize(img,lang,{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال بررسی تصویر و تطبیق شماره‌ها… '+Math.round(m.progress*100)+'٪')}});
+  let first,second;
+  try{first=await runOcr(source,'eng+fas')}catch(e){first=await runOcr(source,'eng')}
+  try{second=await runOcr(enhanced,'eng+fas')}catch(e){second=await runOcr(enhanced,'eng')}
+  const p1=parseVehicleCardText(first.data?.text||''),p2=parseVehicleCardText(second.data?.text||'');
+  const sameVin=!!p1.vin&&p1.vin===p2.vin;
+  const sameEngine=!!p1.engine&&p1.engine===p2.engine;
+  const parsed={vin:sameVin?p1.vin:'',engine:sameEngine?p1.engine:'',text:'[خوانش اول]\\n'+p1.text+'\\n\\n[خوانش دوم پس از بهبود تصویر]\\n'+p2.text};
+  const put=(id,value)=>{const el=document.getElementById(id);if(el&&value&&!String(el.value||'').trim()){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))}};
   put('vin',parsed.vin);put('engine',parsed.engine);
   const raw=document.getElementById('vehicleOcrText');if(raw)raw.value=parsed.text;
   await persistDraft();
-  const count=[parsed.vin,parsed.engine].filter(Boolean).length;
-  vehicleOcrStatus(count?'استخراج اولیه انجام شد؛ '+count+' مورد از شماره موتور و VIN پیدا شد. نتیجه را حتماً با کارت اصلی تطبیق دهید.':'متن کارت خوانده شد، اما شماره موتور یا VIN با اطمینان کافی پیدا نشد؛ برای جلوگیری از ثبت اشتباه، مقدار مشکوک وارد نشد. متن خوانده‌شده را بررسی کنید یا شماره را دستی وارد کنید.',!count);
- }catch(e){vehicleOcrStatus('خواندن کارت انجام نشد. عکس واضح‌تر، بدون بازتاب نور و از روبه‌رو بگیرید. '+(e?.message||''),true)}
- finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ استخراج هوشمند از کارت خودرو'}}
-}
-function selectedPhoto(id){const cam=document.getElementById(id+'Cam'),gal=document.getElementById(id+'Gal');return cam?.files?.[0]||gal?.files?.[0]||null}
+  const found=[parsed.vin,parsed.engine].filter(Boolean).length;
+  const mismatch=[];
+  if(!sameVin)mismatch.push('VIN');
+  if(!sameEngine)mismatch.push('شماره موتور');
+  if(found===2)vehicleOcrStatus('هر دو شماره در دو خوانش یکسان بودند و به‌عنوان پیشنهاد وارد شدند. قبل از ثبت نهایی، با کارت اصلی تطبیق بده.',false);
+  else if(found===1)vehicleOcrStatus('فقط '+(sameVin?'VIN':'شماره موتور')+' در هر دو خوانش یکسان بود. '+mismatch.join(' و ')+' به دلیل اختلاف خوانش خودکار وارد نشد؛ آن را دستی بررسی کن.',true);
+  else vehicleOcrStatus('دو خوانش با هم مطابقت نداشتند؛ برای جلوگیری از ثبت شماره اشتباه، هیچ شماره جدیدی خودکار وارد نشد. عکس واضح‌تر بگیر یا هر دو شماره را دستی وارد کن.',true);
+ }catch(e){vehicleOcrStatus('خواندن کارت انجام نشد. کارت را صاف، از روبه‌رو و بدون بازتاب نور عکس بگیر. '+(e?.message||''),true)}
+ finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ بررسی دوباره شماره‌های کارت خودرو'}}
+}function selectedPhoto(id){const cam=document.getElementById(id+'Cam'),gal=document.getElementById(id+'Gal');return cam?.files?.[0]||gal?.files?.[0]||null}
 function selectedPhotoGroup(cls,i){return [...document.querySelectorAll('.'+cls)].filter(x=>x.id.endsWith('_'+i)||x.id==='maincam_'+i).flatMap(x=>[...x.files])}
 function previewDef(input){const drawer=input.closest('.inline-drawer'),box=drawer.querySelector('.drawer-preview'),name=drawer.querySelector('.file-name'),files=[...drawer.querySelectorAll('.defphoto')].flatMap(x=>[...x.files]);box.innerHTML='';if(name)name.textContent=files.length?(files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';files.forEach(f=>{const im=document.createElement('img');im.src=URL.createObjectURL(f);box.appendChild(im)});if(files.length)addDeletePhotoButton(box);const file=files[0];if(file){const can=drawer.querySelector('canvas'),ctx=can.getContext('2d'),im=new Image();im.onload=()=>{const scale=Math.min(1,1600/im.naturalWidth,1600/im.naturalHeight);can.width=Math.max(1,Math.round(im.naturalWidth*scale));can.height=Math.max(1,Math.round(im.naturalHeight*scale));can._baseImage=im;ctx.clearRect(0,0,can.width,can.height);ctx.drawImage(im,0,0,can.width,can.height)};im.src=URL.createObjectURL(file)}saveDefectPhotoDraft(input)}
 function enableDraw(btn){const can=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=can.getContext('2d');ctx.lineWidth=5;ctx.lineCap='round';ctx.strokeStyle='#ef4444';let drawing=false;const pos=e=>{const r=can.getBoundingClientRect();return{x:(e.clientX-r.left)*can.width/r.width,y:(e.clientY-r.top)*can.height/r.height}};can.onpointerdown=e=>{e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};can.onpointermove=e=>{if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};can.onpointerup=()=>drawing=false;can.onpointerleave=()=>drawing=false;btn.textContent='✏️ قلم فعال است'}
