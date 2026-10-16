@@ -763,16 +763,17 @@ function openGalleryPhotoEditor(box,im){
   const saveBtn=overlay.querySelector('#galleryEditSave');saveBtn.disabled=true;saveBtn.textContent='در حال ذخیره…';
   try{
    drawGalleryEditor(state);const dataUrl=canvas.toDataURL('image/jpeg',.92);
-   const drawer=box.closest('.inline-drawer');
+   const drawer=im.closest('.inline-drawer')||box.closest('.inline-drawer');
    if(drawer){
     const input=drawer.querySelector('.defphoto[data-part][data-defect]');if(!input)throw new Error('مشخصات ایراد پیدا نشد');
-    const d=await readPhotoDraft(),k=defectPhotoKey(input.dataset.part,input.dataset.defect),photos=[...box.querySelectorAll('img')],photoIndex=photos.indexOf(im);
-    if(photoIndex<0)throw new Error('عکس برای ویرایش پیدا نشد');
+    const photoBox=im.closest('.drawer-preview')||drawer.querySelector('.drawer-preview')||box;
+    const d=await readPhotoDraft(),k=defectPhotoKey(input.dataset.part,input.dataset.defect),photos=[...photoBox.querySelectorAll('img')],photoIndex=photos.indexOf(im);
+    if(photoIndex<0)throw new Error('عکس در فهرست پیش‌نمایش پیدا نشد؛ پنجره را ببندید و عکس را دوباره باز کنید');
     const visibleUrls=photos.map((photo,i)=>i===photoIndex?dataUrl:photo.src),savedUrls=[...((d.defectPhotos||{})[k]||[])];
     const urls=visibleUrls.map((url,i)=>url.startsWith('blob:')?(savedUrls[i]||url):url);
     urls[photoIndex]=dataUrl;d.defectPhotos=d.defectPhotos||{};d.defectPhotos[k]=urls;
     await writePhotoDraft(d);
-    drawer.querySelectorAll('.defphoto').forEach(x=>x.value='');box.innerHTML='';urls.forEach(url=>{const image=document.createElement('img');image.src=url;box.appendChild(image)});addDeletePhotoButton(box);
+    drawer.querySelectorAll('.defphoto').forEach(x=>x.value='');photoBox.innerHTML='';urls.forEach(url=>{const image=document.createElement('img');image.src=url;photoBox.appendChild(image)});addDeletePhotoButton(photoBox);
     const name=drawer.querySelector('.file-name');if(name)name.textContent=urls.length+' عکس ذخیره‌شده';
    }else if(/^docprev[0-9]+$/.test(box.id)){
     const ids=['national','carDocFront','carDocBack','greenDoc','factoryDoc','techDoc','insuranceDoc','insuranceBack','transferDoc','otherDoc'],key=ids[Number(box.id.slice(7))];
