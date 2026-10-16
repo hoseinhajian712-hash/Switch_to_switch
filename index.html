@@ -314,8 +314,30 @@ input,select,textarea,button{touch-action:manipulation}
 <header class="top">
 <div class="logo">Switch <span>to</span> Switch</div>
 <nav class="nav"><a href="#services">خدمات</a><a href="#about">درباره سامانه</a></nav>
-<a class="accountTop" href="account.html">ورود / ثبت‌نام <span>↗</span></a>
+<button class="accountTop" id="openCustomerAuth" type="button">ورود / ثبت‌نام <span>↗</span></button>
 </header>
+<style>
+#customerAuthModal[hidden]{display:none!important}#customerAuthModal{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:16px;background:#020813d9;backdrop-filter:blur(10px)}#customerAuthModal .authCard{width:min(440px,100%);border:1px solid #ffffff20;border-radius:24px;padding:23px;background:linear-gradient(145deg,#172538,#0b1422);box-shadow:0 30px 90px #0009;color:#f8fafc;position:relative}#customerAuthModal .authClose{position:absolute;top:13px;left:13px;width:36px;height:36px;border-radius:11px;border:1px solid #ffffff20;background:#ffffff0b;color:#fff;font-size:21px;cursor:pointer}#customerAuthModal .authKicker{font-size:11px;color:#93c5fd}#customerAuthModal h2{font-size:23px;margin:10px 0 4px}#customerAuthModal .authSub{font-size:12px;color:#b8c5d6;line-height:2;margin:0 0 18px}#customerAuthModal .authTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}#customerAuthModal .authTabs button{border:1px solid #ffffff20;background:#ffffff08;color:#dbeafe;border-radius:12px;padding:11px;font-weight:800;cursor:pointer}#customerAuthModal .authTabs button.active{background:#1d4ed833;border-color:#60a5fa;color:#bfdbfe}#customerAuthModal .authField{display:block;margin:12px 0}#customerAuthModal .authField span{display:block;font-size:12px;color:#dbe5f1;margin-bottom:7px}#customerAuthModal .authField input{width:100%;border:1px solid #ffffff24;background:#08111f;color:#fff;border-radius:12px;padding:14px;font:inherit;outline:none}#customerAuthModal .authField input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px #3b82f622}#customerAuthModal .authSubmit{width:100%;border:0;border-radius:13px;padding:14px;background:linear-gradient(120deg,#93c5fd,#60a5fa);color:#08111f;font-weight:900;font:inherit;cursor:pointer}#customerAuthModal .authSubmit:disabled{opacity:.6;cursor:wait}#customerAuthModal .authMsg{font-size:12px;line-height:1.9;margin-top:12px;padding:10px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}#customerAuthModal .authMsg:empty{display:none}#customerAuthModal .authMsg.ok{color:#bbf7d0;background:#14532d55}#customerAuthModal .authMsg.err{color:#fecaca;background:#7f1d1d55}#customerAuthModal .authResend{display:block;margin:11px auto 0;border:0;background:none;color:#93c5fd;font:inherit;font-size:12px;cursor:pointer}#customerAuthModal .authFoot{font-size:10px;line-height:1.9;color:#9caec2;margin:14px 0 0}#customerAuthModal .authHidden{display:none!important}@media(max-width:480px){#customerAuthModal .authCard{padding:20px 16px}}
+</style>
+<div id="customerAuthModal" hidden role="dialog" aria-modal="true" aria-labelledby="customerAuthTitle">
+ <section class="authCard">
+  <button type="button" class="authClose" id="closeCustomerAuth" aria-label="بستن">×</button>
+  <div class="authKicker">SWITCH TO SWITCH · حساب مشتری</div>
+  <h2 id="customerAuthTitle">ورود و ثبت‌نام</h2>
+  <p class="authSub" id="customerAuthSub">با شماره موبایل خودت وارد شو یا حساب بساز؛ کد تأیید فقط از طریق پیامک واقعی ارسال می‌شود.</p>
+  <div class="authTabs" id="customerAuthTabs"><button type="button" class="active" data-mode="login">ورود</button><button type="button" data-mode="signup">ثبت‌نام</button></div>
+  <form id="customerAuthForm">
+   <label class="authField authHidden" id="customerNameWrap"><span>نام و نام خانوادگی</span><input id="customerFullName" name="full_name" autocomplete="name" maxlength="100" placeholder="نام و نام خانوادگی"></label>
+   <label class="authField"><span>شماره موبایل ایران</span><input id="customerPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required placeholder="09123456789"></label>
+   <label class="authField authHidden" id="customerOtpWrap"><span>کد تأیید پیامکی ۶ رقمی</span><input id="customerOtp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9۰-۹٠-٩]{6}" placeholder="کد دریافتی از پیامک"></label>
+   <button class="authSubmit" id="customerAuthSubmit" type="submit">ارسال کد پیامکی</button>
+   <button class="authResend authHidden" id="customerAuthResend" type="button">ارسال دوباره کد</button>
+   <div class="authMsg" id="customerAuthMessage" role="status" aria-live="polite"></div>
+  </form>
+  <p class="authFoot">کد آزمایشی یا ساختگی نمایش داده نمی‌شود. اگر سرویس پیامکی تنظیم نشده باشد، خطای واقعی سرویس نمایش داده خواهد شد.</p>
+ </section>
+</div>
+
 <section class="hero">
 <div class="heroCopy"><div class="kicker"><span class="liveDot"></span> تخصص در معاوضه هوشمندانه خودرو</div><h1>می‌خوای ماشینتو عوض کنی؟</h1><p>با سوییچ به سوییچ، ماشینتو هوشمندانه معاوضه کن؛ با کارشناسی تخصصی، روندی شفاف و پیگیری مرحله‌به‌مرحله.</p><div class="heroActions"><a class="primaryCta" href="booking.html?type=exchange">شروع معاوضه خودرو <span>←</span></a></div><div class="heroMiniTrust"><span>✓ کارشناسی تخصصی</span><span>✓ روند شفاف</span><span>✓ پیگیری مرحله‌به‌مرحله</span></div></div>
 <div class="heroVisual" role="img" aria-label="تصویر خودروی مدرن">
@@ -469,4 +491,42 @@ body label{font-size:13px}
 })();
 </script>
 
-<script src="support-widget.js?v=5"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="request-modal.js?v=9"></script><script src="money-format.js"></script></body></html>
+<script src="support-widget.js?v=5"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="request-modal.js?v=9"></script><script src="money-format.js"></script>
+<script>
+(function(){
+ const modal=document.getElementById('customerAuthModal');if(!modal)return;
+ const sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY);
+ const form=document.getElementById('customerAuthForm'),phoneInput=document.getElementById('customerPhone'),nameInput=document.getElementById('customerFullName'),otpInput=document.getElementById('customerOtp'),nameWrap=document.getElementById('customerNameWrap'),otpWrap=document.getElementById('customerOtpWrap'),submit=document.getElementById('customerAuthSubmit'),resend=document.getElementById('customerAuthResend'),message=document.getElementById('customerAuthMessage'),sub=document.getElementById('customerAuthSub');
+ let mode='login',phase='phone',pendingPhone='';
+ function norm(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
+ function normalizedPhone(v){let p=norm(v).replace(/[\s()\-]/g,'');if(/^09\d{9}$/.test(p))return '+98'+p.slice(1);if(/^\+989\d{9}$/.test(p))return p;if(/^989\d{9}$/.test(p))return '+'+p;return ''}
+ function say(t,type){message.textContent=t;message.className='authMsg'+(type?' '+type:'')}
+ function setMode(next){mode=next;phase='phone';document.querySelectorAll('#customerAuthTabs [data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));nameWrap.classList.toggle('authHidden',mode!=='signup');nameInput.required=mode==='signup';otpWrap.classList.add('authHidden');otpInput.required=false;otpInput.value='';phoneInput.disabled=false;resend.classList.add('authHidden');submit.textContent='ارسال کد پیامکی';sub.textContent=mode==='signup'?'نام و نام خانوادگی و شماره موبایلت را وارد کن؛ کد واقعی پیامکی برای تأیید شماره ارسال می‌شود.':'شماره موبایلت را وارد کن؛ کد واقعی پیامکی برای ورود ارسال می‌شود.';say('')}
+ function open(){modal.hidden=false;document.body.style.overflow='hidden';setMode('login');setTimeout(()=>phoneInput.focus(),30)}
+ function close(){modal.hidden=true;document.body.style.overflow=''}
+ document.getElementById('openCustomerAuth').addEventListener('click',open);
+ document.getElementById('closeCustomerAuth').addEventListener('click',close);
+ modal.addEventListener('click',e=>{if(e.target===modal)close()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close()});
+ document.getElementById('customerAuthTabs').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(b&&phase==='phone')setMode(b.dataset.mode)});
+ async function sendCode(){
+  const p=normalizedPhone(phoneInput.value);if(!p)throw Error('شماره موبایل ایران را به شکل 09123456789 وارد کن.');
+  if(mode==='signup'&&nameInput.value.trim().length<3)throw Error('نام و نام خانوادگی را کامل وارد کن.');
+  const {error}=await sb.auth.signInWithOtp({phone:p,options:{shouldCreateUser:mode==='signup',data:mode==='signup'?{full_name:nameInput.value.trim(),mobile:p}:{mobile:p}}});
+  if(error)throw error;
+  pendingPhone=p;phase='otp';phoneInput.value=p;phoneInput.disabled=true;otpWrap.classList.remove('authHidden');otpInput.required=true;resend.classList.remove('authHidden');submit.textContent='تأیید کد و ادامه';otpInput.focus();say('درخواست ارسال ثبت شد. اگر شماره معتبر باشد و سرویس پیامکی فعال باشد، کد تأیید برایت پیامک می‌شود.','ok');
+ }
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();submit.disabled=true;const old=submit.textContent;submit.textContent=phase==='phone'?'در حال درخواست پیامک…':'در حال بررسی کد…';say('');
+  try{
+   if(phase==='phone'){await sendCode();return}
+   const token=norm(otpInput.value).replace(/\D/g,'');if(!/^\d{6}$/.test(token))throw Error('کد تأیید باید ۶ رقم باشد.');
+   const {data,error}=await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});if(error)throw error;if(!data.session)throw Error('تأیید شماره کامل نشد؛ دوباره تلاش کن.');
+   say('شماره موبایل تأیید شد. در حال ورود به حساب مشتری…','ok');location.href='account.html';
+  }catch(err){say(err?.message||'ارسال یا بررسی کد ناموفق بود.','err')}
+  finally{submit.disabled=false;submit.textContent=phase==='otp'?'تأیید کد و ادامه':'ارسال کد پیامکی'}
+ });
+ resend.addEventListener('click',async()=>{resend.disabled=true;try{const {error}=await sb.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:mode==='signup',data:mode==='signup'?{full_name:nameInput.value.trim(),mobile:pendingPhone}:{mobile:pendingPhone}}});if(error)throw error;otpInput.value='';say('درخواست ارسال دوباره انجام شد؛ فقط کدی را وارد کن که واقعاً پیامک شده است.','ok')}catch(err){say(err?.message||'ارسال دوباره کد ناموفق بود.','err')}finally{resend.disabled=false}});
+})();
+</script>
+</body></html>
