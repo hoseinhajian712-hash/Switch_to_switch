@@ -427,23 +427,44 @@ function parseVehicleCardText(raw){
   const text=String(raw||'').replace(/\r/g,'\n');
   const normalized=latinDigits(text).toUpperCase();
   const lines=normalized.split(/\n+/).map(x=>x.replace(/[|¦]/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
-  // Motorcycle registration cards may show a 16-character chassis identifier;
-  // keep 16- and 17-character candidates, and normalize OCR-inserted spaces/hyphens.
+  // Read chassis/VIN candidates even when OCR inserts spaces or hyphens inside the number.
   const vinCandidates=[];
-  for(const line of lines){
-    const chunks=line.match(/\b(?:[A-Z0-9][ -]?){15,16}[A-Z0-9]\b/g)||[];
-    for(const chunk of chunks){
-      const hit=chunk.replace(/[ -]/g,'');
-      if((hit.length===16||hit.length===17)&&/[A-Z]/.test(hit)&&/[0-9]/.test(hit))vinCandidates.push(hit);
+  const addVin=s=>{
+    const hit=String(s||'').replace(/[^A-Z0-9]/g,'');
+    if((hit.length===16||hit.length===17)&&/[A-Z]/.test(hit)&&/[0-9]/.test(hit))vinCandidates.push(hit);
+  };
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
+    const chunks=line.match(/[A-Z0-9]+(?:[\s-]+[A-Z0-9]+)*/g)||[];
+    for(let a=0;a<chunks.length;a++){
+      let joined='';
+      for(let b=a;b<Math.min(chunks.length,a+5);b++){
+        joined+=chunks[b].replace(/[^A-Z0-9]/g,'');
+        if(joined.length>17)break;
+        if(joined.length===16||joined.length===17)addVin(joined);
+      }
+    }
+    // OCR can split a long identifier across two visual lines.
+    if(lines[i+1]){
+      const pair=(line+' '+lines[i+1]).match(/[A-Z0-9]+(?:[\s-]+[A-Z0-9]+)*/g)||[];
+      for(let a=0;a<pair.length;a++){
+        let joined='';
+        for(let b=a;b<Math.min(pair.length,a+5);b++){
+          joined+=pair[b].replace(/[^A-Z0-9]/g,'');
+          if(joined.length>17)break;
+          if(joined.length===16||joined.length===17)addVin(joined);
+        }
+      }
     }
   }
+  // Prefer a candidate with a motorcycle-style IRAM prefix if OCR produced several possibilities.
   const uniqueVins=[...new Set(vinCandidates)];
-  const vin=uniqueVins.length===1?uniqueVins[0]:'';
+  const iramVins=uniqueVins.filter(x=>x.startsWith('IRAM'));
+  const vin=iramVins.length===1?iramVins[0]:(uniqueVins.length===1?uniqueVins[0]:'');
   const engineLabel=/شماره\s*موتور|موتور|ENGINE\s*(?:NO|NUMBER|#)?|ENG\.?\s*(?:NO|NUMBER|#)?/i;
   const engineCandidates=[];
   for(let i=0;i<lines.length;i++){
     if(!engineLabel.test(lines[i]))continue;
-    // On some motorcycle cards the label and stamped number are on adjacent OCR lines.
     const sameLine=lines[i].replace(engineLabel,' ').replace(/^\s*[:：\-–—|]+\s*/,' ').trim();
     const nearby=[sameLine,lines[i+1]||'',lines[i+2]||''].join(' ');
     const hits=(nearby.match(/\b[A-Z0-9]{5,18}\b/g)||[])
@@ -452,7 +473,7 @@ function parseVehicleCardText(raw){
   }
   const uniqueEngines=[...new Set(engineCandidates)];
   const engine=uniqueEngines.length===1?uniqueEngines[0]:'';
-  return {vin,engine,text};
+  return {vin,vinCandidates:[...new Set(vinCandidates)],engine,text};
 }
 async function makeEnhancedOcrImage(source){
  return await new Promise((resolve,reject)=>{
@@ -491,19 +512,24 @@ async function extractVehicleCardData(imageData){
   try{first=await runOcr(source,'eng+fas')}catch(e){first=await runOcr(source,'eng')}
   try{second=await runOcr(enhanced,'eng+fas')}catch(e){second=await runOcr(enhanced,'eng')}
   const p1=parseVehicleCardText(first.data?.text||''),p2=parseVehicleCardText(second.data?.text||'');
+  // If one OCR pass clearly finds a unique identifier and the other finds none, keep the clear result.
+  // If both passes find different identifiers, leave the field untouched for safety.
   const sameVin=!!p1.vin&&p1.vin===p2.vin;
+  const oneClearVin=!!(p1.vin&&!p2.vin)&&p1.vinCandidates?.length===1? p1.vin:
+                    (!!(p2.vin&&!p1.vin)&&p2.vinCandidates?.length===1?p2.vin:'');
+  const chosenVin=sameVin?p1.vin:oneClearVin;
   const sameEngine=!!p1.engine&&p1.engine===p2.engine;
-  const parsed={vin:sameVin?p1.vin:'',engine:sameEngine?p1.engine:'',text:'[خوانش اول]\\n'+p1.text+'\\n\\n[خوانش دوم پس از بهبود تصویر]\\n'+p2.text};
+  const parsed={vin:chosenVin,engine:sameEngine?p1.engine:'',text:'[خوانش اول]\\n'+p1.text+'\\n\\n[خوانش دوم پس از بهبود تصویر]\\n'+p2.text};
   const put=(id,value)=>{const el=document.getElementById(id);if(el&&value&&!String(el.value||'').trim()){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))}};
   put('vin',parsed.vin);put('engine',parsed.engine);
   const raw=document.getElementById('vehicleOcrText');if(raw)raw.value=parsed.text;
   await persistDraft();
   const found=[parsed.vin,parsed.engine].filter(Boolean).length;
   const mismatch=[];
-  if(!sameVin)mismatch.push('VIN');
+  if(!chosenVin)mismatch.push('VIN');
   if(!sameEngine)mismatch.push('شماره موتور');
   if(found===2)vehicleOcrStatus('هر دو شماره در دو خوانش یکسان بودند و به‌عنوان پیشنهاد وارد شدند. قبل از ثبت نهایی، با کارت اصلی تطبیق بده.',false);
-  else if(found===1)vehicleOcrStatus('فقط '+(sameVin?'VIN':'شماره موتور')+' در هر دو خوانش یکسان بود. '+mismatch.join(' و ')+' به دلیل اختلاف خوانش خودکار وارد نشد؛ آن را دستی بررسی کن.',true);
+  else if(found===1)vehicleOcrStatus('فقط '+(chosenVin?'VIN':(sameEngine?'شماره موتور':'شماره دیگر'))+' با اطمینان کافی خوانده شد. '+mismatch.join(' و ')+' خودکار وارد نشد؛ آن را با کارت تطبیق بده.',true);
   else vehicleOcrStatus('دو خوانش با هم مطابقت نداشتند؛ برای خودرو یا موتورسیکلت، شماره‌های روی کارت را بررسی کن؛ شماره موتور ممکن است در سطر بعد از عنوانش باشد. در صورت نیاز شماره موتور را دستی وارد کن. متن هر دو خوانش را می‌توانی در بخش «مشاهده متن خوانده‌شده از کارت» ببینی. متن هر دو خوانش را می‌توانی در بخش «مشاهده متن خوانده‌شده از کارت» ببینی.',true);
  }catch(e){vehicleOcrStatus('خواندن کارت انجام نشد. کارت را صاف، از روبه‌رو و بدون بازتاب نور عکس بگیر. '+(e?.message||''),true)}
  finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ بررسی دوباره شماره‌های کارت خودرو'}}
