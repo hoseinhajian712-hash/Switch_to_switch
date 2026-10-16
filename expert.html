@@ -451,7 +451,7 @@ html {
 <script>
 (function(){const originalFetch=window.fetch.bind(window);const tokenKey='s2s_expert_token_v2';window.fetch=async function(input,init){try{const raw=typeof input==='string'?input:input.url;const u=new URL(raw,location.href);if(!u.searchParams.has('key'))return originalFetch(input,init);u.searchParams.delete('key');const token=sessionStorage.getItem(tokenKey)||'';if(!token){document.documentElement.classList.add('s2s-locked');return new Response(JSON.stringify({error:'نشست ورود پایان یافته؛ دوباره وارد شوید.'}),{status:401,headers:{'content-type':'application/json'}})}const h=new Headers(init&&init.headers||(input instanceof Request?input.headers:undefined));h.set('Authorization','Bearer '+token);const res=await originalFetch(u.toString(),{...(init||{}),headers:h});if(res.status===401){sessionStorage.removeItem(tokenKey);document.documentElement.classList.add('s2s-locked')}return res}catch(e){return originalFetch(input,init)}}})();;
 const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY=sessionStorage.getItem('s2s_expert_token_v2')||'',CASE_STORAGE='s2s_expert_active_case';document.getElementById('expertSessionName').textContent='● '+(sessionStorage.getItem('s2s_expert_name')||'کارشناس');
-function keyFor(partIndex,defect){const oi=opts.indexOf(defect);return partIndex+'_'+(oi<0?0:oi)}
+function keyFor(partIndex,defect){const list=optionsForPart(parts[Number(partIndex)]),oi=list.indexOf(defect);return partIndex+'_'+(oi<0?0:oi)}
 const defectGroups=[
  {key:'body',title:'بدنه، شاسی و چرخ‌ها',desc:'بازدید کامل بدنه، ستون‌ها، شاسی، سینی، سقف، سپرها و چرخ‌ها',parts:[
  'درب موتور','گلگیر جلو راننده','درب جلو راننده','درب عقب راننده','گلگیر عقب راننده','درب صندوق','رکاب راننده','ناودانی راننده','کف صندوق',
@@ -654,24 +654,29 @@ async function startInspection(){if(!current)return;if(current.status==='inspect
 function goToFinish(){if(!current)return;openInspectionSection('summary');const s=document.getElementById('summary');if(s)s.focus()}
 function toggleInspectionChat(){const p=document.getElementById('inspectionChatPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden')){loadExpertComments();p.scrollIntoView({behavior:'smooth',block:'nearest'})}}
  function startInspectionView(markStatus=true){hideAllViews();inspectionHome.classList.remove('hidden');loadExpertComments();if(markStatus&&current&&current.status!=='inspection'){fetch(API+'?key='+encodeURIComponent(KEY)+'&api=expert-status&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({status:'inspection',note:'شروع کارشناسی'})}).catch(()=>{});current.status='inspection'}scrollTo(0,0)}
-function openInspectionSection(key,navigate=true){if(!current)return;if(navigate)history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection&section='+encodeURIComponent(key));hideAllViews();formArea.classList.remove('hidden');if(['body','climate','suspension','electrical','engine','brakes'].includes(key)){const s=document.getElementById('section-defects');s.classList.remove('hidden');document.querySelectorAll('.defect-group').forEach(g=>g.style.display=g.dataset.group===key?'':'none')}else{const s=document.getElementById('section-'+key);if(s)s.classList.remove('hidden')}if(key==='gallery')restoreMainPhotoDraft();if(key==='docs')restoreDocPhotoDraft();scrollTo(0,0)}
+let activeDefectGroup='body';
+function openInspectionSection(key,navigate=true){if(!current)return;if(navigate)history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection&section='+encodeURIComponent(key));hideAllViews();formArea.classList.remove('hidden');if(['body','climate','suspension','electrical','engine','brakes'].includes(key)){activeDefectGroup=key;const search=document.getElementById('defectSearch');if(search)search.value='';const s=document.getElementById('section-defects');s.classList.remove('hidden');document.querySelectorAll('.defect-group').forEach(g=>g.style.display=g.dataset.group===key?'':'none');filterDefects()}else{const s=document.getElementById('section-'+key);if(s)s.classList.remove('hidden')}if(key==='gallery')restoreMainPhotoDraft();if(key==='docs')restoreDocPhotoDraft();scrollTo(0,0)}
 function backToInspectionSections(){if(!current)return;history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection');startInspectionView(false)}
 function backToList(){history.pushState({},'','expert.html');current=null;localStorage.removeItem(CASE_STORAGE);hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden');loadCases();scrollTo(0,0)}
 function renderRoute(){const p=new URLSearchParams(location.search),qcase=p.get('case'),view=p.get('view'),section=p.get('section');if(qcase){let found=cases.find(x=>x.id===qcase);if(!found&&p.get('done')==='1'){found=JSON.parse(sessionStorage.getItem('s2s_done_case')||'null')}if(found){current=found;hydrateCase();restoreDraft().catch(()=>{});if(view==='inspection'){if(section)openInspectionSection(section,false);else startInspectionView(true)}else renderCaseLanding();return}}current=null;hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden')}
 function filterDefects(){
- const raw=(document.getElementById('defectSearch')?.value||'').trim().toLowerCase(); const q=raw.replaceAll('راننده','چپ').replaceAll('شاگرد','راست');
- const cards=[...document.querySelectorAll('.defect-card')];
+ const raw=(document.getElementById('defectSearch')?.value||'').trim().toLowerCase();
+ const q=raw.replaceAll('راننده','چپ').replaceAll('شاگرد','راست');
  const groups=[...document.querySelectorAll('.defect-group')];
+ const active=groups.find(g=>g.dataset.group===activeDefectGroup);
  let visible=0;
- cards.forEach(card=>{
-   const ok=!q||(card.dataset.partSearch||'').toLowerCase().includes(q);
-   card.classList.toggle('is-hidden',!ok);
-   if(ok)visible++;
+ groups.forEach(g=>{
+   const isActive=g===active;
+   g.style.display=isActive?'':'none';
+   g.querySelectorAll('.defect-card').forEach(card=>{
+     const ok=isActive&&(!q||(card.dataset.partSearch||'').toLowerCase().includes(q));
+     card.classList.toggle('is-hidden',!ok);
+     if(ok)visible++;
+   });
  });
- groups.forEach(g=>g.style.display=g.querySelectorAll('.defect-card:not(.is-hidden)').length?'':'none');
  document.querySelectorAll('.part-cluster').forEach(cluster=>{const n=cluster.querySelectorAll('.defect-card:not(.is-hidden)').length;cluster.style.display=n?'':'none';if(q&&n)cluster.open=true;else if(!q)cluster.open=false;});
  const count=document.getElementById('defectCount');
- if(count)count.textContent=visible+' قطعه';
+ if(count)count.textContent=visible+' مورد در این بخش';
 }
 function toggleMarkup(btn){const w=btn.nextElementSibling;w.classList.toggle("show-markup");btn.textContent=w.classList.contains("show-markup")?"− بستن علامت‌گذاری":"✏️ علامت‌گذاری روی عکس"}
 function toggleDefectDrawer(e){const c=e.target,p=c.closest('.pill');p.classList.toggle('selected',c.checked);p.classList.toggle('open',c.checked);const inputs=[...p.querySelectorAll('.defphoto')];inputs.forEach(i=>{i.onchange=()=>previewDef(i);if(!c.checked)i.value=''});if(c.checked){restoreOneDefectPhoto(c).catch(err=>console.warn('بازیابی عکس ایراد ناموفق بود',err))}else{const b=p.querySelector('.defect-detail-toggle');if(b)b.textContent='📷 عکس و توضیح';/* عکس‌های ذخیره‌شده را پاک نکن؛ فقط پنل ایراد بسته می‌شود. */}persistDraft();try{localStorage.setItem(draftKey(),JSON.stringify(collectDraft()))}catch(err){console.error('ذخیره فوری وضعیت ایراد ناموفق بود',err)}}
