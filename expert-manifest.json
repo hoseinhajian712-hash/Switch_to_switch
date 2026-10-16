@@ -1,0 +1,22 @@
+{
+  "id": "/Switch_to_switch/expert.html",
+  "name": "سوییچ به سوییچ | اپلیکیشن کارشناسی",
+  "short_name": "کارشناسی سوییچ",
+  "description": "اپلیکیشن پنل کارشناسی خودرو سوییچ به سوییچ",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./expert.html?source=installed-app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#081322",
+  "theme_color": "#081322",
+  "icons": [
+    {
+      "src": "./expert-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
