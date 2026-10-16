@@ -1,0 +1,22 @@
+{
+  "id": "/Switch_to_switch/buyers-auction.html",
+  "name": "سوییچ به سوییچ | پنل مزایده",
+  "short_name": "مزایده سوییچ",
+  "description": "اپلیکیشن پنل مزایده خریداران سوییچ به سوییچ",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./buyers-auction.html?source=installed-app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#081322",
+  "theme_color": "#081322",
+  "icons": [
+    {
+      "src": "./app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
