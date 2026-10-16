@@ -432,11 +432,11 @@ function parseVehicleCardText(raw){
  const engineLine=lineFor(/موتور|ENGINE/i);
  let engine='';
  if(engineLine){const candidates=latinDigits(engineLine).toUpperCase().match(/[A-Z0-9]{5,18}/g)||[];engine=candidates.sort((a,b)=>b.length-a.length)[0]||'';if(/موتور|ENGINE/i.test(engineLine)&&engine.length>17)engine=''}
- const plateLine=lineFor(/پلاک|شمارهs*پلاک|PLATE/i);
+ const plateLine=lineFor(/پلاک|شماره\s*پلاک|PLATE/i);
  let plate='';
  if(plateLine){const candidates=latinDigits(plateLine).match(/[0-9]{2,3}\s*[آ-یA-Z]\s*[0-9]{3}\s*[0-9]{2}/i)||latinDigits(plateLine).match(/[0-9۰-۹]{5,10}/);plate=candidates?candidates[0].replace(/\s+/g,' ').trim():''}
- const vehicleLine=lineFor(/نوعs*خودرو|مدلs*خودرو|نامs*خودرو|تیپs*خودرو|VEHICLE\s*TYPE|MODEL/i);
- const yearLine=lineFor(/سالs*ساخت|مدلs*سال|YEAR\s*OF\s*MANUFACTURE|MODEL\s*YEAR/i);
+ const vehicleLine=lineFor(/نوع\s*خودرو|مدل\s*خودرو|نام\s*خودرو|تیپ\s*خودرو|VEHICLE\s*TYPE|MODEL/i);
+ const yearLine=lineFor(/سال\s*ساخت|مدل\s*سال|YEAR\s*OF\s*MANUFACTURE|MODEL\s*YEAR/i);
  const name=vehicleLine?cleanOcrValue(vehicleLine.replace(/.*?(?:نوع\s*خودرو|مدل\s*خودرو|نام\s*خودرو|تیپ\s*خودرو|VEHICLE\s*TYPE|MODEL)\s*[:：-]?/i,'')):'';
  const year=yearLine?(latinDigits(yearLine).match(/(?:13|14|20)\d{2}/)||[])[0]||'':'';
  return {vin:vinMatch?vinMatch[0]:'',engine:engine,plate:plate,name:name,year:year,text:text};
@@ -454,7 +454,7 @@ async function extractVehicleCardData(imageData){
  vehicleCardOcrBusy=true;const btn=document.querySelector('button[onclick="extractVehicleCardData()"]');if(btn){btn.disabled=true;btn.textContent='⏳ در حال خواندن کارت...'}
  vehicleOcrStatus('در حال خواندن نوشته‌های کارت خودرو؛ ممکن است چند ثانیه طول بکشد…');
  try{
-  const result=await window.Tesseract.recognize(source,'fas+eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص متن کارت خودرو… '+Math.round(m.progress*100)+'٪')}});
+  let result;try{result=await window.Tesseract.recognize(source,'fas+eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص متن کارت خودرو… '+Math.round(m.progress*100)+'٪')}})}catch(firstError){vehicleOcrStatus('بارگذاری زبان فارسی ناموفق بود؛ تلاش دوباره با تشخیص انگلیسی و اعداد…');result=await window.Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص شماره‌های کارت… '+Math.round(m.progress*100)+'٪')}})}
   const parsed=parseVehicleCardText(result.data?.text||'');
   const put=(id,value)=>{const el=document.getElementById(id);if(el&&value){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))}};
   put('vin',parsed.vin);put('engine',parsed.engine);put('plate',parsed.plate);put('cardVehicleName',parsed.name);put('cardVehicleYear',parsed.year);
