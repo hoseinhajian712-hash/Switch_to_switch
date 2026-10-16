@@ -752,16 +752,13 @@ async function api(req:Request,u:URL){
  if(a==="customer-register-request"&&req.method==="POST"){
   try{
    const b=await req.json(),toEnglish=(v:string)=>String(v||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
-   const full_name=String(b.full_name||"").trim().slice(0,120),mobile=toEnglish(String(b.mobile||"").replace(/\D/g,"")),national_id=toEnglish(String(b.national_id||"").replace(/\D/g,""));
+   const full_name=String(b.full_name||"").trim().slice(0,120),mobile=toEnglish(String(b.mobile||"").replace(/\D/g,""));
    if(full_name.length<3)return json({error:"نام و نام خانوادگی را کامل وارد کنید."},400);
    if(!/^09\d{9}$/.test(mobile))return json({error:"شماره موبایل باید ۱۱ رقم و با 09 شروع شود."},400);
-   if(!/^\d{10}$/.test(national_id))return json({error:"کد ملی باید دقیقاً ۱۰ رقم باشد."},400);
-   const digits=national_id.split("").map(Number),sum=digits.slice(0,9).reduce((v,d,i)=>v+d*(10-i),0),rem=sum%11;
-   if((rem<2?rem:11-rem)!==digits[9])return json({error:"کد ملی معتبر نیست؛ ارقام را بررسی کنید."},400);
    const old=await db.from("customer_access_requests").select("id,status").eq("mobile",mobile).maybeSingle();
    if(old.data?.status==="approved")return json({error:"برای این شماره قبلاً حساب تأیید شده است. کد ورود را از مدیر دریافت کنید."},409);
    if(old.data?.status==="pending")return json({ok:true,message:"درخواست شما قبلاً ثبت شده و منتظر تأیید مدیر است."});
-   const payload={full_name,mobile,national_id,status:"pending",display_code:null,code_hash:null,code_expires_at:null,code_used_at:null,updated_at:new Date().toISOString()};
+   const payload={full_name,mobile,national_id:"",status:"pending",display_code:null,code_hash:null,code_expires_at:null,code_used_at:null,updated_at:new Date().toISOString()};
    const save=old.data?await db.from("customer_access_requests").update(payload).eq("id",old.data.id):await db.from("customer_access_requests").insert(payload);
    if(save.error)return json({error:"ثبت درخواست انجام نشد؛ دوباره تلاش کنید."},500);
    return json({ok:true,message:"درخواست ثبت شد. پس از تأیید مدیر، کد ورود را از او دریافت کنید."},201);
@@ -885,10 +882,10 @@ async function api(req:Request,u:URL){
    const row=rr.data,code=String(crypto.getRandomValues(new Uint32Array(1))[0]%90000000+10000000),email="customer-"+row.mobile+"@login.switch-to-switch.invalid";
    let userId=String(row.auth_user_id||"");
    if(userId){
-    const u=await db.auth.admin.updateUserById(userId,{password:code,email_confirm:true,user_metadata:{full_name:row.full_name,mobile:row.mobile,national_id:row.national_id}});
+    const u=await db.auth.admin.updateUserById(userId,{password:code,email_confirm:true,user_metadata:{full_name:row.full_name,mobile:row.mobile}});
     if(u.error)return json({error:"صدور کد ورود ناموفق بود: "+u.error.message},500);
    }else{
-    const u=await db.auth.admin.createUser({email,password:code,email_confirm:true,user_metadata:{full_name:row.full_name,mobile:row.mobile,national_id:row.national_id}});
+    const u=await db.auth.admin.createUser({email,password:code,email_confirm:true,user_metadata:{full_name:row.full_name,mobile:row.mobile}});
     if(u.error)return json({error:"ساخت حساب مشتری ناموفق بود: "+u.error.message},500);
     userId=String(u.data.user.id);
    }
