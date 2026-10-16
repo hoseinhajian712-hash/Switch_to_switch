@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8"><meta http-equiv="Cache-Control" content="no-store">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>پنل کارشناسی | سوییچ به سوییچ</title>
 <script src="config.js?v=14"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
@@ -367,58 +367,6 @@ html {
 <style id="s2s-expert-monthly-stats">
 .expert-monthly-stats{position:relative;display:flex;align-items:center;gap:13px;min-width:0;margin:14px 0;padding:15px 16px;border:1px solid #285a5b;border-radius:17px;background:radial-gradient(ellipse at 100% 0%,#17463f 0%,transparent 58%),linear-gradient(135deg,#102b3a 0%,#0b1927 100%);box-shadow:inset 0 1px 0 #ffffff12,0 10px 25px #02091430;overflow:hidden}.expert-monthly-icon{width:48px;height:48px;flex:0 0 48px;display:flex;align-items:center;justify-content:center;border-radius:14px;border:1px solid #3d8279;background:linear-gradient(145deg,#1b514a,#10332f);color:#9af0dc;font-size:27px;font-weight:900}.expert-monthly-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}.expert-monthly-copy small{color:#a9c7d1;font-size:11px;font-weight:800}.expert-monthly-copy strong{color:#f1fffb;font-size:16px;font-weight:900}.expert-monthly-copy strong span{color:#8ce8d2;font-size:24px;font-variant-numeric:tabular-nums}.expert-monthly-copy>span{color:#91b2bd;font-size:10px}.expert-monthly-month{flex:0 0 auto;max-width:36%;padding:7px 10px;border:1px solid #2e625f;border-radius:11px;background:#0d282b;color:#b9f3e7;font-size:11px;font-weight:900;text-align:center}@media(max-width:420px){.expert-monthly-stats{gap:9px;padding:12px}.expert-monthly-icon{width:40px;height:40px;flex-basis:40px;font-size:23px}.expert-monthly-copy strong{font-size:13px}.expert-monthly-copy strong span{font-size:21px}.expert-monthly-month{padding:6px 7px;font-size:10px}}
 </style>
-
-<style id="s2s-expert-phone-fit-final">
-/* Final phone-fit overrides: prevent horizontal spill and keep every control reachable. */
-*,*::before,*::after{box-sizing:border-box}
-html,body{width:100%;max-width:100%;min-width:0;margin:0;overflow-x:hidden}
-body{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
-img,video,canvas,svg,iframe{max-width:100%}
-.wrap{width:100%;max-width:1500px;margin-inline:auto}
-.card,.case,.inspection-section,.defect-group,.defect-list,.defect-card,#formArea,.toolbar,.rowhead,.section-title{min-width:0;max-width:100%}
-input,select,textarea,button,.btn{max-width:100%;min-width:0}
-input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea{width:100%}
-.photo-grid,.grid,.checks,.inspection-home,.drawer-grid,.photo-preview,.preview{min-width:0}
-@media(max-width:600px){
- html,body{overflow-x:hidden!important}
- .wrap{padding:8px 8px calc(22px + env(safe-area-inset-bottom))!important}
- .top{width:100%;min-width:0}
- .brand{width:100%;min-width:0}
- .brand>div:last-child{min-width:0;overflow-wrap:anywhere}
- .top-actions{width:100%;min-width:0}
- .top-actions>*{min-width:0;max-width:100%}
- .card{width:100%;margin-inline:0!important}
- .inspection-home{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
- .inspection-tile{min-width:0;padding:12px!important;overflow-wrap:anywhere}
- .grid,.checks,.vehicle-checklist .checks{grid-template-columns:minmax(0,1fr)!important}
- .case{grid-template-columns:minmax(0,1fr)!important}
- .toolbar{grid-template-columns:minmax(0,1fr)!important}
- .photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
- .photo-box,.photo-item,.field,.check{min-width:0;max-width:100%}
- .preview img,.photo-box .preview img{max-width:100%;height:auto}
- .defect-options{grid-template-columns:minmax(0,1fr)!important}
- .defect-card,.defect-card.defect-part-dropdown{width:100%!important;max-width:100%!important}
- .defect-card .pill,.defect-card label{min-width:0;max-width:100%;overflow-wrap:anywhere}
- .drawer-grid{grid-template-columns:minmax(0,1fr)!important}
- .drawer-preview{grid-template-columns:repeat(2,minmax(0,1fr))!important}
- .expert-address-panel{width:100%;min-width:0}
- .expert-address-content,.expert-address-value{min-width:0;overflow-wrap:anywhere}
- .completed-dropdown-toggle{align-items:flex-start;flex-wrap:wrap}
- .completed-toggle-side{white-space:normal;min-width:0}
- table{max-width:100%}
- .table-wrap,.table-scroll,.report-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
- .photo-source-overlay,.modal,.modal-content,.support-modal-content{max-width:100vw}
- input,select,textarea{font-size:16px!important}
- button,.btn{min-height:42px;white-space:normal;overflow-wrap:anywhere}
-}
-@media(max-width:380px){
- .wrap{padding-left:6px!important;padding-right:6px!important}
- .inspection-home{gap:6px!important}
- .inspection-tile{padding:9px!important}
- .brand h1{font-size:14px!important}
-}
-</style>
-
 </head>
 <body><div id="staffAuthGate"><form class="auth-card" id="staffAuthForm"><h2>ورود امن پنل کارشناسی</h2><p>برای ورود، کد پرسنلی اختصاصی و رمز پنل کارشناسی را وارد کن. فقط پرونده‌های ارجاع‌شده به کد خودت نمایش داده می‌شوند.</p><input id="staffCode" type="text" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="off" placeholder="کد پرسنلی ۴ رقمی" required><input id="staffLoginPassword" type="password" autocomplete="current-password" placeholder="رمز عبور پنل کارشناسی" required><button type="submit">ورود به پنل کارشناسی</button><div id="staffAuthError"></div></form></div><div id="staffPasswordModal" role="dialog" aria-modal="true" aria-label="تغییر رمز عبور"><form class="sp-card" id="staffPasswordForm"><h3>🔐 تغییر رمز عبور</h3><p>رمز فعلی را وارد کنید و رمز جدیدی با حداقل ۱۲ نویسه بسازید. رمز جدید را با کسی به اشتراک نگذارید.</p><input id="spCurrent" type="password" autocomplete="current-password" placeholder="رمز فعلی" required><input id="spNew" type="password" autocomplete="new-password" minlength="12" placeholder="رمز جدید (حداقل ۱۲ نویسه)" required><input id="spConfirm" type="password" autocomplete="new-password" minlength="12" placeholder="تکرار رمز جدید" required><div id="staffPasswordMessage" role="status"></div><div class="sp-actions"><button class="sp-save" type="submit">ذخیره رمز جدید</button><button class="sp-close" type="button" onclick="closeStaffPasswordModal()">انصراف</button></div></form></div><div id="quickCameraModal" class="quick-camera-modal hidden" role="dialog" aria-modal="true" aria-label="عکاسی سریع"><div class="quick-camera-panel"><div class="quick-camera-head"><strong id="quickCameraTitle">عکاسی سریع</strong><button type="button" class="btn red" onclick="closeQuickCamera()">بستن دوربین ✕</button></div><video id="quickCameraVideo" autoplay playsinline muted></video><canvas id="quickCameraCanvas" class="hidden"></canvas><div id="quickCameraHint" class="notice">دوربین را روبه‌روی خودرو بگیرید.</div><button type="button" class="btn green quick-shutter" onclick="captureQuickPhoto()">📸 گرفتن عکس و رفتن به زاویه بعدی</button></div></div><main class="wrap">
 <header class="top">
