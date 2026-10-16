@@ -383,7 +383,7 @@ html {
   <div class="grid">
    <div class="field"><label>VIN<input id="vin" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
    <div class="field"><label>شماره موتور<input id="engine" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
-   <div class="field plate-field"><label for="plateTwo">پلاک خودرو</label><div class="plate-picker" dir="rtl"><select id="plateRegion" aria-label="کد دو رقمی سمت راست پلاک"><option value="">ایران</option></select><select id="plateThree" aria-label="سه رقم پلاک"><option value="">سه رقم</option></select><select id="plateLetter" aria-label="حرف پلاک"><option value="">حرف</option></select><select id="plateTwo" aria-label="دو رقم پلاک"><option value="">دو رقم</option></select></div><input id="plate" type="hidden" autocomplete="off"><small class="plate-help">کد ایران، سه رقم، حرف و دو رقم را از روی پلاک انتخاب کنید.</small></div>
+   <div class="field plate-field"><label for="plateTwo">پلاک خودرو</label><div class="plate-picker" dir="rtl"><div class="plate-number-field"><small>کد ایران</small><input id="plateRegion" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="ایران" aria-label="کد دو رقمی ایران"></div><div class="plate-number-field"><small>سه رقم</small><input id="plateThree" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="۱۲۳" aria-label="سه رقم پلاک"></div><div class="plate-letter-field"><small>حرف پلاک</small><select id="plateLetter" aria-label="حرف پلاک"><option value="">انتخاب حرف</option></select></div><div class="plate-number-field"><small>دو رقم</small><input id="plateTwo" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="۴۵" aria-label="دو رقم پلاک"></div></div><input id="plate" type="hidden" autocomplete="off"><small class="plate-help">اعداد را وارد کنید و حرف پلاک را از فهرست انتخاب کنید.</small></div>
    <div class="field"><label>نوع / مدل درج‌شده روی کارت<input id="cardVehicleName" autocomplete="off" placeholder="استخراج خودکار در صورت خوانا بودن"></label></div>
    <div class="field"><label>سال ساخت درج‌شده روی کارت<input id="cardVehicleYear" inputmode="numeric" autocomplete="off" placeholder="مثلاً ۱۴۰۲"></label></div>
   </div>
@@ -484,6 +484,8 @@ function optionsForPart(part){
  if(/چراغ|مه‌شکن/.test(p))return ['شکستگی طلق','کدرشدگی','آب‌گرفتگی','روشن نمی‌شود','تنظیم نبودن','تعویض','سایر'];
  if(/آینه/.test(p))return ['شکستگی شیشه','شکستگی قاب','تنظیم برقی خراب','گرم‌کن خراب','خط‌وخش','تعویض','سایر'];
  if(/شاسی|سینی|دیاق|ستون|کف اتاق|کف صندوق|جای زاپاس|پشت چراغ/.test(p))return ['ضربه یا دفرمگی','ترک یا شکستگی','جوشکاری یا ترمیم','برش و تعویض','زنگ‌زدگی','آثار تصادف یا تعمیر قبلی','سایر'];
+ if(/سانروف/.test(p))return ['باز و بسته نمی‌شود','موتور یا مکانیزم خراب','ریل یا کشویی آسیب‌دیده','نشتی آب','صدای غیرعادی','کلید یا مدار برقی خراب','شیشه ترک‌خورده یا شکسته','آب‌بندی خراب','نیاز به تنظیم','تعمیر','تعویض','سایر'];
+ if(/^درب (جلو|عقب) (راننده|شاگرد)$/.test(p)||p==='درب موتور'||p==='درب صندوق')return ['ضربه یا فرورفتگی','صافکاری بدون رنگ','صافکاری و نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','رنگ‌شدگی','تعویض درب','تنظیم نبودن درب','خرابی لولا','خرابی قفل یا دستگیره','زنگ‌زدگی','سایر'];
  if(/سپر|جلوپنجره|قاب پلاک|دستگیره|درب باک|قاب چرخ|گلگیر|سقف|رکاب|ناودانی|لولا|اتصالات/.test(p))return ['ضربه یا فرورفتگی','صافکاری بدون رنگ','صافکاری و نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','رنگ‌شدگی','ترک یا شکستگی','زنگ‌زدگی','تعویض','سایر'];
  if(group==='climate')return ['عملکرد ندارد','خنک‌کنندگی ضعیف','صدای غیرعادی','نشتی گاز یا مایع','خرابی برقی','نیاز به سرویس','تعویض','سایر'];
  if(group==='suspension')return ['صدای غیرعادی','لقی یا خرابی','نشتی روغن','پارگی گردگیر یا بوش','سایش نامتعارف','تنظیم نبودن','تعویض','سایر'];
@@ -590,7 +592,7 @@ function renderMainPhotos(){
 document.addEventListener('click',event=>{if(event.target.closest('.inline-drawer')&&event.target.closest('img'))event.preventDefault()},true);
 function renderDefects(){
  const searchWrap='<div class="defect-search"><input id="defectSearch" type="search" placeholder="جست‌وجوی قطعه یا سیستم؛ مثلاً «درب»، «گلگیر»، «کولر»..."><span class="search-count" id="defectCount"></span></div>';
- function cardHtml(p,g){const n=parts.indexOf(p),partOpts=optionsForPart(p),searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست')+' '+g.title+' '+g.desc);return '<details class="defect-card defect-part-dropdown" data-part-search="'+searchable+'" data-area="'+esc(g.title)+'"><summary class="defect-head"><b>'+p+'</b><span class="mini">'+g.title+'　⌄</span></summary><div class="part-defect-content"><div class="defect-options">'+partOpts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+n+'" data-area="'+esc(g.title)+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+n+'_'+oi+'"><div class="defect-extra-actions"><button type="button" class="camera-btn defect-photo-action" onclick="openPhotoSourceMenu(\'defcam_'+n+'_'+oi+'\',\'defgal_'+n+'_'+oi+'\')">📷 عکس</button></div><b>عکس '+esc(o)+'</b><input id="defcam_'+n+'_'+oi+'" class="defphoto photo-camera" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><input id="defgal_'+n+'_'+oi+'" class="defphoto photo-gallery" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" multiple><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><button type="button" class="camera-btn markup-toggle" onclick="toggleMarkup(this)">✏️ علامت‌گذاری روی عکس</button><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div></details>'}
+ function cardHtml(p,g){const n=parts.indexOf(p),partOpts=optionsForPart(p),searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست')+' '+g.title+' '+g.desc);return '<details class="defect-card defect-part-dropdown" data-part-search="'+searchable+'" data-area="'+esc(g.title)+'"><summary class="defect-head"><b>'+p+'</b><span class="mini">'+g.title+'　⌄</span></summary><div class="part-defect-content"><div class="defect-options">'+partOpts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+n+'" data-area="'+esc(g.title)+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+n+'_'+oi+'"><div class="defect-extra-actions"><button type="button" class="camera-btn defect-photo-action" onclick="openPhotoSourceMenu(\'defcam_'+n+'_'+oi+'\',\'defgal_'+n+'_'+oi+'\')">📷 افزودن عکس</button></div><b>عکس '+esc(o)+'</b><input id="defcam_'+n+'_'+oi+'" class="defphoto photo-camera" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><input id="defgal_'+n+'_'+oi+'" class="defphoto photo-gallery" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" multiple><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><button type="button" class="camera-btn markup-toggle" onclick="toggleMarkup(this)">✏️ علامت‌گذاری روی عکس</button><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div></details>'}
  function clusterKey(p){if(/^درب /.test(p)||p==='دستگیره‌های درب'||p==='اتصالات و لولاها')return 'doors';if(p.includes('گلگیر'))return 'fenders';if(p.startsWith('لاستیک '))return 'tires';if(p.startsWith('ناودانی '))return 'channels';if(p.startsWith('رکاب '))return 'sills';if(p.startsWith('شیشه ')||p.startsWith('آینه '))return 'glassMirrors';if(p.startsWith('ستون '))return 'pillars';if(p==='سپر جلو'||p==='سپر عقب')return 'bumpers';if(p.startsWith('چراغ ')||p.startsWith('مه‌شکن '))return 'lights';if(p.startsWith('شاسی ')||p.startsWith('سینی '))return 'chassisTrays';if(p.startsWith('دیاق '))return 'beams';return ''}
  const names={doors:'همه درب‌ها و لولاها',fenders:'همه گلگیرها',tires:'همه لاستیک‌ها',channels:'همه ناودانی‌ها',sills:'همه رکاب‌ها',glassMirrors:'همه شیشه‌ها و آینه‌ها',pillars:'همه ستون‌ها',bumpers:'همه سپرها',lights:'همه چراغ‌ها و مه‌شکن‌ها',chassisTrays:'همه شاسی‌ها و سینی‌ها',beams:'همه دیاق‌ها'};
  const clusterOrder=['doors','fenders','tires','channels','sills','glassMirrors','pillars','bumpers','lights','chassisTrays','beams'];
@@ -739,7 +741,7 @@ async function extractVehicleCardData(imageData){
 }function selectedPhoto(id){const cam=document.getElementById(id+'Cam'),gal=document.getElementById(id+'Gal');return cam?.files?.[0]||gal?.files?.[0]||null}
 function selectedPhotoGroup(cls,i){return [...document.querySelectorAll('.'+cls)].filter(x=>x.id.endsWith('_'+i)||x.id==='maincam_'+i).flatMap(x=>[...x.files])}
 async function previewDef(input){const drawer=input.closest('.inline-drawer'),box=drawer.querySelector('.drawer-preview'),name=drawer.querySelector('.file-name'),inputs=[...drawer.querySelectorAll('.defphoto')],files=inputs.flatMap(x=>[...x.files]);if(!files.length)return;const saveJob=(async()=>{let urls=[];if(current){const d=await readPhotoDraft();d.defectPhotos=d.defectPhotos||{};const key=defectPhotoKey(input.dataset.part,input.dataset.defect);urls=[...(d.defectPhotos[key]||[])];const added=await Promise.all(files.map(compressPhotoFile));urls.push(...added);d.defectPhotos[key]=urls;await writePhotoDraft(d)}else{urls=files.map(f=>URL.createObjectURL(f))}inputs.forEach(x=>x.value='');box.innerHTML='';urls.forEach(url=>{const im=document.createElement('img');im.src=url;box.appendChild(im)});if(urls.length)addDeletePhotoButton(box);if(name)name.textContent=urls.length+' عکس برای این ایراد';const can=drawer.querySelector('canvas'),ctx=can?.getContext('2d');if(can&&ctx&&urls.length){const im=new Image();im.onload=()=>{const scale=Math.min(1,1600/im.naturalWidth,1600/im.naturalHeight);can.width=Math.max(1,Math.round(im.naturalWidth*scale));can.height=Math.max(1,Math.round(im.naturalHeight*scale));can._baseImage=im;ctx.clearRect(0,0,can.width,can.height);ctx.drawImage(im,0,0,can.width,can.height)};im.src=urls[urls.length-files.length]}})();pendingDefectPhotoSaves.add(saveJob);try{await saveJob}catch(e){console.warn('ذخیره عکس‌های ایراد ناموفق بود',e);if(name)name.textContent='ذخیره عکس ناموفق بود؛ دوباره تلاش کن'}finally{pendingDefectPhotoSaves.delete(saveJob)}}
-function enableDraw(btn){const can=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=can.getContext('2d');ctx.lineWidth=16;ctx.lineCap='round';ctx.strokeStyle='#ef4444';let drawing=false;const pos=e=>{const r=can.getBoundingClientRect();return{x:(e.clientX-r.left)*can.width/r.width,y:(e.clientY-r.top)*can.height/r.height}};can.onpointerdown=e=>{e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};can.onpointermove=e=>{if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};can.onpointerup=()=>drawing=false;can.onpointerleave=()=>drawing=false;btn.textContent='✏️ قلم فعال است'}
+function enableDraw(btn){const can=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=can.getContext('2d');ctx.lineWidth=30;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#ef4444';let drawing=false;const pos=e=>{const r=can.getBoundingClientRect();return{x:(e.clientX-r.left)*can.width/r.width,y:(e.clientY-r.top)*can.height/r.height}};can.onpointerdown=e=>{e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};can.onpointermove=e=>{if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};can.onpointerup=()=>drawing=false;can.onpointerleave=()=>drawing=false;btn.textContent='✏️ قلم فعال است'}
 function clearDraw(btn){const c=btn.closest('.canvas-wrap').querySelector('canvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);if(c._baseImage)ctx.drawImage(c._baseImage,0,0,c.width,c.height)}
 function markSaved(btn){btn.textContent='✓ علامت ثبت شد'}
 function setupAccordions(){document.querySelectorAll('#formArea>.card').forEach((card,i)=>{if(i===0)return;const title=card.querySelector('.section-title');if(!title)return;const body=document.createElement('div');body.className='collapse-body';while(title.nextSibling)body.appendChild(title.nextSibling);card.appendChild(body);const arrow=document.createElement('span');arrow.className='collapse-arrow';arrow.textContent='⌃';title.appendChild(arrow);card.classList.add('collapse-card');title.onclick=()=>card.classList.toggle('closed')})}
@@ -1034,10 +1036,15 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 </style>
 
 <style id="s2s-plate-picker-style">
-.plate-field{min-width:0}.plate-picker{display:grid;grid-template-columns:.85fr 1fr .9fr 1fr;gap:6px;margin-top:8px;padding:8px;background:#e9eef4;border:2px solid #9caec0;border-radius:12px;direction:ltr;box-shadow:inset 0 1px 3px #0001}
-.plate-picker select{min-width:0;width:100%;height:46px;padding:7px 3px;border:1px solid #b5c3d1;border-radius:8px;background:#fff;color:#142438;font-size:16px;font-weight:900;text-align:center;appearance:auto}
-.plate-picker select:focus{outline:2px solid #14b8a6;outline-offset:1px}.plate-help{display:block;color:#9fb3c9;font-size:10px;margin-top:6px}
-@media(max-width:420px){.plate-picker{gap:4px;padding:5px}.plate-picker select{font-size:14px;height:43px}}
+.plate-field{min-width:0}
+.plate-picker{display:grid;grid-template-columns:.85fr 1fr 1.12fr .85fr;gap:7px;margin-top:8px;padding:10px;background:linear-gradient(145deg,#102338,#0a1726);border:1px solid #31516d;border-radius:15px;direction:ltr;box-shadow:inset 0 1px 0 #ffffff12,0 8px 20px #0002}
+.plate-number-field,.plate-letter-field{display:flex;min-width:0;flex-direction:column;gap:5px}
+.plate-number-field small,.plate-letter-field small{font-size:10px;color:#9eb8ce;text-align:center;font-weight:800;white-space:nowrap}
+.plate-picker input,.plate-picker select{box-sizing:border-box;min-width:0;width:100%;height:47px;padding:7px 3px;border:1px solid #345570;border-radius:10px;background:linear-gradient(180deg,#f9fcff,#e6edf4);color:#102338;font-size:17px;font-weight:900;text-align:center;outline:none;box-shadow:inset 0 1px 2px #0001}
+.plate-picker select{appearance:auto;cursor:pointer;font-size:15px}
+.plate-picker input:focus,.plate-picker select:focus{border-color:#55d6c2;box-shadow:0 0 0 3px #55d6c233}
+.plate-help{display:block;color:#9fb3c9;font-size:10px;margin-top:7px}
+@media(max-width:420px){.plate-picker{gap:5px;padding:7px}.plate-picker input,.plate-picker select{height:44px;font-size:15px}.plate-picker select{font-size:13px}.plate-number-field small,.plate-letter-field small{font-size:9px}}
 </style>
 <script id="s2s-plate-picker-logic">
 (function(){
@@ -1045,13 +1052,12 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
  const digits='۰۱۲۳۴۵۶۷۸۹';
  const fa=n=>String(n).replace(/[0-9]/g,d=>digits[Number(d)]);
  const latin=x=>String(x||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
- const letterOptions=['ب','ج','د','س','ص','ط','ق','ل','م','ن','و','ه','ی','الف','پ','ت','ث','چ','ح','خ','ذ','ر','ز','ژ','ش','ض','ظ','ع','غ','ف','ک','گ'];
- function fillSelect(id,values,placeholder){const el=byId(id);if(!el)return;el.innerHTML='<option value="">'+placeholder+'</option>'+values.map(v=>'<option value="'+v+'">'+v+'</option>').join('')}
- fillSelect('plateRegion',Array.from({length:99},(_,i)=>fa(i+1).padStart(2,'۰')),'کد ایران');
- fillSelect('plateThree',Array.from({length:1000},(_,i)=>fa(i).padStart(3,'۰')),'سه رقم');
- fillSelect('plateLetter',letterOptions,'حرف');
- fillSelect('plateTwo',Array.from({length:100},(_,i)=>fa(i).padStart(2,'۰')),'دو رقم');
+ const letterOptions=['الف','ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
+ const letter=byId('plateLetter');
+ if(letter)letter.innerHTML='<option value="">انتخاب حرف</option>'+letterOptions.map(v=>'<option value="'+v+'">'+v+'</option>').join('');
  const controls=['plateRegion','plateThree','plateLetter','plateTwo'];
+ const numberIds=['plateRegion','plateThree','plateTwo'];
+ numberIds.forEach(id=>{const el=byId(id);if(!el)return;el.addEventListener('input',()=>{const cleaned=latin(el.value).replace(/[^0-9]/g,'').slice(0,Number(el.maxLength));el.value=fa(cleaned);window.syncPlateValue();if(typeof persistDraft==='function')persistDraft()})});
  window.syncPlateValue=function(){
   const vals=controls.map(id=>byId(id)?.value||'');
   const hidden=byId('plate');
@@ -1062,17 +1068,14 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
   const source=String(raw||'').trim();
   if(!source){controls.forEach(id=>{if(byId(id))byId(id).value=''});hidden.value='';return}
   const norm=latin(source),nums=norm.match(/\d+/g)||[],letters=letterOptions.slice().sort((a,b)=>b.length-a.length).find(l=>source.includes(l));
-  // Conventional Iranian plate: two digits, letter, three digits, and two-digit regional code.
   let two='',three='',region='';
-  if(nums.length>=4){two=nums[0].slice(-2);three=nums[1].slice(-3);region=nums[nums.length-1].slice(-2)}
-  else if(nums.length===3){two=nums[0].slice(-2);three=nums[1].slice(-3);region=nums[2].slice(-2)}
-  const set=(id,val)=>{const el=byId(id);if(!el)return;const wanted=val?fa(val):'';el.value=[...el.options].some(o=>o.value===wanted)?wanted:''};
+  if(nums.length>=3){two=nums[0].slice(-2);three=nums[1].slice(-3);region=nums[nums.length-1].slice(-2)}
+  const set=(id,val)=>{const el=byId(id);if(!el)return;el.value=id==='plateLetter'?(val||''):(val?fa(val):'')};
   set('plateRegion',region);set('plateThree',three);set('plateLetter',letters||'');set('plateTwo',two);
-  // Preserve an existing legacy plate string if it cannot be mapped fully, rather than silently losing it.
   const vals=controls.map(id=>byId(id)?.value||'');
   hidden.value=vals.every(Boolean)?vals[0]+' '+vals[1]+' '+vals[2]+' '+vals[3]:source;
  };
- controls.forEach(id=>byId(id)?.addEventListener('change',()=>{window.syncPlateValue();if(typeof persistDraft==='function')persistDraft()}));
+ byId('plateLetter')?.addEventListener('change',()=>{window.syncPlateValue();if(typeof persistDraft==='function')persistDraft()});
 })();
 </script>
 
