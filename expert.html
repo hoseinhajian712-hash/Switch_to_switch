@@ -1206,18 +1206,9 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 <aside id="s2sExpertMenuPanel" aria-label="منوی داشبورد" aria-hidden="true">
  <div class="s2s-menu-head"><div><strong>منوی کارشناسی</strong><small>دسترسی سریع به بخش‌ها</small></div><button id="s2sExpertMenuClose" type="button" aria-label="بستن منو">×</button></div>
  <nav class="s2s-menu-items">
-  <button type="button" data-menu-action="cases"><span>▦</span>داشبورد و پرونده‌ها</button>
+  <button type="button" data-menu-action="chat"><span>💬</span>چت کارشناسی</button>
+  <button type="button" data-menu-action="cases"><span>▦</span>پرونده‌ها</button>
   <button type="button" data-menu-action="completed"><span>✓</span>کارشناسی‌های من</button>
-  <button type="button" data-menu-section="identity"><span>🚘</span>اطلاعات خودرو</button>
-  <button type="button" data-menu-section="docs"><span>▤</span>مدارک خودرو</button>
-  <button type="button" data-menu-section="quick"><span>☑</span>چک‌لیست خودرو</button>
-  <button type="button" data-menu-section="gallery"><span>▧</span>گالری عکس خودرو</button>
-  <button type="button" data-menu-section="mileage"><span>◷</span>کارکرد و کیلومتر</button>
-  <button type="button" data-menu-section="body"><span>🚗</span>بدنه و لاستیک</button>
-  <button type="button" data-menu-section="suspension"><span>⚙</span>تعلیق و فرمان</button>
-  <button type="button" data-menu-section="electrical"><span>⚡</span>برقی و داخلی</button>
-  <button type="button" data-menu-section="engine"><span>🔧</span>موتور و مکانیک</button>
-  <button type="button" data-menu-section="brakes"><span>⛨</span>ترمز و ایمنی</button>
  </nav>
 </aside>
 <script id="s2s-expert-hamburger-menu">
@@ -1230,7 +1221,7 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
  btn.addEventListener('click',()=>panel.classList.contains('open')?close():open());
  shade.addEventListener('click',close);document.getElementById('s2sExpertMenuClose')?.addEventListener('click',close);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
- panel.querySelectorAll('[data-menu-action]').forEach(b=>b.addEventListener('click',()=>{close();if(b.dataset.menuAction==='completed'){if(typeof toggleCompletedCases==='function')toggleCompletedCases(true);document.getElementById('completedCasesCard')?.scrollIntoView({behavior:'smooth',block:'start'});}else{if(typeof backToList==='function'&&typeof current!=='undefined'&&current)backToList();else document.getElementById('listCard')?.scrollIntoView({behavior:'smooth',block:'start'});}}));
+  panel.querySelectorAll('[data-menu-action]').forEach(b=>b.addEventListener('click',()=>{const action=b.dataset.menuAction;close();if(action==='chat'){if(typeof current!=='undefined'&&current){if(document.getElementById('inspectionHome')?.classList.contains('hidden')&&typeof startInspectionView==='function')startInspectionView(false);if(typeof toggleInspectionChat==='function')toggleInspectionChat();}else{document.getElementById('listCard')?.scrollIntoView({behavior:'smooth',block:'start'});}}else if(action==='completed'){if(typeof toggleCompletedCases==='function')toggleCompletedCases(true);document.getElementById('completedCasesCard')?.scrollIntoView({behavior:'smooth',block:'start'});}else{if(typeof backToList==='function'&&typeof current!=='undefined'&&current)backToList();else document.getElementById('listCard')?.scrollIntoView({behavior:'smooth',block:'start'});}}));
  panel.querySelectorAll('[data-menu-section]').forEach(b=>b.addEventListener('click',()=>{const section=b.dataset.menuSection;close();if(typeof current!=='undefined'&&current&&typeof openInspectionSection==='function')openInspectionSection(section);else{document.getElementById('inspectionHome')?.scrollIntoView({behavior:'smooth',block:'start'});}}));
 })();
 </script>
