@@ -700,7 +700,7 @@ function openGalleryPhotoEditor(box,im){
  const overlay=document.createElement('div');overlay.id='galleryEditOverlay';overlay.className='gallery-edit-overlay';
  overlay.innerHTML='<div class="gallery-edit-panel" role="dialog" aria-modal="true" aria-label="ویرایش عکس خودرو"><div class="gallery-edit-head"><strong>✏️ ویرایش عکس خودرو</strong><button type="button" class="btn secondary" id="galleryEditClose">✕ بستن</button></div><div class="gallery-edit-tools"><button type="button" class="btn secondary active" id="galleryPenBtn">🖊 قلم ایراد</button><button type="button" class="btn secondary" id="galleryCircleBtn">⭕ دایرهٔ ایراد</button><button type="button" class="btn secondary" id="galleryPlateBtn">▱ قاب پلاک: خاموش</button><button type="button" class="btn secondary" id="galleryUndoBtn">↶ پاک‌کردن خط آخر</button><button type="button" class="btn secondary" id="galleryClearBtn">پاک‌کردن خط‌ها</button></div><div class="gallery-edit-stage"><canvas id="galleryEditCanvas"></canvas></div><div class="gallery-edit-help" id="galleryEditHelp">با قلم روی عکس بکشید تا دور ایرادها خط بکشید. قاب پلاک را روشن کنید و روی عکس جابه‌جا کنید تا روی پلاک قرار بگیرد.</div><div class="gallery-edit-actions"><button type="button" class="btn secondary" id="galleryEditCancel">لغو</button><button type="button" class="btn green save-edit" id="galleryEditSave">✓ ذخیرهٔ عکس و تغییرات</button></div></div>';
  document.body.appendChild(overlay);
- const canvas=overlay.querySelector('#galleryEditCanvas'),ctx=canvas.getContext('2d');
+ const canvas=overlay.querySelector('#galleryEditCanvas'),ctx=canvas.getContext('2d');canvas.style.touchAction='none';
  const state={box,im,overlay,canvas,ctx,base:new Image(),strokes:[],currentStroke:null,tool:'pen',circleRadius:7,activeCircle:null,plate:false,frame:{x:0,y:0,w:0,h:0,angle:0},dragFrame:false,changed:false};
  galleryEditorState=state;
  state.base.onload=()=>{
@@ -716,7 +716,7 @@ function openGalleryPhotoEditor(box,im){
  overlay.querySelector('#galleryEditClose').onclick=close;overlay.querySelector('#galleryEditCancel').onclick=close;
  overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
  overlay.querySelector('#galleryPenBtn').onclick=()=>{state.tool='pen';state.plate=false;state.dragFrame=false;overlay.querySelector('#galleryPenBtn').classList.add('active');overlay.querySelector('#galleryCircleBtn').classList.remove('active');overlay.querySelector('#galleryPlateBtn').classList.remove('active');overlay.querySelector('#galleryPlateBtn').textContent='▱ قاب پلاک: خاموش';overlay.querySelector('#galleryEditHelp').textContent='با انگشت یا قلم روی عکس بکشید تا دور ایرادها خط قرمز بکشید.'};
- overlay.querySelector('#galleryCircleBtn').onclick=()=>{state.tool='circle';state.plate=false;state.dragFrame=false;overlay.querySelector('#galleryCircleBtn').classList.add('active');overlay.querySelector('#galleryPenBtn').classList.remove('active');overlay.querySelector('#galleryPlateBtn').classList.remove('active');overlay.querySelector('#galleryPlateBtn').textContent='▱ قاب پلاک: خاموش';overlay.querySelector('#galleryEditHelp').textContent='یک بار روی محل ایراد بزنید تا دایره قرار بگیرد؛ سپس دو انگشت را روی دایره بگذارید و از هم دور یا به هم نزدیک کنید تا اندازه‌اش تغییر کند.'};
+ overlay.querySelector('#galleryCircleBtn').onclick=()=>{state.tool='circle';state.plate=false;state.dragFrame=false;overlay.querySelector('#galleryCircleBtn').classList.add('active');overlay.querySelector('#galleryPenBtn').classList.remove('active');overlay.querySelector('#galleryPlateBtn').classList.remove('active');overlay.querySelector('#galleryPlateBtn').textContent='▱ قاب پلاک: خاموش';overlay.querySelector('#galleryEditHelp').textContent='برای هر ایراد فقط یک بار روی محل بزنید تا دایره ساخته شود. برای تغییر اندازه، دو انگشت را روی همان دایره بگذارید و آرام باز یا بسته کنید؛ دایره جابه‌جا نمی‌شود. برای انتخاب دایرهٔ دیگر، یک بار روی آن بزنید.'};
   overlay.querySelector('#galleryPlateBtn').onclick=()=>{state.plate=!state.plate;state.tool=state.plate?'frame':'pen';overlay.querySelector('#galleryPlateBtn').textContent='▱ قاب پلاک: '+(state.plate?'روشن':'خاموش');overlay.querySelector('#galleryPlateBtn').classList.toggle('active',state.plate);overlay.querySelector('#galleryPenBtn').classList.toggle('active',!state.plate);overlay.querySelector('#galleryEditHelp').textContent=state.plate?'قاب را روی پلاک قرار دهید؛ با یک انگشت جابه‌جا کنید و با دو انگشت اندازه و زاویه را تنظیم کنید.':'با قلم روی عکس بکشید تا دور ایرادها خط بکشید.';drawGalleryEditor(state)};
  overlay.querySelector('#galleryUndoBtn').onclick=()=>{state.strokes.pop();drawGalleryEditor(state)};
  overlay.querySelector('#galleryClearBtn').onclick=()=>{state.strokes=[];state.currentStroke=null;drawGalleryEditor(state)};
@@ -758,10 +758,14 @@ function openGalleryPhotoEditor(box,im){
    if(circlePointers.size===2&&state.activeCircle&&state.circleGesture){
     const pts=[...circlePointers.values()],g=state.circleGesture,mark=state.activeCircle;
     const distance=Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y));
-    mark.radius=Math.max(canvas.width*.012,Math.min(canvas.width*.35,g.radius*distance/g.distance));
-    mark[0].x=Math.max(0,Math.min(canvas.width,g.cx+((pts[0].x+pts[1].x)/2-g.midX)));
-    mark[0].y=Math.max(0,Math.min(canvas.height,g.cy+((pts[0].y+pts[1].y)/2-g.midY)));
-    drawGalleryEditor(state);e.preventDefault();
+    // Scale only the selected circle; ignore midpoint movement to avoid jitter/drifting.
+    const scale=distance/g.distance;
+    mark.radius=Math.max(canvas.width*.015,Math.min(canvas.width*.32,g.radius*scale));
+    if(!state.circleDrawQueued){
+     state.circleDrawQueued=true;
+     requestAnimationFrame(()=>{state.circleDrawQueued=false;if(galleryEditorState===state)drawGalleryEditor(state)});
+    }
+    e.preventDefault();
    }
    return;
   }
