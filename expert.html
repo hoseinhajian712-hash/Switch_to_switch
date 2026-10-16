@@ -163,7 +163,7 @@ input,select,textarea,button{touch-action:manipulation}
 <div id="formArea" class="hidden">
  <div id="section-identity" class="inspection-section card hidden">
   <div class="section-title"><h3>۱. اطلاعات شناسایی خودرو</h3><span class="badge">شناسه خودرو</span></div>
-  <div class="notice" style="margin-top:12px">🤖 عکس روی کارت خودرو را در بخش «مدارک خودرو» ثبت کنید، سپس این دکمه اطلاعات قابل‌خواندن را استخراج و در فیلدها وارد می‌کند. نتیجه را با کارت اصلی تطبیق دهید.</div>
+  <div class="notice" style="margin-top:12px">🤖 با بارگذاری عکس روی کارت در بخش «مدارک خودرو»، استخراج به‌صورت خودکار انجام می‌شود و نتیجه در فیلدهای زیر قرار می‌گیرد. این دکمه فقط برای تلاش مجدد است؛ نتیجه را با کارت اصلی تطبیق دهید.</div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
    <button type="button" class="btn" onclick="extractVehicleCardData()">✨ استخراج هوشمند از کارت خودرو</button>
    <button type="button" class="btn secondary" onclick="openPhotoSourceMenu('carDocFrontCam','carDocFrontGal')">📷 انتخاب عکس کارت خودرو</button>
@@ -188,6 +188,8 @@ input,select,textarea,button{touch-action:manipulation}
  <div id="section-docs" class="inspection-section card hidden">
   <div class="section-title"><h3>۲. مدارک خودرو</h3><span class="badge">کارت ملی مالک الزامی</span></div>
   <div class="photo-grid" id="docsGrid"></div>
+  <div id="vehicleOcrDocsStatus" class="notice hidden" role="status" aria-live="polite" style="margin-top:12px"></div>
+  <div class="notice">🤖 با انتخاب عکس «کارت خودرو — روی کارت»، سیستم به‌صورت خودکار تلاش می‌کند VIN، شماره موتور، پلاک، مدل و سال را در فیلدهای اطلاعات شناسایی وارد کند؛ نیازی به زدن دکمه جداگانه نیست. لطفاً نتیجه را با کارت اصلی بررسی کنید.</div>
   <div class="notice">📄 مدارک ثبت‌شده داخل گزارش پرونده مدیریت نمایش داده می‌شوند.</div>
  </div>
 
@@ -297,7 +299,7 @@ function openPhotoSourceMenu(cameraId,galleryId){document.getElementById('photoS
 function renderDocs(){
  const arr=[['national','عکس کارت ملی مالک','الزامی','national'],['carDocFront','کارت خودرو — روی کارت','اختیاری','car_document_front'],['carDocBack','کارت خودرو — پشت کارت','اختیاری','car_document_back'],['greenDoc','برگ سبز / سند مالکیت','اختیاری','green_card'],['factoryDoc','برگ کمپانی / فاکتور کارخانه','اختیاری','factory_invoice'],['techDoc','معاینه فنی','اختیاری','technical_inspection'],['insuranceDoc','بیمه‌نامه','اختیاری','insurance'],['insuranceBack','صفحه پشت / شرایط بیمه','اختیاری','insurance_back'],['transferDoc','وکالت‌نامه یا مدارک نقل‌وانتقال','اختیاری','transfer_document'],['otherDoc','سایر مدارک خودرو','اختیاری','other']];
  docsGrid.innerHTML=arr.map((d,i)=>'<div class="photo-box"><strong>'+d[1]+' '+(d[2]==='الزامی'?'*':'')+'</strong><small>'+d[2]+'</small><input id="'+d[0]+'Cam" class="photo-camera" type="file" accept="image/*" capture="environment"><input id="'+d[0]+'Gal" class="photo-gallery" type="file" accept="image/*"><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\''+d[0]+'Cam\',\''+d[0]+'Gal\')">＋ افزودن عکس</button><span class="file-name" id="docname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="docprev'+i+'"></div></div>').join('');
- arr.forEach((d,i)=>[document.getElementById(d[0]+'Cam'),document.getElementById(d[0]+'Gal')].forEach(f=>f.onchange=async()=>{const picked=selectedPhoto(d[0]);document.getElementById('docname'+i).textContent=picked?picked.name:'تصویری انتخاب نشده';const box=document.getElementById('docprev'+i);box.innerHTML='';if(picked){const url=await readFile(picked);showPhotoPreview(box,url);await savePhotoDraftItem('docs',d[0],url);if(d[0]==='carDocFront')extractVehicleCardData(url)}}));restoreDocPhotoDraft();
+ arr.forEach((d,i)=>[document.getElementById(d[0]+'Cam'),document.getElementById(d[0]+'Gal')].forEach(f=>f.onchange=async()=>{const picked=selectedPhoto(d[0]);document.getElementById('docname'+i).textContent=picked?picked.name:'تصویری انتخاب نشده';const box=document.getElementById('docprev'+i);box.innerHTML='';if(picked){const url=await readFile(picked);showPhotoPreview(box,url);await savePhotoDraftItem('docs',d[0],url);if(d[0]==='carDocFront'){vehicleOcrStatus('عکس کارت خودرو دریافت شد؛ استخراج خودکار اطلاعات شروع شد…');await extractVehicleCardData(url)}}}));restoreDocPhotoDraft();
 }
 let quickCaptureActive=false,quickCaptureIndex=0,quickCameraStream=null;
 const quickCapturedPhotos={};
@@ -418,7 +420,7 @@ function toggleMarkup(btn){const w=btn.nextElementSibling;w.classList.toggle("sh
 function toggleDefectDrawer(e){const c=e.target,p=c.closest('.pill');p.classList.toggle('selected',c.checked);if(c.checked){p.querySelectorAll('.defphoto').forEach(i=>i.onchange=()=>previewDef(i));p.querySelectorAll('.defphoto').forEach(i=>i.onchange=()=>previewDef(i))}else{p.classList.remove('open');const b=p.querySelector('.defect-detail-toggle');if(b)b.textContent='📷 عکس و توضیح';p.querySelectorAll('.defphoto').forEach(i=>i.value='');const pv=p.querySelector('.drawer-preview');if(pv)pv.innerHTML='';const n=p.querySelector('.defnote');if(n)n.value='';const can=p.querySelector('canvas');if(can){can.getContext('2d').clearRect(0,0,can.width,can.height);can._baseImage=null}}persistDraft()}
 function toggleDefectDetails(e,btn){e.preventDefault();e.stopPropagation();const p=btn.closest('.pill'),c=p.querySelector('input[type=checkbox]');if(!c.checked){c.checked=true;p.classList.add('selected');toggleDefectDrawer({target:c})}p.classList.toggle('open');btn.textContent=p.classList.contains('open')?'− بستن عکس و توضیح':'📷 عکس و توضیح';}
 let vehicleCardOcrWorker=null,vehicleCardOcrBusy=false;
-function vehicleOcrStatus(message,error=false){const el=document.getElementById('vehicleOcrStatus');if(!el)return;el.classList.remove('hidden');el.style.color=error?'#fecaca':'#b9d8f7';el.textContent=message}
+function vehicleOcrStatus(message,error=false){['vehicleOcrStatus','vehicleOcrDocsStatus'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.classList.remove('hidden');el.style.color=error?'#fecaca':'#b9d8f7';el.textContent=message})}
 function latinDigits(s){return String(s||'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))}
 function cleanOcrValue(s){return String(s||'').replace(/[：:|]/g,' ').replace(/\s+/g,' ').trim().replace(/[.,،؛;]+$/,'')}
 function parseVehicleCardText(raw){
