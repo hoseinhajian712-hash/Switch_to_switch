@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 210" role="img" aria-labelledby="title desc">
-<title id="title">سوییچ به سوییچ</title><desc id="desc">نشان خودرو و جابه‌جایی سوییچ به سوییچ</desc>
-<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8e6b0"/><stop offset=".55" stop-color="#d6b56b"/><stop offset="1" stop-color="#9b702b"/></linearGradient><linearGradient id="navy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#183957"/><stop offset="1" stop-color="#081322"/></linearGradient></defs>
-<rect x="5" y="5" width="200" height="200" rx="48" fill="url(#navy)" stroke="url(#gold)" stroke-width="4"/>
-<path d="M35 121l14-34q5-12 18-12h76q13 0 18 12l14 34v34H35z" fill="url(#gold)"/><path d="M59 89h92l12 24H47z" fill="#10243a" stroke="#f8e6b0" stroke-width="3" stroke-linejoin="round"/><circle cx="65" cy="153" r="13" fill="#081322" stroke="#f8e6b0" stroke-width="4"/><circle cx="145" cy="153" r="13" fill="#081322" stroke="#f8e6b0" stroke-width="4"/>
-<path d="M55 48h100M72 32L55 48l17 16M138 32l17 16-17 16" fill="none" stroke="url(#gold)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="725" y="91" text-anchor="end" font-family="Tahoma,Arial,sans-serif" font-size="47" font-weight="700" fill="#f4dda0">SWITCH <tspan fill="#fff">TO</tspan> SWITCH</text>
-<text x="725" y="145" text-anchor="end" font-family="Tahoma,Arial,sans-serif" font-size="34" font-weight="700" fill="#fff">سوییچ به سوییچ</text>
-<path d="M245 170H720" stroke="url(#gold)" stroke-width="3" stroke-linecap="round" opacity=".75"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 150" role="img" aria-labelledby="title"><title id="title">SWITCH TO SWITCH</title><defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8e6b0"/><stop offset=".55" stop-color="#d6b56b"/><stop offset="1" stop-color="#9b702b"/></linearGradient></defs><text x="380" y="96" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="800" letter-spacing="2" fill="url(#gold)">SWITCH <tspan fill="#ffffff">TO</tspan> SWITCH</text></svg>
