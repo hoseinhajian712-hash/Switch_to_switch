@@ -370,7 +370,7 @@ function updateReviewsUnreadBadge(count){
  const value=count>99?'99+':String(count);
  ['reviewsUnreadBadge','reviewsDashboardUnreadBadge'].forEach(id=>{const b=document.getElementById(id);if(b){b.textContent=value;b.hidden=count<1}});
 }
-async async function pollReviewsNotifications(){
+async function pollReviewsNotifications(){
  const token=sessionStorage.getItem('s2s_admin_token_v2')||'';
  if(!token||reviewsNotificationBusy)return;
  reviewsNotificationBusy=true;
