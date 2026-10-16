@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>پنل کارشناسی | سوییچ به سوییچ</title>
 <script src="config.js?v=14"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
 <style>
 *{box-sizing:border-box}
 :root{--bg:#07111f;--panel:#0d1a2b;--panel2:#101f33;--line:#1e3047;--text:#eef5ff;--muted:#8fa4bd;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6}
@@ -162,11 +163,20 @@ input,select,textarea,button{touch-action:manipulation}
 <div id="formArea" class="hidden">
  <div id="section-identity" class="inspection-section card hidden">
   <div class="section-title"><h3>۱. اطلاعات شناسایی خودرو</h3><span class="badge">شناسه خودرو</span></div>
-  <div class="grid">
-   <div class="field"><label>VIN<input id="vin"></label></div>
-   <div class="field"><label>شماره موتور<input id="engine"></label></div>
-   <div class="field"><label>پلاک<input id="plate"></label></div>
+  <div class="notice" style="margin-top:12px">🤖 عکس روی کارت خودرو را در بخش «مدارک خودرو» ثبت کنید، سپس این دکمه اطلاعات قابل‌خواندن را استخراج و در فیلدها وارد می‌کند. نتیجه را با کارت اصلی تطبیق دهید.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+   <button type="button" class="btn" onclick="extractVehicleCardData()">✨ استخراج هوشمند از کارت خودرو</button>
+   <button type="button" class="btn secondary" onclick="openPhotoSourceMenu('carDocFrontCam','carDocFrontGal')">📷 انتخاب عکس کارت خودرو</button>
   </div>
+  <div id="vehicleOcrStatus" class="notice hidden" role="status" aria-live="polite"></div>
+  <div class="grid">
+   <div class="field"><label>VIN<input id="vin" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
+   <div class="field"><label>شماره موتور<input id="engine" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
+   <div class="field"><label>پلاک<input id="plate" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
+   <div class="field"><label>نوع / مدل درج‌شده روی کارت<input id="cardVehicleName" autocomplete="off" placeholder="استخراج خودکار در صورت خوانا بودن"></label></div>
+   <div class="field"><label>سال ساخت درج‌شده روی کارت<input id="cardVehicleYear" inputmode="numeric" autocomplete="off" placeholder="مثلاً ۱۴۰۲"></label></div>
+  </div>
+  <details style="margin-top:10px"><summary style="cursor:pointer;color:#9ec8ff;font-size:11px;font-weight:800">مشاهده متن خوانده‌شده از کارت</summary><textarea id="vehicleOcrText" rows="5" style="width:100%;margin-top:8px" placeholder="متن شناسایی‌شده اینجا نمایش داده می‌شود"></textarea></details>
  </div>
 
  <div id="section-mileage" class="inspection-section card hidden">
@@ -287,7 +297,7 @@ function openPhotoSourceMenu(cameraId,galleryId){document.getElementById('photoS
 function renderDocs(){
  const arr=[['national','عکس کارت ملی مالک','الزامی','national'],['carDocFront','کارت خودرو — روی کارت','اختیاری','car_document_front'],['carDocBack','کارت خودرو — پشت کارت','اختیاری','car_document_back'],['greenDoc','برگ سبز / سند مالکیت','اختیاری','green_card'],['factoryDoc','برگ کمپانی / فاکتور کارخانه','اختیاری','factory_invoice'],['techDoc','معاینه فنی','اختیاری','technical_inspection'],['insuranceDoc','بیمه‌نامه','اختیاری','insurance'],['insuranceBack','صفحه پشت / شرایط بیمه','اختیاری','insurance_back'],['transferDoc','وکالت‌نامه یا مدارک نقل‌وانتقال','اختیاری','transfer_document'],['otherDoc','سایر مدارک خودرو','اختیاری','other']];
  docsGrid.innerHTML=arr.map((d,i)=>'<div class="photo-box"><strong>'+d[1]+' '+(d[2]==='الزامی'?'*':'')+'</strong><small>'+d[2]+'</small><input id="'+d[0]+'Cam" class="photo-camera" type="file" accept="image/*" capture="environment"><input id="'+d[0]+'Gal" class="photo-gallery" type="file" accept="image/*"><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\''+d[0]+'Cam\',\''+d[0]+'Gal\')">＋ افزودن عکس</button><span class="file-name" id="docname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="docprev'+i+'"></div></div>').join('');
- arr.forEach((d,i)=>[document.getElementById(d[0]+'Cam'),document.getElementById(d[0]+'Gal')].forEach(f=>f.onchange=async()=>{const picked=selectedPhoto(d[0]);document.getElementById('docname'+i).textContent=picked?picked.name:'تصویری انتخاب نشده';const box=document.getElementById('docprev'+i);box.innerHTML='';if(picked){const url=await readFile(picked);showPhotoPreview(box,url);await savePhotoDraftItem('docs',d[0],url)}}));restoreDocPhotoDraft();
+ arr.forEach((d,i)=>[document.getElementById(d[0]+'Cam'),document.getElementById(d[0]+'Gal')].forEach(f=>f.onchange=async()=>{const picked=selectedPhoto(d[0]);document.getElementById('docname'+i).textContent=picked?picked.name:'تصویری انتخاب نشده';const box=document.getElementById('docprev'+i);box.innerHTML='';if(picked){const url=await readFile(picked);showPhotoPreview(box,url);await savePhotoDraftItem('docs',d[0],url);if(d[0]==='carDocFront')extractVehicleCardData(url)}}));restoreDocPhotoDraft();
 }
 let quickCaptureActive=false,quickCaptureIndex=0,quickCameraStream=null;
 const quickCapturedPhotos={};
@@ -407,6 +417,52 @@ function filterDefects(){
 function toggleMarkup(btn){const w=btn.nextElementSibling;w.classList.toggle("show-markup");btn.textContent=w.classList.contains("show-markup")?"− بستن علامت‌گذاری":"✏️ علامت‌گذاری روی عکس"}
 function toggleDefectDrawer(e){const c=e.target,p=c.closest('.pill');p.classList.toggle('selected',c.checked);if(c.checked){p.querySelectorAll('.defphoto').forEach(i=>i.onchange=()=>previewDef(i));p.querySelectorAll('.defphoto').forEach(i=>i.onchange=()=>previewDef(i))}else{p.classList.remove('open');const b=p.querySelector('.defect-detail-toggle');if(b)b.textContent='📷 عکس و توضیح';p.querySelectorAll('.defphoto').forEach(i=>i.value='');const pv=p.querySelector('.drawer-preview');if(pv)pv.innerHTML='';const n=p.querySelector('.defnote');if(n)n.value='';const can=p.querySelector('canvas');if(can){can.getContext('2d').clearRect(0,0,can.width,can.height);can._baseImage=null}}persistDraft()}
 function toggleDefectDetails(e,btn){e.preventDefault();e.stopPropagation();const p=btn.closest('.pill'),c=p.querySelector('input[type=checkbox]');if(!c.checked){c.checked=true;p.classList.add('selected');toggleDefectDrawer({target:c})}p.classList.toggle('open');btn.textContent=p.classList.contains('open')?'− بستن عکس و توضیح':'📷 عکس و توضیح';}
+let vehicleCardOcrWorker=null,vehicleCardOcrBusy=false;
+function vehicleOcrStatus(message,error=false){const el=document.getElementById('vehicleOcrStatus');if(!el)return;el.classList.remove('hidden');el.style.color=error?'#fecaca':'#b9d8f7';el.textContent=message}
+function latinDigits(s){return String(s||'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))}
+function cleanOcrValue(s){return String(s||'').replace(/[：:|]/g,' ').replace(/\s+/g,' ').trim().replace(/[.,،؛;]+$/,'')}
+function parseVehicleCardText(raw){
+ const text=String(raw||'').replace(/\r/g,'\n'),latin=latinDigits(text).toUpperCase();
+ const compact=latin.replace(/[^A-Z0-9]/g,'');
+ const vinMatch=compact.match(/[A-HJ-NPR-Z0-9]{17}/);
+ const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ const lineFor=(re)=>lines.find(x=>re.test(x));
+ const engineLine=lineFor(/موتور|ENGINE/i);
+ let engine='';
+ if(engineLine){const candidates=latinDigits(engineLine).toUpperCase().match(/[A-Z0-9]{5,18}/g)||[];engine=candidates.sort((a,b)=>b.length-a.length)[0]||'';if(/موتور|ENGINE/i.test(engineLine)&&engine.length>17)engine=''}
+ const plateLine=lineFor(/پلاک|شمارهs*پلاک|PLATE/i);
+ let plate='';
+ if(plateLine){const candidates=latinDigits(plateLine).match(/[0-9]{2,3}\s*[آ-یA-Z]\s*[0-9]{3}\s*[0-9]{2}/i)||latinDigits(plateLine).match(/[0-9۰-۹]{5,10}/);plate=candidates?candidates[0].replace(/\s+/g,' ').trim():''}
+ const vehicleLine=lineFor(/نوعs*خودرو|مدلs*خودرو|نامs*خودرو|تیپs*خودرو|VEHICLE\s*TYPE|MODEL/i);
+ const yearLine=lineFor(/سالs*ساخت|مدلs*سال|YEAR\s*OF\s*MANUFACTURE|MODEL\s*YEAR/i);
+ const name=vehicleLine?cleanOcrValue(vehicleLine.replace(/.*?(?:نوع\s*خودرو|مدل\s*خودرو|نام\s*خودرو|تیپ\s*خودرو|VEHICLE\s*TYPE|MODEL)\s*[:：-]?/i,'')):'';
+ const year=yearLine?(latinDigits(yearLine).match(/(?:13|14|20)\d{2}/)||[])[0]||'':'';
+ return {vin:vinMatch?vinMatch[0]:'',engine:engine,plate:plate,name:name,year:year,text:text};
+}
+async function extractVehicleCardData(imageData){
+ if(vehicleCardOcrBusy)return;
+ let source=imageData;
+ if(!source){
+  const picked=selectedPhoto('carDocFront');
+  if(picked)source=await readFile(picked);
+  else {const saved=(await readPhotoDraft()).docs?.carDocFront;if(saved)source=saved}
+ }
+ if(!source){vehicleOcrStatus('ابتدا عکس «کارت خودرو — روی کارت» را انتخاب کنید؛ سپس استخراج را بزنید.',true);openPhotoSourceMenu('carDocFrontCam','carDocFrontGal');return}
+ if(!window.Tesseract){vehicleOcrStatus('موتور تشخیص متن هنوز بارگذاری نشده است. اتصال اینترنت را بررسی و دوباره امتحان کنید.',true);return}
+ vehicleCardOcrBusy=true;const btn=document.querySelector('button[onclick="extractVehicleCardData()"]');if(btn){btn.disabled=true;btn.textContent='⏳ در حال خواندن کارت...'}
+ vehicleOcrStatus('در حال خواندن نوشته‌های کارت خودرو؛ ممکن است چند ثانیه طول بکشد…');
+ try{
+  const result=await window.Tesseract.recognize(source,'fas+eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص متن کارت خودرو… '+Math.round(m.progress*100)+'٪')}});
+  const parsed=parseVehicleCardText(result.data?.text||'');
+  const put=(id,value)=>{const el=document.getElementById(id);if(el&&value){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))}};
+  put('vin',parsed.vin);put('engine',parsed.engine);put('plate',parsed.plate);put('cardVehicleName',parsed.name);put('cardVehicleYear',parsed.year);
+  const raw=document.getElementById('vehicleOcrText');if(raw)raw.value=parsed.text;
+  await persistDraft();
+  const count=[parsed.vin,parsed.engine,parsed.plate,parsed.name,parsed.year].filter(Boolean).length;
+  vehicleOcrStatus(count?'استخراج تمام شد؛ '+count+' فیلد پر شد. لطفاً شماره‌ها را با کارت اصلی تطبیق دهید و موارد خالی را دستی اصلاح کنید.':'متن کارت خوانده شد، اما فیلدها با اطمینان کافی شناسایی نشدند. عکس واضح‌تر یا نور بهتر را امتحان کنید؛ متن خوانده‌شده را هم می‌توانید بررسی کنید.',!count);
+ }catch(e){vehicleOcrStatus('خواندن کارت انجام نشد. عکس واضح‌تر، بدون بازتاب نور و از روبه‌رو بگیرید. '+(e?.message||''),true)}
+ finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ استخراج هوشمند از کارت خودرو'}}
+}
 function selectedPhoto(id){const cam=document.getElementById(id+'Cam'),gal=document.getElementById(id+'Gal');return cam?.files?.[0]||gal?.files?.[0]||null}
 function selectedPhotoGroup(cls,i){return [...document.querySelectorAll('.'+cls)].filter(x=>x.id.endsWith('_'+i)||x.id==='maincam_'+i).flatMap(x=>[...x.files])}
 function previewDef(input){const drawer=input.closest('.inline-drawer'),box=drawer.querySelector('.drawer-preview'),name=drawer.querySelector('.file-name'),files=[...drawer.querySelectorAll('.defphoto')].flatMap(x=>[...x.files]);box.innerHTML='';if(name)name.textContent=files.length?(files.length+' عکس انتخاب شد'):'تصویری انتخاب نشده';files.forEach(f=>{const im=document.createElement('img');im.src=URL.createObjectURL(f);box.appendChild(im)});if(files.length)addDeletePhotoButton(box);const file=files[0];if(file){const can=drawer.querySelector('canvas'),ctx=can.getContext('2d'),im=new Image();im.onload=()=>{const scale=Math.min(1,1600/im.naturalWidth,1600/im.naturalHeight);can.width=Math.max(1,Math.round(im.naturalWidth*scale));can.height=Math.max(1,Math.round(im.naturalHeight*scale));can._baseImage=im;ctx.clearRect(0,0,can.width,can.height);ctx.drawImage(im,0,0,can.width,can.height)};im.src=URL.createObjectURL(file)}saveDefectPhotoDraft(input)}
@@ -447,10 +503,10 @@ function defectPhotoKey(part,defect){return String(part)+'__'+String(defect)}
 async function saveDefectPhotoDraft(input){try{const drawer=input.closest('.inline-drawer'),files=[...drawer.querySelectorAll('.defphoto')].flatMap(x=>[...x.files]),c=input.dataset.part,defect=input.dataset.defect;if(!current)return;const d=await readPhotoDraft();d.defectPhotos=d.defectPhotos||{};const k=defectPhotoKey(c,defect);if(files.length)d.defectPhotos[k]=await Promise.all(files.map(compressPhotoFile));else delete d.defectPhotos[k];await writePhotoDraft(d)}catch(e){console.warn('ذخیره پیش‌نویس عکس ایراد ناموفق بود',e)}}
 async function restoreDefectPhotoDraft(){if(!current)return;const d=await readPhotoDraft(),saved=d.defectPhotos||{};for(const c of document.querySelectorAll('.defect-options input:checked')){const key=defectPhotoKey(c.dataset.part,c.dataset.defect),urls=saved[key];if(!urls||!urls.length)continue;const drawer=document.getElementById('drawer_'+keyFor(c.dataset.part,c.dataset.defect));if(!drawer)continue;const box=drawer.querySelector('.drawer-preview');if(box){box.innerHTML='';urls.forEach(url=>{const im=document.createElement('img');im.src=url;box.appendChild(im)});addDeletePhotoButton(box)}const name=drawer.querySelector('.file-name');if(name)name.textContent=urls.length+' عکس ذخیره‌شده';const p=c.closest('.pill');p.classList.add('selected');const btn=p.querySelector('.defect-detail-toggle');if(btn)btn.textContent='📷 عکس ذخیره‌شده';}}
 function draftKey(){return current?'s2s_inspection_draft_'+current.id:''}
-function collectDraft(){const defects=[...document.querySelectorAll('.defect-options input:checked')].map(x=>{const d=document.getElementById('drawer_'+keyFor(x.dataset.part,x.dataset.defect));return {part:x.dataset.part,area:x.dataset.area||'',defect:x.dataset.defect||'',note:d?.querySelector('.defnote')?.value||''}});return {vin:vin?.value||'',engine:engine?.value||'',plate:plate?.value||'',mileage:mileage?.value||'',spare:!!spare?.checked,fuel:!!fuel?.checked,poa:!!poa?.checked,greenCard:!!greenCard?.checked,factoryInvoice:!!factoryInvoice?.checked,carDocument:!!carDocument?.checked,summary:summary?.value||'',defects}}
+function collectDraft(){const defects=[...document.querySelectorAll('.defect-options input:checked')].map(x=>{const d=document.getElementById('drawer_'+keyFor(x.dataset.part,x.dataset.defect));return {part:x.dataset.part,area:x.dataset.area||'',defect:x.dataset.defect||'',note:d?.querySelector('.defnote')?.value||''}});return {vin:vin?.value||'',engine:engine?.value||'',plate:plate?.value||'',cardVehicleName:document.getElementById('cardVehicleName')?.value||'',cardVehicleYear:document.getElementById('cardVehicleYear')?.value||'',mileage:mileage?.value||'',spare:!!spare?.checked,fuel:!!fuel?.checked,poa:!!poa?.checked,greenCard:!!greenCard?.checked,factoryInvoice:!!factoryInvoice?.checked,carDocument:!!carDocument?.checked,summary:summary?.value||'',defects}}
 let draftTimer;
 async function persistDraft(){if(!current)return;const data=collectDraft();try{localStorage.setItem(draftKey(),JSON.stringify(data))}catch(e){}clearTimeout(draftTimer);draftTimer=setTimeout(()=>fetch(API+'?key='+encodeURIComponent(KEY)+'&api=draft&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({data})}).catch(()=>{}),350)}
-async function restoreDraft(){if(!current)return;let d=null;try{d=JSON.parse(localStorage.getItem(draftKey())||'null')}catch(e){}try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=draft&id='+encodeURIComponent(current.id)+'&_='+Date.now(),{cache:'no-store'}),j=await r.json();if(j?.draft?.data)d={...(d||{}),...j.draft.data}}catch(e){}if(!d){await restoreDefectPhotoDraft();return}vin.value=d.vin||'';engine.value=d.engine||'';plate.value=d.plate||'';mileage.value=d.mileage||'';summary.value=d.summary||'';spare.checked=!!d.spare;fuel.checked=!!d.fuel;poa.checked=!!d.poa;greenCard.checked=!!d.greenCard;factoryInvoice.checked=!!d.factoryInvoice;carDocument.checked=!!d.carDocument;for(const x of(d.defects||[])){const q=[...document.querySelectorAll('.defect-options input')].find(i=>i.dataset.part===String(x.part)&&i.dataset.defect===x.defect);if(q){q.checked=true;const p=q.closest('.pill');if(p)p.classList.add('selected');const z=document.getElementById('drawer_'+keyFor(x.part,x.defect));if(z){z.querySelectorAll('.defphoto').forEach(i=>i.onchange=()=>previewDef(i));const n=z.querySelector('.defnote');if(n)n.value=x.note||''}}}await restoreDefectPhotoDraft()}
+async function restoreDraft(){if(!current)return;let d=null;try{d=JSON.parse(localStorage.getItem(draftKey())||'null')}catch(e){}try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=draft&id='+encodeURIComponent(current.id)+'&_='+Date.now(),{cache:'no-store'}),j=await r.json();if(j?.draft?.data)d={...(d||{}),...j.draft.data}}catch(e){}if(!d){await restoreDefectPhotoDraft();return}vin.value=d.vin||'';engine.value=d.engine||'';plate.value=d.plate||'';if(document.getElementById('cardVehicleName'))document.getElementById('cardVehicleName').value=d.cardVehicleName||'';if(document.getElementById('cardVehicleYear'))document.getElementById('cardVehicleYear').value=d.cardVehicleYear||'';mileage.value=d.mileage||'';summary.value=d.summary||'';spare.checked=!!d.spare;fuel.checked=!!d.fuel;poa.checked=!!d.poa;greenCard.checked=!!d.greenCard;factoryInvoice.checked=!!d.factoryInvoice;carDocument.checked=!!d.carDocument;for(const x of(d.defects||[])){const q=[...document.querySelectorAll('.defect-options input')].find(i=>i.dataset.part===String(x.part)&&i.dataset.defect===x.defect);if(q){q.checked=true;const p=q.closest('.pill');if(p)p.classList.add('selected');const z=document.getElementById('drawer_'+keyFor(x.part,x.defect));if(z){z.querySelectorAll('.defphoto').forEach(i=>i.onchange=()=>previewDef(i));const n=z.querySelector('.defnote');if(n)n.value=x.note||''}}}await restoreDefectPhotoDraft()}
 function setupSectionSaveButtons(){const labels={identity:'💾 ثبت اطلاعات شناسایی',docs:'💾 ثبت مدارک این بخش',gallery:'💾 ثبت عکس‌های این بخش',quick:'💾 ثبت چک‌لیست',defects:'💾 ثبت ایرادات این بخش',summary:'💾 ذخیره جمع‌بندی'};document.querySelectorAll('#formArea>.inspection-section').forEach(card=>{const key=card.id.replace('section-','');if(!labels[key]||card.querySelector('.section-save-footer'))return;const footer=document.createElement('div');footer.className='section-save-footer';footer.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid #294763';const btn=document.createElement('button');btn.type='button';btn.className='btn green';btn.style.cssText='width:100%;padding:14px;font-weight:900';btn.textContent=labels[key];btn.onclick=()=>saveCurrentSection(key,btn);const note=document.createElement('div');note.className='sub section-save-note';note.setAttribute('aria-live','polite');footer.append(btn,note);const body=card.querySelector('.collapse-body');(body||card).appendChild(footer)})}
 async function saveCurrentSection(key,btn){if(!current){alert('ابتدا یک پرونده انتخاب کنید.');return}const original=btn.textContent,note=btn.parentElement.querySelector('.section-save-note');btn.disabled=true;btn.textContent='⏳ در حال ذخیره...';if(note)note.textContent='در حال ثبت اطلاعات این بخش روی سرور...';try{const data=collectDraft();data.last_saved_section=key;data.last_saved_at=new Date().toISOString();const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=draft&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({data})});let j={};try{j=await r.json()}catch(_){}if(!r.ok||j.error||!j.ok)throw Error(j.error||'ذخیره اطلاعات این بخش ناموفق بود');try{localStorage.setItem(draftKey(),JSON.stringify(data))}catch(_){}if(note)note.textContent='✓ اطلاعات ذخیره شد؛ در حال بازگشت به فهرست بخش‌های کارشناسی...';btn.textContent='✓ ذخیره شد';setTimeout(()=>{if(current){backToInspectionSections()}},250)}catch(e){if(note)note.textContent='❌ ذخیره انجام نشد: '+(e.message||'خطای نامشخص');btn.textContent=original}finally{btn.disabled=false}}
 async function fileObj(input,type){if(!input||!input.files[0])return null;return {type,data_url:await readFile(input.files[0])}}
@@ -495,7 +551,7 @@ async function saveInspection(){
   const uploadOne=async(data,label)=>{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=upload-photo&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({data_url:data,label})});let j;try{j=await r.json()}catch(_){throw Error('پاسخ ذخیره عکس معتبر نیست')}if(!r.ok||j.error)throw Error(j.error||('ذخیره '+label+' ناموفق بود'));return j.storage_path};
   const nationalPath=await uploadOne(nationalData,'کارت ملی مالک');completedUploads++;msg.textContent='عکس کارت ملی ذخیره شد؛ در حال ذخیره عکس‌ها ('+completedUploads+' از '+totalUploads+')...';
   await pool(uploads,3,async(item)=>{const path=await uploadOne(item.data,item.label);item.set(path);completedUploads++;msg.textContent='عکس‌ها جداگانه ذخیره می‌شوند ('+completedUploads+' از '+totalUploads+')...'});
-  const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,green_card:greenCard.checked,factory_invoice:factoryInvoice.checked,car_document:carDocument.checked,summary:summary.value,national_id_path:nationalPath,documents:docs,main_photos:main,defects:defs};
+  const cardDetails=[document.getElementById('cardVehicleName')?.value?('نوع/مدل روی کارت: '+document.getElementById('cardVehicleName').value):'',document.getElementById('cardVehicleYear')?.value?('سال ساخت روی کارت: '+document.getElementById('cardVehicleYear').value):''].filter(Boolean).join('؛ ');const body={vin:vin.value,engine_number:engine.value,plate_number:plate.value,card_vehicle_name:document.getElementById('cardVehicleName')?.value||'',card_vehicle_year:document.getElementById('cardVehicleYear')?.value||'',mileage:document.getElementById('mileage')?.value||'',spare_key:spare.checked,fuel_card:fuel.checked,power_of_attorney:poa.checked,green_card:greenCard.checked,factory_invoice:factoryInvoice.checked,car_document:carDocument.checked,summary:[summary.value,cardDetails?'اطلاعات استخراج‌شده از کارت خودرو: '+cardDetails:''].filter(Boolean).join('\n'),national_id_path:nationalPath,documents:docs,main_photos:main,defects:defs};
   msg.textContent='عکس‌ها ذخیره شدند؛ در حال ثبت نهایی پرونده...';
   const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=inspect&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||j.error)throw Error(j.error||'خطا');
   msg.textContent='✅ گزارش کامل کارشناسی ثبت شد. در حال بازگشت به همان پرونده...';localStorage.setItem(CASE_STORAGE,current.id);sessionStorage.setItem('s2s_done_case',JSON.stringify(current));const target=new URL('expert.html',location.href);target.searchParams.set('case',current.id);target.searchParams.set('view','case');target.searchParams.set('done','1');target.searchParams.set('v','20261008');window.location.assign(target.href)
