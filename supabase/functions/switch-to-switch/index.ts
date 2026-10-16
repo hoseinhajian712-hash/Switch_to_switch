@@ -236,7 +236,7 @@ async function buyerDashboard(req:Request,u:URL){
  const mr=await db.from("auction_members").select("id,mobile,full_name,national_id,address,identity_document_path,identity_uploaded_at,identity_verified,identity_review_note,subscription_status,paid_until").eq("id",sess.member_id).single();if(mr.error)return json({error:"خریدار پیدا نشد"},404);
  const [ar,fr,pr,nr,br,wr]=await Promise.all([
   db.from("auctions").select("id,case_id,vehicle_id,status,starts_at,ends_at,current_bid,starting_price,target_price,fair_price,prepayment_amount,purchase_stage,seller_account_name,seller_account_number,cancellation_fine_amount,winner_id,winner_response_status,winner_response_deadline,winner_response_at,created_at").eq("winner_id",sess.member_id).order("created_at",{ascending:false}),
-  db.from("fines").select("id,auction_id,amount,reason,status,created_at").eq("buyer_id",sess.member_id).order("created_at",{ascending:false}),
+  db.from("fines").select("id,auction_id,amount,paid_amount,reason,status,created_at").eq("buyer_id",sess.member_id).order("created_at",{ascending:false}),
   db.from("buyer_payment_submissions").select("id,auction_id,stage,amount,status,buyer_note,review_note,created_at,reviewed_at,receipt_path").eq("buyer_id",sess.member_id).order("created_at",{ascending:false}),
   db.from("buyer_notifications").select("id,auction_id,title,message,read_at,created_at").eq("buyer_id",sess.member_id).order("created_at",{ascending:false}).limit(50),
   db.from("bids").select("auction_id,amount,created_at").eq("buyer_id",sess.member_id).order("created_at",{ascending:false}).limit(200),
