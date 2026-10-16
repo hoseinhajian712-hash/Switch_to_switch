@@ -766,12 +766,17 @@ function openGalleryPhotoEditor(box,im){
    const drawer=im.closest('.inline-drawer')||box.closest('.inline-drawer');
    if(drawer){
     const input=drawer.querySelector('.defphoto[data-part][data-defect]');if(!input)throw new Error('مشخصات ایراد پیدا نشد');
-    const photoBox=im.closest('.drawer-preview')||drawer.querySelector('.drawer-preview')||box;
-    const d=await readPhotoDraft(),k=defectPhotoKey(input.dataset.part,input.dataset.defect),photos=[...photoBox.querySelectorAll('img')],photoIndex=photos.indexOf(im);
-    if(photoIndex<0)throw new Error('عکس در فهرست پیش‌نمایش پیدا نشد؛ پنجره را ببندید و عکس را دوباره باز کنید');
-    const visibleUrls=photos.map((photo,i)=>i===photoIndex?dataUrl:photo.src),savedUrls=[...((d.defectPhotos||{})[k]||[])];
-    const urls=visibleUrls.map((url,i)=>url.startsWith('blob:')?(savedUrls[i]||url):url);
-    urls[photoIndex]=dataUrl;d.defectPhotos=d.defectPhotos||{};d.defectPhotos[k]=urls;
+    const photoBox=im.closest('.drawer-preview')||box.closest('.drawer-preview')||drawer.querySelector('.drawer-preview')||box;
+    const d=await readPhotoDraft(),k=defectPhotoKey(input.dataset.part,input.dataset.defect),photos=[...photoBox.querySelectorAll('img')],savedUrls=[...((d.defectPhotos||{})[k]||[])];
+    let photoIndex=photos.indexOf(im);
+    const urls=savedUrls.length?savedUrls.slice():photos.map(photo=>photo.src);
+    if(photoIndex<0){
+     const src=im.currentSrc||im.src;
+     photoIndex=urls.findIndex(url=>url===src||url===im.src);
+     if(photoIndex<0)photoIndex=Math.max(0,urls.length);
+    }
+    if(photoIndex<urls.length)urls[photoIndex]=dataUrl;else urls.push(dataUrl);
+    d.defectPhotos=d.defectPhotos||{};d.defectPhotos[k]=urls;
     await writePhotoDraft(d);
     drawer.querySelectorAll('.defphoto').forEach(x=>x.value='');photoBox.innerHTML='';urls.forEach(url=>{const image=document.createElement('img');image.src=url;photoBox.appendChild(image)});addDeletePhotoButton(photoBox);
     const name=drawer.querySelector('.file-name');if(name)name.textContent=urls.length+' عکس ذخیره‌شده';
