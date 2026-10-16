@@ -170,7 +170,7 @@ input,select,textarea,button{touch-action:manipulation}
   </div>
   <div id="vehicleOcrStatus" class="notice hidden" role="status" aria-live="polite"></div>
   <div class="grid">
-   <div class="field"><label>VIN<input id="vin" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
+   <div class="field"><label>شماره شاسی / VIN<input id="vin" autocomplete="off" placeholder="خودرو یا موتورسیکلت؛ از روی کارت"></label></div>
    <div class="field"><label>شماره موتور<input id="engine" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
    <div class="field"><label>پلاک<input id="plate" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
    <div class="field"><label>نوع / مدل درج‌شده روی کارت<input id="cardVehicleName" autocomplete="off" placeholder="استخراج خودکار در صورت خوانا بودن"></label></div>
@@ -427,11 +427,15 @@ function parseVehicleCardText(raw){
   const text=String(raw||'').replace(/\r/g,'\n');
   const normalized=latinDigits(text).toUpperCase();
   const lines=normalized.split(/\n+/).map(x=>x.replace(/[|¦]/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
-  const vinPattern=/\b[A-Z0-9]{17}\b/g;
+  // Motorcycle registration cards may show a 16-character chassis identifier;
+  // keep 16- and 17-character candidates, and normalize OCR-inserted spaces/hyphens.
   const vinCandidates=[];
   for(const line of lines){
-    const hits=line.match(vinPattern)||[];
-    for(const hit of hits)if(/[A-Z]/.test(hit)&&/[0-9]/.test(hit))vinCandidates.push(hit);
+    const chunks=line.match(/\b(?:[A-Z0-9][ -]?){15,16}[A-Z0-9]\b/g)||[];
+    for(const chunk of chunks){
+      const hit=chunk.replace(/[ -]/g,'');
+      if((hit.length===16||hit.length===17)&&/[A-Z]/.test(hit)&&/[0-9]/.test(hit))vinCandidates.push(hit);
+    }
   }
   const uniqueVins=[...new Set(vinCandidates)];
   const vin=uniqueVins.length===1?uniqueVins[0]:'';
@@ -497,7 +501,7 @@ async function extractVehicleCardData(imageData){
   if(!sameEngine)mismatch.push('شماره موتور');
   if(found===2)vehicleOcrStatus('هر دو شماره در دو خوانش یکسان بودند و به‌عنوان پیشنهاد وارد شدند. قبل از ثبت نهایی، با کارت اصلی تطبیق بده.',false);
   else if(found===1)vehicleOcrStatus('فقط '+(sameVin?'VIN':'شماره موتور')+' در هر دو خوانش یکسان بود. '+mismatch.join(' و ')+' به دلیل اختلاف خوانش خودکار وارد نشد؛ آن را دستی بررسی کن.',true);
-  else vehicleOcrStatus('دو خوانش با هم مطابقت نداشتند؛ برای جلوگیری از ثبت شماره اشتباه، هیچ شماره جدیدی خودکار وارد نشد. عکس واضح‌تر بگیر یا هر دو شماره را دستی وارد کن.',true);
+  else vehicleOcrStatus('دو خوانش با هم مطابقت نداشتند؛ برای خودرو یا موتورسیکلت، شماره روی کارت را بررسی کن و در صورت نیاز دستی در فیلد «شماره شاسی / VIN» وارد کن. متن هر دو خوانش را می‌توانی در بخش «مشاهده متن خوانده‌شده از کارت» ببینی.',true);
  }catch(e){vehicleOcrStatus('خواندن کارت انجام نشد. کارت را صاف، از روبه‌رو و بدون بازتاب نور عکس بگیر. '+(e?.message||''),true)}
  finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ بررسی دوباره شماره‌های کارت خودرو'}}
 }function selectedPhoto(id){const cam=document.getElementById(id+'Cam'),gal=document.getElementById(id+'Gal');return cam?.files?.[0]||gal?.files?.[0]||null}
