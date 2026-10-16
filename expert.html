@@ -163,7 +163,7 @@ input,select,textarea,button{touch-action:manipulation}
 <div id="formArea" class="hidden">
  <div id="section-identity" class="inspection-section card hidden">
   <div class="section-title"><h3>۱. اطلاعات شناسایی خودرو</h3><span class="badge">شناسه خودرو</span></div>
-  <div class="notice" style="margin-top:12px">🤖 با بارگذاری عکس روی کارت در بخش «مدارک خودرو»، استخراج به‌صورت خودکار انجام می‌شود و نتیجه در فیلدهای زیر قرار می‌گیرد. این دکمه فقط برای تلاش مجدد است؛ نتیجه را با کارت اصلی تطبیق دهید.</div>
+  <div class="notice" style="margin-top:12px">🤖 با بارگذاری عکس روی کارت در بخش «مدارک خودرو»، سیستم فقط شماره موتور و VIN را به‌صورت خودکار پیدا می‌کند. پلاک، مدل و سال ساخت را دستی وارد کنید. حتماً دو شماره را با کارت اصلی تطبیق دهید.</div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
    <button type="button" class="btn" onclick="extractVehicleCardData()">✨ استخراج هوشمند از کارت خودرو</button>
    <button type="button" class="btn secondary" onclick="openPhotoSourceMenu('carDocFrontCam','carDocFrontGal')">📷 انتخاب عکس کارت خودرو</button>
@@ -427,47 +427,23 @@ function parseVehicleCardText(raw){
   const text=String(raw||'').replace(/\r/g,'\n');
   const normalized=latinDigits(text).toUpperCase();
   const lines=normalized.split(/\n+/).map(x=>x.replace(/[|¦]/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
-  const findLine=(re)=>lines.find(x=>re.test(x))||'';
-  const stripLabel=(line,re)=>line.replace(re,' ').replace(/^\s*[:：\-–—|]+\s*/,' ').replace(/\s+/g,' ').trim();
-  // Do not join the entire OCR text to create a false 17-character VIN.
-  const vinLabel=/\bVIN\b|شماره\s*شاسی|شماره\s*بدنه|شاسی/i;
-  const vinLine=findLine(vinLabel);
+  const vinPattern=/\b[A-HJ-NPR-Z0-9]{17}\b/g;
   let vin='';
-  const vinCandidates=(vinLine?[vinLine]:[]).concat(lines.filter(x=>/[A-HJ-NPR-Z0-9]{17}/.test(x)));
-  for(const line of vinCandidates){
-   const tokens=line.match(/[A-HJ-NPR-Z0-9]{17}/g)||[];
-   const candidate=tokens.find(x=>/[A-Z]/.test(x)&&/[0-9]/.test(x));
-   if(candidate){vin=candidate;break}
+  // VIN must be a single 17-character token on one OCR line; never build one by joining unrelated text.
+  for(const line of lines){
+    const hits=line.match(vinPattern)||[];
+    const valid=hits.filter(x=>/[A-Z]/.test(x)&&/[0-9]/.test(x));
+    if(valid.length===1){vin=valid[0];break}
   }
   const engineLabel=/شماره\s*موتور|موتور|ENGINE\s*(?:NO|NUMBER|#)?/i;
-  const engineLine=findLine(engineLabel);
+  const engineLine=lines.find(x=>engineLabel.test(x))||'';
   let engine='';
   if(engineLine){
-   const tail=stripLabel(engineLine,engineLabel);
-   const candidates=(tail.match(/\b[A-Z0-9]{5,18}\b/g)||[]).filter(x=>/[0-9]/.test(x)&&!/[A-Z]{4,}/.test(x));
-   if(candidates.length===1)engine=candidates[0];
+    const tail=engineLine.replace(engineLabel,' ').replace(/^\s*[:：\-–—|]+\s*/,' ').trim();
+    const candidates=(tail.match(/\b[A-Z0-9]{5,18}\b/g)||[]).filter(x=>/[0-9]/.test(x)&&!/[A-Z]{4,}/.test(x));
+    if(candidates.length===1)engine=candidates[0];
   }
-  const plateLabel=/شماره\s*پلاک|پلاک|PLATE/i;
-  const plateLine=findLine(plateLabel);
-  let plate='';
-  if(plateLine){
-   const tail=stripLabel(plateLine,plateLabel);
-   const match=tail.match(/\d{2}\s*[آ-یA-Z]\s*\d{3}\s*\d{2}/i);
-   if(match)plate=match[0].replace(/\s+/g,' ').trim();
-  }
-  const vehicleLabel=/(?:نوع|مدل|نام|تیپ)\s*خودرو|VEHICLE\s*TYPE|CAR\s*MODEL/i;
-  const vehicleLine=findLine(vehicleLabel);
-  let name=vehicleLine?stripLabel(vehicleLine,vehicleLabel):'';
-  if(name.length>45||/\d{5,}/.test(name)||/شماره|پلاک|موتور|شاسی|VIN/i.test(name))name='';
-  const yearLabel=/سال\s*ساخت|مدل\s*سال|YEAR\s*OF\s*MANUFACTURE|MODEL\s*YEAR/i;
-  const yearLine=findLine(yearLabel);
-  let year='';
-  if(yearLine){
-   const tail=stripLabel(yearLine,yearLabel);
-   const matches=tail.match(/\b(?:13|14)\d{2}\b/g)||[];
-   if(matches.length===1)year=matches[0];
-  }
-  return {vin,engine,plate,name,year,text};
+  return {vin,engine,text};
 }
 async function extractVehicleCardData(imageData){
  if(vehicleCardOcrBusy)return;
@@ -485,11 +461,11 @@ async function extractVehicleCardData(imageData){
   let result;try{result=await window.Tesseract.recognize(source,'fas+eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص متن کارت خودرو… '+Math.round(m.progress*100)+'٪')}})}catch(firstError){vehicleOcrStatus('بارگذاری زبان فارسی ناموفق بود؛ تلاش دوباره با تشخیص انگلیسی و اعداد…');result=await window.Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)vehicleOcrStatus('در حال تشخیص شماره‌های کارت… '+Math.round(m.progress*100)+'٪')}})}
   const parsed=parseVehicleCardText(result.data?.text||'');
   const put=(id,value)=>{const el=document.getElementById(id);if(el&&value){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))}};
-  put('vin',parsed.vin);put('engine',parsed.engine);put('plate',parsed.plate);put('cardVehicleName',parsed.name);put('cardVehicleYear',parsed.year);
+  put('vin',parsed.vin);put('engine',parsed.engine);
   const raw=document.getElementById('vehicleOcrText');if(raw)raw.value=parsed.text;
   await persistDraft();
-  const count=[parsed.vin,parsed.engine,parsed.plate,parsed.name,parsed.year].filter(Boolean).length;
-  vehicleOcrStatus(count?'استخراج اولیه انجام شد؛ '+count+' فیلد پیدا شد. چون تشخیص خودکار ممکن است اشتباه کند، هر مقدار را با کارت اصلی تطبیق دهید.':'متن کارت خوانده شد، اما اطلاعات با اطمینان کافی پیدا نشد؛ متن خوانده‌شده را بررسی کنید یا اطلاعات را دستی وارد کنید.',!count);
+  const count=[parsed.vin,parsed.engine].filter(Boolean).length;
+  vehicleOcrStatus(count?'استخراج اولیه انجام شد؛ '+count+' مورد از شماره موتور و VIN پیدا شد. نتیجه را حتماً با کارت اصلی تطبیق دهید.':'متن کارت خوانده شد، اما شماره موتور یا VIN با اطمینان کافی پیدا نشد؛ برای جلوگیری از ثبت اشتباه، مقدار مشکوک وارد نشد. متن خوانده‌شده را بررسی کنید یا شماره را دستی وارد کنید.',!count);
  }catch(e){vehicleOcrStatus('خواندن کارت انجام نشد. عکس واضح‌تر، بدون بازتاب نور و از روبه‌رو بگیرید. '+(e?.message||''),true)}
  finally{vehicleCardOcrBusy=false;if(btn){btn.disabled=false;btn.textContent='✨ استخراج هوشمند از کارت خودرو'}}
 }
