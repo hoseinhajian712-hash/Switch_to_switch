@@ -514,7 +514,7 @@ function renderMainPhotos(){
 }
 function renderDefects(){
  const searchWrap='<div class="defect-search"><input id="defectSearch" type="search" placeholder="جست‌وجوی قطعه یا سیستم؛ مثلاً «درب»، «گلگیر»، «کولر»..."><span class="search-count" id="defectCount"></span></div>';
- function cardHtml(p,g){const n=parts.indexOf(p),searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست')+' '+g.title+' '+g.desc);return '<details class="defect-card defect-part-dropdown" data-part-search="'+searchable+'" data-area="'+esc(g.title)+'"><summary class="defect-head"><b>'+p+'</b><span class="mini">'+g.title+'　⌄</span></summary><div class="part-defect-content"><div class="defect-options">'+opts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+n+'" data-area="'+esc(g.title)+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+n+'_'+oi+'"><div class="defect-extra-actions"><button type="button" class="camera-btn defect-photo-action" onclick="openPhotoSourceMenu(\'defcam_'+n+'_'+oi+'\',\'defgal_'+n+'_'+oi+'\')">📷 عکس</button><button type="button" class="camera-btn defect-notes-action" onclick="toggleDefectNotes(this)">📝 نکات</button></div><b>عکس '+esc(o)+'</b><input id="defcam_'+n+'_'+oi+'" class="defphoto photo-camera" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><input id="defgal_'+n+'_'+oi+'" class="defphoto photo-gallery" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" multiple><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\'defcam_'+n+'_'+oi+'\',\'defgal_'+n+'_'+oi+'\')">＋ افزودن عکس</button><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><textarea class="defnote" data-part="'+n+'" data-defect="'+esc(o)+'" rows="3" placeholder="توضیحات ایراد..."></textarea><button type="button" class="camera-btn markup-toggle" onclick="toggleMarkup(this)">✏️ علامت‌گذاری روی عکس</button><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div></details>'}
+ function cardHtml(p,g){const n=parts.indexOf(p),searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست')+' '+g.title+' '+g.desc);return '<details class="defect-card defect-part-dropdown" data-part-search="'+searchable+'" data-area="'+esc(g.title)+'"><summary class="defect-head"><b>'+p+'</b><span class="mini">'+g.title+'　⌄</span></summary><div class="part-defect-content"><div class="defect-options">'+opts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+n+'" data-area="'+esc(g.title)+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+n+'_'+oi+'"><div class="defect-extra-actions"><button type="button" class="camera-btn defect-photo-action" onclick="openPhotoSourceMenu(\'defcam_'+n+'_'+oi+'\',\'defgal_'+n+'_'+oi+'\')">📷 عکس</button></div><b>عکس '+esc(o)+'</b><input id="defcam_'+n+'_'+oi+'" class="defphoto photo-camera" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><input id="defgal_'+n+'_'+oi+'" class="defphoto photo-gallery" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" multiple><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\'defcam_'+n+'_'+oi+'\',\'defgal_'+n+'_'+oi+'\')">＋ افزودن عکس</button><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><textarea class="defnote" data-part="'+n+'" data-defect="'+esc(o)+'" rows="2" style="height:54px;min-height:54px;max-height:88px;padding:7px 9px;font-size:12px;line-height:1.6;resize:vertical;box-sizing:border-box" placeholder="توضیحات ایراد..."></textarea><button type="button" class="camera-btn markup-toggle" onclick="toggleMarkup(this)">✏️ علامت‌گذاری روی عکس</button><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div></details>'}
  function clusterKey(p){if(/^درب /.test(p)||p==='دستگیره‌های درب'||p==='اتصالات و لولاها')return 'doors';if(p.includes('گلگیر'))return 'fenders';if(p.startsWith('لاستیک '))return 'tires';if(p.startsWith('ناودانی '))return 'channels';if(p.startsWith('رکاب '))return 'sills';if(p.startsWith('شیشه ')||p.startsWith('آینه '))return 'glassMirrors';if(p.startsWith('ستون '))return 'pillars';if(p==='سپر جلو'||p==='سپر عقب')return 'bumpers';if(p.startsWith('چراغ ')||p.startsWith('مه‌شکن '))return 'lights';if(p.startsWith('شاسی ')||p.startsWith('سینی '))return 'chassisTrays';if(p.startsWith('دیاق '))return 'beams';return ''}
  const names={doors:'همه درب‌ها و لولاها',fenders:'همه گلگیرها',tires:'همه لاستیک‌ها',channels:'همه ناودانی‌ها',sills:'همه رکاب‌ها',glassMirrors:'همه شیشه‌ها و آینه‌ها',pillars:'همه ستون‌ها',bumpers:'همه سپرها',lights:'همه چراغ‌ها و مه‌شکن‌ها',chassisTrays:'همه شاسی‌ها و سینی‌ها',beams:'همه دیاق‌ها'};
  const clusterOrder=['doors','fenders','tires','channels','sills','glassMirrors','pillars','bumpers','lights','chassisTrays','beams'];
@@ -891,24 +891,6 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 </style>
 
 
-<style id="s2s-expert-notes-compact">
-/* نکات فقط به‌صورت کادر توضیحات کوچک؛ دکمه جداگانه حذف و ارتفاع اضافه کم شود */
-.defect-card.defect-part-dropdown .inline-drawer .defect-notes-action{display:none!important}
-.defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions{display:flex!important;flex-direction:row!important;gap:6px!important;margin:0 0 6px!important}
-.defect-card.defect-part-dropdown .inline-drawer textarea.defnote{
- display:block!important;
- min-height:48px!important;
- height:54px!important;
- max-height:88px!important;
- margin:5px 0 0!important;
- padding:7px 9px!important;
- font-size:12px!important;
- line-height:1.6!important;
- resize:vertical!important;
-}
-.defect-card.defect-part-dropdown .inline-drawer{padding:7px!important;gap:5px!important}
-.defect-card.defect-part-dropdown .inline-drawer>.camera-btn{min-height:34px!important;padding:6px 9px!important}
-.defect-card.defect-part-dropdown .inline-drawer> b{margin:4px 0!important;font-size:11px!important}
-</style>
+
 
 </body></html>
