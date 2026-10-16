@@ -408,6 +408,11 @@ html {
   <div class="section-title"><h3>کارکرد و کیلومتر</h3><span class="badge">کیلومتر خودرو</span></div>
   <div class="field" style="margin-top:12px"><label>کارکرد فعلی خودرو<input id="mileage" inputmode="numeric" placeholder="مثلاً ۱۲۵٬۰۰۰"></label></div>
   <div class="notice">عدد کیلومتر را وارد کنید؛ جداکننده اعداد به‌صورت خودکار نمایش داده می‌شود.</div>
+  <div class="mileage-photo-panel">
+   <div class="mileage-photo-heading"><span class="mileage-photo-icon">▣</span><div><strong>عکس کیلومترشمار</strong><small>عکس واضح از عدد کیلومتر روی صفحه‌نمایش خودرو ثبت کنید.</small></div></div>
+   <button type="button" class="btn secondary mileage-photo-button" onclick="openPhotoSourceMenu('maincam_15','maingal_15')">＋ ثبت / تغییر عکس کیلومترشمار</button>
+   <div id="mileagePhotoPreview" class="mileage-photo-preview"><span>هنوز عکسی ثبت نشده است.</span></div>
+  </div>
  </div>
 
  <div id="section-docs" class="inspection-section card hidden">
@@ -1104,4 +1109,39 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 .plate-letter-field select#plateLetter option{background:#102737!important;color:#f1fbff!important;font-weight:700}
 @media(max-width:420px){.plate-letter-field select#plateLetter{height:44px!important;font-size:14px!important;padding-right:6px!important}}
 </style>
+<style id="s2s-mileage-photo-panel">
+.mileage-photo-panel{margin-top:14px;padding:14px;border:1px solid #29465d;border-radius:16px;background:linear-gradient(145deg,#102536,#0a1725);box-shadow:inset 0 1px 0 #ffffff0b}
+.mileage-photo-heading{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.mileage-photo-icon{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:12px;color:#8ee8d7;font-size:24px;background:linear-gradient(145deg,#1c4b58,#102d3b);border:1px solid #3d7780}
+.mileage-photo-heading strong{display:block;color:#edf8ff;font-size:13px;font-weight:900}
+.mileage-photo-heading small{display:block;color:#a8bfd0;font-size:11px;line-height:1.8;margin-top:3px}
+.mileage-photo-button{width:100%;min-height:44px;border-radius:12px!important}
+.mileage-photo-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.mileage-photo-preview:empty{display:none}
+.mileage-photo-preview img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;border:1px solid #35546a}
+.mileage-photo-preview span{grid-column:1/-1;color:#8ea7ba;font-size:11px;padding:7px 2px}
+</style>
+<script id="s2s-mileage-photo-preview-sync">
+(function(){
+ let watched=null;
+ function sync(){
+  const source=document.getElementById('mp15'),target=document.getElementById('mileagePhotoPreview');
+  if(!source||!target)return;
+  const imgs=[...source.querySelectorAll('img')];
+  target.innerHTML='';
+  if(!imgs.length){target.innerHTML='<span>هنوز عکسی ثبت نشده است.</span>';return}
+  imgs.forEach(im=>{const copy=document.createElement('img');copy.src=im.src;copy.alt='عکس کیلومترشمار';target.appendChild(copy)});
+ }
+ function attach(){
+  const source=document.getElementById('mp15');
+  if(!source||source===watched)return;
+  watched=source;
+  new MutationObserver(sync).observe(source,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+  sync();
+ }
+ new MutationObserver(attach).observe(document.body,{childList:true,subtree:true});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
+ window.addEventListener('pageshow',sync);
+})();
+</script>
 </body></html>
