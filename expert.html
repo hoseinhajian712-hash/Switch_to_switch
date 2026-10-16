@@ -244,6 +244,45 @@ html,body{font-size:17px!important}
 @media(max-width:520px){.defect-card.defect-part-dropdown .pill{grid-template-columns:minmax(0,1fr) 54px!important;min-height:80px!important;padding:13px!important}.defect-card.defect-part-dropdown .pill>span{font-size:16px!important}}
 
 </style>
+
+<style id="s2s-expert-defect-mobile-refresh">
+/* بازطراحی فقط بخش ایرادهای پنل کارشناسی */
+.defect-card.defect-part-dropdown{margin:8px 0!important;border:1px solid #263f5b!important;border-radius:14px!important;background:#0b1727!important;overflow:hidden!important}
+.defect-card.defect-part-dropdown>.defect-head{min-height:54px!important;padding:12px 14px!important;gap:10px!important;background:linear-gradient(110deg,#10233a,#0c1b2e)!important}
+.defect-card.defect-part-dropdown>.defect-head>b{font-size:15px!important;font-weight:800!important;color:#f1f7ff!important}
+.defect-card.defect-part-dropdown>.defect-head>.mini{font-size:11px!important;color:#9fbbe0!important}
+.defect-card.defect-part-dropdown>.part-defect-content{padding:8px!important}
+.defect-card.defect-part-dropdown .defect-options-dropdown>.defect-options,
+.defect-card.defect-part-dropdown .defect-options{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:7px!important;padding:7px!important}
+.defect-card.defect-part-dropdown .defect-options .pill{display:grid!important;grid-template-columns:minmax(0,1fr) 48px!important;grid-template-rows:auto auto auto!important;align-items:center!important;gap:8px 10px!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:10px 12px!important;border:1px solid #2a415d!important;border-radius:12px!important;background:#101e30!important;direction:rtl!important}
+.defect-card.defect-part-dropdown .defect-options .pill>span{grid-column:1!important;grid-row:1!important;min-width:0!important;text-align:right!important;font-size:14px!important;line-height:1.7!important;color:#e7f0fc!important;overflow-wrap:anywhere!important}
+.defect-card.defect-part-dropdown .defect-options .pill>input[type=checkbox]{grid-column:2!important;grid-row:1!important;justify-self:end!important;align-self:center!important;appearance:none!important;-webkit-appearance:none!important;width:44px!important;height:26px!important;min-width:44px!important;margin:0!important;border:1px solid #60738a!important;border-radius:999px!important;background:#35465a!important;position:relative!important;cursor:pointer!important;transition:background .18s,border-color .18s!important}
+.defect-card.defect-part-dropdown .defect-options .pill>input[type=checkbox]:after{content:""!important;position:absolute!important;top:3px!important;right:3px!important;width:18px!important;height:18px!important;border-radius:50%!important;background:#fff!important;box-shadow:0 1px 4px #0005!important;transition:transform .18s!important}
+.defect-card.defect-part-dropdown .defect-options .pill>input[type=checkbox]:checked{background:#087f68!important;border-color:#2dd4a3!important}
+.defect-card.defect-part-dropdown .defect-options .pill>input[type=checkbox]:checked:after{transform:translateX(-18px)!important}
+.defect-card.defect-part-dropdown .defect-options .pill:has(>input:checked){border-color:#168b70!important;background:#0d2b2a!important}
+.defect-card.defect-part-dropdown .defect-options .pill>.defect-detail-toggle{grid-column:1/-1!important;grid-row:2!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;justify-self:stretch!important;width:100%!important;min-height:34px!important;margin:0!important;padding:6px 10px!important;border:1px solid #315779!important;border-radius:8px!important;background:#142d47!important;color:#c9e2ff!important;font-size:12px!important;font-weight:800!important}
+.defect-card.defect-part-dropdown .defect-options .pill:not(.selected)>.defect-detail-toggle{opacity:.72!important}
+.defect-card.defect-part-dropdown .defect-options .pill .inline-drawer{grid-column:1/-1!important;grid-row:3!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;margin:0!important;padding:10px!important;border:1px solid #294766!important;border-radius:10px!important;background:#091726!important}
+.defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important;margin-bottom:9px!important}
+.defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions .camera-btn,
+.defect-card.defect-part-dropdown .inline-drawer>.camera-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:108px!important;min-height:34px!important;margin:0!important;padding:7px 10px!important;border:1px solid #345575!important;border-radius:8px!important;background:#122940!important;color:#e8f3ff!important;font-size:12px!important;font-weight:800!important;line-height:1.5!important;box-shadow:none!important}
+.defect-card.defect-part-dropdown .inline-drawer> b{display:block!important;margin:8px 0!important;font-size:12px!important;color:#a9c6e9!important}
+.defect-card.defect-part-dropdown .inline-drawer input[type=file]{display:none!important}
+.defect-card.defect-part-dropdown .inline-drawer .file-name{font-size:11px!important;color:#9fb5cf!important}
+.defect-card.defect-part-dropdown .inline-drawer textarea.defnote{display:block!important;width:100%!important;min-height:78px!important;max-height:180px!important;box-sizing:border-box!important;margin:9px 0 0!important;padding:10px 11px!important;border:1px solid #304d6b!important;border-radius:9px!important;background:#071321!important;color:#f3f8ff!important;font:13px/1.9 Tahoma,Arial,sans-serif!important;resize:vertical!important}
+.defect-card.defect-part-dropdown .inline-drawer textarea.defnote::placeholder{color:#819bb8!important}
+.defect-card.defect-part-dropdown .inline-drawer .drawer-preview{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;margin-top:8px!important}
+.defect-card.defect-part-dropdown .inline-drawer .drawer-preview img{width:100%!important;aspect-ratio:1/1!important;object-fit:cover!important;border-radius:8px!important}
+@media(max-width:520px){
+ .defect-card.defect-part-dropdown>.defect-head{padding:11px!important}
+ .defect-card.defect-part-dropdown .defect-options .pill{padding:10px!important;grid-template-columns:minmax(0,1fr) 46px!important}
+ .defect-card.defect-part-dropdown .defect-options .pill>span{font-size:13px!important}
+ .defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions .camera-btn,
+ .defect-card.defect-part-dropdown .inline-drawer>.camera-btn{min-width:96px!important;min-height:32px!important;padding:6px 8px!important;font-size:11px!important}
+}
+</style>
+
 </head>
 <body><div id="staffAuthGate"><form class="auth-card" id="staffAuthForm"><h2>ورود امن پنل کارشناسی</h2><p>برای ورود، کد پرسنلی اختصاصی و رمز پنل کارشناسی را وارد کن. فقط پرونده‌های ارجاع‌شده به کد خودت نمایش داده می‌شوند.</p><input id="staffCode" type="text" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="off" placeholder="کد پرسنلی ۴ رقمی" required><input id="staffLoginPassword" type="password" autocomplete="current-password" placeholder="رمز عبور پنل کارشناسی" required><button type="submit">ورود به پنل کارشناسی</button><div id="staffAuthError"></div></form></div><div id="staffPasswordModal" role="dialog" aria-modal="true" aria-label="تغییر رمز عبور"><form class="sp-card" id="staffPasswordForm"><h3>🔐 تغییر رمز عبور</h3><p>رمز فعلی را وارد کنید و رمز جدیدی با حداقل ۱۲ نویسه بسازید. رمز جدید را با کسی به اشتراک نگذارید.</p><input id="spCurrent" type="password" autocomplete="current-password" placeholder="رمز فعلی" required><input id="spNew" type="password" autocomplete="new-password" minlength="12" placeholder="رمز جدید (حداقل ۱۲ نویسه)" required><input id="spConfirm" type="password" autocomplete="new-password" minlength="12" placeholder="تکرار رمز جدید" required><div id="staffPasswordMessage" role="status"></div><div class="sp-actions"><button class="sp-save" type="submit">ذخیره رمز جدید</button><button class="sp-close" type="button" onclick="closeStaffPasswordModal()">انصراف</button></div></form></div><div id="quickCameraModal" class="quick-camera-modal hidden" role="dialog" aria-modal="true" aria-label="عکاسی سریع"><div class="quick-camera-panel"><div class="quick-camera-head"><strong id="quickCameraTitle">عکاسی سریع</strong><button type="button" class="btn red" onclick="closeQuickCamera()">بستن دوربین ✕</button></div><video id="quickCameraVideo" autoplay playsinline muted></video><canvas id="quickCameraCanvas" class="hidden"></canvas><div id="quickCameraHint" class="notice">دوربین را روبه‌روی خودرو بگیرید.</div><button type="button" class="btn green quick-shutter" onclick="captureQuickPhoto()">📸 گرفتن عکس و رفتن به زاویه بعدی</button></div></div><main class="wrap">
 <header class="top">
