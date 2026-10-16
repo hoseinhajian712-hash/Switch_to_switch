@@ -375,28 +375,30 @@ async function buyerAuctionDecision(req:Request,u:URL,id:string){
  if(ar.data.case_id){const buyerInfo=await db.from("auction_members").select("full_name,mobile").eq("id",sess.member_id).maybeSingle();const buyerLabel=[buyerInfo.data?.full_name,buyerInfo.data?.mobile].filter(Boolean).join(" / ")||sess.member_id;await historyAdd(ar.data.case_id,"auction-end","customer",decision==="accepted"?"برنده "+buyerLabel+" قیمت "+Number(ar.data.current_bid||0).toLocaleString("fa-IR")+" تومان را تأیید کرد؛ منتظر موافقت فروشنده.":"⚠️ خریدار اول ("+buyerLabel+") قیمت را نپذیرفت و انصراف داد؛ پیشنهاد برای انتقال به خریدار بعدی در اختیار مدیریت قرار گرفت.");}
  return json({ok:true,decision,purchase_stage:nextStage});
 }
-async function buyerCancelPurchase(req:Request,u:URL,id:string){
+function calculateCancellationFine(price:number){const p=Number(price||0);if(!Number.isFinite(p)||p<500_000_000)return 0;if(p<1_000_000_000)return 4_000_000;if(p<2_000_000_000)return 5_000_000;if(p<3_000_000_000)return 10_000_000;if(p<5_000_000_000)return 15_000_000;return 20_000_000;}
+ async function buyerCancelPurchase(req:Request,u:URL,id:string){
  const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);
- const ar=await db.from("auctions").select("id,case_id,winner_id,status,purchase_stage,cancellation_fine_amount").eq("id",id).maybeSingle();
+ const ar=await db.from("auctions").select("id,case_id,winner_id,status,purchase_stage,cancellation_fine_amount,current_bid,starting_price").eq("id",id).maybeSingle();
  if(ar.error)return json({error:"خطا در دریافت مزایده: "+ar.error.message},500);
  if(!ar.data||ar.data.winner_id!==sess.member_id||ar.data.status!=="ended")return json({error:"این خودرو قابل انصراف از طرف حساب شما نیست"},403);
  if(ar.data.purchase_stage==="cancelled")return json({error:"انصراف این مزایده قبلاً ثبت شده است"},409);
  if(!["awaiting_seller_approval","awaiting_admin_prepayment","prepayment"].includes(ar.data.purchase_stage||""))return json({error:"مهلت انصراف پایان یافته است؛ پس از پرداخت پیش‌پرداخت امکان انصراف وجود ندارد."},409);
- const amount=Number(ar.data.cancellation_fine_amount||0);if(amount<=0)return json({error:"مبلغ جریمه انصراف هنوز توسط مدیریت تعیین نشده است."},400);
- const exists=await db.from("fines").select("id").eq("buyer_id",sess.member_id).eq("auction_id",id).maybeSingle();
+ const finalPrice=Number(ar.data.current_bid||ar.data.starting_price||0);const calculatedFine=calculateCancellationFine(finalPrice);const amount=calculatedFine;
+ let fineData:any=null;if(amount>0){const exists=await db.from("fines").select("id").eq("buyer_id",sess.member_id).eq("auction_id",id).maybeSingle();
  if(exists.error)return json({error:"خطا در بررسی جریمه: "+exists.error.message},500);
  if(exists.data)return json({error:"برای این انصراف قبلاً جریمه ثبت شده است"},409);
- const fine=await db.from("fines").insert({buyer_id:sess.member_id,auction_id:id,amount,reason:"انصراف پس از برنده‌شدن در مزایده",status:"unpaid"}).select("id,amount,status").single();
+ const fine=await db.from("fines").insert({buyer_id:sess.member_id,auction_id:id,amount,reason:"وجه التزام انصراف طبق جدول اعلام‌شده در شرایط مزایده",status:"unpaid"}).select("id,amount,status").single();
  if(fine.error)return json({error:"ثبت جریمه انصراف ناموفق بود: "+fine.error.message},500);
+ fineData=fine.data;}
  const upd=await db.from("auctions").update({purchase_stage:"cancelled"}).eq("id",id).eq("winner_id",sess.member_id).eq("status","ended").in("purchase_stage",["awaiting_seller_approval","awaiting_admin_prepayment","prepayment"]).select("id").maybeSingle();
  if(upd.error||!upd.data)return json({error:"جریمه ثبت شد اما تغییر وضعیت مزایده ناموفق بود؛ لطفاً با مدیریت تماس بگیرید."},500);
  if(ar.data.case_id){
   const mr=await db.from("auction_members").select("full_name,mobile").eq("id",sess.member_id).maybeSingle();
   const who=mr.data?.full_name||"خریدار";
-  await historyAdd(ar.data.case_id,"customer","customer","⚠️ انصراف خریدار از خرید پس از برنده‌شدن در مزایده؛ نام: "+who+"؛ موبایل: "+(mr.data?.mobile||"ثبت نشده")+"؛ زمان: "+new Date().toLocaleString("fa-IR")+"؛ مبلغ جریمه: "+amount.toLocaleString("fa-IR")+" تومان");
+  await historyAdd(ar.data.case_id,"customer","customer","⚠️ انصراف خریدار از خرید پس از برنده‌شدن در مزایده؛ نام: "+who+"؛ موبایل: "+(mr.data?.mobile||"ثبت نشده")+"؛ زمان: "+new Date().toLocaleString("fa-IR")+"؛ مبلغ وجه التزام طبق جدول شرایط مزایده: "+amount.toLocaleString("fa-IR")+" تومان");
  }
- await db.from("buyer_notifications").insert({buyer_id:sess.member_id,auction_id:id,title:"انصراف از خرید",message:"انصراف ثبت شد و جریمه در بخش جریمه‌های من نمایش داده می‌شود."});
- return json({ok:true,fine:fine.data});
+ await db.from("buyer_notifications").insert({buyer_id:sess.member_id,auction_id:id,title:"انصراف از خرید",message:amount>0?"انصراف ثبت شد. مبلغ وجه التزام طبق جدول شرایط مزایده در بخش جریمه‌های من نمایش داده می‌شود. مبلغ به‌صورت خودکار از کیف پول کسر نشده است.":"انصراف ثبت شد؛ طبق جدول شرایط اعلام‌شده برای این بازه قیمت، وجه التزامی ثبت نشد."});
+ return json({ok:true,fine:fineData,cancellation_fine_amount:amount,automatic:true});
 }
 async function adminUpdateVehicle(req:Request){
  const b=await req.json(),vehicleId=String(b.vehicle_id||"");
@@ -564,7 +566,7 @@ async function expireAuctions(){
  if(!error&&data?.length)for(const a of data){
   const br=await db.from("bids").select("buyer_id,amount").eq("auction_id",a.id).order("amount",{ascending:false}).limit(1).maybeSingle();
   const winner=br.data?.buyer_id||null,finalBid=Number(br.data?.amount||a.current_bid||0),deadline=new Date(Date.now()+3*60*1000).toISOString();
-  const up=await db.from("auctions").update({status:"ended",winner_id:winner,current_bid:finalBid,purchase_stage:winner?"awaiting_buyer_confirmation":"auction-end",winner_response_status:winner?"pending":null,winner_response_deadline:winner?deadline:null,winner_response_at:null}).eq("id",a.id).eq("status","active").select("id").maybeSingle();
+  const up=await db.from("auctions").update({status:"ended",winner_id:winner,current_bid:finalBid,cancellation_fine_amount:winner?calculateCancellationFine(finalBid):0,purchase_stage:winner?"awaiting_buyer_confirmation":"auction-end",winner_response_status:winner?"pending":null,winner_response_deadline:winner?deadline:null,winner_response_at:null}).eq("id",a.id).eq("status","active").select("id").maybeSingle();
   if(up.data){
    await db.from("cases").update({status:"auction-end"}).eq("id",a.case_id).eq("status","auction");
    await historyAdd(a.case_id,"auction","auction-end",winner?"پایان مزایده؛ برنده برای تأیید قیمت ۳ دقیقه مهلت دارد":"پایان خودکار مزایده پس از ۶۰ دقیقه؛ بدون برنده");
