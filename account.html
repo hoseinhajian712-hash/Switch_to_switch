@@ -49,6 +49,7 @@ input,select,textarea,button{touch-action:manipulation}
 <form id="authForm">
 <h2 class="heading" id="formTitle">ورود با شماره همراه</h2><p class="sub" id="formSub">شماره همراهت رو وارد کن تا کد یک‌بارمصرف برات پیامک بشه.</p>
 <div class="fields">
+<label class="field full" id="nameWrap"><span>نام و نام خانوادگی (برای ساخت حساب)</span><input id="fullName" autocomplete="name" maxlength="120" placeholder="نام و نام خانوادگی"></label>
 <label class="field full"><span>شماره همراه یا ایمیل</span><input id="mobile" inputmode="email" autocomplete="username" maxlength="120" required placeholder="09123456789 یا name@example.com"></label>
 <label class="field full hidden" id="otpWrap"><span>کد پیامکی</span><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="کد ۸ رقمی"></label>
 </div>
@@ -56,7 +57,7 @@ input,select,textarea,button{touch-action:manipulation}
 <button class="ghost hidden" id="resendOtpBtn" type="button" style="width:100%;margin-top:10px">ارسال دوباره کد</button>
 <button class="ghost hidden" id="changePhoneBtn" type="button" style="width:100%;margin-top:10px">تغییر شماره همراه یا ایمیل</button>
 <div class="msg hidden" id="message" role="status" aria-live="polite"></div>
-<p class="small">برای ورود یا ساخت حساب، فقط شماره همراه لازم است. کد تأیید به شماره همراه پیامک یا به ایمیل ارسال می‌شود. برای آزمایش رایگان، ایمیل را وارد کن.</p>
+<p class="small">برای ورود یا ساخت حساب، فقط شماره همراه لازم است. برای ورود با شماره همراه، کد پیامکی ارسال نمی‌شود؛ مدیر کد را از پنل مدیریت صادر می‌کند. ورود با ایمیل همچنان از طریق کد ایمیل است.</p>
 </form>
 </section>
 <section class="panel hidden" id="dashboard">
@@ -78,7 +79,7 @@ input,select,textarea,button{touch-action:manipulation}
  function norm(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
  function normalizePhone(v){let p=norm(v).replace(/[\s()\-]/g,'');if(/^09\d{9}$/.test(p))return '+98'+p.slice(1);if(/^\+989\d{9}$/.test(p))return p;if(/^989\d{9}$/.test(p))return '+'+p;return ''}
  function showMsg(text,kind=''){message.textContent=text;message.className='msg'+(kind?' '+kind:'')}
- function setMode(next){mode=next;phase='phone';tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));document.getElementById('formTitle').textContent=mode==='signup'?'ساخت حساب مشتری':'ورود به حساب مشتری';document.getElementById('formSub').textContent=mode==='signup'?'شماره همراه یا ایمیلت رو وارد کن؛ با کد تأیید حساب ساخته می‌شه.':'با شماره همراه یا ایمیل وارد شو. برای آزمایش بدون هزینه پیامک، ایمیل رو وارد کن.';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('otp').value='';document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد تأیید ←';message.className='msg hidden'}
+ function setMode(next){mode=next;phase='phone';document.getElementById('nameWrap').classList.toggle('hidden',mode!=='signup');document.getElementById('fullName').required=mode==='signup';tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));document.getElementById('formTitle').textContent=mode==='signup'?'ساخت حساب مشتری':'ورود به حساب مشتری';document.getElementById('formSub').textContent=mode==='signup'?'نام و شماره همراهت رو وارد کن؛ مدیر کد ورود رو از پنل صادر می‌کنه.':'شماره همراهت رو وارد کن؛ کد ورود را مدیر از پنل مدیریت صادر می‌کند.';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('otp').value='';document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد تأیید ←';message.className='msg hidden'}
  tabs.addEventListener('click',e=>{const b=e.target.closest('button[data-mode]');if(b)setMode(b.dataset.mode)});
  document.getElementById('resendOtpBtn').addEventListener('click',async()=>{const b=document.getElementById('resendOtpBtn');b.disabled=true;try{const {error}=pendingMethod==='email'?await sb.auth.signInWithOtp({email:pendingEmail,options:{shouldCreateUser:mode==='signup',data:{email:pendingEmail}}}):await sb.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:mode==='signup',data:{mobile:pendingPhone}}});if(error)throw error;document.getElementById('otp').value='';showMsg('کد تازه ارسال شد. فقط آخرین کدی را که ایمیل شده وارد کن.','success')}catch(e){showMsg(e.message||'ارسال دوباره کد انجام نشد.','error')}finally{b.disabled=false}});
  document.getElementById('changePhoneBtn').addEventListener('click',()=>{phase='phone';document.getElementById('resendOtpBtn').classList.add('hidden');document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';document.getElementById('mobile').disabled=false;document.getElementById('otpWrap').classList.add('hidden');document.getElementById('otp').required=false;document.getElementById('changePhoneBtn').classList.add('hidden');submit.textContent='ارسال کد تأیید ←';showMsg('شماره همراه یا ایمیلت رو بررسی کن و دوباره کد بگیر.')});
@@ -98,10 +99,11 @@ async function showDashboard(session){activeSession=session;document.getElementB
        if(error)throw error;
      }else{
        pendingPhone=normalizePhone(identifier);
-       if(!pendingPhone)throw Error('شماره همراه معتبر وارد کن؛ مثال: 09123456789؛ یا ایمیل وارد کن تا بدون پیامک آزمایش کنی.');
+       if(!pendingPhone)throw Error('شماره همراه معتبر وارد کن؛ مثال: 09123456789.');
        pendingMethod='phone';
-       const {error}=await sb.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:mode==='signup',data:{mobile:pendingPhone}}});
-       if(error)throw error;
+       const fullName=document.getElementById('fullName').value.trim();
+       const response=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:pendingPhone.replace(/^\+98/,'0'),full_name:fullName})});
+       const result=await response.json();if(!response.ok)throw Error(result.error||'ثبت درخواست انجام نشد.');
      }
      document.getElementById('mobile').disabled=true;document.getElementById('changePhoneBtn').classList.remove('hidden');document.getElementById('resendOtpBtn').classList.remove('hidden');
      if(pendingMethod==='email'){
@@ -114,14 +116,15 @@ async function showDashboard(session){activeSession=session;document.getElementB
        showMsg('کد تأیید به ایمیلت ارسال شد. صندوق ورودی و هرزنامه را بررسی کن.','success');
      }else{
        phase='otp';document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;
-       document.getElementById('formTitle').textContent='تأیید شماره همراه';document.getElementById('formSub').textContent='کد پیامک‌شده به '+pendingPhone+' رو وارد کن.';
-       document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';submit.textContent='تأیید کد و ورود ←';showMsg('کد پیامکی ارسال شد.','success');
+       document.getElementById('formTitle').textContent='کد تأیید مدیر';document.getElementById('formSub').textContent='درخواست برای '+pendingPhone+' ثبت شد. بعد از صدور کد توسط مدیر، کد ۸ رقمی را وارد کن.';
+       document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';submit.textContent='تأیید کد و ورود ←';showMsg('درخواست ثبت شد؛ کد پیامکی ارسال نمی‌شود. پس از صدور کد در پنل مدیریت آن را وارد کن.','success');
      }
    }else{
      const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
-     if(!(pendingMethod==='email'?/^\d{8}$/.test(token):/^\d{6}$/.test(token)))throw Error(pendingMethod==='email'?'کد ایمیل باید دقیقاً ۸ رقم باشد؛ همهٔ رقم‌ها را وارد کن.':'کد تأیید ۶ رقمی را وارد کن.');
-     const {data,error}=pendingMethod==='email'?await sb.auth.verifyOtp({email:pendingEmail,token,type:'email'}):await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
-     if(error)throw error;
+     if(!/^\d{8}$/.test(token))throw Error('کد تأیید باید دقیقاً ۸ رقم باشد.');
+     let data;
+     if(pendingMethod==='email'){const verified=await sb.auth.verifyOtp({email:pendingEmail,token,type:'email'});if(verified.error)throw verified.error;data=verified.data;}
+     else{const response=await fetch(API+'?api=customer-code-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:pendingPhone.replace(/^\+98/,'0'),code:token})});const result=await response.json();if(!response.ok)throw Error(result.error||'کد تأیید معتبر نیست.');const verified=await sb.auth.verifyOtp({token_hash:result.token_hash,type:'magiclink'});if(verified.error)throw verified.error;data=verified.data;}
      if(!data.session)throw Error('تأیید انجام نشد؛ دوباره تلاش کن.');
      if(nextUrl){location.href=nextUrl;return}
      await showDashboard(data.session);
