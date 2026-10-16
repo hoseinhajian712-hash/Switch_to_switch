@@ -1269,4 +1269,58 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 })();
 </script>
 
+
+<style id="s2s-expert-hamburger-menu-style">
+.top{position:relative!important;padding-left:58px!important}
+#s2sExpertMenuButton{position:absolute;left:8px;top:10px;z-index:40;width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #31516d;border-radius:14px;background:linear-gradient(145deg,#18364e,#0a1726);box-shadow:0 8px 20px #0004;cursor:pointer}
+#s2sExpertMenuButton span{display:block;width:19px;height:2.5px;border-radius:5px;background:#dff8f3;transition:transform .2s,opacity .2s}
+#s2sExpertMenuButton[aria-expanded="true"] span:first-child{transform:translateY(7.5px) rotate(45deg)}
+#s2sExpertMenuButton[aria-expanded="true"] span:nth-child(2){opacity:0}
+#s2sExpertMenuButton[aria-expanded="true"] span:last-child{transform:translateY(-7.5px) rotate(-45deg)}
+#s2sExpertMenuShade{position:fixed;inset:0;z-index:9998;background:#020817a8;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .2s}
+#s2sExpertMenuShade.open{opacity:1;pointer-events:auto}
+#s2sExpertMenuPanel{position:fixed;z-index:9999;left:12px;top:12px;bottom:12px;width:min(310px,calc(100vw - 24px));overflow:auto;padding:17px;border:1px solid #31516d;border-radius:22px;background:radial-gradient(circle at 0 0,#16405a 0,transparent 42%),linear-gradient(160deg,#102338,#071321);box-shadow:0 24px 70px #0008;transform:translateX(calc(-100% - 20px));transition:transform .24s ease;direction:rtl;color:#e8f3ff}
+#s2sExpertMenuPanel.open{transform:translateX(0)}
+.s2s-menu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 0 15px;border-bottom:1px solid #29445e;margin-bottom:12px}
+.s2s-menu-head strong{font-size:15px}.s2s-menu-head small{display:block;color:#9db5ca;font-size:10px;margin-top:4px}
+#s2sExpertMenuClose{width:36px;height:36px;border:1px solid #31516d;border-radius:11px;background:#132b40;color:#e8f3ff;font-size:20px}
+.s2s-menu-items{display:grid;gap:7px}
+.s2s-menu-items button{width:100%;text-align:right;display:flex;align-items:center;gap:11px;min-height:45px;padding:10px 12px;border:1px solid #243e56;border-radius:13px;background:linear-gradient(120deg,#11283b,#0b1b2b);color:#e6f1ff;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.s2s-menu-items button:active,.s2s-menu-items button:hover{border-color:#55d6c2;background:linear-gradient(120deg,#17465a,#10283a)}
+.s2s-menu-items button span{width:27px;height:27px;display:grid;place-items:center;border-radius:9px;background:#1b3d50;color:#8cebd9;flex-shrink:0}
+@media(max-width:520px){.top{padding-left:54px!important}#s2sExpertMenuButton{left:2px;top:5px;width:42px;height:42px}.brand h1{font-size:16px!important}}
+</style>
+<div id="s2sExpertMenuShade" aria-hidden="true"></div>
+<aside id="s2sExpertMenuPanel" aria-label="منوی داشبورد" aria-hidden="true">
+ <div class="s2s-menu-head"><div><strong>منوی کارشناسی</strong><small>دسترسی سریع به بخش‌ها</small></div><button id="s2sExpertMenuClose" type="button" aria-label="بستن منو">×</button></div>
+ <nav class="s2s-menu-items">
+  <button type="button" data-menu-action="cases"><span>▦</span>داشبورد و پرونده‌ها</button>
+  <button type="button" data-menu-action="completed"><span>✓</span>کارشناسی‌های من</button>
+  <button type="button" data-menu-section="identity"><span>🚘</span>اطلاعات خودرو</button>
+  <button type="button" data-menu-section="docs"><span>▤</span>مدارک خودرو</button>
+  <button type="button" data-menu-section="quick"><span>☑</span>چک‌لیست خودرو</button>
+  <button type="button" data-menu-section="gallery"><span>▧</span>گالری عکس خودرو</button>
+  <button type="button" data-menu-section="mileage"><span>◷</span>کارکرد و کیلومتر</button>
+  <button type="button" data-menu-section="body"><span>🚗</span>بدنه و لاستیک</button>
+  <button type="button" data-menu-section="suspension"><span>⚙</span>تعلیق و فرمان</button>
+  <button type="button" data-menu-section="electrical"><span>⚡</span>برقی و داخلی</button>
+  <button type="button" data-menu-section="engine"><span>🔧</span>موتور و مکانیک</button>
+  <button type="button" data-menu-section="brakes"><span>⛨</span>ترمز و ایمنی</button>
+ </nav>
+</aside>
+<script id="s2s-expert-hamburger-menu">
+(function(){
+ const header=document.querySelector('header.top'),panel=document.getElementById('s2sExpertMenuPanel'),shade=document.getElementById('s2sExpertMenuShade');
+ if(!header||!panel||!shade||document.getElementById('s2sExpertMenuButton'))return;
+ const btn=document.createElement('button');btn.id='s2sExpertMenuButton';btn.type='button';btn.setAttribute('aria-label','باز کردن منو');btn.setAttribute('aria-expanded','false');btn.innerHTML='<span></span><span></span><span></span>';header.appendChild(btn);
+ function close(){panel.classList.remove('open');shade.classList.remove('open');panel.setAttribute('aria-hidden','true');btn.setAttribute('aria-expanded','false');}
+ function open(){panel.classList.add('open');shade.classList.add('open');panel.setAttribute('aria-hidden','false');btn.setAttribute('aria-expanded','true');}
+ btn.addEventListener('click',()=>panel.classList.contains('open')?close():open());
+ shade.addEventListener('click',close);document.getElementById('s2sExpertMenuClose')?.addEventListener('click',close);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+ panel.querySelectorAll('[data-menu-action]').forEach(b=>b.addEventListener('click',()=>{close();if(b.dataset.menuAction==='completed'){if(typeof toggleCompletedCases==='function')toggleCompletedCases(true);document.getElementById('completedCasesCard')?.scrollIntoView({behavior:'smooth',block:'start'});}else{if(typeof backToList==='function'&&typeof current!=='undefined'&&current)backToList();else document.getElementById('listCard')?.scrollIntoView({behavior:'smooth',block:'start'});}}));
+ panel.querySelectorAll('[data-menu-section]').forEach(b=>b.addEventListener('click',()=>{const section=b.dataset.menuSection;close();if(typeof current!=='undefined'&&current&&typeof openInspectionSection==='function')openInspectionSection(section);else{document.getElementById('inspectionHome')?.scrollIntoView({behavior:'smooth',block:'start'});}}));
+})();
+</script>
+
 </body></html>
