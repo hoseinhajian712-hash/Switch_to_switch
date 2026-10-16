@@ -747,7 +747,34 @@ async function api(req:Request,u:URL){
   }catch(_){return json({error:"اطلاعات نظر معتبر نیست."},400)}
  }
  const hex=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value)))).map((b)=>b.toString(16).padStart(2,"0")).join("");
+
  let role=auth(u),staffMemberId="";
+ if(a==="customer-register-request"&&req.method==="POST"){
+  try{
+   const b=await req.json(),toEnglish=(v:string)=>String(v||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+   const full_name=String(b.full_name||"").trim().slice(0,120),mobile=toEnglish(String(b.mobile||"").replace(/\D/g,"")),national_id=toEnglish(String(b.national_id||"").replace(/\D/g,""));
+   if(full_name.length<3)return json({error:"نام و نام خانوادگی را کامل وارد کنید."},400);
+   if(!/^09\d{9}$/.test(mobile))return json({error:"شماره موبایل باید ۱۱ رقم و با 09 شروع شود."},400);
+   if(!/^\d{10}$/.test(national_id))return json({error:"کد ملی باید دقیقاً ۱۰ رقم باشد."},400);
+   const digits=national_id.split("").map(Number),sum=digits.slice(0,9).reduce((v,d,i)=>v+d*(10-i),0),rem=sum%11;
+   if((rem<2?rem:11-rem)!==digits[9])return json({error:"کد ملی معتبر نیست؛ ارقام را بررسی کنید."},400);
+   const old=await db.from("customer_access_requests").select("id,status").eq("mobile",mobile).maybeSingle();
+   if(old.data?.status==="approved")return json({error:"برای این شماره قبلاً حساب تأیید شده است. کد ورود را از مدیر دریافت کنید."},409);
+   if(old.data?.status==="pending")return json({ok:true,message:"درخواست شما قبلاً ثبت شده و منتظر تأیید مدیر است."});
+   const payload={full_name,mobile,national_id,status:"pending",display_code:null,code_hash:null,code_expires_at:null,code_used_at:null,updated_at:new Date().toISOString()};
+   const save=old.data?await db.from("customer_access_requests").update(payload).eq("id",old.data.id):await db.from("customer_access_requests").insert(payload);
+   if(save.error)return json({error:"ثبت درخواست انجام نشد؛ دوباره تلاش کنید."},500);
+   return json({ok:true,message:"درخواست ثبت شد. پس از تأیید مدیر، کد ورود را از او دریافت کنید."},201);
+  }catch(_){return json({error:"اطلاعات درخواست معتبر نیست."},400)}
+ }
+ if(a==="customer-code-used"&&req.method==="POST"){
+  const bearer=(req.headers.get("authorization")||"").replace(/^Bearer\\s+/i,"").trim();
+  if(!bearer)return json({error:"unauthorized"},401);
+  const ur=await db.auth.getUser(bearer);if(ur.error||!ur.data?.user)return json({error:"unauthorized"},401);
+  const up=await db.from("customer_access_requests").update({display_code:null,code_hash:null,code_expires_at:null,code_used_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("auth_user_id",ur.data.user.id).eq("status","approved");
+  return up.error?json({error:"ثبت مصرف کد انجام نشد."},500):json({ok:true});
+ }
+
  if(a==="staff-login"&&req.method==="POST"){
   try{
    const b=await req.json(),want=String(b.role||""),code=String(b.personnel_code||"").trim(),password=String(b.password||"");
@@ -826,6 +853,42 @@ async function api(req:Request,u:URL){
    if(up.error)return json({error:"ذخیره رمز جدید ناموفق بود."},500);
    return json({ok:true,message:"رمز عبور با موفقیت تغییر کرد."});
   }catch(_){return json({error:"درخواست تغییر رمز نامعتبر است."},400)}
+ }
+
+ if(a==="customer-access-list"&&role==="admin"&&req.method==="GET"){
+  const r=await db.from("customer_access_requests").select("id,full_name,mobile,national_id,status,display_code,code_expires_at,code_used_at,created_at,issued_at").order("created_at",{ascending:false}).limit(500);
+  return r.error?json({error:"دریافت درخواست‌های مشتری ناموفق بود."},500):json({requests:r.data||[]});
+ }
+ if(a==="customer-access-issue"&&role==="admin"&&req.method==="POST"){
+  try{
+   const b=await req.json(),requestId=String(b.request_id||"");
+   if(!requestId)return json({error:"درخواست مشتری مشخص نیست."},400);
+   const rr=await db.from("customer_access_requests").select("*").eq("id",requestId).maybeSingle();
+   if(rr.error||!rr.data)return json({error:"درخواست مشتری پیدا نشد."},404);
+   if(rr.data.status==="rejected")return json({error:"این درخواست رد شده است؛ ابتدا وضعیت آن را بررسی کنید."},409);
+   const row=rr.data,code=String(crypto.getRandomValues(new Uint32Array(1))[0]%90000000+10000000),email="customer-"+row.mobile+"@login.switch-to-switch.invalid";
+   let userId=String(row.auth_user_id||"");
+   if(userId){
+    const u=await db.auth.admin.updateUserById(userId,{password:code,email_confirm:true,user_metadata:{full_name:row.full_name,mobile:row.mobile,national_id:row.national_id}});
+    if(u.error)return json({error:"صدور کد ورود ناموفق بود: "+u.error.message},500);
+   }else{
+    const u=await db.auth.admin.createUser({email,password:code,email_confirm:true,user_metadata:{full_name:row.full_name,mobile:row.mobile,national_id:row.national_id}});
+    if(u.error)return json({error:"ساخت حساب مشتری ناموفق بود: "+u.error.message},500);
+    userId=String(u.data.user.id);
+   }
+   const profile=await db.from("profiles").upsert({id:userId,full_name:row.full_name,mobile:row.mobile,national_id:row.national_id,role:"customer"},{onConflict:"id"});
+   if(profile.error)return json({error:"حساب ساخته شد اما ذخیره مشخصات مشتری ناموفق بود: "+profile.error.message},500);
+   const expires=new Date(Date.now()+24*60*60*1000).toISOString(),hash=await hex(code);
+   const upd=await db.from("customer_access_requests").update({status:"approved",auth_user_id:userId,display_code:code,code_hash:hash,code_expires_at:expires,code_used_at:null,issued_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",requestId);
+   if(upd.error)return json({error:"ذخیره کد ورود ناموفق بود."},500);
+   return json({ok:true,code,expires_at:expires,message:"کد ورود صادر شد. آن را فقط به همان مشتری تحویل دهید."});
+  }catch(e){return json({error:"صدور کد ورود ناموفق بود: "+String(e)},500)}
+ }
+ if(a==="customer-access-reject"&&role==="admin"&&req.method==="POST"){
+  const b=await req.json(),requestId=String(b.request_id||"");
+  if(!requestId)return json({error:"درخواست مشتری مشخص نیست."},400);
+  const r=await db.from("customer_access_requests").update({status:"rejected",display_code:null,code_hash:null,code_expires_at:null,updated_at:new Date().toISOString()}).eq("id",requestId).neq("status","approved");
+  return r.error?json({error:"رد درخواست ناموفق بود."},500):json({ok:true});
  }
  if(a==="personnel-list"&&role==="admin"&&req.method==="GET"){
   const {data,error}=await db.from("staff_members").select("id,full_name,role,active,personnel_code_display").order("created_at",{ascending:true});
