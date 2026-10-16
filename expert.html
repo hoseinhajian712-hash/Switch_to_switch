@@ -575,16 +575,49 @@ function openGalleryPhotoEditor(box,im){
  overlay.querySelector('#galleryPlateBtn').onclick=()=>{state.plate=!state.plate;state.tool=state.plate?'frame':'pen';overlay.querySelector('#galleryPlateBtn').textContent='▱ قاب پلاک: '+(state.plate?'روشن':'خاموش');overlay.querySelector('#galleryPlateBtn').classList.toggle('active',state.plate);overlay.querySelector('#galleryPenBtn').classList.toggle('active',!state.plate);overlay.querySelector('#galleryPlateRotationWrap').hidden=!state.plate;overlay.querySelector('#galleryEditHelp').textContent=state.plate?'قاب را روی پلاک بکشید؛ با نوار چرخش می‌توانید آن را دقیقاً از ۰ تا ۳۵۹ درجه تنظیم کنید.':'با قلم روی عکس بکشید تا دور ایرادها خط بکشید.';drawGalleryEditor(state)};overlay.querySelector('#galleryPlateRotation').addEventListener('input',e=>{state.frame.angle=Number(e.target.value)*Math.PI/180;overlay.querySelector('#galleryPlateRotationValue').textContent=e.target.value+'°';drawGalleryEditor(state)});overlay.querySelectorAll('[data-rotate]').forEach(b=>b.addEventListener('click',()=>{const slider=overlay.querySelector('#galleryPlateRotation');slider.value=(Number(slider.value)+Number(b.dataset.rotate)+360)%360;slider.dispatchEvent(new Event('input'))}));
  overlay.querySelector('#galleryUndoBtn').onclick=()=>{state.strokes.pop();drawGalleryEditor(state)};
  overlay.querySelector('#galleryClearBtn').onclick=()=>{state.strokes=[];state.currentStroke=null;drawGalleryEditor(state)};
+ const platePointers=new Map();
  canvas.addEventListener('pointerdown',e=>{
   if(!canvas.width||!canvas.height)return;
   const p=galleryEditorPoint(state,e);
-  if(state.plate&&state.tool==='frame'){const f=state.frame,cx=f.x+f.w/2,cy=f.y+f.h/2,dx=p.x-cx,dy=p.y-cy,ca=Math.cos(-f.angle),sa=Math.sin(-f.angle),lx=dx*ca-dy*sa,ly=dx*sa+dy*ca;if(Math.abs(lx)<=f.w/2&&Math.abs(ly)<=f.h/2){state.dragFrame=true;state.dragOffset={x:p.x-f.x,y:p.y-f.y};canvas.setPointerCapture(e.pointerId);return}}
-  if(state.tool==='frame'&&state.plate){state.frame.x=Math.max(0,Math.min(canvas.width-state.frame.w,p.x-state.frame.w/2));state.frame.y=Math.max(0,Math.min(canvas.height-state.frame.h,p.y-state.frame.h/2));drawGalleryEditor(state);return}
+  if(state.plate&&state.tool==='frame'){
+   platePointers.set(e.pointerId,p);
+   if(platePointers.size===2){
+    state.dragFrame=false;state.currentStroke=null;
+    const pts=[...platePointers.values()],f=state.frame;
+    state.gesture={distance:Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)),angle:Math.atan2(pts[1].y-pts[0].y,pts[1].x-pts[0].x),w:f.w,h:f.h,frameAngle:f.angle||0,cx:f.x+f.w/2,cy:f.y+f.h/2,midX:(pts[0].x+pts[1].x)/2,midY:(pts[0].y+pts[1].y)/2};
+    e.preventDefault();
+   }else{
+    const f=state.frame,cx=f.x+f.w/2,cy=f.y+f.h/2,dx=p.x-cx,dy=p.y-cy,ca=Math.cos(-f.angle),sa=Math.sin(-f.angle),lx=dx*ca-dy*sa,ly=dx*sa+dy*ca;
+    if(Math.abs(lx)<=f.w/2&&Math.abs(ly)<=f.h/2){state.dragFrame=true;state.dragOffset={x:p.x-f.x,y:p.y-f.y};}
+    else{state.frame.x=Math.max(0,Math.min(canvas.width-state.frame.w,p.x-state.frame.w/2));state.frame.y=Math.max(0,Math.min(canvas.height-state.frame.h,p.y-state.frame.h/2));state.dragFrame=true;state.dragOffset={x:p.x-state.frame.x,y:p.y-state.frame.y};drawGalleryEditor(state)}
+   }
+   canvas.setPointerCapture(e.pointerId);return;
+  }
   state.currentStroke=[p];state.strokes.push(state.currentStroke);canvas.setPointerCapture(e.pointerId);drawGalleryEditor(state);
+ },{passive:false});
+ canvas.addEventListener('pointermove',e=>{
+  if(platePointers.has(e.pointerId)){
+   platePointers.set(e.pointerId,galleryEditorPoint(state,e));
+   if(platePointers.size===2&&state.gesture){
+    const pts=[...platePointers.values()],g=state.gesture,f=state.frame;
+    const distance=Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)),angle=Math.atan2(pts[1].y-pts[0].y,pts[1].x-pts[0].x),scale=distance/g.distance;
+    f.w=Math.max(canvas.width*.08,Math.min(canvas.width*.92,g.w*scale));f.h=Math.max(canvas.height*.035,Math.min(canvas.height*.45,g.h*scale));f.angle=g.frameAngle+angle-g.angle;
+    const midX=(pts[0].x+pts[1].x)/2,midY=(pts[0].y+pts[1].y)/2;
+    f.x=Math.max(-f.w*.5,Math.min(canvas.width-f.w*.5,g.cx+(midX-g.midX)-f.w/2));f.y=Math.max(-f.h*.5,Math.min(canvas.height-f.h*.5,g.cy+(midY-g.midY)-f.h/2));
+    const slider=overlay.querySelector('#galleryPlateRotation');slider.value=((Math.round(f.angle*180/Math.PI)%360)+360)%360;overlay.querySelector('#galleryPlateRotationValue').textContent=slider.value+'°';
+    drawGalleryEditor(state);e.preventDefault();
+   }else if(state.dragFrame){const p=galleryEditorPoint(state,e);state.frame.x=Math.max(-state.frame.w*.5,Math.min(canvas.width-state.frame.w*.5,p.x-state.dragOffset.x));state.frame.y=Math.max(-state.frame.h*.5,Math.min(canvas.height-state.frame.h*.5,p.y-state.dragOffset.y));drawGalleryEditor(state)}
+   return;
+  }
+  if(!state.currentStroke&&!state.dragFrame)return;
+  const p=galleryEditorPoint(state,e);
+  if(state.dragFrame){state.frame.x=Math.max(-state.frame.w*.5,Math.min(canvas.width-state.frame.w*.5,p.x-state.dragOffset.x));state.frame.y=Math.max(-state.frame.h*.5,Math.min(canvas.height-state.frame.h*.5,p.y-state.dragOffset.y))}
+  else state.currentStroke.push(p);
+  drawGalleryEditor(state);
  });
- canvas.addEventListener('pointermove',e=>{if(!state.currentStroke&&!state.dragFrame)return;const p=galleryEditorPoint(state,e);if(state.dragFrame){state.frame.x=Math.max(0,Math.min(canvas.width-state.frame.w,p.x-state.dragOffset.x));state.frame.y=Math.max(0,Math.min(canvas.height-state.frame.h,p.y-state.dragOffset.y))}else state.currentStroke.push(p);drawGalleryEditor(state)});
- const end=()=>{state.currentStroke=null;state.dragFrame=false};canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
- overlay.querySelector('#galleryEditSave').onclick=async()=>{
+ const end=e=>{platePointers.delete(e.pointerId);if(platePointers.size<2)state.gesture=null;state.currentStroke=null;state.dragFrame=false};
+ canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+  overlay.querySelector('#galleryEditSave').onclick=async()=>{
   const saveBtn=overlay.querySelector('#galleryEditSave');saveBtn.disabled=true;saveBtn.textContent='در حال ذخیره…';
   try{
    drawGalleryEditor(state);const dataUrl=canvas.toDataURL('image/jpeg',.92);const key=box.id.slice(2),idx=Number(key);
