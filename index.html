@@ -314,7 +314,7 @@ input,select,textarea,button{touch-action:manipulation}
 <header class="top">
 <div class="logo">Switch <span>to</span> Switch</div>
 <nav class="nav"><a href="#services">خدمات</a><a href="#about">درباره سامانه</a></nav>
-<button class="accountTop" id="openCustomerAuth" type="button">ورود / ثبت‌نام <span>↗</span></button>
+<button class="accountTop" id="openCustomerAuth" type="button">ثبت‌نام مشتری <span>↗</span></button>
 </header>
 <style>
 #customerAuthModal[hidden]{display:none!important}#customerAuthModal{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:16px;background:#020813d9;backdrop-filter:blur(10px)}#customerAuthModal .authCard{width:min(440px,100%);border:1px solid #ffffff20;border-radius:24px;padding:23px;background:linear-gradient(145deg,#172538,#0b1422);box-shadow:0 30px 90px #0009;color:#f8fafc;position:relative}#customerAuthModal .authClose{position:absolute;top:13px;left:13px;width:36px;height:36px;border-radius:11px;border:1px solid #ffffff20;background:#ffffff0b;color:#fff;font-size:21px;cursor:pointer}#customerAuthModal .authKicker{font-size:11px;color:#93c5fd}#customerAuthModal h2{font-size:23px;margin:10px 0 4px}#customerAuthModal .authSub{font-size:12px;color:#b8c5d6;line-height:2;margin:0 0 18px}#customerAuthModal .authTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}#customerAuthModal .authTabs button{border:1px solid #ffffff20;background:#ffffff08;color:#dbeafe;border-radius:12px;padding:11px;font-weight:800;cursor:pointer}#customerAuthModal .authTabs button.active{background:#1d4ed833;border-color:#60a5fa;color:#bfdbfe}#customerAuthModal .authField{display:block;margin:12px 0}#customerAuthModal .authField span{display:block;font-size:12px;color:#dbe5f1;margin-bottom:7px}#customerAuthModal .authField input{width:100%;border:1px solid #ffffff24;background:#08111f;color:#fff;border-radius:12px;padding:14px;font:inherit;outline:none}#customerAuthModal .authField input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px #3b82f622}#customerAuthModal .authSubmit{width:100%;border:0;border-radius:13px;padding:14px;background:linear-gradient(120deg,#93c5fd,#60a5fa);color:#08111f;font-weight:900;font:inherit;cursor:pointer}#customerAuthModal .authSubmit:disabled{opacity:.6;cursor:wait}#customerAuthModal .authMsg{font-size:12px;line-height:1.9;margin-top:12px;padding:10px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}#customerAuthModal .authMsg:empty{display:none}#customerAuthModal .authMsg.ok{color:#bbf7d0;background:#14532d55}#customerAuthModal .authMsg.err{color:#fecaca;background:#7f1d1d55}#customerAuthModal .authResend{display:block;margin:11px auto 0;border:0;background:none;color:#93c5fd;font:inherit;font-size:12px;cursor:pointer}#customerAuthModal .authFoot{font-size:10px;line-height:1.9;color:#9caec2;margin:14px 0 0}#customerAuthModal .authHidden{display:none!important}@media(max-width:480px){#customerAuthModal .authCard{padding:20px 16px}}
@@ -323,18 +323,16 @@ input,select,textarea,button{touch-action:manipulation}
  <section class="authCard">
   <button type="button" class="authClose" id="closeCustomerAuth" aria-label="بستن">×</button>
   <div class="authKicker">SWITCH TO SWITCH · حساب مشتری</div>
-  <h2 id="customerAuthTitle">ورود و ثبت‌نام</h2>
-  <p class="authSub" id="customerAuthSub">ثبت‌نام بدون کد انجام می‌شود؛ درخواستت برای بررسی مدیر ثبت خواهد شد. برای ورود، کد یک‌بارمصرف را از مدیر بگیر.</p>
-  <div class="authTabs" id="customerAuthTabs"><button type="button" class="active" data-mode="login">ورود</button><button type="button" data-mode="signup">ثبت‌نام</button></div>
+  <h2 id="customerAuthTitle">ثبت‌نام مشتری</h2>
+  <p class="authSub" id="customerAuthSub">برای ثبت‌نام فقط نام، نام خانوادگی و شماره موبایل را وارد کن. هیچ کد یا رمز عبوری لازم نیست.</p>
   <form id="customerAuthForm">
-   <label class="authField authHidden" id="customerNameWrap"><span>نام و نام خانوادگی</span><input id="customerFullName" name="full_name" autocomplete="name" maxlength="100" placeholder="نام و نام خانوادگی"></label>
-   <label class="authField"><span>شماره موبایل ایران</span><input id="customerPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required placeholder="09123456789"></label>
-   
-   <label class="authField authHidden" id="customerOtpWrap"><span>کد ورود ۸ رقمی مدیر</span><input id="customerOtp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" pattern="[0-9۰-۹٠-٩]{8}" placeholder="کد ورود دریافتی از مدیر"></label>
-   <button class="authSubmit" id="customerAuthSubmit" type="submit">ورود با کد مدیر</button>
+   <label class="authField"><span>نام</span><input id="customerFirstName" name="first_name" autocomplete="given-name" maxlength="50" required placeholder="نام"></label>
+   <label class="authField"><span>نام خانوادگی</span><input id="customerLastName" name="last_name" autocomplete="family-name" maxlength="60" required placeholder="نام خانوادگی"></label>
+   <label class="authField"><span>شماره موبایل</span><input id="customerPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required placeholder="09123456789"></label>
+   <button class="authSubmit" id="customerAuthSubmit" type="submit">ثبت‌نام</button>
    <div class="authMsg" id="customerAuthMessage" role="status" aria-live="polite"></div>
   </form>
-  <p class="authFoot">برای ثبت‌نام هیچ کدی لازم نیست. ورود فقط پس از تأیید مدیر و با کد یک‌بارمصرف صادرشده توسط مدیر امکان‌پذیر است.</p>
+  <p class="authFoot">ثبت‌نام بدون کد ملی، رمز عبور، کد پیامکی یا کد مدیر انجام می‌شود.</p>
  </section>
 </div>
 
@@ -495,31 +493,25 @@ body label{font-size:13px}
 <script>
 (function(){
  const modal=document.getElementById('customerAuthModal');if(!modal)return;
- const sb=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY),API=window.SUPABASE_URL+'/functions/v1/switch-to-switch';
- const form=document.getElementById('customerAuthForm'),phone=document.getElementById('customerPhone'),name=document.getElementById('customerFullName'),nameWrap=document.getElementById('customerNameWrap'),codeWrap=document.getElementById('customerOtpWrap'),codeInput=document.getElementById('customerOtp'),submit=document.getElementById('customerAuthSubmit'),message=document.getElementById('customerAuthMessage'),sub=document.getElementById('customerAuthSub');
- let mode='login';
+ const API=window.SUPABASE_URL+'/functions/v1/switch-to-switch';
+ const form=document.getElementById('customerAuthForm'),phone=document.getElementById('customerPhone'),firstName=document.getElementById('customerFirstName'),lastName=document.getElementById('customerLastName'),submit=document.getElementById('customerAuthSubmit'),message=document.getElementById('customerAuthMessage');
  function norm(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))}
  function mobile(v){let p=norm(v).replace(/\D/g,'');if(/^09\d{9}$/.test(p))return p;if(/^989\d{9}$/.test(p))return '0'+p.slice(2);if(/^9\d{9}$/.test(p))return '0'+p;return ''}
  function say(t,type){message.textContent=t;message.className='authMsg'+(type?' '+type:'')}
- function setMode(next){mode=next;document.querySelectorAll('#customerAuthTabs [data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));nameWrap.classList.toggle('authHidden',mode!=='signup');codeWrap.classList.toggle('authHidden',mode!=='login');name.required=mode==='signup';codeInput.required=mode==='login';codeInput.value='';phone.disabled=false;submit.textContent=mode==='signup'?'ثبت‌نام بدون کد':'ورود با کد مدیر';sub.textContent=mode==='signup'?'نام، شماره موبایل و نامت را وارد کن. درخواست ثبت‌نام بدون کد برای بررسی مدیر ثبت می‌شود.': 'شماره موبایل و کد ۸ رقمی صادرشده توسط مدیر را وارد کن.';say('')}
- function open(){modal.hidden=false;document.body.style.overflow='hidden';setMode('login');setTimeout(()=>phone.focus(),30)}
+ function open(){modal.hidden=false;document.body.style.overflow='hidden';say('');setTimeout(()=>firstName.focus(),30)}
  function close(){modal.hidden=true;document.body.style.overflow=''}
  document.getElementById('openCustomerAuth').addEventListener('click',open);document.getElementById('closeCustomerAuth').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close()});
- document.getElementById('customerAuthTabs').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(b)setMode(b.dataset.mode)});
- form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;submit.textContent='در حال بررسی…';say('');
+ form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;submit.textContent='در حال ثبت‌نام…';say('');
  try{
-  const p=mobile(phone.value);if(!p)throw Error('شماره موبایل باید ۱۱ رقم و با 09 شروع شود.');
-  if(mode==='signup'){
-   const n=name.value.trim();if(n.length<3)throw Error('نام و نام خانوادگی را کامل وارد کن.');
-   const r=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({full_name:n,mobile:p}),cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ثبت درخواست انجام نشد.');
-   form.reset();setMode('signup');say(j.message||'ثبت‌نامت بدون کد انجام شد و منتظر بررسی مدیر است.','ok');
-  }else{
-   const code=norm(codeInput.value).replace(/\D/g,'');if(!/^\d{8}$/.test(code))throw Error('کد ورود باید دقیقاً ۸ رقم باشد.');
-   const r=await fetch(API+'?api=customer-code-login',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({mobile:p,code}),cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ورود انجام نشد.');
-   const {data,error}=await sb.auth.verifyOtp({token_hash:j.token_hash,type:j.type||'magiclink'});if(error)throw error;if(!data.session)throw Error('نشست ورود ساخته نشد؛ از مدیر کد تازه بگیر.');location.href='account.html';
-  }
- }catch(err){say(err?.message||'عملیات انجام نشد؛ دوباره تلاش کن.','err')}
- finally{submit.disabled=false;submit.textContent=mode==='signup'?'ثبت‌نام بدون کد':'ورود با کد مدیر'}
+  const f=firstName.value.trim(),l=lastName.value.trim(),p=mobile(phone.value);
+  if(f.length<2)throw Error('نام را کامل وارد کن.');
+  if(l.length<2)throw Error('نام خانوادگی را کامل وارد کن.');
+  if(!p)throw Error('شماره موبایل باید ۱۱ رقم و با 09 شروع شود.');
+  const r=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({full_name:f+' '+l,mobile:p}),cache:'no-store'});
+  const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'ثبت‌نام انجام نشد.');
+  form.reset();say('ثبت‌نام با موفقیت ثبت شد. هیچ کدی از مدیر لازم نیست.','ok');
+ }catch(err){say(err?.message||'ثبت‌نام انجام نشد؛ دوباره تلاش کن.','err')}
+ finally{submit.disabled=false;submit.textContent='ثبت‌نام'}
  });
 })();
 </script>
