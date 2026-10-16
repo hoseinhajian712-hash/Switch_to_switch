@@ -890,4 +890,25 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 .defect-card.defect-part-dropdown .defect-options .pill.open .inline-drawer{display:flex!important;flex-direction:column!important}
 </style>
 
+
+<style id="s2s-expert-notes-compact">
+/* نکات فقط به‌صورت کادر توضیحات کوچک؛ دکمه جداگانه حذف و ارتفاع اضافه کم شود */
+.defect-card.defect-part-dropdown .inline-drawer .defect-notes-action{display:none!important}
+.defect-card.defect-part-dropdown .inline-drawer .defect-extra-actions{display:flex!important;flex-direction:row!important;gap:6px!important;margin:0 0 6px!important}
+.defect-card.defect-part-dropdown .inline-drawer textarea.defnote{
+ display:block!important;
+ min-height:48px!important;
+ height:54px!important;
+ max-height:88px!important;
+ margin:5px 0 0!important;
+ padding:7px 9px!important;
+ font-size:12px!important;
+ line-height:1.6!important;
+ resize:vertical!important;
+}
+.defect-card.defect-part-dropdown .inline-drawer{padding:7px!important;gap:5px!important}
+.defect-card.defect-part-dropdown .inline-drawer>.camera-btn{min-height:34px!important;padding:6px 9px!important}
+.defect-card.defect-part-dropdown .inline-drawer> b{margin:4px 0!important;font-size:11px!important}
+</style>
+
 </body></html>
