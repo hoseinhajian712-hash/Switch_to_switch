@@ -955,7 +955,12 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(role==="followup"&&type==="customer_decline"){
    updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"مشتری پیشنهاد را نپذیرفت.";
   }
-  if(role==="sales"&&type==="price_review"){\n   const amount=Number(payload.estimated_price||0);\n   if(!Number.isFinite(amount)||amount<=0)return json({error:"قیمت پیشنهادی معتبر و بیشتر از صفر لازم است."},400);\n   updates.sales_suggested_price=amount;\n  }\n  if(role==="finance"&&type==="prepayment_received"){
+  if(role==="sales"&&type==="price_review"){
+   const amount=Number(payload.estimated_price||0);
+   if(!Number.isFinite(amount)||amount<=0)return json({error:"قیمت پیشنهادی معتبر و بیشتر از صفر لازم است."},400);
+   updates.sales_suggested_price=amount;
+  }
+  if(role==="finance"&&type==="prepayment_received"){
    const amount=Number(payload.amount||0);
    if(!Number.isFinite(amount)||amount<=0)return json({error:"مبلغ پیش‌پرداخت باید بیشتر از صفر باشد."},400);
    updates.prepayment_amount=amount;updates.prepayment_status="received";updates.prepayment_received_at=new Date().toISOString();
