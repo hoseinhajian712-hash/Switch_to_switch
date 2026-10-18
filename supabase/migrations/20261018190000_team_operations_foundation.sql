@@ -25,22 +25,57 @@ create index if not exists case_team_updates_case_created_idx
 
 create table if not exists public.dealer_inventory (
   id uuid primary key default gen_random_uuid(),
-  dealer_staff_id uuid not null references public.staff_members(id) on delete cascade,
+  dealer_id uuid references public.dealers(id) on delete cascade,
+  dealer_staff_id uuid references public.staff_members(id) on delete cascade,
   brand text not null,
   model text not null,
   trim text,
   model_year integer,
   color text,
   mileage bigint,
-  price numeric(16,2) not null check (price >= 0),
+  approximate_price numeric(16,2),
+  price numeric(16,2) not null default 0 check (price >= 0),
+  status text not null default 'available' check (status = any (array['available','reserved','sold','hidden']::text[])),
+  technical_condition text default 'ثبت نشده',
+  body_condition text default 'ثبت نشده',
+  general_condition text,
   defects jsonb not null default '[]'::jsonb,
   photo_paths jsonb not null default '[]'::jsonb,
   notes text,
   availability text not null default 'available'
     check (availability = any (array['available','reserved','sold','hidden']::text[])),
+  power_of_attorney boolean default false,
+  poa_start_date date,
+  poa_end_date date,
+  poa_note text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+-- The project already had a dealer inventory table for dealer-owned records.
+-- Extend it compatibly instead of assuming a fresh database.
+alter table public.dealer_inventory alter column dealer_id drop not null;
+alter table public.dealer_inventory alter column technical_condition drop not null;
+alter table public.dealer_inventory alter column body_condition drop not null;
+alter table public.dealer_inventory add column if not exists dealer_staff_id uuid references public.staff_members(id) on delete cascade;
+alter table public.dealer_inventory add column if not exists price numeric(16,2);
+alter table public.dealer_inventory add column if not exists defects jsonb not null default '[]'::jsonb;
+alter table public.dealer_inventory add column if not exists photo_paths jsonb not null default '[]'::jsonb;
+alter table public.dealer_inventory add column if not exists notes text;
+alter table public.dealer_inventory add column if not exists availability text not null default 'available';
+alter table public.dealer_inventory add column if not exists approximate_price numeric(16,2);
+update public.dealer_inventory set price = coalesce(price, approximate_price, 0) where price is null;
+update public.dealer_inventory set availability = status where availability = 'available' and status in ('reserved','sold','hidden');
+update public.dealer_inventory set status = availability where status = 'available' and availability in ('reserved','sold','hidden');
+alter table public.dealer_inventory alter column price set default 0;
+alter table public.dealer_inventory alter column price set not null;
+alter table public.dealer_inventory drop constraint if exists dealer_inventory_status_check;
+alter table public.dealer_inventory add constraint dealer_inventory_status_check check (status = any (array['available','reserved','sold','hidden']::text[]));
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conrelid='public.dealer_inventory'::regclass and conname='dealer_inventory_availability_check') then
+    alter table public.dealer_inventory add constraint dealer_inventory_availability_check check (availability = any (array['available','reserved','sold','hidden']::text[]));
+  end if;
+end $$;
 create index if not exists dealer_inventory_available_idx
   on public.dealer_inventory(availability, brand, model);
 create index if not exists dealer_inventory_dealer_idx
