@@ -112,7 +112,7 @@ function openCase(id){
    <article class="card"><h3>خودروی فعلی</h3>${vehicleRows}</article>
    <article class="card"><h3>گزارش و مدارک</h3><div class="muted" style="line-height:2">اطلاعات گزارش کارشناسی و اسناد فقط از مسیر API مجاز قابل نمایش است. جزئیات دریافت‌شده: ${(c.documents||[]).length} مدرک، ${(c.photos||[]).length} عکس.</div></article>
    <article class="card"><h3>تاریخچه پرونده</h3>${historyRows||'<div class="muted">تاریخچه‌ای موجود نیست.</div>'}</article>
-   ${(["admin","sales"].includes(role)?`<article class="card"><h3>موجودی نمایشگاه‌داران مرتبط</h3>${dealerRows||'<div class="muted">هنوز موجودی نمایشگاه‌داری به این پرونده متصل نشده است. از صف بررسی موجودی می‌توانید خودرو را به این پرونده وصل کنید.</div>'}</article>`:"")}
+   
   </div>`;
 }
 (function setupUnitLogin(){
