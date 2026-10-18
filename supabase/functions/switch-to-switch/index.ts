@@ -13,7 +13,8 @@ async function listCases(role:string,staffMemberId:string=""){
  const {data,error}=await cq;
  if(error)return json({error:error.message},500);
  const roleStatuses:any={intake:["new","refer"],sales:["review","auction-ready","auction-end","selling"],followup:["auction-end","customer","disagreement","selling"],legal:["docs"],finance:["deposit","contract"],contracts:["contract","done"]};
- if(role==="dealer")data=[];else if(role!=="admin"&&role!=="expert")data=(data||[]).filter((c:any)=>(roleStatuses[role]||[]).includes(c.status));\n const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
+ if(role==="dealer")data=[];else if(role!=="admin"&&role!=="expert")data=(data||[]).filter((c:any)=>(roleStatuses[role]||[]).includes(c.status));
+ const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
  if(ids.length){const r=await db.from("vehicles").select("*").in("case_id",ids);if(r.error)return json({error:r.error.message},500);vehicles=r.data||[]}
  let inspections:any[]=[]; let defects:any[]=[]; let documents:any[]=[]; let photos:any[]=[]; let history:any[]=[]; let auctions:any[]=[];
  if(ids.length){
