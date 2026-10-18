@@ -792,13 +792,17 @@ async function api(req:Request,u:URL){
   try{
    const b=await req.json(),want=String(b.role||""),code=String(b.personnel_code||"").trim(),password=String(b.password||"");
    if(!["admin","expert"].includes(want)||code.length!==4||Array.from(code).some(ch=>ch<"0"||ch>"9")||!password)return json({error:"کد پرسنلی و رمز عبور را بررسی کنید."},400);
-   const cr=await db.from("staff_credentials").select("password_hash").eq("role",want).maybeSingle();
-   if(cr.error||!cr.data)return json({error:"ورود ناموفق بود. رمز یا کد پرسنلی صحیح نیست."},401);
-   const ph=await hex(password);
-   if(ph!==cr.data.password_hash)return json({error:"ورود ناموفق بود. رمز یا کد پرسنلی صحیح نیست."},401);
    const ch=await hex(code);
    const mr=await db.from("staff_members").select("id,full_name,role,active").eq("personnel_code_hash",ch).eq("role",want).maybeSingle();
    if(mr.error||!mr.data||!mr.data.active)return json({error:"کد پرسنلی نامعتبر یا غیرفعال است."},401);
+   const ph=await hex(password);
+   if(want==="admin"||want==="expert"){
+    const cr=await db.from("staff_credentials").select("password_hash").eq("role",want).maybeSingle();
+    if(cr.error||!cr.data||ph!==cr.data.password_hash)return json({error:"ورود ناموفق بود. رمز یا کد پرسنلی صحیح نیست."},401);
+   }else{
+    const cr=await db.from("staff_member_credentials").select("password_hash").eq("staff_member_id",mr.data.id).maybeSingle();
+    if(cr.error||!cr.data||ph!==cr.data.password_hash)return json({error:"ورود ناموفق بود. رمز یا کد پرسنلی صحیح نیست."},401);
+   }
    const token=crypto.randomUUID()+crypto.randomUUID();
    const th=await hex(token);
    const ins=await db.from("staff_sessions").insert({token_hash:th,role:want,staff_member_id:mr.data.id,expires_at:new Date(Date.now()+12*60*60*1000).toISOString()});
