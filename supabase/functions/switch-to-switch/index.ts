@@ -927,6 +927,73 @@ async function api(req:Request,u:URL){
  if(a==="market_prices")return marketPrices(u); if(a==="estimate"&&req.method==="POST")return estimate(req);
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
 if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminUpdateVehicle(req);if(a==="admin-review-identity"&&role==="admin"&&req.method==="POST")return adminReviewIdentity(req);if(a==="admin-approve-seller"&&role==="admin"&&req.method==="POST")return adminApproveSeller(req);if(a==="admin-set-auction-settlement"&&role==="admin"&&req.method==="POST")return adminSetAuctionSettlement(req);if(a==="admin-set-cancellation-fine"&&role==="admin"&&req.method==="POST")return adminSetCancellationFine(req);if(a==="admin-review-buyer-payment"&&role==="admin"&&req.method==="POST")return adminReviewBuyerPayment(req);if(a==="admin-buyer-payments"&&role==="admin"&&req.method==="GET")return adminBuyerPayments(u);if(a==="wallet-topup-request"&&req.method==="POST")return buyerSubmitWalletTopup(req,u);if(a==="subscription-payment-request"&&req.method==="POST")return buyerSubmitSubscriptionPayment(req,u);if(a==="subscription-payment-requests"&&req.method==="GET")return buyerSubscriptionPaymentRequests(req,u);if(a==="admin-subscription-payment-requests"&&role==="admin"&&req.method==="GET")return adminSubscriptionPaymentRequests();if(a==="admin-review-subscription-payment"&&role==="admin"&&req.method==="POST")return adminReviewSubscriptionPayment(req);if(a==="wallet-topup-requests"&&req.method==="GET")return buyerWalletTopupRequests(req,u);if(a==="admin-wallet-topup-requests"&&role==="admin"&&req.method==="GET")return adminWalletTopupRequests(u);if(a==="admin-review-wallet-topup"&&role==="admin"&&req.method==="POST")return adminReviewWalletTopup(req);if(a==="wallet-bank-settings"&&req.method==="GET")return getWalletBankSettings();if(a==="wallet-bank-settings"&&role==="admin"&&req.method==="POST")return saveWalletBankSettings(req);if(a==="admin-topup-wallet"&&role==="admin"&&req.method==="POST")return adminTopupWallet(req);if(a==="auction-members"&&role==="admin"&&req.method==="GET")return auctionMembers();if(a==="delete-auction-member"&&role==="admin"&&req.method==="POST")return deleteAuctionMember(req);if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(a==="deactivate-auction-member"&&role==="admin"&&req.method==="POST")return deactivateAuctionMember(req);if(a==="update-auction-member"&&role==="admin"&&req.method==="POST")return updateAuctionMember(req);if(!role)return json({error:"unauthorized"},401);
+ if(a==="team-update"&&req.method==="POST"){
+  if(!["admin","intake","sales","followup","legal","finance","contracts"].includes(role))return json({error:"این عملیات برای واحد شما مجاز نیست."},403);
+  if(!id)return json({error:"شناسه پرونده مشخص نشده است."},400);
+  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات ارسالی نامعتبر است."},400)}
+  const type=String(b.update_type||"").slice(0,60),note=String(b.note||"").trim().slice(0,2000),payload=b.payload&&typeof b.payload==="object"&&!Array.isArray(b.payload)?b.payload:{};
+  const transitions:any={
+   intake:{confirm_contact:{from:["new"],to:"refer"}},
+   sales:{price_review:{from:["review"],to:"auction-ready"}},
+   followup:{start_followup:{from:["auction-end"],to:"customer"},customer_accept:{from:["customer","selling"],to:"docs"},customer_decline:{from:["customer","selling"],to:"disagreement"}},
+   legal:{documents_approved:{from:["docs"],to:"deposit"},documents_rejected:{from:["docs"],to:"docs"}},
+   finance:{prepayment_received:{from:["deposit"],to:"contract"}},
+   contracts:{transaction_completed:{from:["contract"],to:"done"}}
+  };
+  const spec=transitions[role]?.[type];
+  if(!spec)return json({error:"این نوع عملیات برای نقش شما تعریف نشده است."},403);
+  const cr=await db.from("cases").select("id,status,agreed_price,prepayment_amount,prepayment_status").eq("id",id).maybeSingle();
+  if(cr.error)return json({error:cr.error.message},500);
+  if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
+  if(!spec.from.includes(cr.data.status))return json({error:"وضعیت پرونده تغییر کرده است؛ ابتدا فهرست را به‌روزرسانی کنید.",current_status:cr.data.status},409);
+  const updates:any={status:spec.to,updated_at:new Date().toISOString()};
+  if(role==="followup"&&type==="customer_accept"){
+   const agreed=Number(payload.agreed_price||0);
+   if(!Number.isFinite(agreed)||agreed<=0)return json({error:"برای ثبت موافقت، مبلغ نهایی معتبر لازم است."},400);
+   updates.agreed_price=agreed;updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"موافقت مشتری ثبت شد.";
+  }
+  if(role==="followup"&&type==="customer_decline"){
+   updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"مشتری پیشنهاد را نپذیرفت.";
+  }
+  if(role==="finance"&&type==="prepayment_received"){
+   const amount=Number(payload.amount||0);
+   if(!Number.isFinite(amount)||amount<=0)return json({error:"مبلغ پیش‌پرداخت باید بیشتر از صفر باشد."},400);
+   updates.prepayment_amount=amount;updates.prepayment_status="received";updates.prepayment_received_at=new Date().toISOString();
+  }
+  const up=await db.from("cases").update(updates).eq("id",id).eq("status",cr.data.status).select("id,status").maybeSingle();
+  if(up.error)return json({error:up.error.message},500);
+  if(!up.data)return json({error:"پرونده هم‌زمان توسط همکار دیگری تغییر کرده است؛ دوباره بارگذاری کنید."},409);
+  const audit=await db.from("case_team_updates").insert({case_id:id,team_role:role,staff_member_id:staffMemberId||null,update_type:type,payload,note:note||null});
+  if(audit.error)return json({error:"مرحله ثبت شد اما ثبت تاریخچه تیم ناموفق بود: "+audit.error.message},500);
+  await historyAdd(id,cr.data.status,spec.to,note||type);
+  if(role==="finance"&&type==="prepayment_received"){
+   const amount=Number(payload.amount);
+   await db.from("case_financial_entries").insert({case_id:id,entry_type:"prepayment",amount,note:note||"ثبت پیش‌پرداخت توسط امور مالی",created_by:staffMemberId||null});
+  }
+  return json({ok:true,status:spec.to});
+ }
+ if(a==="dealer-inventory"&&["GET","POST","PATCH"].includes(req.method)){
+  if(!["dealer","admin"].includes(role))return json({error:"این بخش فقط برای نمایشگاه‌داران و مدیریت مجاز است."},403);
+  if(req.method==="GET"){
+   let q=db.from("dealer_inventory").select("*").order("updated_at",{ascending:false}).limit(300);
+   if(role==="dealer")q=q.eq("dealer_staff_id",staffMemberId);
+   const r=await q;return r.error?json({error:r.error.message},500):json({items:r.data||[]});
+  }
+  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات خودرو نامعتبر است."},400)}
+  const brand=String(b.brand||"").trim().slice(0,80),model=String(b.model||"").trim().slice(0,100),price=Number(b.price);
+  if(!brand||!model||!Number.isFinite(price)||price<0)return json({error:"برند، مدل و قیمت معتبر الزامی است."},400);
+  const data:any={brand,model,trim:String(b.trim||"").slice(0,100)||null,model_year:Number(b.model_year)||null,color:String(b.color||"").slice(0,60)||null,mileage:Number(b.mileage)||null,price,defects:Array.isArray(b.defects)?b.defects.slice(0,100):[],photo_paths:Array.isArray(b.photo_paths)?b.photo_paths.slice(0,30):[],notes:String(b.notes||"").slice(0,2000)||null,availability:["available","reserved","sold","hidden"].includes(b.availability)?b.availability:"available",updated_at:new Date().toISOString()};
+  if(req.method==="POST"){
+   const ins=await db.from("dealer_inventory").insert({...data,dealer_staff_id:staffMemberId}).select("*").single();
+   return ins.error?json({error:ins.error.message},500):json({ok:true,item:ins.data});
+  }
+  const itemId=String(b.id||"");
+  if(!itemId)return json({error:"شناسه موجودی مشخص نیست."},400);
+  let q=db.from("dealer_inventory").update(data).eq("id",itemId);
+  if(role==="dealer")q=q.eq("dealer_staff_id",staffMemberId);
+  const up=await q.select("*").maybeSingle();
+  return up.error?json({error:up.error.message},500):!up.data?json({error:"موجودی پیدا نشد یا اجازه ویرایش ندارید."},404):json({ok:true,item:up.data});
+ }
  if(a==="list")return listCases(role,staffMemberId);
  if(a==="assign-case-expert"&&role==="admin"&&req.method==="POST"){
   if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
