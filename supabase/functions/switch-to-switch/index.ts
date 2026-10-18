@@ -12,7 +12,7 @@ async function listCases(role:string,staffMemberId:string=""){
  const cq=role==="expert"?db.from("cases").select("*").eq("assigned_expert_staff_id",staffMemberId||"00000000-0000-0000-0000-000000000000").in("status",["refer","inspection"]).order("created_at",{ascending:false}):db.from("cases").select("*").order("created_at",{ascending:false});
  const {data,error}=await cq;
  if(error)return json({error:error.message},500);
- const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
+ const roleStatuses:any={intake:["new","refer"],sales:["review","auction-ready","auction-end","selling"],followup:["auction-end","customer","disagreement","selling"],legal:["docs"],finance:["deposit","contract"],contracts:["contract","done"]};\n if(role==="dealer")data=[];else if(role!=="admin"&&role!=="expert")data=(data||[]).filter((c:any)=>(roleStatuses[role]||[]).includes(c.status));\n const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
  if(ids.length){const r=await db.from("vehicles").select("*").in("case_id",ids);if(r.error)return json({error:r.error.message},500);vehicles=r.data||[]}
  let inspections:any[]=[]; let defects:any[]=[]; let documents:any[]=[]; let photos:any[]=[]; let history:any[]=[]; let auctions:any[]=[];
  if(ids.length){
@@ -1008,7 +1008,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(role!=="admin")return json({error:"فقط مدیریت کل می‌تواند حساب همکار جدید بسازد."},403);
   let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات حساب نامعتبر است."},400)}
   const name=String(b.full_name||"").trim().slice(0,120),want=String(b.role||""),code=String(b.personnel_code||"").trim(),password=String(b.password||"");
-  const allowed=["intake","sales","followup","legal","finance","contracts","dealer","expert"];
+  const allowed=["intake","sales","followup","legal","finance","contracts","dealer"];
   if(!name||!allowed.includes(want)||!/^[0-9]{4}$/.test(code)||password.length<8)return json({error:"نام، واحد، کد پرسنلی چهاررقمی و رمز حداقل ۸ نویسه‌ای الزامی است."},400);
   const hash=await hex(code);
   const ins=await db.from("staff_members").insert({full_name:name,role:want,personnel_code_hash:hash,personnel_code_display:code,active:true}).select("id,full_name,role,personnel_code_display").single();
