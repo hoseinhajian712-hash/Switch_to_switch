@@ -994,7 +994,8 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات خودرو نامعتبر است."},400)}
   const brand=String(b.brand||"").trim().slice(0,80),model=String(b.model||"").trim().slice(0,100),price=Number(b.price);
   if(!brand||!model||!Number.isFinite(price)||price<0)return json({error:"برند، مدل و قیمت معتبر الزامی است."},400);
-  const data:any={brand,model,trim:String(b.trim||"").slice(0,100)||null,model_year:Number(b.model_year)||null,color:String(b.color||"").slice(0,60)||null,mileage:Number(b.mileage)||null,price,defects:Array.isArray(b.defects)?b.defects.slice(0,100):[],photo_paths:Array.isArray(b.photo_paths)?b.photo_paths.slice(0,30):[],notes:String(b.notes||"").slice(0,2000)||null,availability:["available","reserved","sold","hidden"].includes(b.availability)?b.availability:"available",updated_at:new Date().toISOString()};
+  const availability=["available","reserved","sold","hidden"].includes(b.availability)?b.availability:"available";
+  const data:any={brand,model,trim:String(b.trim||"").slice(0,100)||null,model_year:Number(b.model_year)||null,color:String(b.color||"").slice(0,60)||null,mileage:Number(b.mileage)||null,approximate_price:price,price,technical_condition:String(b.technical_condition||"ثبت نشده").slice(0,300),body_condition:String(b.body_condition||"ثبت نشده").slice(0,300),general_condition:String(b.general_condition||"ثبت نشده").slice(0,500)||null,status:availability,defects:Array.isArray(b.defects)?b.defects.slice(0,100):[],photo_paths:Array.isArray(b.photo_paths)?b.photo_paths.slice(0,30):[],notes:String(b.notes||"").slice(0,2000)||null,availability,updated_at:new Date().toISOString()};
   if(req.method==="POST"){
    const ins=await db.from("dealer_inventory").insert({...data,dealer_staff_id:staffMemberId}).select("*").single();
    return ins.error?json({error:ins.error.message},500):json({ok:true,item:ins.data});
