@@ -104,6 +104,7 @@ function openCase(id){
  const vehicleRows=Object.entries({برند:v.brand,مدل:v.model,تیپ:v.trim,سال:v.model_year,رنگ:v.color,کارکرد:v.mileage})
   .map(([k,val])=>`<div class="row" style="padding:7px 0;border-bottom:1px solid #20354c"><span class="muted">${esc(k)}</span><span>${esc(val??"—")}</span></div>`).join("");
  const historyRows=(c.history||[]).slice(0,8).map(h=>`<div style="padding:9px 0;border-bottom:1px solid #20354c"><div class="vv">${esc(h.note||h.message||h.to_status||"به‌روزرسانی وضعیت")}</div><div class="caseSub">${esc(date(h.created_at))}</div></div>`).join("");
+ const dealerRows=(c.dealer_inventory||[]).map(x=>`<div style="padding:10px 0;border-bottom:1px solid #20354c"><strong>${esc(x.brand)} ${esc(x.model)} ${esc(x.trim||"")}</strong><div class="caseSub">نمایشگاه: ${esc(x.dealer?.name||"—")} · قیمت: ${money(x.price||x.approximate_price)} · وضعیت: ${esc(x.review_status||"در انتظار بررسی")}</div></div>`).join("");
  document.getElementById("detailArea").innerHTML=`
   <div class="sectionHead"><h3>جزئیات پرونده ${esc(c.case_number||"")}</h3><button class="btn" onclick="document.getElementById('detailArea').innerHTML=''">بستن</button></div>
   <div class="detail">
@@ -111,6 +112,7 @@ function openCase(id){
    <article class="card"><h3>خودروی فعلی</h3>${vehicleRows}</article>
    <article class="card"><h3>گزارش و مدارک</h3><div class="muted" style="line-height:2">اطلاعات گزارش کارشناسی و اسناد فقط از مسیر API مجاز قابل نمایش است. جزئیات دریافت‌شده: ${(c.documents||[]).length} مدرک، ${(c.photos||[]).length} عکس.</div></article>
    <article class="card"><h3>تاریخچه پرونده</h3>${historyRows||'<div class="muted">تاریخچه‌ای موجود نیست.</div>'}</article>
+   ${(["admin","sales"].includes(role)?`<article class="card"><h3>موجودی نمایشگاه‌داران مرتبط</h3>${dealerRows||'<div class="muted">هنوز موجودی نمایشگاه‌داری به این پرونده متصل نشده است. از صف بررسی موجودی می‌توانید خودرو را به این پرونده وصل کنید.</div>'}</article>`:"")}
   </div>`;
 }
 (function setupUnitLogin(){
