@@ -791,7 +791,7 @@ async function api(req:Request,u:URL){
  if(a==="staff-login"&&req.method==="POST"){
   try{
    const b=await req.json(),want=String(b.role||""),code=String(b.personnel_code||"").trim(),password=String(b.password||"");
-   if(!["admin","expert"].includes(want)||code.length!==4||Array.from(code).some(ch=>ch<"0"||ch>"9")||!password)return json({error:"کد پرسنلی و رمز عبور را بررسی کنید."},400);
+   const allowedRoles=["admin","expert","intake","sales","followup","legal","finance","contracts","dealer"];\n   if(!allowedRoles.includes(want)||code.length!==4||Array.from(code).some(ch=>ch<"0"||ch>"9")||!password)return json({error:"کد پرسنلی و رمز عبور را بررسی کنید."},400);
    const ch=await hex(code);
    const mr=await db.from("staff_members").select("id,full_name,role,active").eq("personnel_code_hash",ch).eq("role",want).maybeSingle();
    if(mr.error||!mr.data||!mr.data.active)return json({error:"کد پرسنلی نامعتبر یا غیرفعال است."},401);
