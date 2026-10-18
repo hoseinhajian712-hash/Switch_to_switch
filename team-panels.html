@@ -128,5 +128,5 @@ function openCase(id){
  }
 })();
 document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
-(function restore(){token=sessionStorage.getItem("s2s_team_token")||"";role=sessionStorage.getItem("s2s_team_role")||"admin";staffName=sessionStorage.getItem("s2s_team_name")||"همکار";if(token&&roleInfo[role])showApp()})();
+(function restore(){token=sessionStorage.getItem("s2s_team_token")||"";const savedRole=sessionStorage.getItem("s2s_team_role")||"admin";staffName=sessionStorage.getItem("s2s_team_name")||"همکار";if(requestedRole&&Object.prototype.hasOwnProperty.call(roleInfo,requestedRole)){role=requestedRole;if(token&&savedRole===requestedRole)showApp();else{token="";document.getElementById("loginView").classList.remove("hidden");document.getElementById("appView").classList.add("hidden");}}else{role=savedRole;if(token&&roleInfo[role])showApp()}})();
 </script></body></html>
