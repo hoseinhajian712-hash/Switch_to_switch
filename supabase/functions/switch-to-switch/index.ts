@@ -10,7 +10,7 @@ const json=(d:any,s=200)=>new Response(JSON.stringify(d),{status:s,headers:J});
 function auth(_u:URL){return null}
 async function listCases(role:string,staffMemberId:string=""){
  const cq=role==="expert"?db.from("cases").select("*").eq("assigned_expert_staff_id",staffMemberId||"00000000-0000-0000-0000-000000000000").in("status",["refer","inspection"]).order("created_at",{ascending:false}):db.from("cases").select("*").order("created_at",{ascending:false});
- const {data,error}=await cq;
+ let {data,error}=await cq;
  if(error)return json({error:error.message},500);
  const roleStatuses:any={intake:["new","refer"],sales:["review","auction-ready","auction-end","selling"],followup:["auction-end","customer","disagreement","selling"],legal:["docs"],finance:["deposit","contract"],contracts:["contract","done"]};
  if(role==="dealer")data=[];else if(role!=="admin"&&role!=="expert")data=(data||[]).filter((c:any)=>(roleStatuses[role]||[]).includes(c.status));
