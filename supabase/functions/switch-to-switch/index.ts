@@ -1003,6 +1003,19 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   const up=await q.select("*").maybeSingle();
   return up.error?json({error:up.error.message},500):!up.data?json({error:"موجودی پیدا نشد یا اجازه ویرایش ندارید."},404):json({ok:true,item:up.data});
  }
+ if(a==="team-staff-create"&&req.method==="POST"){
+  if(role!=="admin")return json({error:"فقط مدیریت کل می‌تواند حساب همکار جدید بسازد."},403);
+  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات حساب نامعتبر است."},400)}
+  const name=String(b.full_name||"").trim().slice(0,120),want=String(b.role||""),code=String(b.personnel_code||"").trim(),password=String(b.password||"");
+  const allowed=["intake","sales","followup","legal","finance","contracts","dealer","expert"];
+  if(!name||!allowed.includes(want)||!/^[0-9]{4}$/.test(code)||password.length<8)return json({error:"نام، واحد، کد پرسنلی چهاررقمی و رمز حداقل ۸ نویسه‌ای الزامی است."},400);
+  const hash=await hex(code);
+  const ins=await db.from("staff_members").insert({full_name:name,role:want,personnel_code_hash:hash,personnel_code_display:code,active:true}).select("id,full_name,role,personnel_code_display").single();
+  if(ins.error)return json({error:ins.error.code==="23505"?"این کد پرسنلی قبلاً ثبت شده است.":ins.error.message},400);
+  const cr=await db.from("staff_member_credentials").insert({staff_member_id:ins.data.id,password_hash:await hex(password)});
+  if(cr.error){await db.from("staff_members").delete().eq("id",ins.data.id);return json({error:"ساخت رمز همکار ناموفق بود؛ حساب ایجاد نشد."},500)}
+  return json({ok:true,staff:ins.data});
+ }
  if(a==="list")return listCases(role,staffMemberId);
  if(a==="assign-case-expert"&&role==="admin"&&req.method==="POST"){
   if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
