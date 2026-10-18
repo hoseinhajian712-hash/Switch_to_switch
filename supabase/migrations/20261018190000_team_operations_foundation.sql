@@ -79,7 +79,10 @@ alter table public.case_team_updates enable row level security;
 alter table public.dealer_inventory enable row level security;
 alter table public.case_financial_entries enable row level security;
 alter table public.case_contract_records enable row level security;
-\n-- Keep the sales estimate distinct from the customer-agreed final price.\nalter table public.cases add column if not exists sales_suggested_price numeric(16,2) check (sales_suggested_price is null or sales_suggested_price >= 0);\n
+
+-- Keep the sales estimate distinct from the customer-agreed final price.
+alter table public.cases add column if not exists sales_suggested_price numeric(16,2) check (sales_suggested_price is null or sales_suggested_price >= 0);
+
 -- Per-person credentials for non-admin/non-expert team accounts.
 create table if not exists public.staff_member_credentials (
   staff_member_id uuid primary key references public.staff_members(id) on delete cascade,
