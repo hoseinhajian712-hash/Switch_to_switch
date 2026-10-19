@@ -36,7 +36,7 @@ const roleInfo={
  admin:{title:"مدیریت کل",desc:"نمای کلی پرونده‌ها، گلوگاه‌های عملیات و ارجاع بین تیم‌ها.",icon:"◈",status:["new","refer","inspection","review","auction-ready","auction","auction-end","customer","disagreement","selling","docs","deposit","contract","done","cancelled"]},
  expert:{title:"کارشناسی خودرو",desc:"پرونده‌های تخصیص‌یافته، بازدید در محل، چک‌لیست ایرادات و گزارش کارشناسی.",icon:"⌕",status:["refer","inspection","review"]},
  intake:{title:"ثبت درخواست",desc:"بررسی اطلاعات رزرو، تأیید تماس و ارجاع درخواست به کارشناسی.",icon:"✉",status:["new","refer"]},
- sales:{title:"فروش و قیمت‌گذاری",desc:"بررسی گزارش، قیمت‌گذاری، حاشیه معامله و آماده‌سازی مزایده.",icon:"↗",status:["review","auction-ready","auction-end","selling"]},
+ sales:{title:"تیم فروش، خرید و معاوضه",desc:"مدیریت درخواست‌های فروش، خرید و معاوضه؛ بررسی کارشناسی، قیمت‌گذاری، مزایده و مذاکره نهایی با مشتری.",icon:"↗",status:["review","auction-ready","auction","auction-end","customer","disagreement","selling"]},
  followup:{title:"پیگیری مشتری",desc:"صف تماس، اعلام پیشنهاد نهایی، ثبت موافقت یا عدم توافق مشتری.",icon:"☎",status:["auction-end","customer","disagreement","selling"]},
  legal:{title:"امور حقوقی",desc:"بررسی مدارک و مالکیت و ثبت نتیجه کنترل حقوقی پرونده.",icon:"⚖",status:["docs"]},
  finance:{title:"مالی و تسویه",desc:"ثبت پیش‌پرداخت، کسورات مستند، هزینه‌ها و محاسبات تسویه.",icon:"◇",status:["deposit","contract"]},
@@ -63,7 +63,7 @@ function toolsFor(r){const items={
  admin:[["گردش کار","نمای کلی مراحل و پرونده‌های متوقف‌شده","↻"],["کنترل دسترسی","نقش‌ها، فعالیت کارکنان و ثبت رویدادها","♙"]],
  expert:[["چک‌لیست کارشناسی","بررسی مدارک، آپشن‌ها و ایرادات ثبت‌شده","✓"],["مدارک پرونده","تصاویر و فایل‌های پیوست هر خودرو","▧"]],
  intake:[["بررسی رزرو","کنترل تماس و مشخصات اولیه مشتری","✉"],["صف ارجاع","پرونده‌های آماده تعیین کارشناس","↗"]],
- sales:[["قیمت‌گذاری","قیمت کارشناسی، قیمت پیشنهادی و حاشیه معامله","◇"],["مزایده‌ها","مشاهده وضعیت مزایده و نتیجه پیشنهادها","↗"]],
+ sales:[["مدیریت خرید، فروش و معاوضه","پیگیری همه نوع درخواست خودرو از قیمت‌گذاری تا نتیجه مذاکره","◇"],["مزایده و پیشنهادها","مشاهده وضعیت مزایده و نتیجه پیشنهادهای خرید","↗"]],
  followup:[["صف تماس","اولویت‌بندی تماس‌های لازم","☎"],["نتیجه مذاکره","ثبت موافقت، عدم توافق و توضیحات تماس","✓"]],
  legal:[["کنترل مدارک","هویت مالک، اسناد خودرو و نتیجه بررسی","⚖"],["موارد نیازمند پیگیری","نقص مدرک یا مانع حقوقی احتمالی","!"]],
  finance:[["محاسبه تسویه","پیش‌پرداخت، کسورات و خالص پرداختی","◇"],["مستندات مالی","رسیدها، جرایم و تأییدهای مالی","▤"]],
@@ -85,7 +85,7 @@ function actionButton(c){
  if(role==="expert"&&["refer","inspection"].includes(s))return '<button class="btn primary" onclick="openCase(\''+c.id+'\')">ادامه کارشناسی</button>';
  const map={
   intake:s==="new"?["confirm_contact","تأیید تماس و رزرو"]:null,
-  sales:s==="review"?["price_review","ثبت قیمت و ارسال به مزایده"]:null,
+  sales:s==="review"?["price_review","ثبت قیمت و ارسال به مزایده"]:(s==="auction-end"?["start_followup","شروع مذاکره با مشتری"]:((s==="customer"||s==="selling")?["customer_decision","ثبت نتیجه مذاکره"]:null)),
   followup:s==="auction-end"?["start_followup","شروع پیگیری"]:((s==="customer"||s==="selling")?["customer_decision","ثبت نتیجه تماس"]:null),
   legal:s==="docs"?["legal_review","ثبت نتیجه بررسی مدارک"]:null,
   finance:s==="deposit"?["prepayment_received","ثبت پیش‌پرداخت"]:null,
