@@ -84,7 +84,7 @@ function renderCases(){const all=cases.filter(relevant),q=(document.getElementBy
 function actionButton(c){
  const s=c.status;
  if(role==="admin"&&s==="new")return '<button class="btn primary" onclick="doAction(\''+c.id+'\',\'confirm-call\')">تأیید تماس</button>';
- if(role==="expert"&&s==="refer")return '<button class="btn primary" onclick="openCase(\\''+c.id+'\\')">مشاهده پرونده</button>';
+ if(role==="expert"&&s==="refer")return '<button class="btn primary" onclick="openCase(\''+c.id+'\')">مشاهده پرونده</button>';
  const map={
   intake:s==="new"?["confirm_contact","تأیید رزرو"]:(s==="booking_confirmed"?["confirm_visit","تأیید مراجعه کارشناس"]:null),
   expert:s==="expert_visit_confirmed"?["start_inspection","شروع کارشناسی"]:(s==="inspection"?["finish_inspection","پایان کارشناسی"]:null),
