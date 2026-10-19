@@ -979,6 +979,15 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    payload.auction_final_price=finalPrice;payload.company_profit_amount=profit;payload.branch_offer_price=offer;payload.auction_id=auctionResult.data.id;
    updates.sales_suggested_price=offer;
   }
+  if(role==="finance"&&type==="buyer_settlement_received"){
+   const amount=Number(payload.amount);
+   const auctionResult=await db.from("auctions").select("current_bid,status").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(auctionResult.error)return json({error:auctionResult.error.message},500);
+   const expected=Number(auctionResult.data?.current_bid||cr.data.agreed_price||cr.data.sales_suggested_price||0);
+   if(!Number.isFinite(amount)||amount<=0||expected<=0)return json({error:"مبلغ تسویه خریدار یا قیمت نهایی معامله معتبر نیست."},400);
+   if(auctionResult.data?.status==="ended"&&Math.abs(amount-expected)>0.5)return json({error:"مبلغ تسویه باید برابر قیمت نهایی مزایده باشد: "+expected.toLocaleString("fa-IR")+" تومان"},400);
+   payload.amount=amount;payload.expected_buyer_settlement=expected;
+  }
   if(role==="finance"&&type==="deductions_completed"){
    const total=Number(payload.total_deductions);
    if(!Number.isFinite(total)||total<0)return json({error:"مجموع کسورات باید عددی معتبر و صفر یا بیشتر باشد."},400);
@@ -1016,6 +1025,10 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    const amount=Number(payload.amount);
    const ledger=await db.from("case_financial_entries").insert({case_id:id,entry_type:"prepayment",amount,note:note||"ثبت پیش‌پرداخت توسط امور مالی",created_by:staffMemberId||null});
    if(ledger.error)return json({error:"مرحله ثبت شد اما ثبت سند مالی ناموفق بود: "+ledger.error.message},500);
+  }
+  if(role==="finance"&&type==="buyer_settlement_received"){
+   const ledger=await db.from("case_financial_entries").insert({case_id:id,entry_type:"buyer_payment",amount:Number(payload.amount),note:note||"ثبت تسویه کامل خریدار",created_by:staffMemberId||null});
+   if(ledger.error)return json({error:"مرحله ثبت شد اما سند تسویه خریدار ذخیره نشد: "+ledger.error.message},500);
   }
   if(role==="finance"&&type==="deductions_completed"){
    const total=Number(payload.total_deductions||0);
