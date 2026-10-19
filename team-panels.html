@@ -33,7 +33,7 @@
 <script>
 const API=(window.SUPABASE_URL||"").replace(/\/$/,"")+"/functions/v1/switch-to-switch";
 const roleInfo={
- admin:{title:"مدیریت کل",desc:"نمای کلی پرونده‌ها، گلوگاه‌های عملیات و ارجاع بین تیم‌ها.",icon:"◈",status:["new","refer","inspection","review","auction-ready","auction","auction-end","customer","disagreement","selling","docs","deposit","contract","done","cancelled"]},
+ admin:{title:"مدیریت کل",desc:"نمای کلی پرونده‌ها، گلوگاه‌های عملیات و ارجاع بین تیم‌ها.",icon:"◈",status:["new","booking_confirmed","expert_visit_confirmed","refer","inspection","review","auction-ready","awaiting_guarantee_deposit","auction","auction-end","awaiting_negotiation","negotiation","customer","disagreement","awaiting_docs","docs","legal_review","prepayment","deposit","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_notary","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery","done","cancelled"]},
  expert:{title:"کارشناسی خودرو",desc:"پرونده‌های تخصیص‌یافته، بازدید در محل، چک‌لیست ایرادات و گزارش کارشناسی.",icon:"⌕",status:["refer","inspection","review"]},
  intake:{title:"ثبت درخواست",desc:"بررسی اطلاعات رزرو، تأیید تماس و ارجاع درخواست به کارشناسی.",icon:"✉",status:["new","refer"]},
  sales:{title:"فروش و قیمت‌گذاری",desc:"بررسی گزارش، قیمت‌گذاری، حاشیه معامله و آماده‌سازی مزایده.",icon:"↗",status:["review","auction-ready","auction-end","selling"]},
