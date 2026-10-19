@@ -125,7 +125,7 @@ function openCase(id){
  loadCaseComments();
 }
 function closeCase(){document.getElementById("caseModal").classList.add("hidden");document.body.style.overflow="";selected=null}
-function roleLabel(r){return ({admin:"مدیریت کل",intake:"ثبت درخواست",expert:"کارشناسی خودرو",sales:"فروش و قیمت‌گذاری",followup:"پیگیری مشتری",legal:"امور حقوقی",finance:"مالی و تسویه",contracts:"قرارداد و تحویل"})[r]||r||"همکار"}
+function roleLabel(r){return ({admin:"مدیریت کل",intake:"ثبت درخواست و پیگیری مشتری",expert:"کارشناسی خودرو",sales:"فروش و قیمت‌گذاری",followup:"پیگیری مشتری",legal:"امور حقوقی",finance:"مالی و تسویه",contracts:"قرارداد و تحویل"})[r]||r||"همکار"}
 let commentsLoading=false;
 async function loadCaseComments(silent=false){
  if(!selected||commentsLoading||document.getElementById("caseModal")?.classList.contains("hidden"))return;
