@@ -32,17 +32,19 @@
 </div>
 <script>
 const API=(window.SUPABASE_URL||"").replace(/\/$/,"")+"/functions/v1/switch-to-switch";
+const workflowStatuses=["new","booking_confirmed","expert_visit_confirmed","inspection","review","auction-ready","awaiting_guarantee_deposit","auction","auction-end","awaiting_negotiation","negotiation","disagreement","awaiting_docs","docs","legal_review","prepayment","ready_to_sign","contract_approved","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","awaiting_plate_release","vehicle_delivery","done","cancelled"];
 const roleInfo={
- admin:{title:"مدیریت کل",desc:"نمای کلی پرونده‌ها، گلوگاه‌های عملیات و ارجاع بین تیم‌ها.",icon:"◈",status:["new","refer","inspection","review","auction-ready","auction","auction-end","customer","disagreement","selling","docs","deposit","contract","done","cancelled"]},
- expert:{title:"کارشناسی خودرو",desc:"پرونده‌های تخصیص‌یافته، بازدید در محل، چک‌لیست ایرادات و گزارش کارشناسی.",icon:"⌕",status:["refer","inspection","review"]},
- intake:{title:"ثبت درخواست",desc:"بررسی اطلاعات رزرو، تأیید تماس و ارجاع درخواست به کارشناسی.",icon:"✉",status:["new","refer"]},
- sales:{title:"تیم فروش، خرید و معاوضه",desc:"مدیریت درخواست‌های فروش، خرید و معاوضه؛ بررسی کارشناسی، قیمت‌گذاری، مزایده و مذاکره نهایی با مشتری.",icon:"↗",status:["review","auction-ready","auction","auction-end","customer","disagreement","selling"]},
- followup:{title:"پیگیری مشتری",desc:"صف تماس، اعلام پیشنهاد نهایی، ثبت موافقت یا عدم توافق مشتری.",icon:"☎",status:["auction-end","customer","disagreement","selling"]},
- legal:{title:"امور حقوقی",desc:"بررسی مدارک و مالکیت و ثبت نتیجه کنترل حقوقی پرونده.",icon:"⚖",status:["docs"]},
- finance:{title:"مالی و تسویه",desc:"ثبت پیش‌پرداخت، کسورات مستند، هزینه‌ها و محاسبات تسویه.",icon:"◇",status:["deposit","contract"]},
- contracts:{title:"قرارداد و تحویل",desc:"مدیریت قرارداد، امضاها، رسید امانت و تحویل خودرو و پیگیری وکالت.",icon:"▤",status:["contract","done"]},
+ admin:{title:"مدیریت کل",desc:"نمای کلی تمام پرونده‌ها، کنترل مسیر معامله و ارجاع بین واحدها.",icon:"◈",status:workflowStatuses},
+ expert:{title:"کارشناسی خودرو",desc:"تأیید مراجعه، شروع کارشناسی، ثبت گزارش و پایان کارشناسی.",icon:"⌕",status:["expert_visit_confirmed","inspection","review"]},
+ intake:{title:"ثبت درخواست و پیگیری مشتری",desc:"تأیید رزرو و مراجعه کارشناس و پیگیری پرونده‌های نیازمند تماس.",icon:"✉",status:["new","booking_confirmed","expert_visit_confirmed","auction-end","awaiting_negotiation","negotiation","disagreement"]},
+ sales:{title:"تیم فروش، خرید و معاوضه",desc:"قیمت‌گذاری، هماهنگی مزایده، مذاکره و تأیید تصمیم مشتری برای هر سه نوع درخواست.",icon:"↗",status:["review","auction-ready","awaiting_guarantee_deposit","auction","auction-end","awaiting_negotiation","negotiation","disagreement"]},
+ followup:{title:"پیگیری مشتری",desc:"شروع مذاکره، ثبت نتیجه توافق یا عدم توافق و پیگیری مدارک.",icon:"☎",status:["auction-end","awaiting_negotiation","negotiation","disagreement","awaiting_docs"]},
+ legal:{title:"امور حقوقی",desc:"کنترل مدارک، مالکیت و روش انتقال؛ اعلام تأیید یا نقص حقوقی.",icon:"⚖",status:["awaiting_docs","docs","legal_review","awaiting_transfer_method_confirmation","awaiting_notary","awaiting_power_of_attorney_signature"]},
+ finance:{title:"مالی و تسویه",desc:"وجه تضمین، پیش‌پرداخت، کنترل تسویه خریدار و تأیید تسویه فروشنده.",icon:"◇",status:["awaiting_guarantee_deposit","prepayment","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","settled"]},
+ contracts:{title:"قرارداد، انتقال و تحویل",desc:"آماده‌سازی و تأیید قرارداد، تأیید طرفین، دفترخانه، فک پلاک و تحویل خودرو.",icon:"▤",status:["ready_to_sign","contract_approved","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","awaiting_plate_release","vehicle_delivery","done"]},
 };
-const statusFa={new:"درخواست جدید",refer:"ارجاع به کارشناس",inspection:"در حال کارشناسی",review:"پایان کارشناسی", "auction-ready":"آماده مزایده",auction:"مزایده فعال","auction-end":"پایان مزایده",customer:"پیگیری مشتری",disagreement:"عدم توافق",selling:"در انتظار تصمیم فروش",docs:"بررسی مدارک",deposit:"پیش‌پرداخت",contract:"قرارداد و تحویل",done:"تکمیل‌شده",cancelled:"لغوشده"};
+const statusFa={new:"درخواست جدید",booking_confirmed:"تأیید رزرو",expert_visit_confirmed:"تأیید مراجعه کارشناس",refer:"ارجاع به کارشناس",inspection:"در حال کارشناسی",review:"پایان کارشناسی","auction-ready":"آماده ورود به مزایده",awaiting_guarantee_deposit:"در انتظار واریز وجه تضمین",auction:"در حال مزایده","auction-end":"پایان مزایده",awaiting_negotiation:"در انتظار شروع مذاکره",negotiation:"شروع مذاکره",customer:"شروع مذاکره",disagreement:"عدم توافق",awaiting_docs:"در انتظار تکمیل مدارک",docs:"تکمیل مدارک",legal_review:"کنترل حقوقی",prepayment:"دریافت پیش‌پرداخت",deposit:"دریافت پیش‌پرداخت",ready_to_sign:"آماده امضا",contract_approved:"تأیید نهایی قرارداد",awaiting_buyer_settlement:"در انتظار تسویه خریدار",buyer_settlement_review:"کنترل تسویه خریدار",awaiting_seller_settlement_confirmation:"در انتظار تأیید تسویه فروشنده",awaiting_transfer_method_confirmation:"در انتظار تأیید شیوه انتقال",awaiting_buyer_confirmation:"در انتظار تأیید خریدار",awaiting_seller_confirmation:"در انتظار تأیید فروشنده",awaiting_notary:"در انتظار مراجعه به دفترخانه",settled:"تسویه شد",awaiting_power_of_attorney_signature:"در انتظار تأیید امضای وکالت‌نامه",awaiting_plate_release:"در انتظار فک پلاک",vehicle_delivery:"دفترخانه و تحویل خودرو",done:"معامله تکمیل شد",cancelled:"انصراف"};
+
 const statusColor={done:"green",review:"green","auction-end":"gold","auction-ready":"gold",cancelled:"",disagreement:""};
 const requestedRole=new URLSearchParams(window.location.search).get("role");
 let token="",role=(requestedRole&&Object.prototype.hasOwnProperty.call(roleInfo,requestedRole)?requestedRole:"admin"),staffName="",cases=[],selected=null;
@@ -84,12 +86,13 @@ function actionButton(c){
  if(role==="admin"&&s==="new")return '<button class="btn primary" onclick="doAction(\''+c.id+'\',\'confirm-call\')">تأیید تماس</button>';
  if(role==="expert"&&["refer","inspection"].includes(s))return '<button class="btn primary" onclick="openCase(\''+c.id+'\')">ادامه کارشناسی</button>';
  const map={
-  intake:s==="new"?["confirm_contact","تأیید تماس و رزرو"]:null,
-  sales:s==="review"?["price_review","ثبت قیمت و ارسال به مزایده"]:(s==="auction-end"?["start_followup","شروع مذاکره با مشتری"]:((s==="customer"||s==="selling")?["customer_decision","ثبت نتیجه مذاکره"]:null)),
-  followup:s==="auction-end"?["start_followup","شروع پیگیری"]:((s==="customer"||s==="selling")?["customer_decision","ثبت نتیجه تماس"]:null),
-  legal:s==="docs"?["legal_review","ثبت نتیجه بررسی مدارک"]:null,
-  finance:s==="deposit"?["prepayment_received","ثبت پیش‌پرداخت"]:null,
-  contracts:s==="contract"?["transaction_completed","تکمیل معامله"]:null
+  intake:s==="new"?["confirm_contact","تأیید رزرو"]:(s==="booking_confirmed"?["confirm_visit","تأیید مراجعه کارشناس"]:null),
+  expert:s==="expert_visit_confirmed"?["start_inspection","شروع کارشناسی"]:(s==="inspection"?["finish_inspection","پایان کارشناسی"]:null),
+  sales:s==="review"?["price_review","ثبت قیمت و آماده‌سازی مزایده"]:(s==="auction-end"?["start_followup","انتقال به مذاکره"]:((s==="awaiting_negotiation")?["begin_negotiation","شروع مذاکره"]:null)),
+  followup:s==="auction-end"?["start_followup","انتقال به مذاکره"]:(s==="awaiting_negotiation"?["begin_negotiation","شروع مذاکره"]:((s==="negotiation"||s==="customer")?["customer_decision","ثبت نتیجه مذاکره"]:null)),
+  legal:s==="awaiting_docs"?["docs_received","تأیید تکمیل مدارک"]:(s==="docs"?["legal_review","ثبت نتیجه کنترل حقوقی"]:(s==="legal_review"?["legal_approved","تأیید حقوقی و ارسال به مالی"]:null)),
+  finance:s==="awaiting_guarantee_deposit"?["guarantee_received","ثبت واریز وجه تضمین"]:(s==="prepayment"?["prepayment_received","ثبت دریافت پیش‌پرداخت"]:(s==="awaiting_buyer_settlement"?["buyer_settlement_received","ثبت تسویه خریدار"]:(s==="buyer_settlement_review"?["seller_settlement_confirmed","تأیید تسویه فروشنده"]:null))),
+  contracts:s==="ready_to_sign"?["contract_approved","تأیید نهایی قرارداد"]:(s==="contract_approved"?["await_buyer_settlement","ارسال به تسویه خریدار"]:(s==="awaiting_transfer_method_confirmation"?["transfer_method_confirmed","تأیید شیوه انتقال"]:(s==="awaiting_buyer_confirmation"?["buyer_confirmed","تأیید خریدار"]:(s==="awaiting_seller_confirmation"?["seller_confirmed","تأیید فروشنده"]:(s==="awaiting_notary"?["notary_attended","ثبت مراجعه دفترخانه"]:(s==="settled"?["poa_signed","تأیید امضای وکالت‌نامه"]:(s==="awaiting_plate_release"?["vehicle_delivered","ثبت فک پلاک و تحویل خودرو"]:null))))))),
  };
  const item=map[role];if(!item)return "";
  return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\''+item[0]+'\')">'+item[1]+'</button>';
@@ -99,7 +102,8 @@ async function teamAction(id,type){
  if(type==="price_review"){const v=prompt("قیمت پیشنهادی فروش (تومان) را وارد کنید:");if(v===null)return;payload.estimated_price=Number(v.replace(/[,٬،\s]/g,""));if(!payload.estimated_price||payload.estimated_price<=0){alert("قیمت معتبر وارد کنید.");return}}
  if(type==="prepayment_received"){const v=prompt("مبلغ پیش‌پرداخت دریافتی (تومان):");if(v===null)return;payload.amount=Number(v.replace(/[,٬،\s]/g,""));if(!payload.amount||payload.amount<=0){alert("مبلغ معتبر وارد کنید.");return}}
  if(type==="customer_decision"){const ok=confirm("مشتری پیشنهاد نهایی را پذیرفته است؟\nتأیید = موافقت، لغو = عدم توافق");if(ok){const v=prompt("مبلغ نهایی مورد توافق (تومان):");if(v===null)return;payload.agreed_price=Number(v.replace(/[,٬،\s]/g,""));if(!payload.agreed_price||payload.agreed_price<=0){alert("مبلغ معتبر وارد کنید.");return}type="customer_accept"}else type="customer_decline"}
- if(type==="legal_review"){const ok=confirm("مدارک کامل و از نظر حقوقی تأیید هستند؟\nتأیید = کامل، لغو = ثبت نقص مدارک");type=ok?"documents_approved":"documents_rejected"}
+ if(type==="legal_review"){const ok=confirm("مدارک از نظر حقوقی تأیید هستند؟\nتأیید = عبور به مرحله مالی، لغو = بازگشت به تکمیل مدارک");type=ok?"legal_approved":"documents_rejected"}
+ if(type==="customer_decision"){const ok=confirm("مشتری پیشنهاد نهایی را پذیرفته است؟\nتأیید = موافقت، لغو = عدم توافق");if(ok){const v=prompt("مبلغ نهایی مورد توافق (تومان):");if(v===null)return;payload.agreed_price=Number(v.replace(/[,٬،\\s]/g,""));if(!payload.agreed_price||payload.agreed_price<=0){alert("مبلغ معتبر وارد کنید.");return}type="customer_accept"}else type="customer_decline"}
  note=prompt("یادداشت این مرحله (اختیاری):")||"";
  try{await api("team-update",{id,method:"POST",body:{update_type:type,payload,note}});await loadCases();alert("مرحله پرونده ثبت شد.")}catch(e){alert(e.message)}
 }
@@ -125,7 +129,7 @@ function openCase(id){
  loadCaseComments();
 }
 function closeCase(){document.getElementById("caseModal").classList.add("hidden");document.body.style.overflow="";selected=null}
-function roleLabel(r){return ({admin:"مدیریت کل",intake:"ثبت درخواست و پیگیری مشتری",expert:"کارشناسی خودرو",sales:"فروش و قیمت‌گذاری",followup:"پیگیری مشتری",legal:"امور حقوقی",finance:"مالی و تسویه",contracts:"قرارداد و تحویل"})[r]||r||"همکار"}
+function roleLabel(r){return ({admin:"مدیریت کل",intake:"ثبت درخواست و پیگیری مشتری",expert:"کارشناسی خودرو",sales:"تیم فروش، خرید و معاوضه",followup:"پیگیری مشتری",legal:"امور حقوقی",finance:"مالی و تسویه",contracts:"قرارداد و تحویل"})[r]||r||"همکار"}
 let commentsLoading=false;
 async function loadCaseComments(silent=false){
  if(!selected||commentsLoading||document.getElementById("caseModal")?.classList.contains("hidden"))return;
