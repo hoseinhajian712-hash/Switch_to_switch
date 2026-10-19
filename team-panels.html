@@ -74,18 +74,17 @@ async function loadCases(){document.getElementById("caseTable").innerHTML='<div 
 function relevant(c){if(role==="admin")return true;if(role==="expert")return ["refer","inspection","review"].includes(c.status);return (roleInfo[role].status||[]).includes(c.status)}
 function renderCases(){const all=cases.filter(relevant),q=(document.getElementById("search")?.value||"").trim().toLowerCase(),filtered=all.filter(c=>[c.case_number,c.customer_name,c.customer_mobile,c.status].some(v=>String(v||"").toLowerCase().includes(q)));const waiting=all.filter(c=>!["done","cancelled"].includes(c.status)).length,active=all.filter(c=>["inspection","auction"].includes(c.status)).length,finished=all.filter(c=>c.status==="done").length;document.getElementById("stats").innerHTML=[["پرونده‌های این صف",all.length,"کل موارد قابل‌مشاهده"],["نیازمند اقدام",waiting,"منتظر اقدام تیم"],["در حال اجرا",active,"در جریان عملیات"],["تکمیل‌شده",finished,"بسته‌شده در این صف"]].map(x=>'<div class="stat"><div class="label">'+x[0]+'</div><strong>'+Number(x[1]).toLocaleString("fa-IR")+'</strong><small>'+x[2]+'</small></div>').join("");if(!filtered.length){document.getElementById("caseTable").innerHTML='<div class="empty">پرونده‌ای در این صف پیدا نشد. برای به‌روزرسانی از دکمه بالای صفحه استفاده کنید.</div>';return}document.getElementById("caseTable").innerHTML='<div class="tablewrap"><table><thead><tr><th>پرونده / مشتری</th><th>خودرو</th><th>وضعیت</th><th>ثبت</th><th>عملیات</th></tr></thead><tbody>'+filtered.map(c=>{const v=(c.vehicles||[]).find(v=>v.vehicle_role==="current")||(c.vehicles||[])[0]||{};return '<tr><td><div class="caseTitle">'+esc(c.case_number||c.id?.slice(0,8)||"پرونده")+'</div><div class="caseSub">'+esc(c.customer_name||"نام ثبت نشده")+' · '+esc(c.customer_mobile||"—")+'</div></td><td>'+esc([v.brand,v.model,v.trim,v.model_year].filter(Boolean).join(" · ")||c.service_type||"—")+'</td><td><span class="tag '+(statusColor[c.status]||"")+'">'+esc(statusFa[c.status]||c.status||"—")+'</span></td><td>'+esc(date(c.created_at))+'</td><td><div class="actions"><button class="btn" onclick="openCase(\''+c.id+'\')">جزئیات</button>'+actionButton(c)+'</div></td></tr>'}).join("")+'</tbody></table></div>'}
 function actionButton(c){
- const s=c.status;
- if(role==="admin"&&s==="new")return '<button class="btn primary" onclick="doAction(\''+c.id+'\',\'confirm-call\')">تأیید تماس</button>';
- if(role==="expert"&&["refer","inspection"].includes(s))return '<button class="btn primary" onclick="openCase(\''+c.id+'\')">ادامه کارشناسی</button>';
  const map={
-  intake:s==="new"?["confirm_contact","تأیید تماس"]:null,
-  sales:s==="review"?["price_review","ثبت قیمت و ارسال به مزایده"]:null,
-  followup:s==="auction-end"?["start_followup","شروع پیگیری"]:((s==="customer"||s==="selling")?["customer_decision","ثبت نتیجه تماس"]:null),
-  legal:s==="docs"?["legal_review","ثبت نتیجه بررسی مدارک"]:null,
-  finance:s==="deposit"?["prepayment_received","ثبت پیش‌پرداخت"]:null,
-  contracts:s==="contract"?["transaction_completed","تکمیل معامله"]:null
+  intake:{new:["confirm_contact","ثبت تماس اول"],booking_confirmed:["confirm_visit","تأیید مراجعه مشتری"]},
+  expert:{expert_visit_confirmed:["start_inspection","شروع کارشناسی"],refer:["start_inspection","شروع کارشناسی"],inspection:["finish_inspection","پایان کارشناسی"]},
+  sales:{review:["price_review","ثبت قیمت"],"auction-end":["calculate_branch_offer","محاسبه سود و قیمت شعبه"],awaiting_negotiation:["begin_negotiation","شروع مذاکره"],negotiation:["customer_accept","ثبت نتیجه مذاکره"],customer:["customer_accept","ثبت نتیجه مذاکره"],selling:["customer_accept","ثبت نتیجه مذاکره"],contract_approved:["buyer_coordination_complete","پایان هماهنگی خریدار"]},
+  followup:{awaiting_negotiation:["begin_negotiation","شروع مذاکره"],negotiation:["customer_accept","ثبت نتیجه مذاکره"],customer:["customer_accept","ثبت نتیجه مذاکره"],selling:["customer_accept","ثبت نتیجه مذاکره"],buyer_settlement_review:["seller_settlement_confirmed","ثبت تأیید فروشنده"]},
+  legal:{awaiting_docs:["docs_received","تأیید تکمیل مدارک"],docs:["legal_review","شروع کنترل حقوقی"],legal_review:["legal_approved","تأیید حقوقی"],awaiting_transfer_method_confirmation:["transfer_method_confirmed","تأیید شیوه انتقال"]},
+  finance:{awaiting_guarantee_deposit:["guarantee_received","ثبت وجه تضمین"],prepayment:["prepayment_received","ثبت پیش‌پرداخت"],deposit:["prepayment_received","ثبت پیش‌پرداخت"],deductions_review:["deductions_completed","ثبت کسورات"],awaiting_buyer_settlement:["buyer_settlement_received","ثبت تسویه خریدار"],awaiting_seller_settlement_confirmation:["settlement_completed","تأیید نهایی تسویه"],seller_final_payout_pending:["seller_final_payout_completed","ثبت پرداخت مانده"]},
+  contracts:{ready_to_sign:["contract_approved","تأیید قرارداد"],awaiting_custody_receipt:["custody_receipt_issued","صدور رسید امانت"],awaiting_buyer_confirmation:["buyer_confirmed","تأیید خریدار"],awaiting_seller_confirmation:["seller_confirmed","تأیید فروشنده"],awaiting_notary:["notary_attended","ثبت مراجعه دفترخانه"],awaiting_power_of_attorney_signature:["poa_signed","تأیید ثبت وکالت"],awaiting_plate_release:["plate_release","ثبت فک پلاک"],vehicle_delivery:["vehicle_delivered","ثبت تحویل خودرو"]}
  };
- const item=map[role];if(!item)return "";
+ const item=map[role]?.[c.status];
+ if(!item)return "";
  return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\''+item[0]+'\')">'+item[1]+'</button>';
 }
 async function teamAction(id,type){
