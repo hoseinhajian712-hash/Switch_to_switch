@@ -969,9 +969,10 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    updates.sales_suggested_price=amount;
   }
   if(role==="sales"&&type==="calculate_branch_offer"){
-   const auctionResult=await db.from("auctions").select("id,status,current_bid").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   const auctionResult=await db.from("auctions").select("id,status,current_bid,winner_id,winner_response_status").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(auctionResult.error)return json({error:auctionResult.error.message},500);
    if(!auctionResult.data||auctionResult.data.status!=="ended")return json({error:"ابتدا پایان مزایده را ثبت کنید."},409);
+   if(!auctionResult.data.winner_id||auctionResult.data.winner_response_status!=="accepted")return json({error:"تا زمانی که برنده مزایده قیمت را تأیید نکرده، ارسال قیمت به شعبه مجاز نیست."},409);
    const finalPrice=Number(auctionResult.data.current_bid||0),profit=Number(payload.company_profit_amount);
    if(!Number.isFinite(finalPrice)||finalPrice<=0||!Number.isFinite(profit)||profit<0||profit>=finalPrice)return json({error:"مبلغ سود باید معتبر، صفر یا بیشتر و کمتر از قیمت نهایی مزایده باشد."},400);
    const offer=finalPrice-profit;
