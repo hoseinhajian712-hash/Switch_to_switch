@@ -12,7 +12,7 @@ async function listCases(role:string,staffMemberId:string=""){
  const cq=role==="expert"?db.from("cases").select("*").eq("assigned_expert_staff_id",staffMemberId||"00000000-0000-0000-0000-000000000000").in("status",["refer","inspection"]).order("created_at",{ascending:false}):db.from("cases").select("*").order("created_at",{ascending:false});
  let {data,error}=await cq;
  if(error)return json({error:error.message},500);
- const roleStatuses:any={intake:["new","refer","auction-end","customer","disagreement","selling"],sales:["review","auction-ready","auction-end","selling"],followup:["auction-end","customer","disagreement","selling"],legal:["docs"],finance:["deposit","contract"],contracts:["contract","done"]};
+ const roleStatuses:any={intake:["new","refer","auction-end","customer","disagreement","selling"],sales:["review","auction-ready","auction","auction-end","customer","disagreement","selling"],followup:["auction-end","customer","disagreement","selling"],legal:["docs"],finance:["deposit","contract"],contracts:["contract","done"]};
  if(role==="dealer")data=[];else if(role!=="admin"&&role!=="expert")data=(data||[]).filter((c:any)=>(roleStatuses[role]||[]).includes(c.status));
  const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
  if(ids.length){const r=await db.from("vehicles").select("*").in("case_id",ids);if(r.error)return json({error:r.error.message},500);vehicles=r.data||[]}
@@ -941,7 +941,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   const type=String(b.update_type||"").slice(0,60),note=String(b.note||"").trim().slice(0,2000),payload=b.payload&&typeof b.payload==="object"&&!Array.isArray(b.payload)?b.payload:{};
   const transitions:any={
    intake:{confirm_contact:{from:["new"],to:"refer"},start_followup:{from:["auction-end"],to:"customer"},customer_accept:{from:["customer","selling"],to:"docs"},customer_decline:{from:["customer","selling"],to:"disagreement"}},
-   sales:{price_review:{from:["review"],to:"auction-ready"}},
+   sales:{price_review:{from:["review"],to:"auction-ready"},start_followup:{from:["auction-end"],to:"customer"},customer_accept:{from:["customer","selling"],to:"docs"},customer_decline:{from:["customer","selling"],to:"disagreement"}},
    followup:{start_followup:{from:["auction-end"],to:"customer"},customer_accept:{from:["customer","selling"],to:"docs"},customer_decline:{from:["customer","selling"],to:"disagreement"}},
    legal:{documents_approved:{from:["docs"],to:"deposit"},documents_rejected:{from:["docs"],to:"docs"}},
    finance:{prepayment_received:{from:["deposit"],to:"contract"}},
@@ -954,12 +954,12 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
   if(!spec.from.includes(cr.data.status))return json({error:"وضعیت پرونده تغییر کرده است؛ ابتدا فهرست را به‌روزرسانی کنید.",current_status:cr.data.status},409);
   const updates:any={status:spec.to,updated_at:new Date().toISOString()};
-  if((role==="followup"||role==="intake")&&type==="customer_accept"){
+  if((role==="followup"||role==="intake"||role==="sales")&&type==="customer_accept"){
    const agreed=Number(payload.agreed_price||0);
    if(!Number.isFinite(agreed)||agreed<=0)return json({error:"برای ثبت موافقت، مبلغ نهایی معتبر لازم است."},400);
    updates.agreed_price=agreed;updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"موافقت مشتری ثبت شد.";
   }
-  if((role==="followup"||role==="intake")&&type==="customer_decline"){
+  if((role==="followup"||role==="intake"||role==="sales")&&type==="customer_decline"){
    updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"مشتری پیشنهاد را نپذیرفت.";
   }
   if(role==="sales"&&type==="price_review"){
