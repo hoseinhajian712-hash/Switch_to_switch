@@ -21,7 +21,7 @@
   <div class="field" id="loginRoleField"><label>واحد سازمانی</label><select id="loginRole"><option value="admin">مدیریت کل</option><option value="expert">کارشناسی خودرو</option><option value="intake">ثبت درخواست و پیگیری مشتری</option><option value="sales">فروش و قیمت‌گذاری</option><option value="legal">امور حقوقی</option><option value="finance">مالی و تسویه</option><option value="contracts">قرارداد و تحویل</option></select></div>
   <div class="field"><label>کد پرسنلی ۴ رقمی</label><input id="personnel" inputmode="numeric" maxlength="4" autocomplete="username" placeholder="کد پرسنلی"></div>
   <div class="field"><label>رمز عبور</label><input id="password" type="password" autocomplete="current-password" placeholder="رمز عبور"></div>
-  <button class="btn primary" style="width:100%;padding:13px" id="loginBtn" type="button">ورود امن به پنل</button><div id="loginError" class="muted" style="margin-top:12px"></div>
+  <button class="btn primary" style="width:100%;padding:13px" id="loginBtn" type="button" onclick="login()">ورود امن به پنل</button><div id="loginError" class="muted" style="margin-top:12px"></div>
   <div class="notice">ورود هر واحد با نقش و مجوزهای همان واحد کنترل می‌شود. حساب نمایشگاه‌داران از این بخش جداست و از باشگاه مستقل نمایشگاه‌داران استفاده می‌کند.</div>
  </div>
 </div>
@@ -259,6 +259,6 @@ async function sendCaseComment(event){
   if(desc)desc.textContent="این درگاه مخصوص واحد "+roleInfo[role].title+" است. برای ورود، اطلاعات پرسنلی همان واحد را وارد کنید.";
  }
 })();
-document.getElementById("loginBtn").addEventListener("click",login);document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();login()}});document.getElementById("personnel").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g,"").slice(0,4)});
+document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();login()}});document.getElementById("personnel").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g,"").slice(0,4)});
 (function restore(){token=sessionStorage.getItem("s2s_team_token")||"";const savedRole=sessionStorage.getItem("s2s_team_role")||"admin";staffName=sessionStorage.getItem("s2s_team_name")||"همکار";if(requestedRole&&Object.prototype.hasOwnProperty.call(roleInfo,requestedRole)){role=requestedRole;if(token&&savedRole===requestedRole)showApp();else{token="";document.getElementById("loginView").classList.remove("hidden");document.getElementById("appView").classList.add("hidden");}}else{role=savedRole;if(token&&roleInfo[role])showApp()}})();
 </script></body></html>
