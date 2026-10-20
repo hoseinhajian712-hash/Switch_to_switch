@@ -209,7 +209,7 @@ function openCase(id){
  document.body.style.overflow="hidden";
  document.getElementById("detailArea").innerHTML=
   '<div class="sectionHead"><div><h3>پرونده '+esc(c.case_number||"")+'</h3><div class="caseSub">'+esc(c.customer_name||"—")+' · '+esc(statusFa[c.status]||c.status||"—")+'</div></div><button class="btn" onclick="closeCase()">بستن پنجره ✕</button></div>'+
-  '<div class="detail">'+
+  '<article class="card" style="margin:12px 0"><h3>آدرس مشتری</h3><div class="field"><label for="caseCustomerAddress">نشانی کامل محل سکونت یا مراجعه</label><textarea id="caseCustomerAddress" rows="2" maxlength="1000" placeholder="استان، شهر، خیابان، کوچه، پلاک و واحد">'+esc(c.customer_address||"")+'</textarea></div>'+(role==="intake"||role==="admin"?'<button class="btn primary" type="button" onclick="saveCustomerAddress(\''+c.id+'\')">ذخیره آدرس مشتری</button>':'<div class="muted">برای ویرایش آدرس با واحد ثبت درخواست تماس بگیرید.</div>')+'</article>'+'<div class="detail">'+
    '<article class="card"><h3>اطلاعات مشتری</h3><div class="kv">نام مشتری</div><div class="vv">'+esc(c.customer_name||"—")+'</div><div class="kv" style="margin-top:10px">شماره تماس</div><div class="vv">'+esc(c.customer_mobile||"—")+'</div><div class="kv" style="margin-top:10px">نوع درخواست</div><div class="vv">'+esc(c.service_type||"—")+'</div><div class="kv" style="margin-top:10px">رزرو</div><div class="vv">'+esc(c.service_type==="buy"?"بدون زمان مراجعه":((c.appointment_date||"")+" "+String(c.appointment_time||"").slice(0,5)))+'</div></article>'+
    '<article class="card"><h3>خودروی فعلی</h3>'+vehicleRows+'</article>'+
    (c.sales_calculation?'<article class="card"><h3>محاسبه قیمت مزایده</h3><div class="row"><span class="muted">قیمت نهایی مزایده</span><b>'+money(c.sales_calculation.auction_final_price)+'</b></div><div class="row"><span class="muted">سود شرکت</span><b>'+money(c.sales_calculation.company_profit_amount)+'</b></div><div class="row"><span class="muted">قیمت اعلامی به شعبه</span><b>'+money(c.sales_calculation.branch_offer_price)+'</b></div></article>':'')+
@@ -237,6 +237,7 @@ async function loadCaseComments(silent=false){
  }catch(e){if(!silent){const box=document.getElementById("caseChatMessages");if(box)box.innerHTML='<div class="empty">'+esc(e.message)+'</div>'}}
  finally{commentsLoading=false}
 }
+async function saveCustomerAddress(id){const input=document.getElementById("caseCustomerAddress");if(!input||!selected||selected.id!==id)return;const address=input.value.trim();try{await api("case-address",{id,method:"POST",body:{address}});selected.customer_address=address;const c=cases.find(x=>x.id===id);if(c)c.customer_address=address;alert("آدرس مشتری ذخیره شد.")}catch(e){alert(e.message)}}
 async function sendCaseComment(event){
  event.preventDefault();if(!selected)return;
  const input=document.getElementById("caseChatInput"),btn=document.getElementById("caseChatSend"),message=(input.value||"").trim();if(!message)return;
