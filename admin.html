@@ -273,7 +273,7 @@ async function loadCaseComments(id){
   const list=j.comments||[],sig=list.map(m=>m.id+':'+m.message).join('|');
   if(sig===caseCommentSignature)return;caseCommentSignature=sig;
   const host=document.getElementById('caseCommentsList');if(!host)return;
-  host.innerHTML=list.length?list.map(m=>'<div class="case-comment '+(m.author_role==='admin'?'admin':'expert')+'"><b>'+(m.author_role==='admin'?'👨‍💼 مدیر':'🔧 کارشناس')+'</b><div>'+esc(m.message)+'</div><small>'+esc(new Date(m.created_at).toLocaleString('fa-IR-u-ca-persian'))+'</small></div>').join(''):'<div class="empty">هنوز پیامی ثبت نشده؛ اولین پیام را بنویسید.</div>';
+  host.innerHTML=list.length?list.map(m=>'<div class="case-comment '+(m.author_role==='admin'?'admin':'expert')+'"><b>'+(m.author_name|| (m.author_role==='admin'?'مدیریت کل':m.author_role==='expert'?'کارشناسی خودرو':m.author_role))+'</b><div>'+esc(m.message)+'</div><small>'+esc(new Date(m.created_at).toLocaleString('fa-IR-u-ca-persian'))+'</small></div>').join(''):'<div class="empty">هنوز پیامی ثبت نشده؛ اولین پیام را بنویسید.</div>';
   host.scrollTop=host.scrollHeight;
  }catch(e){const host=document.getElementById('caseCommentsList');if(host)host.innerHTML='<div class="empty">پیام‌ها دریافت نشدند: '+esc(e.message)+'</div>'}
 }
