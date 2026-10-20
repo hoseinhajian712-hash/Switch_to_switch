@@ -368,7 +368,10 @@ html {
 .case-search-wrap{display:flex;align-items:center;gap:10px;margin:14px 0 4px;padding:7px 10px;border:1px solid #31516d;border-radius:15px;background:linear-gradient(145deg,#102338,#0a1726);box-shadow:inset 0 1px 0 #ffffff0b;min-width:0}.case-search-wrap>span{font-size:25px;line-height:1;color:#72d9c7}.case-search-wrap input{flex:1;min-width:0;width:100%;padding:12px 4px;border:0!important;outline:none!important;box-shadow:none!important;background:transparent!important;color:#f0f7ff!important;font-size:13px!important}.case-search-wrap input::placeholder{color:#91a9bf}.case-search-wrap button{width:34px;height:34px;flex:0 0 34px;border:1px solid #35516a;border-radius:10px;background:#162c40;color:#cce2f2;font-size:22px;cursor:pointer}.case-search-status{min-height:17px;margin:5px 3px 8px;font-size:11px}.case-search-empty{padding:18px;text-align:center;border:1px dashed #35516a;border-radius:13px;color:#9db3c8}
 </style>
 
-
+<style id="s2s-expert-monthly-stats">
+.expert-monthly-stats{position:relative;display:flex;align-items:center;gap:13px;min-width:0;margin:14px 0;padding:15px 16px;border:1px solid #285a5b;border-radius:17px;background:radial-gradient(ellipse at 100% 0%,#17463f 0%,transparent 58%),linear-gradient(135deg,#102b3a 0%,#0b1927 100%);box-shadow:inset 0 1px 0 #ffffff12,0 10px 25px #02091430;overflow:hidden}.expert-monthly-icon{width:48px;height:48px;flex:0 0 48px;display:flex;align-items:center;justify-content:center;border-radius:14px;border:1px solid #3d8279;background:linear-gradient(145deg,#1b514a,#10332f);color:#9af0dc;font-size:27px;font-weight:900}.expert-monthly-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}.expert-monthly-copy small{color:#a9c7d1;font-size:11px;font-weight:800}.expert-monthly-copy strong{color:#f1fffb;font-size:16px;font-weight:900}.expert-monthly-copy strong span{color:#8ce8d2;font-size:24px;font-variant-numeric:tabular-nums}.expert-monthly-copy>span{color:#91b2bd;font-size:10px}.expert-monthly-month{flex:0 0 auto;max-width:36%;padding:7px 10px;border:1px solid #2e625f;border-radius:11px;background:#0d282b;color:#b9f3e7;font-size:11px;font-weight:900;text-align:center}@media(max-width:420px){.expert-monthly-stats{gap:9px;padding:12px}.expert-monthly-icon{width:40px;height:40px;flex-basis:40px;font-size:23px}.expert-monthly-copy strong{font-size:13px}.expert-monthly-copy strong span{font-size:21px}.expert-monthly-month{padding:6px 7px;font-size:10px}}
+</style>
+<style id="s2s-hide-expert-stats">#expertMonthlyStats,.expert-monthly-stats{display:none!important}</style>
 </head>
 <body><div class="switch-brand-banner"><a href="./index.html" aria-label="صفحه اصلی سوییچ به سوییچ"><img src="./brand-logo.svg" alt="سوییچ به سوییچ | Switch to Switch"></a></div><div id="staffAuthGate"><form class="auth-card" id="staffAuthForm"><h2>ورود امن پنل کارشناسی</h2><p>برای ورود، کد پرسنلی اختصاصی و رمز پنل کارشناسی را وارد کن. فقط پرونده‌های ارجاع‌شده به کد خودت نمایش داده می‌شوند.</p><input id="staffCode" type="text" inputmode="numeric" minlength="4" maxlength="4" autocomplete="off" placeholder="کد پرسنلی ۴ رقمی" required><input id="staffLoginPassword" type="password" autocomplete="current-password" placeholder="رمز عبور پنل کارشناسی" required><button type="submit">ورود به پنل کارشناسی</button><div id="staffAuthError"></div></form></div><div id="staffPasswordModal" role="dialog" aria-modal="true" aria-label="تغییر رمز عبور"><form class="sp-card" id="staffPasswordForm"><h3>🔐 تغییر رمز عبور</h3><p>رمز فعلی را وارد کنید و رمز جدیدی با حداقل ۱۲ نویسه بسازید. رمز جدید را با کسی به اشتراک نگذارید.</p><input id="spCurrent" type="password" autocomplete="current-password" placeholder="رمز فعلی" required><input id="spNew" type="password" autocomplete="new-password" minlength="12" placeholder="رمز جدید (حداقل ۱۲ نویسه)" required><input id="spConfirm" type="password" autocomplete="new-password" minlength="12" placeholder="تکرار رمز جدید" required><div id="staffPasswordMessage" role="status"></div><div class="sp-actions"><button class="sp-save" type="submit">ذخیره رمز جدید</button><button class="sp-close" type="button" onclick="closeStaffPasswordModal()">انصراف</button></div></form></div><div id="quickCameraModal" class="quick-camera-modal hidden" role="dialog" aria-modal="true" aria-label="عکاسی سریع"><div class="quick-camera-panel"><div class="quick-camera-head"><strong id="quickCameraTitle">عکاسی سریع</strong><button type="button" class="btn red" onclick="closeQuickCamera()">بستن دوربین ✕</button></div><video id="quickCameraVideo" autoplay playsinline muted></video><canvas id="quickCameraCanvas" class="hidden"></canvas><div id="quickCameraHint" class="notice">دوربین را روبه‌روی خودرو بگیرید.</div><button type="button" class="btn green quick-shutter" onclick="captureQuickPhoto()">📸 گرفتن عکس و رفتن به زاویه بعدی</button></div></div><main class="wrap">
 <header class="top">
@@ -378,7 +381,254 @@ html {
 
 <div id="listCard" class="card">
  <div class="rowhead"><div><h3 style="margin:0;font-size:15px">📋 پرونده‌های ارجاع‌شده</h3><div class="sub" style="margin-top:5px">ابتدا پرونده را انتخاب کنید، سپس وارد فرم کارشناسی شوید.</div></div></div>
- </label>').join('')+'</div></div></details>'}
+ <div id="expertMonthlyStats" class="expert-monthly-stats" aria-live="polite"><div class="expert-monthly-icon">▦</div><div class="expert-monthly-copy"><small id="expertMonthlyLabel">آمار کارشناسی ماه جاری</small><strong><span id="expertMonthlyCount">۰</span> کارشناسی تکمیل‌شده</strong><span id="expertMonthlyHint">بر اساس تاریخ پایان کارشناسی</span></div><div class="expert-monthly-month" id="expertMonthlyName">ماه جاری</div></div>
+ <div class="case-search-wrap"><span aria-hidden="true">⌕</span><input id="caseSearchInput" type="search" autocomplete="off" placeholder="جست‌وجوی شماره پرونده، نام مشتری یا خودرو..." aria-label="جست‌وجو در پرونده‌های ارجاع‌شده"><button type="button" id="caseSearchClear" aria-label="پاک کردن جست‌وجو">×</button></div><div id="caseSearchStatus" class="sub case-search-status" aria-live="polite"></div>
+ <div id="caseList" class="cases"></div>
+</div>
+
+<div id="inspectionHome" class="card hidden"><div class="expert-address-panel" style="margin:0 0 14px;padding:14px"><div class="expert-address-icon">📍</div><div class="expert-address-content"><strong>آدرس محل مراجعه مشتری</strong><div id="inspectionAddressText" class="expert-address-value case-address-value">در حال دریافت آدرس...</div></div><button type="button" class="btn secondary expert-address-copy" onclick="copyExpertAddress()">📋 کپی</button><button type="button" class="btn green expert-address-route" onclick="openExpertRoute()">🧭 مسیریابی</button></div><div class="rowhead"><div><h3 style="margin:0;font-size:16px">بخش‌های کارشناسی</h3></div></div><div id="inspectionChatPanel" class="card case-backoffice hidden" style="margin-top:12px"><div class="section-title"><h3>💬 گفت‌وگوی داخلی پرونده</h3><button class="btn secondary" type="button" onclick="toggleInspectionChat()">بستن</button></div><div class="notice">پیام‌ها فقط برای مدیر و کارشناس این پرونده قابل مشاهده‌اند.</div><div id="inspectionCommentsList" class="expert-comments-list"><div class="sub">در حال دریافت پیام‌ها...</div></div><form class="expert-comment-form" onsubmit="sendExpertComment(event,'inspection')"><textarea id="inspectionCommentInput" maxlength="3000" required rows="3" placeholder="پیامت را برای مدیر بنویس..." style="width:100%;margin-top:10px"></textarea><button class="btn green" type="submit" style="margin-top:8px">ارسال پیام</button><span id="inspectionCommentNotice" class="sub" style="margin-right:8px"></span></form></div><div class="inspection-home"><div class="inspection-tile inspection-docs-compact" onclick="openInspectionSection('docs')"><span class="inspection-docs-icon">📄</span><span class="inspection-docs-copy"><strong>مدارک خودرو</strong><small>کارت ملی مالک و مدارک خودرو</small></span><span class="inspection-mileage-arrow">←</span></div><div class="inspection-tile inspection-feature-info" onclick="openInspectionSection('identity')"><span class="inspection-feature-icon">🚘</span><strong>اطلاعات خودرو</strong><small>VIN، شماره موتور و پلاک</small><span class="inspection-feature-cta">ثبت اطلاعات <b>←</b></span></div><div class="inspection-tile inspection-feature-info" onclick="openInspectionSection('quick')"><span class="inspection-feature-icon">☑️</span><strong>چک‌لیست خودرو</strong><small>سوئیچ یدک، کارت سوخت و مدارک؛ دارد / ندارد</small><span class="inspection-feature-cta">ثبت چک‌لیست <b>←</b></span></div><div class="inspection-tile inspection-feature-gallery" onclick="openInspectionSection('gallery')"><span class="inspection-feature-icon">📸</span><strong>گالری خودرو</strong><small>ثبت عکس از زوایای مختلف خودرو</small><span class="inspection-feature-cta">ورود به گالری <b>←</b></span><span class="gallery-decoration" aria-hidden="true">▧　▧　▧</span></div><div class="inspection-tile inspection-mileage-tile" onclick="openInspectionSection('mileage')"><span class="inspection-mileage-icon">◷</span><strong>کارکرد و کیلومتر</strong><small>ثبت کیلومتر خودرو</small><span class="inspection-mileage-arrow">←</span></div><div class="inspection-tile s2s-section-sticker" onclick="openInspectionSection('body')"><span class="s2s-sticker" aria-hidden="true">🚘</span><strong>بدنه و لاستیک</strong><small>درب، گلگیر، شاسی، سینی، سقف و چرخ‌ها</small></div><div class="inspection-tile s2s-section-sticker" onclick="openInspectionSection('suspension')"><span class="s2s-sticker s2s-shock-sticker" aria-hidden="true"><svg viewBox="0 0 48 48" role="img" aria-label="کمک‌فنر"><path d="M18 5h12v5H18zM18 38h12v5H18z" fill="currentColor"/><path d="M24 10v5m0 18v5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 15l-7 3 14 4-14 4 14 4-7 3" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="24" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="43" r="3" fill="none" stroke="currentColor" stroke-width="2.5"/></svg></span><strong>سیستم تعلیق و فرمان</strong><small>کمک‌فنر، فنر، جلوبندی و فرمان</small></div><div class="inspection-tile s2s-section-sticker" onclick="openInspectionSection('climate')"><span class="s2s-sticker" aria-hidden="true">❄️</span><strong>تهویه و مطبوع</strong><small>کولر، بخاری و سیستم تهویه</small></div><div class="inspection-tile s2s-section-sticker" onclick="openInspectionSection('electrical')"><span class="s2s-sticker s2s-battery-sticker" aria-hidden="true"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tileBattery" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9f5fb"/><stop offset="1" stop-color="#8ca8bb"/></linearGradient><linearGradient id="tileBatteryBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#315b70"/><stop offset="1" stop-color="#173347"/></linearGradient></defs><rect x="7" y="13" width="34" height="29" rx="4" fill="url(#tileBatteryBody)" stroke="#75a6b9" stroke-width="1.4"/><path d="M14 13V8h7v5m6 0V8h7v5" fill="none" stroke="url(#tileBattery)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="11" y="18" width="26" height="18" rx="2.5" fill="#e5f0f5"/><path d="M23 20l-5 8h5l-1 6 8-10h-5l2-4z" fill="#0b806f"/><path d="M11 39h26" stroke="#80e0d0" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>برقی و داخلی</strong><small>برق خودرو و تجهیزات کابین</small></div><div class="inspection-tile s2s-section-sticker" onclick="openInspectionSection('engine')"><span class="s2s-sticker" aria-hidden="true">⚙️</span><strong>موتور و مکانیک</strong><small>موتور، گیربکس و سیستم‌های مکانیکی</small></div><div class="inspection-tile s2s-section-sticker" onclick="openInspectionSection('brakes')"><span class="s2s-sticker" aria-hidden="true">🛞</span><strong>ترمز و ایمنی</strong><small>ترمز، ABS و تجهیزات ایمنی</small></div></div><div id="msg" class="msg" style="margin-top:14px"></div><div id="finishAction" class="card" style="margin-top:10px;padding:0;overflow:hidden;border:1px solid #16856b"><button type="button" onclick="saveInspection()" style="width:100%;border:0;border-radius:0;padding:19px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font:inherit;font-size:15px;font-weight:900;cursor:pointer">✓ پایان کارشناسی</button></div></div>
+<div id="caseHome" class="card hidden">
+ <div class="section-title"><div><h3 style="margin:0">پرونده <span id="caseHomeNo"></span></h3><div id="caseHomeInfo" class="sub" style="margin-top:6px"></div></div><button class="btn secondary" onclick="backToList()">← پرونده‌ها</button></div>
+ <article class="card" id="expertCustomerContact" style="margin:14px 0"><h3>👤 اطلاعات تماس مشتری</h3><div class="detail" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px"><div><div class="sub">نام و نام خانوادگی</div><strong id="expertCustomerName">—</strong></div><div><div class="sub">شماره تماس</div><strong id="expertCustomerPhone" dir="ltr">—</strong><br><a id="expertCustomerCall" class="btn green" style="display:inline-flex;margin-top:8px;text-decoration:none" href="#" hidden>📞 تماس با مشتری</a></div><div><div class="sub">نوع درخواست و زمان مراجعه</div><strong id="expertCustomerAppointment">—</strong></div></div></article>
+ <details class="expert-collapsible" id="addressCollapsible" open><summary>📍 آدرس محل مراجعه مشتری <span>نمایش / بستن</span></summary><div class="expert-address-panel" style="margin-top:14px"><div class="expert-address-icon">📍</div><div class="expert-address-content"><strong>آدرس محل مراجعه مشتری</strong><div id="caseAddressText" class="expert-address-value case-address-value">در حال دریافت آدرس...</div></div><button type="button" class="btn secondary expert-address-copy" onclick="copyExpertAddress()">📋 کپی آدرس</button><button type="button" class="btn green expert-address-route" onclick="openExpertRoute()">🧭 مسیریابی</button></div>
+ </details><details class="expert-collapsible" id="travelCollapsible"><summary>🚗 زمان حرکت و مراجعه <span>نمایش / بستن</span></summary><div id="expertTravelPanel" class="card" style="margin-top:12px;border-color:#28634f;background:linear-gradient(135deg,#0b2d2b,#0d1a2b)"><div class="section-title"><h3>🚗 زمان حرکت و مراجعه</h3><span id="expertTravelState" class="badge">حرکت ثبت نشده</span></div><div id="expertTravelCountdown" style="font-size:30px;font-weight:900;letter-spacing:2px;color:#9ff3d2;margin-top:12px;direction:ltr;text-align:center">--:--</div><div id="expertTravelHint" class="sub" style="text-align:center;margin-top:6px">با شروع حرکت، شمارش معکوس یک‌ساعته برای مشتری فعال می‌شود.</div><button id="startTravelBtn" class="btn green" type="button" onclick="expertTravelAction('start')" style="margin-top:12px;width:100%;padding:14px">🚗 حرکت به سمت مشتری و شروع شمارش</button><button id="arrivedBtn" class="btn secondary" type="button" onclick="expertTravelAction('arrive')" style="display:none;margin-top:10px;width:100%;padding:13px">📍 رسیدم به محل مشتری</button></div>
+ </details><div class="notice" style="margin-top:14px">این صفحه مخصوص اطلاعات پرونده است. برای ورود به فرم کارشناسی، دکمه زیر را بزنید.</div>
+ <button id="startInspectionBtn" class="btn green" style="margin-top:14px;width:100%;padding:14px" onclick="startInspection()">🔧 شروع کارشناسی</button>
+<details class="expert-collapsible" id="caseConversationCollapsible"><summary>💬 گفت‌وگوی داخلی پرونده <span>نمایش / بستن</span></summary><div class="card case-backoffice" style="margin-top:14px"><div class="section-title"><h3>💬 گفت‌وگوی داخلی پرونده</h3><span class="badge">مدیر و کارشناس</span></div><div class="notice">پیام‌ها فقط برای مدیر و کارشناس این پرونده قابل مشاهده‌اند.</div><div id="caseCommentsList" class="expert-comments-list"><div class="sub">در حال دریافت پیام‌ها...</div></div><form class="expert-comment-form" onsubmit="sendExpertComment(event,'case')"><textarea id="caseCommentInput" maxlength="3000" required rows="3" placeholder="پیامت را برای مدیر بنویس..." style="width:100%;margin-top:10px"></textarea><button class="btn green" type="submit" style="margin-top:8px">ارسال پیام</button><span id="caseCommentNotice" class="sub" style="margin-right:8px"></span></form></div></details></div>
+<div id="formArea" class="hidden">
+ <div id="section-identity" class="inspection-section card hidden">
+  <div class="section-title"><h3>۱. اطلاعات خودرو</h3><span class="badge">شناسه خودرو</span></div>
+
+
+  <div class="notice" style="margin-top:12px">🤖 سیستم تصویر را با دو روش می‌خواند و فقط شماره موتور و VIN یکسان در هر دو خوانش را پیشنهاد می‌کند. نتیجه را پیش از ثبت با کارت اصلی تطبیق بده؛ اگر خوانش‌ها متفاوت باشند، شماره را دستی وارد کن.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+   <button type="button" class="btn" onclick="extractVehicleCardData()">✨ استخراج هوشمند از کارت خودرو</button>
+   <button type="button" class="btn secondary" onclick="openPhotoSourceMenu('carDocFrontCam','carDocFrontGal')">📷 انتخاب عکس کارت خودرو</button>
+  </div>
+  <div id="vehicleOcrStatus" class="notice hidden" role="status" aria-live="polite"></div>
+  <div class="grid">
+   <div class="field"><label>VIN<input id="vin" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
+   <div class="field"><label>شماره موتور<input id="engine" autocomplete="off" placeholder="از روی کارت خودرو پر می‌شود"></label></div>
+   <div class="field plate-field"><label for="plateTwo">پلاک خودرو</label><div class="plate-picker" dir="rtl"><div class="plate-number-field"><small>کد ایران</small><input id="plateRegion" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="ایران" aria-label="کد دو رقمی ایران"></div><div class="plate-number-field"><small>سه رقم</small><input id="plateThree" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="۱۲۳" aria-label="سه رقم پلاک"></div><div class="plate-letter-field"><small>حرف پلاک</small><select id="plateLetter" aria-label="حرف پلاک"><option value="">انتخاب حرف</option></select></div><div class="plate-number-field"><small>دو رقم</small><input id="plateTwo" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="۴۵" aria-label="دو رقم پلاک"></div></div><input id="plate" type="hidden" autocomplete="off"><small class="plate-help">اعداد را وارد کنید و حرف پلاک را از فهرست انتخاب کنید.</small></div>
+   <div class="field"><label>نوع / مدل درج‌شده روی کارت<input id="cardVehicleName" autocomplete="off" placeholder="استخراج خودکار در صورت خوانا بودن"></label></div>
+   <div class="field"><label>سال ساخت درج‌شده روی کارت<input id="cardVehicleYear" inputmode="numeric" autocomplete="off" placeholder="مثلاً ۱۴۰۲"></label></div>
+  </div>
+  <details style="margin-top:10px"><summary style="cursor:pointer;color:#9ec8ff;font-size:11px;font-weight:800">مشاهده متن خوانده‌شده از کارت</summary><textarea id="vehicleOcrText" rows="5" style="width:100%;margin-top:8px" placeholder="متن شناسایی‌شده اینجا نمایش داده می‌شود"></textarea></details>
+ 
+ </div>
+
+ <div id="section-quick" class="inspection-section card hidden">
+  <div class="section-title"><h3>۲. چک‌لیست خودرو</h3><span class="badge">دارد / ندارد</span></div>
+  <div class="notice" style="margin-top:8px">برای هر مورد یکی از دو گزینه را انتخاب کنید.</div>
+  <div class="vehicle-checklist"><div class="checks">
+    <div class="vehicle-check-row"><strong>سوئیچ یدک</strong><div class="binary-options"><label><input type="radio" name="spareChoice" value="yes" onchange="syncChecklistChoice('spare',this.value)"> دارد</label><label><input type="radio" name="spareChoice" value="no" onchange="syncChecklistChoice('spare',this.value)"> ندارد</label></div><input id="spare" type="checkbox" hidden></div>
+    <div class="vehicle-check-row"><strong>کارت سوخت</strong><div class="binary-options"><label><input type="radio" name="fuelChoice" value="yes" onchange="syncChecklistChoice('fuel',this.value)"> دارد</label><label><input type="radio" name="fuelChoice" value="no" onchange="syncChecklistChoice('fuel',this.value)"> ندارد</label></div><input id="fuel" type="checkbox" hidden></div>
+    <div class="vehicle-check-row"><strong>وکالت‌نامه</strong><div class="binary-options"><label><input type="radio" name="poaChoice" value="yes" onchange="syncChecklistChoice('poa',this.value)"> دارد</label><label><input type="radio" name="poaChoice" value="no" onchange="syncChecklistChoice('poa',this.value)"> ندارد</label></div><input id="poa" type="checkbox" hidden></div>
+    <div class="vehicle-check-row"><strong>برگ سبز</strong><div class="binary-options"><label><input type="radio" name="greenCardChoice" value="yes" onchange="syncChecklistChoice('greenCard',this.value)"> دارد</label><label><input type="radio" name="greenCardChoice" value="no" onchange="syncChecklistChoice('greenCard',this.value)"> ندارد</label></div><input id="greenCard" type="checkbox" hidden></div>
+    <div class="vehicle-check-row"><strong>برگ کمپانی</strong><div class="binary-options"><label><input type="radio" name="factoryInvoiceChoice" value="yes" onchange="syncChecklistChoice('factoryInvoice',this.value)"> دارد</label><label><input type="radio" name="factoryInvoiceChoice" value="no" onchange="syncChecklistChoice('factoryInvoice',this.value)"> ندارد</label></div><input id="factoryInvoice" type="checkbox" hidden></div>
+    <div class="vehicle-check-row"><strong>کارت خودرو</strong><div class="binary-options"><label><input type="radio" name="carDocumentChoice" value="yes" onchange="syncChecklistChoice('carDocument',this.value)"> دارد</label><label><input type="radio" name="carDocumentChoice" value="no" onchange="syncChecklistChoice('carDocument',this.value)"> ندارد</label></div><input id="carDocument" type="checkbox" hidden></div>
+   </div></div>
+ </div>
+
+ <div id="section-mileage" class="inspection-section card hidden">
+  <div class="section-title"><h3>کارکرد و کیلومتر</h3><span class="badge">کیلومتر خودرو</span></div>
+  <div class="field" style="margin-top:12px"><label>کارکرد فعلی خودرو<input id="mileage" inputmode="numeric" placeholder="مثلاً ۱۲۵٬۰۰۰"></label></div>
+  <div class="notice">عدد کیلومتر را وارد کنید؛ جداکننده اعداد به‌صورت خودکار نمایش داده می‌شود.</div>
+  <div class="mileage-photo-panel">
+   <div class="mileage-photo-heading"><span class="mileage-photo-icon">▣</span><div><strong>عکس کیلومترشمار</strong><small>عکس واضح از عدد کیلومتر روی صفحه‌نمایش خودرو ثبت کنید.</small></div></div>
+   <button type="button" class="btn secondary mileage-photo-button" onclick="openPhotoSourceMenu('maincam_15','maingal_15')">＋ ثبت / تغییر عکس کیلومترشمار</button>
+   <div id="mileagePhotoPreview" class="mileage-photo-preview"><span>هنوز عکسی ثبت نشده است.</span></div>
+  </div>
+ </div>
+
+ <div id="section-docs" class="inspection-section card hidden">
+  <div class="section-title"><h3>۲. مدارک خودرو</h3><span class="badge">کارت ملی مالک الزامی</span></div>
+  <div class="photo-grid" id="docsGrid"></div>
+  <div id="vehicleOcrDocsStatus" class="notice hidden" role="status" aria-live="polite" style="margin-top:12px"></div>
+  <div class="notice">🤖 با انتخاب عکس کارت خودرو، دو بار خوانش انجام می‌شود. فقط VIN و شماره موتوری که در هر دو خوانش یکسان باشند پیشنهاد می‌شوند؛ پلاک، مدل و سال را دستی وارد کنید.</div>
+  <div class="notice">📄 مدارک ثبت‌شده داخل گزارش پرونده مدیریت نمایش داده می‌شوند.</div>
+ </div>
+
+ <div id="section-gallery" class="inspection-section card hidden">
+  <div class="section-title"><h3>۳. گالری اصلی خودرو</h3><span class="badge">زاویه‌به‌زاویه</span></div>
+  <div class="sub" style="margin-top:5px">هر زاویه را جداگانه ثبت کنید؛ برای هر کادر امکان گرفتن چند عکس وجود دارد. در حالت عکاسی سریع، بعد از هر عکس به کادر بعدی می‌رود.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="camera-btn" style="width:auto;margin:0" onclick="startQuickCapture()">⚡ شروع عکاسی سریع</button><button type="button" class="camera-btn" style="width:auto;margin:0" onclick="stopQuickCapture()">⏹️ توقف عکاسی سریع</button></div><div id="quickCaptureStatus" class="notice" style="margin-top:8px">برای ثبت عکس‌ها به ترتیب کادرها، «شروع عکاسی سریع» را بزنید.</div>
+  <div class="photo-grid" id="mainPhotos"></div>
+ </div>
+
+ <div id="section-defects" class="inspection-section card hidden">
+  <div class="section-title"><h3>۵. ایرادات کارشناسی</h3><span class="badge">چند ایراد برای هر قطعه</span></div>
+
+  <div id="defects" class="defect-list"></div>
+ </div>
+
+ <div id="section-summary" class="inspection-section card hidden"><div class="section-title"><h3>توضیحات کارشناسی</h3><span class="badge">اختیاری</span></div><textarea id="summary" rows="5" style="width:100%;margin-top:10px" placeholder="توضیحات تکمیلی (در صورت نیاز)..."></textarea>
+  </div></main>
+<script>
+(function(){const originalFetch=window.fetch.bind(window);const tokenKey='s2s_expert_token_v2';window.fetch=async function(input,init){try{const raw=typeof input==='string'?input:input.url;const u=new URL(raw,location.href);if(!u.searchParams.has('key'))return originalFetch(input,init);u.searchParams.delete('key');const token=sessionStorage.getItem(tokenKey)||'';if(!token){document.documentElement.classList.add('s2s-locked');return new Response(JSON.stringify({error:'نشست ورود پایان یافته؛ دوباره وارد شوید.'}),{status:401,headers:{'content-type':'application/json'}})}const h=new Headers(init&&init.headers||(input instanceof Request?input.headers:undefined));h.set('Authorization','Bearer '+token);const res=await originalFetch(u.toString(),{...(init||{}),headers:h});if(res.status===401){sessionStorage.removeItem(tokenKey);document.documentElement.classList.add('s2s-locked')}return res}catch(e){return originalFetch(input,init)}}})();;
+const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY=sessionStorage.getItem('s2s_expert_token_v2')||'',CASE_STORAGE='s2s_expert_active_case';document.getElementById('expertSessionName').textContent='● '+(sessionStorage.getItem('s2s_expert_name')||'کارشناس');
+function keyFor(partIndex,defect){const list=optionsForPart(parts[Number(partIndex)]),oi=list.indexOf(defect);return partIndex+'_'+(oi<0?0:oi)}
+const defectGroups=[
+ {key:'body',title:'بدنه، شاسی و چرخ‌ها',desc:'بازدید کامل بدنه، ستون‌ها، شاسی، سینی، سقف، سپرها و چرخ‌ها',parts:[
+ 'درب موتور','گلگیر جلو راننده','درب جلو راننده','درب عقب راننده','گلگیر عقب راننده','درب صندوق','رکاب راننده','ناودانی راننده','کف صندوق',
+ 'گلگیر عقب شاگرد','درب عقب شاگرد','درب جلو شاگرد','گلگیر جلو شاگرد','رکاب شاگرد','ناودانی شاگرد','سقف','شیشه جلو','شیشه عقب',
+ 'ستون A راننده','ستون B راننده','ستون C راننده','ستون A شاگرد','ستون B شاگرد','ستون C شاگرد','سپر جلو','جلوپنجره','چراغ جلو راننده',
+ 'چراغ جلو شاگرد','مه‌شکن جلو راننده','مه‌شکن جلو شاگرد','سپر عقب','چراغ عقب راننده','چراغ عقب شاگرد','چراغ ترمز سوم','چراغ پلاک',
+ 'آینه بغل راننده','آینه بغل شاگرد','دستگیره‌های درب','قاب پلاک','درب باک','گلگیر داخلی / قاب چرخ','کف اتاق','شاسی جلو راننده',
+ 'شاسی جلو شاگرد','شاسی عقب راننده','شاسی عقب شاگرد','سینی جلو','سینی عقب','جای زاپاس','دیاق جلو','دیاق عقب','پشت چراغ‌ها',
+ 'اتصالات و لولاها','لاستیک جلو راننده','لاستیک جلو شاگرد','لاستیک عقب راننده','لاستیک عقب شاگرد','رینگ‌ها'
+ ]},
+ {key:'climate',title:'تهویه و مطبوع',desc:'سیستم سرمایش، گرمایش و گردش هوای کابین',parts:[
+ 'کمپرسور کولر','کندانسور کولر','رادیاتور بخاری','فن کابین','فن کندانسور','لوله‌های کولر','شلنگ‌های بخاری','گاز کولر','پنل کنترل تهویه',
+ 'دریچه‌های تهویه','موتور دریچه‌ها','سنسور دمای کابین','بخاری','کولر','دمپر و دریچه‌های گردش هوا'
+ ]},
+ {key:'suspension',title:'سیستم تعلیق و فرمان',desc:'تعلیق، کمک‌ها، فنرها، جلوبندی و فرمان',parts:[
+ 'کمک فنر جلو راننده','کمک فنر جلو شاگرد','کمک فنر عقب راننده','کمک فنر عقب شاگرد','فنر جلو راننده','فنر جلو شاگرد',
+ 'فنر عقب راننده','فنر عقب شاگرد','طبق جلو راننده','طبق جلو شاگرد','سیبک‌ها','میل موج‌گیر','بوش‌ها','توپی چرخ','بلبرینگ چرخ',
+ 'میل فرمان','جعبه فرمان','فرمان و غربیلک','پمپ هیدرولیک فرمان','روغن هیدرولیک فرمان','دیفرانسیل'
+ ]},
+ {key:'electrical',title:'برقی و داخلی',desc:'برق خودرو، تجهیزات کابین و امکانات داخلی',parts:[
+ 'باتری','دینام','استارت','فیوزها','جعبه فیوز','سیم‌کشی','ECU','چراغ‌های داخلی','چراغ سقف','شیشه‌بالابر راننده','شیشه‌بالابر شاگرد',
+ 'شیشه‌بالابر عقب راننده','شیشه‌بالابر عقب شاگرد','قفل مرکزی','ریموت و کلید','آینه برقی','صندلی راننده','صندلی شاگرد','صندلی‌های عقب','تنظیم برقی صندلی راننده','تنظیم برقی صندلی شاگرد','گرمکن صندلی راننده','گرمکن صندلی شاگرد','روکش و تودوزی صندلی‌ها','سیستم صوتی',
+ 'مانیتور','دوربین عقب','سنسور پارک','کروز کنترل','ایربگ راننده','ایربگ شاگرد','ایربگ‌های جانبی','کمربند ایمنی راننده',
+ 'کمربند ایمنی شاگرد','کمربندهای عقب','سانروف','بوق','برف‌پاک‌کن','شیشه‌شوی','دسته راهنما','کلیدهای روی داشبورد'
+ ]},
+ {key:'engine',title:'موتور و مکانیک',desc:'موتور، گیربکس، روغن‌ها و سیستم‌های مکانیکی',parts:[
+ 'موتور','سرسیلندر','واشر سرسیلندر','تسمه تایم','تسمه‌ها','رادیاتور آب','واترپمپ','ترموستات','فن موتور','باتری موتور',
+ 'انژکتورها','دریچه گاز','توربو','میل گاردان','اگزوز','کاتالیزور','گیربکس','کلاچ','دیسک و صفحه','پلوس راننده','پلوس شاگرد',
+ 'روغن موتور','روغن گیربکس','روغن ترمز','ضدیخ و آب رادیاتور','نشتی روغن','نشتی آب'
+ ]},
+ {key:'brakes',title:'ترمز و ایمنی',desc:'ترمز، ABS و تجهیزات ایمنی خودرو',parts:[
+ 'دیسک ترمز جلو راننده','دیسک ترمز جلو شاگرد','دیسک ترمز عقب راننده','دیسک ترمز عقب شاگرد','لنت ترمز جلو','لنت ترمز عقب',
+ 'کالیپر ترمز','پمپ ترمز','بوستر ترمز','ABS','ترمز دستی','لوله‌های ترمز','شیلنگ ترمز'
+ ]}
+];
+const parts=defectGroups.flatMap(g=>g.parts);
+const opts=['تعویض','برش و تعویض','صافکاری بدون رنگ','صافکاری نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','ضربه'];
+function optionsForPart(part){
+ const p=String(part||''),group=defectGroups.find(g=>g.parts.includes(p))?.key||'body';
+ if(p==='توربو')return ['فشار بوست کمتر از حد معمول','فشار بوست بیش از حد','تاخیر در بوست یا افت شتاب','صدای سوت یا ساییدگی غیرعادی','نشتی روغن توربو','دود آبی از اگزوز','دود سیاه یا احتراق ناقص','لقی محور یا خرابی پره‌ها','عملکرد عادی ندارد','شلنگ یا مسیر بوست نشتی دارد','نیاز به سرویس','نیاز به تعمیر','تعویض','سایر'];
+ if(p==='میل گاردان')return ['لرزش هنگام حرکت','صدای تق‌تق یا ضربه','صدای زوزه','خرابی چهارشاخ گاردان','لقی یا خلاصی غیرعادی','تاب‌داشتگی یا عدم بالانس','خرابی کشویی گاردان','نشتی گریس','پارگی گردگیر','نیاز به گریس‌کاری','نیاز به تعمیر','تعویض قطعه','سایر'];
+ if(p==='دیفرانسیل')return ['صدای زوزه یا ناله','صدای تق‌تق یا ضربه','نشتی روغن دیفرانسیل','کمبود یا افت کیفیت روغن','لقی یا خلاصی غیرعادی','لرزش هنگام حرکت','گیرکردن یا سختی انتقال نیرو','داغ‌شدن بیش از حد','خرابی دنده‌ها یا بلبرینگ‌ها','نیاز به تنظیم','نیاز به تعمیر','تعویض روغن','تعویض قطعه','سایر'];
+ if(p==='سانروف')return ['باز و بسته نمی‌شود','گیرکردن یا حرکت کند','خرابی موتور سانروف','خرابی کلید یا کنترل','قطعی سیم‌کشی یا فیوز','نشتی آب یا خرابی آب‌بندی','صدای غیرعادی','شکستگی شیشه سانروف','تنظیم نبودن ریل یا مکانیزم','نیاز به سرویس و روان‌کاری','تعویض قطعه','سایر'];
+ if(/درب موتور|درب جلو|درب عقب|درب صندوق/.test(p))return ['ضربه یا فرورفتگی','صافکاری بدون رنگ','صافکاری و نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','رنگ‌شدگی','تنظیم نبودن درب یا فاصله نامناسب','خرابی لولا','خرابی قفل یا دستگیره','زنگ‌زدگی','تعویض','سایر'];
+ if(/شیشه/.test(p))return ['شکستگی یا ترک','سنگ‌خوردگی','خط‌وخش','آب‌بندی یا نشتی','تعویض','سایر'];
+ if(/لاستیک/.test(p))return ['ساییدگی آج','ترک یا پارگی','بادکردگی','پنچری','فرسودگی یا تاریخ‌گذشتگی','تعویض','سایر'];
+ if(/رینگ/.test(p))return ['خط‌وخش','تاب‌داشتگی','ترک یا شکستگی','خوردگی','تعویض','سایر'];
+ if(/چراغ|مه‌شکن/.test(p))return ['شکستگی طلق','کدرشدگی','آب‌گرفتگی','روشن نمی‌شود','تنظیم نبودن','تعویض','سایر'];
+ if(/آینه/.test(p))return ['شکستگی شیشه','شکستگی قاب','تنظیم برقی خراب','گرم‌کن خراب','خط‌وخش','تعویض','سایر'];
+ if(/صندلی|روکش و تودوزی/.test(p))return ['پارگی یا بریدگی روکش','سوختگی یا سوراخ‌شدگی','لکه یا کثیفی شدید','فرسودگی یا پوسته‌شدن','فوم یا اسفنج خراب','ریل یا پایه معیوب','تنظیم برقی کار نمی‌کند','گرم‌کن صندلی کار نمی‌کند','تعویض روکش','نیاز به تعمیر','سایر'];
+ if(/شاسی|سینی|دیاق|ستون|کف اتاق|کف صندوق|جای زاپاس|پشت چراغ/.test(p))return ['ضربه یا دفرمگی','ترک یا شکستگی','جوشکاری یا ترمیم','برش و تعویض','زنگ‌زدگی','آثار تصادف یا تعمیر قبلی','سایر'];
+ if(/سانروف/.test(p))return ['باز و بسته نمی‌شود','موتور یا مکانیزم خراب','ریل یا کشویی آسیب‌دیده','نشتی آب','صدای غیرعادی','کلید یا مدار برقی خراب','شیشه ترک‌خورده یا شکسته','آب‌بندی خراب','نیاز به تنظیم','تعمیر','تعویض','سایر'];
+ if(/^درب (جلو|عقب) (راننده|شاگرد)$/.test(p)||p==='درب موتور'||p==='درب صندوق')return ['ضربه یا فرورفتگی','صافکاری بدون رنگ','صافکاری و نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','رنگ‌شدگی','تعویض درب','تنظیم نبودن درب','خرابی لولا','خرابی قفل یا دستگیره','زنگ‌زدگی','سایر'];
+ if(/سپر|جلوپنجره|قاب پلاک|دستگیره|درب باک|قاب چرخ|گلگیر|سقف|رکاب|ناودانی|لولا|اتصالات/.test(p))return ['ضربه یا فرورفتگی','صافکاری بدون رنگ','صافکاری و نقاشی','لیسه بدون بتونه','لیسه با بتونه','رنگ‌پریدگی','رنگ‌شدگی','ترک یا شکستگی','زنگ‌زدگی','تعویض','سایر'];
+ if(group==='climate')return ['عملکرد ندارد','خنک‌کنندگی ضعیف','صدای غیرعادی','نشتی گاز یا مایع','خرابی برقی','نیاز به سرویس','تعویض','سایر'];
+ if(group==='suspension')return ['صدای غیرعادی','لقی یا خرابی','نشتی روغن','پارگی گردگیر یا بوش','سایش نامتعارف','تنظیم نبودن','تعویض','سایر'];
+ if(group==='electrical')return ['کار نمی‌کند','عملکرد مقطعی','اتصال یا قطعی سیم','خطای سیستم','شکستگی قطعه','نیاز به تعمیر','تعویض','سایر'];
+ if(group==='engine')return ['نشتی روغن','نشتی آب یا ضدیخ','صدای غیرعادی','دود غیرعادی','داغ کردن','افت توان','لرزش','خرابی یا فرسودگی','نیاز به تعمیر','تعویض','سایر'];
+ if(group==='brakes')return ['سایش لنت','تاب دیسک','نشتی روغن ترمز','صدای ترمز','افت عملکرد ترمز','چراغ هشدار روشن','نیاز به تنظیم','تعویض','سایر'];
+ return opts;
+}
+function keyFor(partIndex,defect){const list=optionsForPart(parts[Number(partIndex)]),oi=list.indexOf(defect);return partIndex+'_'+(oi<0?0:oi)}
+const mainShots=[
+ ['front','نمای مستقیم جلو','از روبه‌رو، کل خودرو در کادر باشد'],
+ ['front3d','سه‌رخ جلو راننده','نمای جلو و سمت راننده'],
+ ['front3p','سه‌رخ جلو شاگرد','نمای جلو و سمت شاگرد'],
+ ['driver','نمای کامل سمت راننده','تمام طول بدنه از سمت راننده'],
+ ['rear3d','سه‌رخ عقب راننده','نمای عقب و سمت راننده'],
+ ['rear','نمای مستقیم عقب','از روبه‌رو به عقب خودرو'],
+ ['trunkOpen','صندوق عقب باز','نمای کلی فضای صندوق در حالت باز'],
+ ['trunkFloor','کف صندوق','کف صندوق و زیرپوش آن'],
+ ['jackTools','جک و آچار چرخ','جک، آچار و ابزار همراه خودرو'],
+ ['rear3p','سه‌رخ عقب شاگرد','نمای عقب و سمت شاگرد'],
+ ['passenger','نمای کامل سمت شاگرد','تمام طول بدنه از سمت شاگرد'],
+ ['roof','سقف خودرو','سقف و ستون‌ها'],
+ ['driverSeat','صندلی جلو راننده','نمای نزدیک صندلی راننده'],
+ ['rearSeats','صندلی عقب کامل','تمام ردیف صندلی عقب'],
+ ['passengerSeat','صندلی جلو شاگرد','نمای نزدیک صندلی شاگرد'],
+ ['odometer','کیلومترشمار','نمای واضح عدد کیلومتر'],
+ ['steering','فرمان','فرمان و وضعیت ظاهری آن'],
+ ['dashboard','داشبورد کامل','نمای کامل داشبورد از داخل کابین'],
+ ['dashboardZoom','زوم داشبورد از عقب','نمای نزدیک داشبورد از سمت صندلی عقب'],
+ ['frontTireDriver','لاستیک جلو راننده','لاستیک و رینگ جلو سمت راننده'],
+ ['rearTireDriver','لاستیک عقب راننده','لاستیک و رینگ عقب سمت راننده'],
+ ['frontTirePassenger','لاستیک جلو شاگرد','لاستیک و رینگ جلو سمت شاگرد'],
+ ['rearTirePassenger','لاستیک عقب شاگرد','لاستیک و رینگ عقب سمت شاگرد'],
+ ['engine','محوطه موتور','نمای کلی موتور و محفظه آن']
+];;
+let current=null,cases=[];
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function caseNo(v){const n=Number(v);return Number.isFinite(n)&&n>0?'S'+n:'S—'}
+function vehicle(x){return (x.vehicles||[]).find(v=>v.vehicle_role==='current')||(x.vehicles||[])[0]||{}}
+function previewFiles(input,box){box.innerHTML='';[...input.files].forEach(f=>{const im=document.createElement('img');im.src=URL.createObjectURL(f);box.appendChild(im)})}
+function renderExpertCustomerContact(){if(!current)return;const name=document.getElementById('expertCustomerName');const phone=document.getElementById('expertCustomerPhone');const call=document.getElementById('expertCustomerCall');const appointment=document.getElementById('expertCustomerAppointment');if(name)name.textContent=current.customer_name||'ثبت نشده';const mobile=String(current.customer_mobile||current.phone||'').trim();if(phone)phone.textContent=mobile||'شماره تماس ثبت نشده';if(call){call.hidden=!mobile;call.href=mobile?'tel:'+mobile:'#'}if(appointment){const kind=({sell:'فروش خودرو',buy:'خرید خودرو',exchange:'معاوضه خودرو'})[current.service_type]||current.service_type||'—';const when=current.service_type==='buy'?'بدون زمان مراجعه':[current.appointment_date,current.appointment_time?String(current.appointment_time).slice(0,5):''].filter(Boolean).join(' ');appointment.textContent=kind+' · '+(when||'زمان مراجعه ثبت نشده')}}
+function renderExpertAddress(){const address=dispatchAddress(current);document.querySelectorAll('.case-address-value').forEach(el=>{el.textContent=address||'آدرس مشتری در پرونده ثبت نشده است؛ از واحد ثبت درخواست بخواهید آدرس را ذخیره کند.';el.classList.toggle('address-missing',!address)});document.querySelectorAll('.expert-address-copy,.expert-address-route').forEach(b=>{b.disabled=!address;b.style.opacity=address?'1':'.55'})}
+function openExpertRoute(){const address=dispatchAddress(current);if(!address){alert('هنوز آدرسی در پرونده ثبت نشده است.');return}const destination=encodeURIComponent(address);window.location.href='https://www.google.com/maps/dir/?api=1&destination='+destination+'&travelmode=driving'}
+async function copyExpertAddress(){const address=dispatchAddress(current);if(!address){alert('هنوز آدرسی در پرونده ثبت نشده است.');return}try{await navigator.clipboard.writeText(address);alert('آدرس کپی شد.')}catch(e){const t=document.createElement('textarea');t.value=address;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();alert('آدرس کپی شد.')}}
+function openPhotoSourceMenu(cameraId,galleryId){document.getElementById('photoSourceOverlay')?.remove();const overlay=document.createElement('div');overlay.id='photoSourceOverlay';overlay.className='photo-source-overlay';overlay.innerHTML='<div class="photo-source-sheet" role="dialog" aria-modal="true" aria-label="انتخاب منبع عکس"><h3>📸 افزودن تصویر</h3><p>روش ثبت عکس را انتخاب کنید</p><button type="button" class="photo-source-option" data-photo-source="camera"><span>📷</span><b>گرفتن عکس با دوربین</b></button><button type="button" class="photo-source-option" data-photo-source="gallery"><span>🖼️</span><b>انتخاب از گالری</b></button><button type="button" class="photo-source-option photo-source-cancel" data-photo-source="cancel">انصراف</button></div>';overlay.addEventListener('click',event=>{if(event.target===overlay){overlay.remove();return}const option=event.target.closest('[data-photo-source]');if(!option)return;const source=option.dataset.photoSource;overlay.remove();if(source==='cancel')return;const input=document.getElementById(source==='camera'?cameraId:galleryId);if(input)input.click()});document.body.appendChild(overlay)}
+function renderDocs(){
+ const arr=[['national','عکس کارت ملی مالک','الزامی','national'],['carDocFront','کارت خودرو — روی کارت','اختیاری','car_document_front'],['carDocBack','کارت خودرو — پشت کارت','اختیاری','car_document_back'],['greenDoc','برگ سبز / سند مالکیت','اختیاری','green_card'],['factoryDoc','برگ کمپانی / فاکتور کارخانه','اختیاری','factory_invoice'],['techDoc','معاینه فنی','اختیاری','technical_inspection'],['insuranceDoc','بیمه‌نامه','اختیاری','insurance'],['insuranceBack','صفحه پشت / شرایط بیمه','اختیاری','insurance_back'],['transferDoc','وکالت‌نامه یا مدارک نقل‌وانتقال','اختیاری','transfer_document'],['otherDoc','سایر مدارک خودرو','اختیاری','other']];
+ docsGrid.innerHTML=arr.map((d,i)=>'<div class="photo-box"><strong>'+d[1]+' '+(d[2]==='الزامی'?'*':'')+'</strong><small>'+d[2]+'</small><input id="'+d[0]+'Cam" class="photo-camera" type="file" accept="image/*" capture="environment"><input id="'+d[0]+'Gal" class="photo-gallery" type="file" accept="image/*"><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\''+d[0]+'Cam\',\''+d[0]+'Gal\')">＋ افزودن عکس</button><span class="file-name" id="docname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="docprev'+i+'"></div></div>').join('');
+ arr.forEach((d,i)=>[document.getElementById(d[0]+'Cam'),document.getElementById(d[0]+'Gal')].forEach(f=>f.onchange=async()=>{const picked=selectedPhoto(d[0]);document.getElementById('docname'+i).textContent=picked?picked.name:'تصویری انتخاب نشده';const box=document.getElementById('docprev'+i);box.innerHTML='';if(picked){const url=await readFile(picked);showPhotoPreview(box,url);await savePhotoDraftItem('docs',d[0],url);if(d[0]==='carDocFront'){vehicleOcrStatus('عکس کارت خودرو دریافت شد؛ استخراج خودکار اطلاعات شروع شد…');await extractVehicleCardData(url)}}}));restoreDocPhotoDraft();
+}
+let quickCaptureActive=false,quickCaptureIndex=0,quickCameraStream=null;
+const quickCapturedPhotos={};
+function quickCaptureMessage(t){const el=document.getElementById('quickCaptureStatus');if(el)el.textContent=t}
+function nextQuickIndex(){return mainShots.findIndex((x,i)=>!quickCapturedPhotos[i]&&!selectedPhotoGroup('mainfile',i).length)}
+async function startQuickCapture(){
+ try{
+  quickCaptureIndex=nextQuickIndex();if(quickCaptureIndex<0){quickCaptureIndex=0;quickCaptureMessage('همه کادرها عکس دارند؛ با شروع دوباره از نمای جلو شروع می‌کنیم.')}
+  quickCaptureActive=true;
+  const modal=document.getElementById('quickCameraModal'),video=document.getElementById('quickCameraVideo');
+  modal.classList.remove('hidden');
+  document.getElementById('quickCameraTitle').textContent='عکاسی سریع — '+mainShots[quickCaptureIndex][1];
+  document.getElementById('quickCameraHint').textContent='زاویه را تنظیم کنید و دکمه بزرگ پایین را بزنید؛ دوربین بین عکس‌ها باز می‌ماند.';
+  if(!quickCameraStream){
+   quickCameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+   video.srcObject=quickCameraStream;
+  }
+  await video.play();
+  quickCaptureMessage('دوربین آماده است؛ برای عکس‌های بعدی لازم نیست دوباره «شروع عکاسی سریع» را بزنید.');
+ }catch(e){quickCaptureActive=false;closeQuickCamera();quickCaptureMessage('دوربین باز نشد. اجازه دسترسی دوربین را در مرورگر فعال کنید؛ '+(e.message||''))}
+}
+function closeQuickCamera(){
+ quickCaptureActive=false;
+ if(quickCameraStream){quickCameraStream.getTracks().forEach(t=>t.stop());quickCameraStream=null}
+ const v=document.getElementById('quickCameraVideo');if(v)v.srcObject=null;
+ const modal=document.getElementById('quickCameraModal');if(modal)modal.classList.add('hidden');
+}
+function stopQuickCapture(){closeQuickCamera();quickCaptureMessage('عکاسی سریع متوقف شد. عکس‌های گرفته‌شده حفظ شده‌اند.')}
+async function captureQuickPhoto(){
+ if(!quickCaptureActive||!quickCameraStream)return;
+ const video=document.getElementById('quickCameraVideo'),canvas=document.getElementById('quickCameraCanvas');
+ if(!video.videoWidth){quickCaptureMessage('دوربین هنوز آماده نیست؛ یک لحظه صبر کنید.');return}
+ /* Preserve the camera's original orientation and full frame: landscape stays landscape, portrait stays portrait. */
+ const sw=video.videoWidth,sh=video.videoHeight,scale=Math.min(1,1600/sw,1600/sh);
+ canvas.width=Math.max(1,Math.round(sw*scale));canvas.height=Math.max(1,Math.round(sh*scale));const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,canvas.width,canvas.height);
+ const dataUrl=canvas.toDataURL('image/jpeg',0.88);
+ quickCapturedPhotos[quickCaptureIndex]=dataUrl;await savePhotoDraftItem('main',String(quickCaptureIndex),dataUrl);
+ const preview=document.getElementById('mp'+quickCaptureIndex),name=document.getElementById('mainname'+quickCaptureIndex);
+ if(preview)showPhotoPreview(preview,dataUrl);savePhotoDraftItem('main',String(quickCaptureIndex),dataUrl);
+ if(name)name.textContent='۱ عکس با دوربین سریع ثبت شد';
+ const card=document.getElementById('mainbox_'+quickCaptureIndex);if(card){card.style.borderColor='#10b981';card.style.boxShadow='';card.scrollIntoView({behavior:'smooth',block:'nearest'})}
+ const next=nextQuickIndex();
+ if(next<0){quickCaptureMessage('همه ۲۴ زاویه عکس‌برداری شدند. عکس‌ها ذخیره موقت شده‌اند و همراه گزارش ثبت می‌شوند.');document.getElementById('quickCameraHint').textContent='همه زاویه‌ها تکمیل شد. می‌توانید دوربین را ببندید.';quickCaptureActive=false;closeQuickCamera();return}
+ quickCaptureIndex=next;
+ document.getElementById('quickCameraTitle').textContent='عکاسی سریع — '+mainShots[next][1];
+ document.getElementById('quickCameraHint').textContent='عکس قبلی ثبت شد ✓ حالا زاویه بعدی را تنظیم کنید و دوباره دکمه عکس را بزنید.';
+ quickCaptureMessage('عکس بعدی آماده است: '+mainShots[next][1]+' — دوربین باز مانده است.');
+}
+
+function renderMainPhotos(){
+ mainPhotos.innerHTML=mainShots.map((s,i)=>{const id='maincam_'+i,gid='maingal_'+i;return '<div class="photo-box" id="mainbox_'+i+'"><strong>'+s[1]+'</strong><small>'+s[2]+'</small><input id="'+id+'" class="mainfile photo-camera" data-label="'+esc(s[1])+'" type="file" accept="image/*" capture="environment" multiple><input id="'+gid+'" class="mainfile photo-gallery" data-label="'+esc(s[1])+'" type="file" accept="image/*" multiple><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\''+id+'\',\''+gid+'\')">＋ افزودن عکس</button><span class="file-name" id="mainname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="mp'+i+'"></div></div>'}).join('');
+ restoreMainPhotoDraft();
+ document.querySelectorAll('.mainfile').forEach(f=>f.onchange=async()=>{const i=Number(f.id.split('_').pop()),box=document.getElementById('mp'+i),files=selectedPhotoGroup('mainfile',i);box.innerHTML='';document.getElementById('mainname'+i).textContent=files.length?(files.length+' عکس انتخاب شد؛ در حال ذخیره…'):'تصویری انتخاب نشده';files.forEach(file=>{const im=document.createElement('img');im.src=URL.createObjectURL(file);box.appendChild(im)});if(files.length){addDeletePhotoButton(box);const card=document.getElementById('mainbox_'+i);if(card)card.classList.add('has-photo');try{const urls=await Promise.all(files.map(readFile));const d=await readPhotoDraft();d.main=d.main||{};d.main[i]=urls;await writePhotoDraft(d);document.getElementById('mainname'+i).textContent=files.length+' عکس ذخیره شد؛ با رفرش پاک نمی‌شود'}catch(err){console.error('ذخیره عکس‌های خودرو ناموفق بود',err);document.getElementById('mainname'+i).textContent='ذخیره نشد؛ دوباره عکس را انتخاب کنید';alert('ذخیره عکس انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کنید و دوباره تلاش کنید.')}}if(quickCaptureActive&&f.classList.contains('photo-camera')&&f.files&&f.files.length){const card=document.getElementById('mainbox_'+i);if(card)card.style.borderColor='#10b981';advanceQuickCapture()}});
+}
+/* Clicking controls/photos inside a defect drawer must not activate the surrounding label checkbox. */
+document.addEventListener('click',event=>{if(event.target.closest('.inline-drawer')&&event.target.closest('img'))event.preventDefault()},true);
+function renderDefects(){
+ const searchWrap='<div class="defect-search"><input id="defectSearch" type="search" placeholder="جست‌وجوی قطعه یا سیستم؛ مثلاً «درب»، «گلگیر»، «کولر»..."><span class="search-count" id="defectCount"></span></div>';
+ function cardHtml(p,g){const n=parts.indexOf(p),partOpts=optionsForPart(p),searchable=esc(p+' '+p.replaceAll('راننده','چپ').replaceAll('شاگرد','راست')+' '+g.title+' '+g.desc);return '<details class="defect-card defect-part-dropdown" data-part-search="'+searchable+'" data-area="'+esc(g.title)+'"><summary class="defect-head"><b>'+p+'</b><span class="mini">'+g.title+'　⌄</span></summary><div class="part-defect-content"><div class="defect-options">'+partOpts.map((o,oi)=>'<label class="pill"><input type="checkbox" data-part="'+n+'" data-area="'+esc(g.title)+'" data-defect="'+esc(o)+'"><span>'+esc(o)+'</span><div class="inline-drawer" id="drawer_'+n+'_'+oi+'"><div class="defect-extra-actions"><button type="button" class="camera-btn defect-photo-action" onclick="openPhotoSourceMenu(\'defcam_'+n+'_'+oi+'\',\'defgal_'+n+'_'+oi+'\')">📷 افزودن عکس</button></div><b>عکس '+esc(o)+'</b><input id="defcam_'+n+'_'+oi+'" class="defphoto photo-camera" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" capture="environment" multiple><input id="defgal_'+n+'_'+oi+'" class="defphoto photo-gallery" data-part="'+n+'" data-defect="'+esc(o)+'" type="file" accept="image/*" multiple><span class="file-name">تصویری انتخاب نشده</span><div class="drawer-preview"></div><button type="button" class="camera-btn markup-toggle" onclick="toggleMarkup(this)">✏️ علامت‌گذاری روی عکس</button><div class="canvas-wrap"><canvas class="defcanvas" width="800" height="380"></canvas><div class="drawbar"><button type="button" onclick="enableDraw(this)">قلم</button><button type="button" onclick="clearDraw(this)">پاک کردن</button><button type="button" onclick="markSaved(this)">ثبت علامت</button></div></div></div></label>').join('')+'</div></div></details>'}
  function clusterKey(p){if(/^درب /.test(p)||p==='دستگیره‌های درب'||p==='اتصالات و لولاها')return 'doors';if(p.includes('گلگیر'))return 'fenders';if(p.startsWith('لاستیک '))return 'tires';if(p.startsWith('ناودانی '))return 'channels';if(p.startsWith('رکاب '))return 'sills';if(p.startsWith('شیشه ')||p.startsWith('آینه '))return 'glassMirrors';if(p.startsWith('ستون '))return 'pillars';if(p==='سپر جلو'||p==='سپر عقب')return 'bumpers';if(p.startsWith('چراغ ')||p.startsWith('مه‌شکن '))return 'lights';if(p.startsWith('شاسی ')||p.startsWith('سینی '))return 'chassisTrays';if(p.startsWith('دیاق '))return 'beams';return ''}
  const names={doors:'همه درب‌ها و لولاها',fenders:'همه گلگیرها',tires:'همه لاستیک‌ها',channels:'همه ناودانی‌ها',sills:'همه رکاب‌ها',glassMirrors:'همه شیشه‌ها و آینه‌ها',pillars:'همه ستون‌ها',bumpers:'همه سپرها',lights:'همه چراغ‌ها و مه‌شکن‌ها',chassisTrays:'همه شاسی‌ها و سینی‌ها',beams:'همه دیاق‌ها'};
  const clusterOrder=['doors','fenders','tires','channels','sills','glassMirrors','pillars','bumpers','lights','chassisTrays','beams'];
@@ -973,7 +1223,61 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 
 
 
-
+<style id="s2s-expert-hamburger-menu-style">
+.top{position:relative!important;padding-left:58px!important}
+#s2sExpertMenuButton{position:absolute;left:8px;top:10px;z-index:40;width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #31516d;border-radius:14px;background:linear-gradient(145deg,#18364e,#0a1726);box-shadow:0 8px 20px #0004;cursor:pointer}
+#s2sExpertMenuButton span{display:block;width:19px;height:2.5px;border-radius:5px;background:#dff8f3;transition:transform .2s,opacity .2s}
+#s2sExpertMenuButton[aria-expanded="true"] span:first-child{transform:translateY(7.5px) rotate(45deg)}
+#s2sExpertMenuButton[aria-expanded="true"] span:nth-child(2){opacity:0}
+#s2sExpertMenuButton[aria-expanded="true"] span:last-child{transform:translateY(-7.5px) rotate(-45deg)}
+#s2sExpertMenuShade{position:fixed;inset:0;z-index:9998;background:#020817a8;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .2s}
+#s2sExpertMenuShade.open{opacity:1;pointer-events:auto}
+#s2sExpertMenuPanel{position:fixed;z-index:9999;left:12px;top:12px;bottom:12px;width:min(310px,calc(100vw - 24px));overflow:auto;padding:17px;border:1px solid #31516d;border-radius:22px;background:radial-gradient(circle at 0 0,#16405a 0,transparent 42%),linear-gradient(160deg,#102338,#071321);box-shadow:0 24px 70px #0008;transform:translateX(calc(-100% - 20px));transition:transform .24s ease;direction:rtl;color:#e8f3ff}
+#s2sExpertMenuPanel.open{transform:translateX(0)}
+.s2s-menu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 0 15px;border-bottom:1px solid #29445e;margin-bottom:12px}
+.s2s-menu-head strong{font-size:15px}.s2s-menu-head small{display:block;color:#9db5ca;font-size:10px;margin-top:4px}
+#s2sExpertMenuClose{width:36px;height:36px;border:1px solid #31516d;border-radius:11px;background:#132b40;color:#e8f3ff;font-size:20px}
+.s2s-menu-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 15px}
+.s2s-menu-stat{min-width:0;display:flex;flex-direction:column;gap:5px;padding:12px 11px;border:1px solid #2b4b61;border-radius:15px;background:linear-gradient(145deg,#142f43,#0a1a29);box-shadow:inset 0 1px 0 #ffffff0b}
+.s2s-menu-stat small{font-size:10px;font-weight:800;line-height:1.7;color:#c3d6e5}
+.s2s-menu-stat strong{font-size:27px;line-height:1.1;font-weight:950;color:#f2fbff;font-variant-numeric:tabular-nums}
+.s2s-menu-stat span{font-size:9px;color:#8faec1;line-height:1.6}
+.s2s-menu-stat-done{border-color:#216957;background:linear-gradient(145deg,#10382f,#0a2022)}
+.s2s-menu-stat-done strong{color:#7ce6c6}
+.s2s-menu-stat-active strong{color:#8fd8ff}
+.s2s-menu-items{display:grid;gap:7px}
+.s2s-menu-items button{width:100%;text-align:right;display:flex;align-items:center;gap:11px;min-height:45px;padding:10px 12px;border:1px solid #243e56;border-radius:13px;background:linear-gradient(120deg,#11283b,#0b1b2b);color:#e6f1ff;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.s2s-menu-items button:active,.s2s-menu-items button:hover{border-color:#55d6c2;background:linear-gradient(120deg,#17465a,#10283a)}
+.s2s-menu-items button span{width:27px;height:27px;display:grid;place-items:center;border-radius:9px;background:#1b3d50;color:#8cebd9;flex-shrink:0}
+@media(max-width:520px){.top{padding-left:54px!important}#s2sExpertMenuButton{left:2px;top:5px;width:42px;height:42px}.brand h1{font-size:16px!important}}
+</style>
+<div id="s2sExpertMenuShade" aria-hidden="true"></div>
+<aside id="s2sExpertMenuPanel" aria-label="منوی داشبورد" aria-hidden="true">
+ <div class="s2s-menu-head"><div><strong>منوی کارشناسی</strong><small>دسترسی سریع به بخش‌ها</small></div><button id="s2sExpertMenuClose" type="button" aria-label="بستن منو">×</button></div>
+ <div class="s2s-menu-stats" aria-label="آمار کارشناسی‌ها">
+  <div class="s2s-menu-stat s2s-menu-stat-done"><small>کارشناسی‌های تکمیل‌شده</small><strong id="s2sMenuCompletedCount">۰</strong><span>ثبت نهایی شده</span></div>
+  <div class="s2s-menu-stat s2s-menu-stat-active"><small>پرونده‌های جاری</small><strong id="s2sMenuActiveCount">۰</strong><span>در انتظار / در حال کارشناسی</span></div>
+ </div>
+ <nav class="s2s-menu-items">
+  <button type="button" data-menu-action="chat"><span>💬</span>چت کارشناسی</button>
+  <button type="button" data-menu-action="cases"><span>▦</span>پرونده‌ها</button>
+  <button type="button" data-menu-action="completed"><span>✓</span>کارشناسی‌های من</button>
+ </nav>
+</aside>
+<script id="s2s-expert-hamburger-menu">
+(function(){
+ const header=document.querySelector('header.top'),panel=document.getElementById('s2sExpertMenuPanel'),shade=document.getElementById('s2sExpertMenuShade');
+ if(!header||!panel||!shade||document.getElementById('s2sExpertMenuButton'))return;
+ const btn=document.createElement('button');btn.id='s2sExpertMenuButton';btn.type='button';btn.setAttribute('aria-label','باز کردن منو');btn.setAttribute('aria-expanded','false');btn.innerHTML='<span></span><span></span><span></span>';header.appendChild(btn);
+ function close(){panel.classList.remove('open');shade.classList.remove('open');panel.setAttribute('aria-hidden','true');btn.setAttribute('aria-expanded','false');}
+ function open(){panel.classList.add('open');shade.classList.add('open');panel.setAttribute('aria-hidden','false');btn.setAttribute('aria-expanded','true');}
+ btn.addEventListener('click',()=>panel.classList.contains('open')?close():open());
+ shade.addEventListener('click',close);document.getElementById('s2sExpertMenuClose')?.addEventListener('click',close);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  panel.querySelectorAll('[data-menu-action]').forEach(b=>b.addEventListener('click',()=>{const action=b.dataset.menuAction;close();if(action==='chat'){if(typeof current!=='undefined'&&current){if(document.getElementById('inspectionHome')?.classList.contains('hidden')&&typeof startInspectionView==='function')startInspectionView(false);if(typeof toggleInspectionChat==='function')toggleInspectionChat();}else{document.getElementById('listCard')?.scrollIntoView({behavior:'smooth',block:'start'});}}else if(action==='completed'){if(typeof toggleCompletedCases==='function')toggleCompletedCases(true);document.getElementById('completedCasesCard')?.scrollIntoView({behavior:'smooth',block:'start'});}else{if(typeof backToList==='function'&&typeof current!=='undefined'&&current)backToList();else document.getElementById('listCard')?.scrollIntoView({behavior:'smooth',block:'start'});}}));
+ panel.querySelectorAll('[data-menu-section]').forEach(b=>b.addEventListener('click',()=>{const section=b.dataset.menuSection;close();if(typeof current!=='undefined'&&current&&typeof openInspectionSection==='function')openInspectionSection(section);else{document.getElementById('inspectionHome')?.scrollIntoView({behavior:'smooth',block:'start'});}}));
+})();
+</script>
 
 
 <style id="expert-collapsible-panels">
