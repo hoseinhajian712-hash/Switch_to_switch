@@ -134,7 +134,8 @@ function actionButton(c){
  const s=c.status;
  if(role==="expert"&&!c.assigned_to_me)return '<span class="caseSub">فقط مشاهده · پرونده به شما ارجاع نشده</span>';
  if(role==="sales"&&(s==="expert_visit_confirmed"||s==="refer"))return '<button class="btn primary" onclick="assignCaseExpert(\''+c.id+'\')">ارجاع / انتخاب کارشناس</button>';
- if(role==="sales"&&s==="auction-ready")return '<button class="btn primary" onclick="createAuctionForCase(\''+c.id+'\')">ثبت قیمت هدف و انتقال به مزایده</button>';
+ if(role==="sales"&&s==="awaiting_guarantee_deposit")return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\'skip_guarantee_to_auction\')">عبور از وجه تضمین و آماده‌سازی مزایده</button>';
+  if(role==="sales"&&s==="auction-ready")return '<button class="btn primary" onclick="createAuctionForCase(\''+c.id+'\')">ثبت قیمت هدف و انتقال به مزایده</button>';
  if(role==="sales"&&s==="auction"&&c.auction&&new Date(c.auction.ends_at).getTime()<=Date.now())return '<button class="btn primary" onclick="endAuctionForCase(\''+c.id+'\')">ثبت پایان مزایده</button>';
  if(role==="sales"&&s==="auction-end"&&c.auction&&c.auction.winner_id&&c.auction.winner_response_status==="accepted")return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\'calculate_branch_offer\')">محاسبه سود و ارسال قیمت به شعبه</button>';
  if(role==="sales"&&s==="auction-end"&&c.auction&&c.auction.winner_response_status==="pending")return '<button class="btn" disabled>در انتظار تأیید برنده مزایده</button>';
