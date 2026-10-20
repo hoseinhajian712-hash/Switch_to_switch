@@ -9,7 +9,7 @@
 .dateFilterCard{margin-bottom:14px;padding:12px 14px}.dateFilterTop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}.dateFilterGrid{display:grid;grid-template-columns:1.25fr repeat(4,minmax(110px,1fr));gap:9px;align-items:end}.dateFilterGrid .field{margin:0;min-width:0}.dateFilterGrid .field label{font-size:11px}.dateFilterGrid .field input,.dateFilterGrid .field select{padding:9px 10px;font-size:12px;height:39px}.dateFilterGrid input[type=text]{text-align:center;direction:ltr}@media(max-width:850px){.dateFilterGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.dateFilterGrid{grid-template-columns:1fr 1fr;gap:7px}.dateFilterGrid .field:first-child{grid-column:1/-1}}.caseRow{cursor:pointer;transition:background .15s}.caseRow:hover{background:#14283e}.caseRow:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}.caseRow td{cursor:pointer}
 .branchOfferOverlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px;background:#020814d9;backdrop-filter:blur(10px)}.branchOfferOverlay.hidden{display:none!important}.branchOfferDialog{width:min(540px,100%);max-height:92vh;overflow:auto;border:1px solid #496582;border-radius:24px;background:linear-gradient(150deg,#12243a,#071321);box-shadow:0 28px 100px #000b;padding:22px}.branchOfferDialog h3{font-size:19px;margin:0 0 7px}.branchOfferDialog .sub{color:#9fb4ca;font-size:12px;line-height:1.9;margin-bottom:18px}.offerSummary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.offerMetric{padding:13px;border:1px solid #2b425b;border-radius:14px;background:#091727}.offerMetric span{display:block;color:#9fb4ca;font-size:11px;margin-bottom:8px}.offerMetric strong{font-size:15px;overflow-wrap:anywhere}.offerMetric.highlight{border-color:#2e7666;background:#0d2b2a}.offerMetric.highlight strong{color:#91f0ce}.branchOfferDialog input{width:100%;padding:13px;border:1px solid #3a536e;border-radius:12px;background:#071321;color:#f4f8ff;outline:none}.branchOfferDialog input:focus{border-color:var(--gold)}.branchOfferActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.branchOfferActions button{flex:1;min-width:120px}@media(max-width:480px){.branchOfferDialog{padding:16px}.offerSummary{grid-template-columns:1fr}}
 .stageNoteOverlay{position:fixed;inset:0;z-index:3100;display:flex;align-items:center;justify-content:center;padding:16px;background:#020814d9;backdrop-filter:blur(10px)}.stageNoteOverlay.hidden{display:none!important}.stageNoteDialog{width:min(520px,100%);border:1px solid #496582;border-radius:22px;background:linear-gradient(150deg,#12243a,#071321);box-shadow:0 28px 100px #000b;padding:22px}.stageNoteDialog h3{margin:0 0 8px;font-size:19px}.stageNoteDialog p{color:#9fb4ca;font-size:13px;line-height:1.9;margin:0 0 14px}.stageNoteDialog textarea{width:100%;min-height:130px;resize:vertical;padding:13px;border:1px solid #3a536e;border-radius:12px;background:#071321;color:#f4f8ff;font:inherit;outline:none}.stageNoteDialog textarea:focus{border-color:var(--gold)}.stageNoteActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.stageNoteActions button{flex:1;min-width:120px}
-</style></head>
+.expertAssignOverlay{position:fixed;inset:0;z-index:3200;display:flex;align-items:center;justify-content:center;padding:16px;background:#020814d9;backdrop-filter:blur(10px)}.expertAssignOverlay.hidden{display:none!important}.expertAssignDialog{width:min(500px,100%);border:1px solid #496582;border-radius:24px;background:linear-gradient(150deg,#12243a,#071321);box-shadow:0 28px 100px #000b;padding:22px}.expertAssignDialog h3{margin:0 0 8px;font-size:20px}.expertAssignDialog .sub{color:#9fb4ca;font-size:13px;line-height:1.9;margin-bottom:18px}.expertAssignDialog select{width:100%;padding:14px;border:1px solid #3a536e;border-radius:13px;background:#071321;color:#f4f8ff;outline:none}.expertAssignDialog select:focus{border-color:var(--gold)}.expertAssignActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.expertAssignActions button{flex:1;min-width:120px}.expertAssignError{color:#fda4af;min-height:22px;margin-top:10px;font-size:13px;line-height:1.8}</style></head>
 <body>
 <div id="loginView" class="shell login">
  <div class="brand" style="justify-content:center;margin:18px 0 22px"><div class="logo">S2S</div><div><h1>سوییچ به سوییچ</h1><div class="muted">مرکز عملیات و گردش پرونده‌ها</div></div></div>
@@ -33,6 +33,7 @@
  </main></div><div id="caseModal" class="caseModal hidden" onclick="if(event.target===this)closeCase()"><div class="caseDialog"><div id="detailArea"></div></div></div>
 <div id="branchOfferModal" class="branchOfferOverlay hidden" onclick="if(event.target===this)closeBranchOfferModal(null)"><section class="branchOfferDialog" role="dialog" aria-modal="true" aria-labelledby="branchOfferTitle"><div class="row" style="margin-bottom:12px"><span class="pill">ثبت قیمت شعبه</span><button class="btn" onclick="closeBranchOfferModal(null)">✕</button></div><h3 id="branchOfferTitle">ثبت دستی سود شرکت و قیمت فروشنده</h3><div class="sub">مبلغ سود شرکت را به‌صورت دستی وارد کنید. قیمت قابل اعلام به فروشنده/شعبه در همین پنجره محاسبه می‌شود؛ پیش از ثبت، خلاصه را تأیید کنید.</div><div class="offerSummary"><div class="offerMetric"><span>قیمت نهایی مزایده</span><strong id="offerAuctionPrice">—</strong></div><div class="offerMetric"><span>سود / کارمزد دستی شرکت</span><strong id="offerProfitPreview">—</strong></div><div class="offerMetric highlight" style="grid-column:1/-1"><span>مانده قابل اعلام به فروشنده / شعبه</span><strong id="offerSellerPreview">—</strong></div></div><div class="field"><label for="offerProfitInput">مبلغ سود شرکت (تومان)</label><input id="offerProfitInput" inputmode="numeric" autocomplete="off" placeholder="مبلغ را وارد کنید"></div><div id="offerModalError" class="muted" style="color:#fda4af;min-height:20px"></div><div class="branchOfferActions"><button class="btn" onclick="closeBranchOfferModal(null)">بازگشت برای اصلاح</button><button class="btn primary" onclick="confirmBranchOfferModal()">تأیید و ثبت برای شعبه</button></div></section></div>
 <div id="stageNoteModal" class="stageNoteOverlay hidden" onclick="if(event.target===this)closeStageNoteModal(null)"><section class="stageNoteDialog" role="dialog" aria-modal="true" aria-labelledby="stageNoteTitle"><h3 id="stageNoteTitle">یادداشت مرحله پرونده</h3><p>یادداشت اختیاری است و همراه با ثبت این مرحله در پرونده ذخیره می‌شود.</p><textarea id="stageNoteInput" maxlength="3000" placeholder="یادداشت این مرحله را اینجا بنویسید…"></textarea><div class="stageNoteActions"><button class="btn" onclick="closeStageNoteModal(null)">انصراف</button><button class="btn primary" onclick="closeStageNoteModal(document.getElementById('stageNoteInput').value)">ادامه و ثبت مرحله</button></div></section></div>
+<div id="expertAssignModal" class="expertAssignOverlay hidden" onclick="if(event.target===this)closeExpertAssignModal()"><section class="expertAssignDialog" role="dialog" aria-modal="true" aria-labelledby="expertAssignTitle"><div class="row" style="justify-content:space-between;margin-bottom:14px"><span class="pill">ارجاع پرونده</span><button class="btn" type="button" onclick="closeExpertAssignModal()">✕ بستن</button></div><h3 id="expertAssignTitle">انتخاب کارشناس خودرو</h3><div class="sub">کارشناس را از فهرست کارشناسان فعال انتخاب کنید. پس از تأیید، پرونده در پنل کارشناس منتخب نمایش داده می‌شود.</div><div class="field"><label for="expertAssignSelect">کارشناس مسئول</label><select id="expertAssignSelect"><option value="">در حال دریافت کارشناسان…</option></select></div><div id="expertAssignError" class="expertAssignError" role="status"></div><div class="expertAssignActions"><button class="btn" type="button" onclick="closeExpertAssignModal()">انصراف</button><button class="btn primary" id="expertAssignConfirm" type="button" onclick="confirmExpertAssignment()" disabled>تأیید و ارجاع پرونده</button></div></section></div>
 <div class="foot">سوییچ به سوییچ · گردش پرونده قابل‌ردیابی · دسترسی بر اساس نقش</div>
 </div>
 <script>
@@ -76,23 +77,35 @@ function toolsFor(r){const items={
  finance:[["محاسبه تسویه","پیش‌پرداخت، کسورات و خالص پرداختی","◇"],["مستندات مالی","رسیدها، جرایم و تأییدهای مالی","▤"]],
  contracts:[["مدیریت قرارداد","قالب قرارداد و وضعیت امضاها","▤"],["تحویل و وکالت","رسید امانت، تحویل خودرو و وکالت","✓"]],
 };return (items[r]||[]).map(x=>'<article class="card"><div class="row"><div><h3>'+x[0]+'</h3><div class="muted" style="line-height:1.8">'+x[1]+'</div></div><span style="font-size:24px;color:var(--gold)">'+x[2]+'</span></div></article>').join("")}
+let pendingExpertCaseId=null;
 async function assignCaseExpert(id){
+ pendingExpertCaseId=id;
+ const modal=document.getElementById("expertAssignModal");
+ const select=document.getElementById("expertAssignSelect");
+ const error=document.getElementById("expertAssignError");
+ const confirmBtn=document.getElementById("expertAssignConfirm");
+ select.innerHTML='<option value="">در حال دریافت کارشناسان…</option>';
+ select.disabled=true;confirmBtn.disabled=true;error.textContent="";
+ modal.classList.remove("hidden");document.body.style.overflow="hidden";
  try{
   const r=await api("personnel-list");
   const staff=(r.staff||[]).filter(x=>x.active&&x.role==="expert");
-  if(!staff.length){alert("کارشناس فعال در سامانه ثبت نشده است. ابتدا حساب کارشناس را در پنل مدیریت ایجاد کنید.");return}
-  const menu=staff.map((x,i)=>(i+1)+". "+x.full_name).join("\n");
-  const choice=prompt("شماره کارشناس موردنظر را وارد کنید:\n\n"+menu);
-  if(choice===null)return;
-  const n=Number(normalizeDigits(choice.trim()));
-  if(!Number.isInteger(n)||n<1||n>staff.length){alert("شماره انتخاب‌شده معتبر نیست.");return}
-  const expert=staff[n-1];
-  if(!confirm("پرونده به «"+expert.full_name+"» ارجاع شود؟"))return;
-  await api("assign-case-expert",{id,method:"POST",body:{personnel_id:expert.id}});
-  await loadCases();
-  if(selected?.id===id)openCase(id);
-  alert("پرونده به "+expert.full_name+" ارجاع شد.");
- }catch(e){alert(e.message)}
+  if(!staff.length){select.innerHTML='<option value="">کارشناس فعالی ثبت نشده است</option>';error.textContent="ابتدا حساب کارشناس فعال را در پنل مدیریت ایجاد کنید.";return}
+  select.innerHTML='<option value="">یک کارشناس را انتخاب کنید</option>'+staff.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.full_name||"کارشناس")+(x.personnel_code?' · کد '+esc(x.personnel_code):"")+'</option>').join("");
+  select.disabled=false;confirmBtn.disabled=false;
+ }catch(e){select.innerHTML='<option value="">دریافت فهرست ناموفق بود</option>';error.textContent=e.message||"خطا در دریافت فهرست کارشناسان."}
+}
+function closeExpertAssignModal(){document.getElementById("expertAssignModal").classList.add("hidden");pendingExpertCaseId=null;document.body.style.overflow="";document.getElementById("expertAssignError").textContent=""}
+async function confirmExpertAssignment(){
+ const id=pendingExpertCaseId,select=document.getElementById("expertAssignSelect"),error=document.getElementById("expertAssignError"),btn=document.getElementById("expertAssignConfirm");
+ const personnel_id=select.value;
+ if(!id||!personnel_id){error.textContent="لطفاً ابتدا یک کارشناس را انتخاب کنید.";return}
+ const expertName=select.options[select.selectedIndex]?.text||"کارشناس";
+ if(!confirm("پرونده به «"+expertName+"» ارجاع شود؟"))return;
+ btn.disabled=true;error.textContent="در حال ثبت ارجاع…";
+ try{await api("assign-case-expert",{id,method:"POST",body:{personnel_id}});closeExpertAssignModal();await loadCases();if(selected?.id===id)openCase(id);alert("پرونده به "+expertName+" ارجاع شد.")}
+ catch(e){error.textContent=e.message||"ثبت ارجاع انجام نشد."}
+ finally{btn.disabled=false}
 }
 let casesLoading=false;async function createAuctionForCase(id){
  const starting=prompt("قیمت شروع مزایده (تومان) را وارد کنید:");
