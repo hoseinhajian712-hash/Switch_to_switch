@@ -201,7 +201,7 @@ async function teamAction(id,type){
  if(type==="customer_decision"){const ok=confirm("مشتری پیشنهاد نهایی را پذیرفته است؟\nتأیید = موافقت، لغو = عدم توافق");if(ok){const v=prompt("مبلغ نهایی مورد توافق (تومان):");if(v===null)return;payload.agreed_price=Number(v.replace(/[,٬،\s]/g,""));if(!payload.agreed_price||payload.agreed_price<=0){alert("مبلغ معتبر وارد کنید.");return}type="customer_accept"}else type="customer_decline"}
  if(type==="legal_decision"){const ok=confirm("کنترل حقوقی موفق بود؟\\nتأیید = ادامه معامله، لغو = بازگشت به تکمیل مدارک");type=ok?"legal_approved":"documents_rejected"}
  if(type==="customer_decision"){const ok=confirm("مشتری پیشنهاد نهایی را پذیرفته است؟\nتأیید = موافقت، لغو = عدم توافق");if(ok){const v=prompt("مبلغ نهایی مورد توافق (تومان):");if(v===null)return;payload.agreed_price=Number(v.replace(/[,٬،\\s]/g,""));if(!payload.agreed_price||payload.agreed_price<=0){alert("مبلغ معتبر وارد کنید.");return}type="customer_accept"}else type="customer_decline"}
- const enteredNote=await openStageNoteModal();if(enteredNote===null)return;note=String(enteredNote||"").trim();if(type==="documents_rejected"&&!note){alert("برای بازگرداندن پرونده به‌دلیل نقص مدارک، ثبت دلیل نقص الزامی است.");return;}
+ if(type!=="price_review"){const enteredNote=await openStageNoteModal();if(enteredNote===null)return;note=String(enteredNote||"").trim()}if(type==="documents_rejected"&&!note){alert("برای بازگرداندن پرونده به‌دلیل نقص مدارک، ثبت دلیل نقص الزامی است.");return;}
  try{await api("team-update",{id,method:"POST",body:{update_type:type,payload,note}});await loadCases();alert("مرحله پرونده ثبت شد.")}catch(e){alert(e.message)}
 }
 function inspectionReportHtml(c,v){
