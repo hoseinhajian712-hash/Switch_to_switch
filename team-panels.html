@@ -76,6 +76,24 @@ function toolsFor(r){const items={
  finance:[["محاسبه تسویه","پیش‌پرداخت، کسورات و خالص پرداختی","◇"],["مستندات مالی","رسیدها، جرایم و تأییدهای مالی","▤"]],
  contracts:[["مدیریت قرارداد","قالب قرارداد و وضعیت امضاها","▤"],["تحویل و وکالت","رسید امانت، تحویل خودرو و وکالت","✓"]],
 };return (items[r]||[]).map(x=>'<article class="card"><div class="row"><div><h3>'+x[0]+'</h3><div class="muted" style="line-height:1.8">'+x[1]+'</div></div><span style="font-size:24px;color:var(--gold)">'+x[2]+'</span></div></article>').join("")}
+async function assignCaseExpert(id){
+ try{
+  const r=await api("personnel-list");
+  const staff=(r.staff||[]).filter(x=>x.active&&x.role==="expert");
+  if(!staff.length){alert("کارشناس فعال در سامانه ثبت نشده است. ابتدا حساب کارشناس را در پنل مدیریت ایجاد کنید.");return}
+  const menu=staff.map((x,i)=>(i+1)+". "+x.full_name).join("\n");
+  const choice=prompt("شماره کارشناس موردنظر را وارد کنید:\n\n"+menu);
+  if(choice===null)return;
+  const n=Number(normalizeDigits(choice.trim()));
+  if(!Number.isInteger(n)||n<1||n>staff.length){alert("شماره انتخاب‌شده معتبر نیست.");return}
+  const expert=staff[n-1];
+  if(!confirm("پرونده به «"+expert.full_name+"» ارجاع شود؟"))return;
+  await api("assign-case-expert",{id,method:"POST",body:{personnel_id:expert.id}});
+  await loadCases();
+  if(selected?.id===id)openCase(id);
+  alert("پرونده به "+expert.full_name+" ارجاع شد.");
+ }catch(e){alert(e.message)}
+}
 let casesLoading=false;async function createAuctionForCase(id){
  const starting=prompt("قیمت شروع مزایده (تومان) را وارد کنید:");
  if(starting===null)return;
@@ -85,8 +103,8 @@ let casesLoading=false;async function createAuctionForCase(id){
  if(fair===null)return;
  const duration=prompt("مدت مزایده به دقیقه (حداقل ۶۰ دقیقه):","60");
  if(duration===null)return;
- const nums=[starting,target,fair].map(x=>Number(String(x).replace(/[,٬،\\s]/g,"")));
- const mins=Number(String(duration).trim());
+ const nums=[starting,target,fair].map(parseMoneyInput);
+ const mins=Number(normalizeDigits(String(duration).trim()));
  if(nums.some(x=>!Number.isFinite(x)||x<=0)||!Number.isInteger(mins)||mins<60){alert("قیمت‌ها باید بیشتر از صفر و مدت مزایده حداقل ۶۰ دقیقه باشد.");return}
  try{await api("create_auction",{id,method:"POST",body:{starting_price:nums[0],target_price:nums[1],fair_price:nums[2],duration_minutes:mins}});await loadCases();alert("خودرو با موفقیت وارد مزایده شد.")}catch(e){alert(e.message)}
 }
@@ -104,7 +122,8 @@ function renderCases(){const all=cases.filter(relevant),q=(document.getElementBy
 function actionButton(c){
  const s=c.status;
  if(role==="expert"&&!c.assigned_to_me)return '<span class="caseSub">فقط مشاهده · پرونده به شما ارجاع نشده</span>';
- if(role==="sales"&&s==="auction-ready")return '<button class="btn primary" onclick="createAuctionForCase(\''+c.id+'\')">ثبت و انتشار در مزایده</button>';
+ if(role==="sales"&&(s==="expert_visit_confirmed"||s==="refer"))return '<button class="btn primary" onclick="assignCaseExpert(\''+c.id+'\')">ارجاع / انتخاب کارشناس</button>';
+ if(role==="sales"&&s==="auction-ready")return '<button class="btn primary" onclick="createAuctionForCase(\''+c.id+'\')">ورود و انتشار در مزایده</button>';
  if(role==="sales"&&s==="auction"&&c.auction&&new Date(c.auction.ends_at).getTime()<=Date.now())return '<button class="btn primary" onclick="endAuctionForCase(\''+c.id+'\')">ثبت پایان مزایده</button>';
  if(role==="sales"&&s==="auction-end"&&c.auction&&c.auction.winner_id&&c.auction.winner_response_status==="accepted")return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\'calculate_branch_offer\')">محاسبه سود و ارسال قیمت به شعبه</button>';
  if(role==="sales"&&s==="auction-end"&&c.auction&&c.auction.winner_response_status==="pending")return '<button class="btn" disabled>در انتظار تأیید برنده مزایده</button>';
