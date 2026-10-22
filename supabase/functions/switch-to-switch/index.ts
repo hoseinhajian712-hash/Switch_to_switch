@@ -4,16 +4,16 @@ import { generateAuthenticationOptions, generateRegistrationOptions, verifyAuthe
 const url=Deno.env.get("SUPABASE_URL")!, key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, db=createClient(url,key);
 // Staff access is granted only through short-lived, hashed staff_sessions tokens.
 const J={"content-type":"application/json; charset=utf-8","cache-control":"no-store","access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,authorization,apikey,x-client-info,prefer,accept,origin"};
-const order=["new","booking_confirmed","expert_visit_confirmed","inspection","review","auction-ready","awaiting_guarantee_deposit","auction","auction-end","awaiting_negotiation","negotiation","awaiting_docs","docs","legal_review","prepayment","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery","done"];
-const statusFa:any={new:"درخواست جدید",booking_confirmed:"تأیید رزرو",expert_visit_confirmed:"تأیید مراجعه کارشناس",refer:"ارجاع به کارشناس",inspection:"در حال کارشناسی",review:"پایان کارشناسی","auction-ready":"آماده ورود به مزایده",awaiting_guarantee_deposit:"در انتظار واریز وجه تضمین",auction:"در حال مزایده","auction-end":"پایان مزایده",awaiting_negotiation:"در انتظار شروع مذاکره",negotiation:"شروع مذاکره",customer:"شروع مذاکره",disagreement:"عدم توافق",awaiting_docs:"در انتظار تکمیل مدارک",docs:"تکمیل مدارک",legal_review:"کنترل حقوقی",prepayment:"دریافت پیش‌پرداخت",deposit:"دریافت پیش‌پرداخت",ready_to_sign:"آماده امضا",contract_approved:"تأیید نهایی قرارداد",awaiting_custody_receipt:"در انتظار رسید امانت خودرو",deductions_review:"محاسبه کسورات",awaiting_buyer_settlement:"در انتظار تسویه خریدار",buyer_settlement_review:"کنترل تسویه خریدار",awaiting_seller_settlement_confirmation:"در انتظار تأیید تسویه فروشنده",awaiting_transfer_method_confirmation:"در انتظار تأیید شیوه انتقال",awaiting_buyer_confirmation:"در انتظار تأیید خریدار",awaiting_seller_confirmation:"در انتظار تأیید فروشنده",awaiting_notary:"در انتظار مراجعه به دفترخانه",settled:"تسویه شد",awaiting_power_of_attorney_signature:"در انتظار تأیید امضای وکالت‌نامه",seller_final_payout_pending:"در انتظار پرداخت مانده فروشنده",awaiting_plate_release:"در انتظار فک پلاک",vehicle_delivery:"دفترخانه و تحویل خودرو",done:"معامله تکمیل شد",cancelled:"انصراف"};
+const order=["new","booking_confirmed","expert_visit_confirmed","awaiting_expert_confirmation","refer","inspection","review","auction-ready","auction","auction-end","awaiting_negotiation","negotiation","customer","disagreement","awaiting_docs","docs","legal_review","prepayment","deposit","ready_to_sign","contract_approved","contract","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","awaiting_power_of_attorney_signature","seller_final_payout_pending","settled","awaiting_plate_release","vehicle_delivery","done","cancelled"];
+const statusFa:any={"new":"درخواست جدید","booking_confirmed":"تأیید رزرو","expert_visit_confirmed":"تأیید مراجعه کارشناس","awaiting_expert_confirmation":"در انتظار تأیید کارشناس","refer":"ارجاع به کارشناس","inspection":"در حال کارشناسی","review":"پایان کارشناسی","auction-ready":"آماده ورود به مزایده","auction":"در حال مزایده","auction-end":"پایان مزایده","awaiting_negotiation":"در انتظار شروع مذاکره","negotiation":"شروع مذاکره","customer":"شروع مذاکره","disagreement":"عدم توافق","awaiting_docs":"در انتظار تکمیل مدارک","docs":"تکمیل مدارک","legal_review":"کنترل حقوقی","prepayment":"دریافت پیش‌پرداخت","deposit":"دریافت پیش‌پرداخت","ready_to_sign":"آماده امضا","contract_approved":"تأیید نهایی قرارداد","contract":"قرارداد","awaiting_custody_receipt":"در انتظار رسید امانت خودرو","deductions_review":"محاسبه کسورات","awaiting_buyer_settlement":"در انتظار تسویه خریدار","buyer_settlement_review":"کنترل تسویه خریدار","awaiting_seller_settlement_confirmation":"در انتظار تأیید تسویه فروشنده","awaiting_transfer_method_confirmation":"در انتظار تأیید شیوه انتقال","awaiting_buyer_confirmation":"در انتظار تأیید خریدار","awaiting_seller_confirmation":"در انتظار تأیید فروشنده","awaiting_notary":"در انتظار مراجعه به دفترخانه","settled":"تسویه شد","awaiting_power_of_attorney_signature":"در انتظار تأیید امضای وکالت‌نامه","seller_final_payout_pending":"در انتظار واریز مانده فروشنده","awaiting_plate_release":"منتظر فک پلاک","vehicle_delivery":"دفترخانه و تحویل خودرو","done":"معامله تکمیل شد","cancelled":"انصراف"};
 const json=(d:any,s=200)=>new Response(JSON.stringify(d),{status:s,headers:J});
 function auth(_u:URL){return null}
 async function listCases(role:string,staffMemberId:string=""){
- const cq=role==="expert"?db.from("cases").select("*").eq("assigned_expert_staff_id",staffMemberId||"00000000-0000-0000-0000-000000000000").in("status",["expert_visit_confirmed","refer","inspection"]).order("created_at",{ascending:false}):db.from("cases").select("*").order("created_at",{ascending:false});
+ const cq=db.from("cases").select("*").order("created_at",{ascending:false});
  let {data,error}=await cq;
  if(error)return json({error:error.message},500);
- const roleStatuses:any={intake:["new","booking_confirmed","expert_visit_confirmed"],sales:["review","auction-ready","awaiting_guarantee_deposit","auction","auction-end","awaiting_negotiation","negotiation","customer","disagreement","contract_approved","awaiting_custody_receipt"],followup:["awaiting_negotiation","negotiation","customer","disagreement","awaiting_docs","buyer_settlement_review"],legal:["awaiting_docs","docs","legal_review","awaiting_transfer_method_confirmation","awaiting_notary","awaiting_power_of_attorney_signature"],finance:["awaiting_guarantee_deposit","prepayment","deposit","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","seller_final_payout_pending","settled"],contracts:["ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","awaiting_plate_release","vehicle_delivery","done"]};
- if(role==="dealer")data=[];else if(role!=="admin"&&role!=="expert")data=(data||[]).filter((c:any)=>(roleStatuses[role]||[]).includes(c.status));
+ const roleStatuses:any={intake:["new","booking_confirmed","expert_visit_confirmed"],sales:["review","auction-ready","auction","auction-end","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","legal_review","prepayment","deposit","ready_to_sign","contract_approved","contract","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery","done"],followup:["awaiting_negotiation","negotiation","customer","disagreement","awaiting_docs","buyer_settlement_review"],legal:["awaiting_docs","docs","legal_review","awaiting_transfer_method_confirmation","awaiting_notary","awaiting_power_of_attorney_signature"],finance:["awaiting_guarantee_deposit","prepayment","deposit","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","seller_final_payout_pending","settled"],contracts:["ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","awaiting_plate_release","vehicle_delivery","done"]};
+ if(role==="dealer")data=[];
  const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
  if(ids.length){const r=await db.from("vehicles").select("*").in("case_id",ids);if(r.error)return json({error:r.error.message},500);vehicles=r.data||[]}
  let inspections:any[]=[]; let defects:any[]=[]; let documents:any[]=[]; let photos:any[]=[]; let history:any[]=[]; let auctions:any[]=[]; let teamUpdates:any[]=[]; let financialEntries:any[]=[]; let contractRecords:any[]=[];
@@ -25,7 +25,7 @@ async function listCases(role:string,staffMemberId:string=""){
   const xr=await db.from("documents").select("*").in("case_id",ids);if(xr.error)return json({error:xr.error.message},500);documents=xr.data||[];const hr=await db.from("case_history").select("*").in("case_id",ids).order("created_at",{ascending:false});if(hr.error)return json({error:hr.error.message},500);history=hr.data||[];const ar=await db.from("auctions").select("*").in("case_id",ids).order("created_at",{ascending:false});if(ar.error)return json({error:ar.error.message},500);auctions=ar.data||[];const tr=await db.from("case_team_updates").select("*").in("case_id",ids).order("created_at",{ascending:false});if(tr.error)return json({error:tr.error.message},500);teamUpdates=tr.data||[];const fr=await db.from("case_financial_entries").select("*").in("case_id",ids).order("created_at",{ascending:false});if(fr.error)return json({error:fr.error.message},500);financialEntries=fr.data||[];const rr=await db.from("case_contract_records").select("*").in("case_id",ids).order("created_at",{ascending:false});if(rr.error)return json({error:rr.error.message},500);contractRecords=rr.data||[];
  }
  const mediaRows=[...documents,...photos]; const paths=mediaRows.map((x:any)=>x.storage_path).filter(Boolean); const signed=paths.length?(await db.storage.from("s2s-documents").createSignedUrls(paths,3600)).data||[]:[]; const mediaUrl=(p:string)=>signed.find((x:any)=>x.path===p)?.signedUrl||null;
- return json({cases:(data||[]).map((c:any)=>{const cd=documents.filter((d:any)=>d.case_id===c.id).map((d:any)=>({...d,url:mediaUrl(d.storage_path)}));const cp=inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>photos.filter((p:any)=>p.inspection_id===i.id)).map((p:any)=>({...p,url:mediaUrl(p.storage_path)}));const tu=teamUpdates.filter((x:any)=>x.case_id===c.id);const fe=financialEntries.filter((x:any)=>x.case_id===c.id);const cr=contractRecords.filter((x:any)=>x.case_id===c.id);const calc=tu.find((x:any)=>x.update_type==="calculate_branch_offer")?.payload||null;return {...c,vehicles:vehicles.filter((v:any)=>v.case_id===c.id),inspection:(inspections.find((i:any)=>i.case_id===c.id)||null),defects:inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>defects.filter((d:any)=>d.inspection_id===i.id)),documents:cd,photos:cp,history:history.filter((h:any)=>h.case_id===c.id),team_updates:tu,financial_entries:fe,contract_records:cr,sales_calculation:calc,auction:(auctions.find((a:any)=>a.case_id===c.id)||null)}}),statusFa});
+ return json({cases:(data||[]).map((c:any)=>{const cd=documents.filter((d:any)=>d.case_id===c.id).map((d:any)=>({...d,url:mediaUrl(d.storage_path)}));const cp=inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>photos.filter((p:any)=>p.inspection_id===i.id)).map((p:any)=>({...p,url:mediaUrl(p.storage_path)}));const tu=teamUpdates.filter((x:any)=>x.case_id===c.id);const fe=financialEntries.filter((x:any)=>x.case_id===c.id);const cr=contractRecords.filter((x:any)=>x.case_id===c.id);const calc=tu.find((x:any)=>x.update_type==="calculate_branch_offer")?.payload||null;return {...c,assigned_to_me:role==="expert"&&!!staffMemberId&&c.assigned_expert_staff_id===staffMemberId,vehicles:vehicles.filter((v:any)=>v.case_id===c.id),inspection:(inspections.find((i:any)=>i.case_id===c.id)||null),defects:inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>defects.filter((d:any)=>d.inspection_id===i.id)),documents:cd,photos:cp,history:history.filter((h:any)=>h.case_id===c.id),team_updates:tu,financial_entries:fe,contract_records:cr,sales_calculation:calc,auction:(auctions.find((a:any)=>a.case_id===c.id)||null)}}),statusFa});
 }
 async function saveDraft(req:Request,id:string){const b=await req.json();const data=b.data&&typeof b.data==="object"?b.data:{};const {error}=await db.from("inspection_drafts").upsert({case_id:id,data,updated_at:new Date().toISOString()},{onConflict:"case_id"});return error?json({error:error.message},500):json({ok:true})}
 async function getDraft(id:string){const {data,error}=await db.from("inspection_drafts").select("data,updated_at").eq("case_id",id).maybeSingle();return error?json({error:error.message},500):json({ok:true,draft:data||null})}async function sha256Hex(v:string){const d=new TextEncoder().encode(v);const h=await crypto.subtle.digest("SHA-256",d);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join("")}
@@ -42,11 +42,11 @@ async function requestAuctionOtp(req:Request){
  if(recent.data&&Date.now()-new Date(recent.data.created_at).getTime()<60000)return json({error:"لطفاً ۶۰ ثانیه بعد دوباره درخواست کد کنید"},429);
  const code=randCode(),hash=await sha256Hex(code);
  // SMS is intentionally not required: the manager reads this short-lived code in the admin panel.
- const ins=await db.from("auction_otp_codes").insert({mobile,code_hash:hash,display_code:code,expires_at:new Date(Date.now()+5*60000).toISOString()});
+ const ins=await db.from("auction_otp_codes").insert({mobile,code_hash:hash,display_code:code,expires_at:new Date(Date.now()+5*60000).toISOString()}).select("id").single();
  if(ins.error)return json({error:"ذخیره کد ورود ناموفق بود"},500);
  const mr=await db.from("auction_members").upsert({mobile,full_name:name||null,updated_at:new Date().toISOString()},{onConflict:"mobile"});
  if(mr.error)return json({error:mr.error.message},500);
- return json({ok:true,delivery:"admin-panel",message:"کد ورود در پنل مدیریت، بخش اشتراک اعضا و کد ورود نمایش داده می‌شود و ۵ دقیقه اعتبار دارد."});
+ return json({ok:true,request_id:ins.data.id,delivery:"admin-approval",message:"درخواست ثبت شد؛ پس از تأیید همکاران، کد همین‌جا نمایش داده می‌شود."});
 }
 async function verifyAuctionOtp(req:Request){const b=await req.json(),toEnglish=(v:string)=>v.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)),mobile=toEnglish(String(b.mobile||"").replace(/\s/g,"")),code=toEnglish(String(b.code||"").trim());if(!/^09\d{9}$/.test(mobile)||!/^\d{6}$/.test(code))return json({error:"شماره موبایل یا کد نامعتبر است"},400);const r=await db.from("auction_otp_codes").select("*").eq("mobile",mobile).is("verified_at",null).order("created_at",{ascending:false}).limit(1).maybeSingle();if(!r.data)return json({error:"کد پیدا نشد؛ دوباره درخواست کد کنید"},400);if(new Date(r.data.expires_at).getTime()<Date.now())return json({error:"کد منقضی شده است"},400);if(Number(r.data.attempts)>=5)return json({error:"تعداد تلاش بیش از حد مجاز است"},429);const h=await sha256Hex(code);if(h!==r.data.code_hash){await db.from("auction_otp_codes").update({attempts:Number(r.data.attempts)+1}).eq("id",r.data.id);return json({error:"کد واردشده صحیح نیست"},400)}await db.from("auction_otp_codes").update({verified_at:new Date().toISOString()}).eq("id",r.data.id);const mr=await db.from("auction_members").select("*").eq("mobile",mobile).single();if(mr.error)return json({error:mr.error.message},500);const raw=randToken(),th=await sha256Hex(raw);const sessionInsert=await db.from("auction_sessions").insert({member_id:mr.data.id,token_hash:th,expires_at:new Date(Date.now()+90*24*60*60*1000).toISOString()});if(sessionInsert.error){console.error("auction_session_insert_failed",sessionInsert.error.message);return json({error:"ساخت نشست ورود ناموفق بود. دوباره تلاش کن."},500)}return json({ok:true,verified:true,subscription_required:false,token:raw,expires_in:7776000})}
 
@@ -61,6 +61,8 @@ async function passkeyAuthenticationVerify(req:Request){const cfg=passkeyConfig(
 
 async function startAuctionSubscription(req:Request){const b=await req.json(),mobile=String(b.mobile||"").replace(/\s/g,""),name=String(b.full_name||"").trim();if(!/^09\d{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست"},400);const mr=await db.from("auction_members").upsert({mobile,full_name:name||null,subscription_status:"pending",updated_at:new Date().toISOString()},{onConflict:"mobile"}).select("id,mobile,full_name,subscription_status").single();if(mr.error)return json({error:mr.error.message},500);const url=Deno.env.get("AUCTION_PAYMENT_URL")||"";return json({ok:true,member:mr.data,payment_required:true,amount:Number(Deno.env.get("AUCTION_SUBSCRIPTION_AMOUNT")||0),payment_url:url||null,message:url?"برای پرداخت اشتراک وارد درگاه شوید.":"درگاه پرداخت هنوز تنظیم نشده است."})}
 async function auctionLoginCodes(u:URL){const {data,error}=await db.from("auction_otp_codes").select("id,mobile,display_code,created_at,expires_at,verified_at").is("verified_at",null).gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(30);return error?json({error:error.message},500):json({ok:true,codes:data||[]})}
+async function auctionCodeStatus(u:URL){const id=u.searchParams.get("id")||"",mobile=(u.searchParams.get("mobile")||"").replace(/\s/g,"");if(!id||!/^09\d{9}$/.test(mobile))return json({error:"درخواست نامعتبر است"},400);const {data,error}=await db.from("auction_otp_codes").select("id,mobile,display_code,approved_at,expires_at").eq("id",id).eq("mobile",mobile).maybeSingle();if(error)return json({error:"بررسی وضعیت کد ناموفق بود"},500);if(!data)return json({error:"درخواست کد پیدا نشد"},404);if(new Date(data.expires_at).getTime()<Date.now())return json({expired:true,approved:false});return json({ok:true,approved:!!data.approved_at,code:data.approved_at?data.display_code:null});}
+async function adminApproveAuctionCode(req:Request){const b=await req.json(),id=String(b.id||"");if(!id)return json({error:"شناسه درخواست لازم است"},400);const {data,error}=await db.from("auction_otp_codes").update({approved_at:new Date().toISOString()}).eq("id",id).is("verified_at",null).gt("expires_at",new Date().toISOString()).select("id,mobile,display_code").maybeSingle();if(error)return json({error:"تأیید کد انجام نشد: "+error.message},500);if(!data)return json({error:"درخواست منقضی شده یا قبلاً مصرف شده است"},400);return json({ok:true,mobile:data.mobile});}
 async function auctionMembers(){const {data,error}=await db.from("auction_members").select("id,mobile,full_name,national_id,address,subscription_status,paid_at,paid_until,created_at,updated_at,identity_document_path,identity_uploaded_at,identity_verified,identity_review_note").order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((m:any)=>m.id);const wr=ids.length?await db.from("auction_wallet_transactions").select("buyer_id,amount,direction").in("buyer_id",ids):{data:[],error:null};if(wr.error)return json({error:wr.error.message},500);const balances:any={};for(const t of wr.data||[])balances[t.buyer_id]=(balances[t.buyer_id]||0)+(t.direction==="credit"?1:-1)*Number(t.amount||0);const paths=(data||[]).map((x:any)=>x.identity_document_path).filter(Boolean);const signed=paths.length?(await db.storage.from("s2s-documents").createSignedUrls(paths,1800)).data||[]:[];return json({ok:true,members:(data||[]).map((m:any)=>({...m,wallet_balance:balances[m.id]||0,identity_url:signed.find((x:any)=>x.path===m.identity_document_path)?.signedUrl||null}))})}
 async function getWalletBankSettings(){const r=await db.from("wallet_bank_settings").select("bank_name,account_holder,card_number,account_number,sheba,updated_at").eq("id",true).maybeSingle();if(r.error)return json({error:r.error.message},500);return json({ok:true,settings:r.data||{bank_name:"",account_holder:"",card_number:"",account_number:"",sheba:""}})}
 async function saveWalletBankSettings(req:Request){let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات حساب معتبر نیست"},400)}const bank_name=String(b.bank_name||"").trim().slice(0,100),account_holder=String(b.account_holder||"").trim().slice(0,120),card_number=String(b.card_number||"").replace(/[\\s-]/g,"").slice(0,24),account_number=String(b.account_number||"").trim().slice(0,40),sheba=String(b.sheba||"").replace(/[\\s-]/g,"").toUpperCase().slice(0,30);if(card_number&&!/^[0-9۰-۹]{16}$/.test(card_number))return json({error:"شماره کارت باید ۱۶ رقم باشد"},400);if(sheba&&!/^IR[0-9]{24}$/.test(sheba))return json({error:"شماره شبا باید با IR و ۲۴ رقم وارد شود"},400);if(!account_holder||(!card_number&&!account_number&&!sheba))return json({error:"نام صاحب حساب و دست‌کم یکی از شماره‌های کارت، حساب یا شبا را وارد کنید"},400);const r=await db.from("wallet_bank_settings").upsert({id:true,bank_name,account_holder,card_number,account_number,sheba,updated_at:new Date().toISOString()},{onConflict:"id"}).select("bank_name,account_holder,card_number,account_number,sheba,updated_at").single();if(r.error)return json({error:"ذخیره اطلاعات حساب ناموفق بود: "+r.error.message},500);return json({ok:true,settings:r.data})}
@@ -432,10 +434,10 @@ async function adminApproveSeller(req:Request){
    return json({ok:true,already_approved:true,auction_id:auctionId,purchase_stage:"prepayment",prepayment_amount:ar.data.prepayment_amount});
   }
   if(ar.data.purchase_stage!=="awaiting_seller_approval")return json({error:"این مزایده در انتظار موافقت فروشنده نیست"},400);
-  const up=await db.from("auctions").update({purchase_stage:"awaiting_admin_prepayment"}).eq("id",auctionId).eq("purchase_stage","awaiting_seller_approval").select("id").maybeSingle();
+  const up=await db.from("auctions").update({purchase_stage:"prepayment"}).eq("id",auctionId).eq("purchase_stage","awaiting_seller_approval").select("id").maybeSingle();
   if(up.error)return json({error:up.error.message},500);
   if(!up.data)return json({error:"وضعیت مزایده هم‌زمان تغییر کرده است؛ فهرست را تازه کنید"},409);
-  const note=await db.from("buyer_notifications").insert({buyer_id:ar.data.winner_id,auction_id:auctionId,title:"فروشنده با قیمت موافقت کرد",message:"فروشنده با قیمت پیشنهادی شما موافقت کرده است. مدیریت در حال ثبت مبلغ پیش‌پرداخت و اطلاعات حساب مقصد است. پس از ثبت اطلاعات، مرحله پرداخت پیش‌پرداخت در پنل شما فعال می‌شود."});
+  const note=await db.from("buyer_notifications").insert({buyer_id:ar.data.winner_id,auction_id:auctionId,title:"فروشنده با قیمت موافقت کرد",message:"فروشنده با قیمت پیشنهادی شما موافقت کرده است؛ مرحله پیش‌پرداخت در پنل شما آغاز شد. به‌محض ثبت مبلغ و حساب مقصد توسط همکاران ما، فرم واریز و ارسال فیش در همین پنل فعال می‌شود."});
   await historyAdd(ar.data.case_id,"auction-end","customer","فروشنده با قیمت برنده موافقت کرد؛ منتظر ثبت اطلاعات پیش‌پرداخت توسط مدیریت.");
   return json({ok:true,auction_id:auctionId,purchase_stage:"awaiting_admin_prepayment",prepayment_amount:ar.data.prepayment_amount,notification_error:note.error?.message||null});
 }async function adminSetAuctionSettlement(req:Request){
@@ -446,11 +448,14 @@ async function adminApproveSeller(req:Request){
  if(pre!==null&&pre>0&&(!accountName||!accountNumber))return json({error:"برای فعال‌کردن پیش‌پرداخت، نام صاحب حساب و شماره حساب الزامی است"},400);
  const r=await db.from("auctions").update({seller_account_name:accountName||null,seller_account_number:accountNumber||null,prepayment_amount:pre}).eq("id",auctionId).select("id,case_id,winner_id,purchase_stage,seller_account_name,seller_account_number,prepayment_amount").single();
  if(r.error)return json({error:r.error.message},500);
- if(r.data.purchase_stage==="awaiting_admin_prepayment"&&r.data.winner_id&&pre!==null&&pre>0&&accountName&&accountNumber){
-  const stage=await db.from("auctions").update({purchase_stage:"prepayment"}).eq("id",auctionId).eq("purchase_stage","awaiting_admin_prepayment");
-  if(stage.error)return json({error:stage.error.message},500);
-  await db.from("buyer_notifications").insert({buyer_id:r.data.winner_id,auction_id:auctionId,title:"درخواست پرداخت پیش‌پرداخت آماده است",message:"مدیریت اطلاعات حساب و مبلغ پیش‌پرداخت را ثبت کرد. وارد پنل مزایده شوید تا مبلغ و اطلاعات حساب را ببینید و فیش واریز را بارگذاری کنید."});
-  await historyAdd(r.data.case_id,"customer","prepayment","اطلاعات حساب و مبلغ پیش‌پرداخت ثبت شد؛ درخواست پرداخت برای خریدار فعال شد.");
+ if(["prepayment","awaiting_admin_prepayment"].includes(r.data.purchase_stage||"")&&r.data.winner_id&&pre!==null&&pre>0&&accountName&&accountNumber){
+  if(r.data.purchase_stage==="awaiting_admin_prepayment"){
+   const stage=await db.from("auctions").update({purchase_stage:"prepayment"}).eq("id",auctionId).eq("purchase_stage","awaiting_admin_prepayment").select("id").maybeSingle();
+   if(stage.error)return json({error:stage.error.message},500);
+   if(!stage.data)return json({error:"وضعیت مزایده هم‌زمان تغییر کرده است؛ دوباره بررسی کنید"},409);
+  }
+  await db.from("buyer_notifications").insert({buyer_id:r.data.winner_id,auction_id:auctionId,title:"درخواست پرداخت پیش‌پرداخت آماده است",message:"مبلغ پیش‌پرداخت و اطلاعات حساب مقصد ثبت شد. وارد پنل مزایده شوید؛ اطلاعات و فرم ارسال فیش در بخش دریافت پیش‌پرداخت نمایش داده می‌شود."});
+  await historyAdd(r.data.case_id,"customer","prepayment","اطلاعات حساب و مبلغ پیش‌پرداخت ثبت شد؛ فرم پرداخت در پنل خریدار فعال شد.");
  }
  return json({ok:true,auction:r.data});
 }
@@ -507,22 +512,19 @@ async function placeBid(req:Request,id:string){
 }
 async function inspect(req:Request,id:string){
  const b=await req.json();
- if(!b.vin||!b.engine_number||!b.plate_number||!b.national_id_data_url)return json({error:"VIN، شماره موتور، پلاک و عکس کارت ملی مالک الزامی است"},400);
- const {data:v,error:ve}=await db.from("vehicles").select("id").eq("case_id",id).eq("vehicle_role","current").limit(1).maybeSingle();
- if(ve)return json({error:ve.message},500);
+ if(!b.vin||!b.engine_number||!b.plate_number||!b.national_id_path)return json({error:"VIN، شماره موتور، پلاک و عکس کارت ملی مالک الزامی است"},400);
+ const {data:v,error:ve}=await db.from("vehicles").select("id").eq("case_id",id).eq("vehicle_role","current").limit(1).maybeSingle();if(ve)return json({error:ve.message},500);
  if(v){const vu=await db.from("vehicles").update({vin:b.vin,engine_number:b.engine_number,plate_number:b.plate_number,mileage:Number(String(b.mileage||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,""))||null,spare_key:!!b.spare_key,fuel_card:!!b.fuel_card,power_of_attorney:!!b.power_of_attorney,green_card:!!b.green_card,factory_invoice:!!b.factory_invoice,car_document:!!b.car_document}).eq("id",v.id);if(vu.error)return json({error:vu.error.message},500);}
  const {data:i,error:ie}=await db.from("inspections").insert({case_id:id,status:"completed",finished_at:new Date().toISOString(),summary:b.summary||"کارشناسی ثبت شد"}).select("id").single();if(ie)return json({error:ie.message},500);
- const decode=async(dataUrl:string,path:string)=>{const raw=dataUrl.split(","),mime=(raw[0].match(/data:(.*?);base64/)||[])[1]||"image/jpeg",bytes=Uint8Array.from(atob(raw[1]),c=>c.charCodeAt(0));const up=await db.storage.from("s2s-documents").upload(path,bytes,{contentType:mime,upsert:false});if(up.error)throw new Error(up.error.message);return path};
  try{
-  const nationalPath=await decode(b.national_id_data_url,`${id}/national-id-${crypto.randomUUID()}.jpg`);
-  const nd=await db.from("documents").insert({case_id:id,vehicle_id:v?.id||null,document_type:"owner_national_id",storage_path:nationalPath,required:true});if(nd.error)throw new Error(nd.error.message);
+  const nd=await db.from("documents").insert({case_id:id,vehicle_id:v?.id||null,document_type:"owner_national_id",storage_path:b.national_id_path,required:true});if(nd.error)throw new Error(nd.error.message);
   const jobs:any[]=[];
-  if(Array.isArray(b.documents))jobs.push(...b.documents.filter((d:any)=>d?.data_url).map(async(d:any)=>{const path=await decode(d.data_url,`${id}/documents/${crypto.randomUUID()}.jpg`);const r=await db.from("documents").insert({case_id:id,vehicle_id:v?.id||null,document_type:d.type||"other",storage_path:path,required:false});if(r.error)throw new Error(r.error.message)}));
-  if(Array.isArray(b.main_photos))jobs.push(...b.main_photos.filter((m:any)=>m?.data_url).map(async(m:any)=>{const path=await decode(m.data_url,`${id}/inspection/main-${crypto.randomUUID()}.jpg`);const r=await db.from("inspection_photos").insert({inspection_id:i.id,photo_type:"main",label:m.label||"عکس اصلی خودرو",storage_path:path,annotation:m.annotation||null});if(r.error)throw new Error(r.error.message)}));
-  if(Array.isArray(b.defects))jobs.push(...b.defects.filter((d:any)=>d?.part&&d?.defect_type).map(async(d:any)=>{const q=await db.from("inspection_defects").insert({inspection_id:i.id,area:d.area||"بدنه",part:d.part,defect_type:d.defect_type,explanation:d.explanation||""}).select("id").single();if(q.error)throw new Error(q.error.message);await Promise.all((d.photos||[]).filter((p:any)=>p?.data_url).map(async(p0:any)=>{const path=await decode(p0.data_url,`${id}/inspection/defect-${crypto.randomUUID()}.jpg`);const r=await db.from("inspection_photos").insert({inspection_id:i.id,defect_id:q.data.id,photo_type:"defect",label:d.part+" • "+d.defect_type,storage_path:path,annotation:p0.annotation||null});if(r.error)throw new Error(r.error.message)}))}));
+  if(Array.isArray(b.documents))jobs.push(...b.documents.filter((d:any)=>d?.storage_path).map(async(d:any)=>{const r=await db.from("documents").insert({case_id:id,vehicle_id:v?.id||null,document_type:d.type||"other",storage_path:d.storage_path,required:false});if(r.error)throw new Error(r.error.message)}));
+  if(Array.isArray(b.main_photos))jobs.push(...b.main_photos.filter((m:any)=>m?.storage_path).map(async(m:any)=>{const r=await db.from("inspection_photos").insert({inspection_id:i.id,photo_type:"main",label:m.label||"عکس اصلی خودرو",storage_path:m.storage_path,annotation:m.annotation||null});if(r.error)throw new Error(r.error.message)}));
+  if(Array.isArray(b.defects))jobs.push(...b.defects.filter((d:any)=>d?.part&&d?.defect_type).map(async(d:any)=>{const q=await db.from("inspection_defects").insert({inspection_id:i.id,area:d.area||"بدنه",part:d.part,defect_type:d.defect_type,explanation:d.explanation||""}).select("id").single();if(q.error)throw new Error(q.error.message);await Promise.all((d.photos||[]).filter((p:any)=>p?.storage_path).map(async(p0:any)=>{const r=await db.from("inspection_photos").insert({inspection_id:i.id,defect_id:q.data.id,photo_type:"defect",label:d.part+" • "+d.defect_type,storage_path:p0.storage_path,annotation:p0.annotation||null});if(r.error)throw new Error(r.error.message)}))}));
   await Promise.all(jobs);
  }catch(e){return json({error:"ذخیره عکس‌ها یا مدارک ناموفق بود: "+String((e as any)?.message||e)},500)}
- await db.from("cases").update({status:"review"}).eq("id",id);return json({ok:true});
+ const up=await db.from("cases").update({status:"review"}).eq("id",id);if(up.error)return json({error:"ثبت وضعیت پایان کارشناسی ناموفق بود: "+up.error.message},500);await historyAdd(id,"inspection","review","کارشناسی پایان یافت و گزارش ثبت شد");return json({ok:true});
 }
 async function marketPrices(u:URL){ const brand=u.searchParams.get("brand")||""; const model=u.searchParams.get("model")||""; const trim=u.searchParams.get("trim")||""; let q=db.from("vehicle_market_prices").select("*").order("updated_at",{ascending:false}).limit(100); if(brand)q=q.eq("brand",brand); if(model)q=q.eq("model",model); if(trim)q=q.eq("trim",trim); const {data,error}=await q; return error?json({error:error.message},500):json({prices:data||[]}); }
 async function estimate(req:Request){
@@ -539,21 +541,21 @@ async function estimate(req:Request){
  const estimated=Math.max(150000000,zero*ageFactor*mileageFactor*bodyFactor);
  const low=estimated*0.93,high=estimated*1.07;
  return json({ok:true,source:"market_based_used",source_label:"برآورد بر پایه قیمت روز بازار + سال، کارکرد و وضعیت بدنه",average_price:Math.round(estimated),low_price:Math.round(low),high_price:Math.round(high),zero_reference:Math.round(zero),sample_count:vals.length,updated_at:data?.[0]?.updated_at||new Date().toISOString()});
-}async function historyAdd(id:string,from:string,to:string,note:string){await db.from("case_history").insert({case_id:id,from_status:from,to_status:to,note});} async function setStatus(id:string,next:string,note:string){const {data,error}=await db.from("cases").select("status").eq("id",id).single();if(error)return json({error:error.message},500);const r=await db.from("cases").update({status:next}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,data?.status||"new",next,note);return json({ok:true,status:next})} async function caseComments(req:Request,id:string,role:string){
+}async function historyAdd(id:string,from:string,to:string,note:string){await db.from("case_history").insert({case_id:id,from_status:from,to_status:to,note});} async function setStatus(id:string,next:string,note:string){const {data,error}=await db.from("cases").select("status").eq("id",id).single();if(error)return json({error:error.message},500);const r=await db.from("cases").update({status:next}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,data?.status||"new",next,note);return json({ok:true,status:next})} async function caseComments(req:Request,id:string,role:string,staffMemberId:string){
  if(!id)return json({error:"پرونده مشخص نیست"},400);
  const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();
  if(cr.error)return json({error:cr.error.message},500);
  if(!cr.data)return json({error:"پرونده پیدا نشد"},404);
  if(role==="expert"&&!["refer","inspection"].includes(cr.data.status))return json({error:"این پرونده در حال حاضر در دسترس کارشناس نیست"},403);
  if(req.method==="GET"){
-  const r=await db.from("case_comments").select("id,case_id,author_role,message,created_at").eq("case_id",id).order("created_at",{ascending:true});
+  const r=await db.from("case_comments").select("id,case_id,author_role,author_name,message,created_at").eq("case_id",id).order("created_at",{ascending:true});
   return r.error?json({error:r.error.message},500):json({comments:r.data||[]});
  }
  if(req.method==="POST"){
   const b=await req.json(),message=String(b.message||"").trim();
   if(!message)return json({error:"متن پیام را بنویسید"},400);
   if(message.length>3000)return json({error:"پیام نباید بیشتر از ۳۰۰۰ نویسه باشد"},400);
-  const r=await db.from("case_comments").insert({case_id:id,author_role:role,message}).select("id,case_id,author_role,message,created_at").single();
+  let authorName=role; if(staffMemberId){const sm=await db.from("staff_members").select("full_name").eq("id",staffMemberId).maybeSingle();if(!sm.error&&sm.data?.full_name)authorName=sm.data.full_name;} const r=await db.from("case_comments").insert({case_id:id,author_role:role,author_name:authorName,message}).select("id,case_id,author_role,author_name,message,created_at").single();
   return r.error?json({error:r.error.message},500):json({ok:true,comment:r.data});
  }
  return json({error:"method_not_allowed"},405);
@@ -808,7 +810,8 @@ async function api(req:Request,u:URL){
    }
    const token=crypto.randomUUID()+crypto.randomUUID();
    const th=await hex(token);
-   const ins=await db.from("staff_sessions").insert({token_hash:th,role:want,staff_member_id:mr.data.id,expires_at:new Date(Date.now()+12*60*60*1000).toISOString()});
+   const sessionRole=(want==="sales"&&b.admin_access===true)?"admin":want;
+   const ins=await db.from("staff_sessions").insert({token_hash:th,role:sessionRole,staff_member_id:mr.data.id,expires_at:new Date(Date.now()+12*60*60*1000).toISOString()});
    if(ins.error)return json({error:"ساخت نشست ورود ناموفق بود."},500);
    await db.from("staff_members").update({personnel_code_display:code}).eq("id",mr.data.id);
    return json({ok:true,token,staff_name:mr.data.full_name,role:want});
@@ -825,6 +828,11 @@ async function api(req:Request,u:URL){
     if(!mr||(!mr.error&&mr.data?.active)){role=sr.data.role;staffMemberId=sr.data.staff_member_id||"";}
    }
   }
+ }
+ if(role==="expert"&&id&&["case-comments","case-comment","draft","inspect"].includes(a)){
+  const assigned=await db.from("cases").select("assigned_expert_staff_id").eq("id",id).maybeSingle();
+  if(assigned.error)return json({error:assigned.error.message},500);
+  if(!assigned.data||assigned.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است؛ فقط پرونده‌های ارجاع‌شده به خودتان قابل ویرایش هستند."},403);
  }
  if(a==="reviews-admin-list"&&role==="admin"&&req.method==="GET"){
   const {data,error}=await db.from("customer_reviews").select("id,customer_name,rating,message,is_approved,created_at,approved_at").order("created_at",{ascending:false}).limit(500);
@@ -910,8 +918,10 @@ async function api(req:Request,u:URL){
   const r=await db.from("customer_access_requests").update({status:"rejected",display_code:null,code_hash:null,code_expires_at:null,updated_at:new Date().toISOString()}).eq("id",requestId).neq("status","approved");
   return r.error?json({error:"رد درخواست ناموفق بود."},500):json({ok:true});
  }
- if(a==="personnel-list"&&role==="admin"&&req.method==="GET"){
-  const {data,error}=await db.from("staff_members").select("id,full_name,role,active,personnel_code_display").order("created_at",{ascending:true});
+ if(a==="personnel-list"&&(role==="admin"||role==="sales")&&req.method==="GET"){
+  let q=db.from("staff_members").select("id,full_name,role,active,personnel_code_display").order("created_at",{ascending:true});
+  if(role==="sales")q=q.eq("role","expert").eq("active",true);
+  const {data,error}=await q;
   if(error)return json({error:error.message},500);
   return json({staff:data||[]});
  }
@@ -929,25 +939,179 @@ async function api(req:Request,u:URL){
  if(a==="support-admin-close"&&role==="admin"&&req.method==="POST")return supportAdminClose(req);
  await expireAuctions();
  await expireAuctions();
- if(a==="auction-bid-state"&&req.method==="GET")return auctionBidState(req,u);if(a==="public-ready-auctions"&&req.method==="GET"){const {data,error}=await db.from("cases").select("id,case_number,status,created_at").in("status",["review","auction-ready"]).order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((c:any)=>c.id);const vr=ids.length?await db.from("vehicles").select("case_id,brand,model,trim,model_year,mileage").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null};if(vr.error)return json({error:vr.error.message},500);return json({cases:(data||[]).map((c:any)=>({...c,vehicle:(vr.data||[]).find((v:any)=>v.case_id===c.id)||null}))})}if(a==="auction-request-code"&&req.method==="POST")return requestAuctionOtp(req);if(a==="auction-verify-code"&&req.method==="POST")return verifyAuctionOtp(req);if(a==="passkey-registration-options"&&req.method==="POST")return passkeyRegistrationOptions(req,u);if(a==="passkey-registration-verify"&&req.method==="POST")return passkeyRegistrationVerify(req,u);if(a==="passkey-authentication-options"&&req.method==="POST")return passkeyAuthenticationOptions(req);if(a==="passkey-authentication-verify"&&req.method==="POST")return passkeyAuthenticationVerify(req);if(a==="auction-start-subscription"&&req.method==="POST")return startAuctionSubscription(req);if(a==="auction-payment-callback"&&req.method==="POST")return paymentCallback(req);if(a==="public-auctions"&&req.method==="GET")return publicAuctions(req,u);if(a==="buyer-dashboard"&&req.method==="GET")return buyerDashboard(req,u);if(a==="buyer-pay-fine-wallet"&&req.method==="POST")return buyerPayFineWallet(req,u,id);if(a==="buyer-delivery-details"&&req.method==="GET")return buyerDeliveryDetails(req,u,id);if(a==="buyer-complete-transaction"&&req.method==="POST")return buyerCompleteTransaction(req,u,id);if(a==="buyer-mark-notification-read"&&req.method==="POST")return buyerMarkNotificationRead(req,u);if(a==="buyer-save-profile"&&req.method==="POST")return buyerSaveProfile(req,u);if(a==="buyer-upload-identity"&&req.method==="POST")return buyerUploadIdentity(req,u);if(a==="buyer-submit-payment"&&req.method==="POST")return buyerSubmitPayment(req,u,id);if(a==="buyer-pay-prepayment-wallet"&&req.method==="POST")return buyerPayPrepaymentWallet(req,u,id);if(a==="buyer-auction-decision"&&req.method==="POST")return buyerAuctionDecision(req,u,id);if(a==="buyer-cancel-purchase"&&req.method==="POST")return buyerCancelPurchase(req,u,id);
+ if(a==="auction-bid-state"&&req.method==="GET")return auctionBidState(req,u);if(a==="public-ready-auctions"&&req.method==="GET"){const {data,error}=await db.from("cases").select("id,case_number,status,created_at").in("status",["review","auction-ready"]).order("created_at",{ascending:false});if(error)return json({error:error.message},500);const ids=(data||[]).map((c:any)=>c.id);const vr=ids.length?await db.from("vehicles").select("case_id,brand,model,trim,model_year,mileage").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null};if(vr.error)return json({error:vr.error.message},500);return json({cases:(data||[]).map((c:any)=>({...c,vehicle:(vr.data||[]).find((v:any)=>v.case_id===c.id)||null}))})}if(a==="auction-request-code"&&req.method==="POST")return requestAuctionOtp(req);if(a==="auction-code-status"&&req.method==="GET")return auctionCodeStatus(u);if(a==="auction-approve-code"&&role==="admin"&&req.method==="POST")return adminApproveAuctionCode(req);if(a==="auction-verify-code"&&req.method==="POST")return verifyAuctionOtp(req);if(a==="passkey-registration-options"&&req.method==="POST")return passkeyRegistrationOptions(req,u);if(a==="passkey-registration-verify"&&req.method==="POST")return passkeyRegistrationVerify(req,u);if(a==="passkey-authentication-options"&&req.method==="POST")return passkeyAuthenticationOptions(req);if(a==="passkey-authentication-verify"&&req.method==="POST")return passkeyAuthenticationVerify(req);if(a==="auction-start-subscription"&&req.method==="POST")return startAuctionSubscription(req);if(a==="auction-payment-callback"&&req.method==="POST")return paymentCallback(req);if(a==="public-auctions"&&req.method==="GET")return publicAuctions(req,u);if(a==="buyer-dashboard"&&req.method==="GET")return buyerDashboard(req,u);if(a==="buyer-pay-fine-wallet"&&req.method==="POST")return buyerPayFineWallet(req,u,id);if(a==="buyer-delivery-details"&&req.method==="GET")return buyerDeliveryDetails(req,u,id);if(a==="buyer-complete-transaction"&&req.method==="POST")return buyerCompleteTransaction(req,u,id);if(a==="buyer-mark-notification-read"&&req.method==="POST")return buyerMarkNotificationRead(req,u);if(a==="buyer-save-profile"&&req.method==="POST")return buyerSaveProfile(req,u);if(a==="buyer-upload-identity"&&req.method==="POST")return buyerUploadIdentity(req,u);if(a==="buyer-submit-payment"&&req.method==="POST")return buyerSubmitPayment(req,u,id);if(a==="buyer-pay-prepayment-wallet"&&req.method==="POST")return buyerPayPrepaymentWallet(req,u,id);if(a==="buyer-auction-decision"&&req.method==="POST")return buyerAuctionDecision(req,u,id);if(a==="buyer-cancel-purchase"&&req.method==="POST")return buyerCancelPurchase(req,u,id);
  if(a==="place-bid"&&req.method==="POST")return placeBid(req,id);
  if(a==="market_prices")return marketPrices(u); if(a==="estimate"&&req.method==="POST")return estimate(req);
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
 if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminUpdateVehicle(req);if(a==="admin-review-identity"&&role==="admin"&&req.method==="POST")return adminReviewIdentity(req);if(a==="admin-approve-seller"&&role==="admin"&&req.method==="POST")return adminApproveSeller(req);if(a==="admin-set-auction-settlement"&&role==="admin"&&req.method==="POST")return adminSetAuctionSettlement(req);if(a==="admin-set-cancellation-fine"&&role==="admin"&&req.method==="POST")return adminSetCancellationFine(req);if(a==="admin-review-buyer-payment"&&role==="admin"&&req.method==="POST")return adminReviewBuyerPayment(req);if(a==="admin-buyer-payments"&&role==="admin"&&req.method==="GET")return adminBuyerPayments(u);if(a==="wallet-topup-request"&&req.method==="POST")return buyerSubmitWalletTopup(req,u);if(a==="subscription-payment-request"&&req.method==="POST")return buyerSubmitSubscriptionPayment(req,u);if(a==="subscription-payment-requests"&&req.method==="GET")return buyerSubscriptionPaymentRequests(req,u);if(a==="admin-subscription-payment-requests"&&role==="admin"&&req.method==="GET")return adminSubscriptionPaymentRequests();if(a==="admin-review-subscription-payment"&&role==="admin"&&req.method==="POST")return adminReviewSubscriptionPayment(req);if(a==="wallet-topup-requests"&&req.method==="GET")return buyerWalletTopupRequests(req,u);if(a==="admin-wallet-topup-requests"&&role==="admin"&&req.method==="GET")return adminWalletTopupRequests(u);if(a==="admin-review-wallet-topup"&&role==="admin"&&req.method==="POST")return adminReviewWalletTopup(req);if(a==="wallet-bank-settings"&&req.method==="GET")return getWalletBankSettings();if(a==="wallet-bank-settings"&&role==="admin"&&req.method==="POST")return saveWalletBankSettings(req);if(a==="admin-topup-wallet"&&role==="admin"&&req.method==="POST")return adminTopupWallet(req);if(a==="auction-members"&&role==="admin"&&req.method==="GET")return auctionMembers();if(a==="delete-auction-member"&&role==="admin"&&req.method==="POST")return deleteAuctionMember(req);if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(a==="deactivate-auction-member"&&role==="admin"&&req.method==="POST")return deactivateAuctionMember(req);if(a==="update-auction-member"&&role==="admin"&&req.method==="POST")return updateAuctionMember(req);if(!role)return json({error:"unauthorized"},401);
+
+ if(a==="price-market-search"&&req.method==="POST"){
+  if(!["admin","sales"].includes(role))return json({error:"جست‌وجوی قیمت بازار فقط برای مدیریت و واحد فروش مجاز است."},403);
+  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات جست‌وجو نامعتبر است."},400)}
+  const brand=String(b.brand||"").trim().slice(0,60),model=String(b.model||"").trim().slice(0,80),trim=String(b.trim||"").trim().slice(0,60),year=String(b.year||"").trim().slice(0,8),mileage=String(b.mileage||"").trim().slice(0,20),city=String(b.city||"تهران").trim().slice(0,60);
+  const query=[brand,model,trim,year].filter(Boolean).join(" ").slice(0,120);
+  if(!query)return json({error:"برند یا مدل خودرو در پرونده ثبت نشده است."},400);
+  const listings:any[]=[],sourceStatus:any={divar:"در حال بررسی",bama:"در حال بررسی",sheypoor:"در حال بررسی"};
+  const cleanText=(s:string)=>String(s||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&nbsp;/g," ").replace(/&#x([0-9a-f]+);/gi,(_,x)=>String.fromCodePoint(parseInt(x,16))).replace(/&#(\d+);/g,(_,x)=>String.fromCodePoint(Number(x))).replace(/\s+/g," ").trim();
+  const rpc=async(method:string,params:any={})=>{
+   const res=await fetch("https://divar-mcp.mmdju2.workers.dev/mcp",{method:"POST",headers:{"content-type":"application/json","accept":"application/json, text/event-stream","user-agent":"SwitchToSwitch-PriceAssistant/1.0"},body:JSON.stringify({jsonrpc:"2.0",id:Math.floor(Math.random()*1000000)+1,method,params}),signal:AbortSignal.timeout(11000)});
+   const body=await res.text();if(!res.ok)throw new Error("منبع دیوار پاسخ "+res.status);
+   const payload=body.split("\n").filter((line)=>line.startsWith("data:")).map((line)=>line.slice(5).trim()).filter(Boolean).at(-1)||body;
+   return JSON.parse(payload);
+  };
+  try{
+   await rpc("initialize",{protocolVersion:"2024-11-05",capabilities:{},clientInfo:{name:"switch-to-switch-price-assistant",version:"1.0.0"}});
+   await rpc("notifications/initialized",{});
+   const searchQueries=[...new Set([query,[brand,model].filter(Boolean).join(" "),[model,year].filter(Boolean).join(" ")].map((x)=>String(x||"").trim()).filter(Boolean))];
+   const searchCities=[...new Set([city||"تهران",...(String(city||"تهران").trim()!=="تهران"?["تهران"]:[])])];
+   const seenDivar=new Set<string>();let attempted=0,lastSearchError="";
+   for(const searchCity of searchCities){
+    for(const searchQuery of searchQueries){
+     if(listings.length>=8)break;
+     attempted++;
+     try{
+      const search=await rpc("tools/call",{name:"search_ads",arguments:{query:searchQuery,category:"light",city:searchCity,limit:10}});
+      const raw=search?.result?.content?.find((x:any)=>x.type==="text")?.text||"";
+      let data:any={};try{data=JSON.parse(raw||"{}")}catch(_){data={}};
+      const items=Array.isArray(data.items)?data.items:Array.isArray(data.results)?data.results:[];
+      for(const item of items){
+       const price=Number(item.price_toman);let adUrl="";try{const parsed=new URL(String(item.url||item.link||""));if(parsed.protocol==="https:"&&(parsed.hostname==="divar.ir"||parsed.hostname.endsWith(".divar.ir")))adUrl=parsed.toString()}catch(_){}if(!adUrl||seenDivar.has(adUrl))continue;seenDivar.add(adUrl);
+       listings.push({source:"دیوار",title:String(item.title||item.name||"آگهی خودرو").slice(0,220),url:adUrl,city:String(item.city||searchCity||city),price_toman:Number.isFinite(price)&&price>0&&!item.price_is_placeholder?price:null,price_is_placeholder:!!item.price_is_placeholder,price_note:item.price_note||(!Number.isFinite(price)||price<=0?"آگهی قیمت قطعی قابل‌استفاده ندارد":""),mileage:item.mileage??null,verified_price:Number.isFinite(price)&&price>0&&!item.price_is_placeholder});
+      }
+     }catch(e){lastSearchError=String(e).slice(0,100)}
+    }
+    if(listings.length>=12)break;
+   }
+   sourceStatus.divar=listings.length?("دریافت "+listings.length+" آگهی از "+attempted+" جست‌وجوی چندمرحله‌ای؛ شهر و عبارت جست‌وجو به‌صورت جایگزین بررسی شدند"):(lastSearchError?"منبع دیوار نتیجه نداد؛ خطای آخر: "+lastSearchError:"پس از بررسی چند عبارت و شهر، نتیجه‌ای برنگشت");
+  }catch(e){sourceStatus.divar="دریافت خودکار دیوار ناموفق بود: "+String(e).slice(0,150)}
+  const parseRedirect=(href:string)=>{try{const u=new URL(href,"https://html.duckduckgo.com");const target=u.searchParams.get("uddg");return target?decodeURIComponent(target):href}catch{return href}};
+  const searchHtml=async(domain:string)=>{
+   const base=[brand,model].filter(Boolean).join(" ")||query;
+   const queries=[
+    "site:"+domain+" "+query+" "+(year||"")+" "+(city||"تهران")+" قیمت خودرو",
+    "site:"+domain+" "+base+" "+(city||"تهران"),
+    "site:"+domain+" "+base+" قیمت"
+   ];
+   const results:any[]=[],seen=new Set<string>();
+   for(const textQuery of queries){
+    if(results.length>=4)break;
+    try{
+     const q=encodeURIComponent(textQuery);
+     const res=await fetch("https://html.duckduckgo.com/html/?q="+q,{headers:{"user-agent":"Mozilla/5.0 (compatible; SwitchToSwitchPriceAssistant/1.0)","accept":"text/html"},signal:AbortSignal.timeout(4500)});
+     if(!res.ok)continue;
+     const html=await res.text();
+     const re=/<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;let m;
+     while((m=re.exec(html))&&results.length<4){
+      const url=parseRedirect(m[1]);let parsedUrl:URL;try{parsedUrl=new URL(url)}catch(_){continue}
+      if(parsedUrl.protocol!=="https:"&&parsedUrl.protocol!=="http:")continue;
+      if(!(parsedUrl.hostname.toLowerCase()===domain||parsedUrl.hostname.toLowerCase().endsWith("."+domain)))continue;
+      if(seen.has(url))continue;
+      const title=cleanText(m[2]);if(!title)continue;seen.add(url);
+      let snippet="";const tail=html.slice(re.lastIndex,re.lastIndex+1400),sm=tail.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/(?:a|div|td)>/i);if(sm)snippet=cleanText(sm[1]);
+      results.push({url,title,snippet});
+     }
+    }catch(_){}
+   }
+   return results;
+  };
+  const readListingPrice=async(url:string)=>{
+   try{
+    const res=await fetch(url,{headers:{"user-agent":"Mozilla/5.0 (compatible; SwitchToSwitchPriceAssistant/1.0)","accept":"text/html"},redirect:"follow",signal:AbortSignal.timeout(3500)});
+    if(!res.ok)return null;const html=(await res.text()).slice(0,1200000);
+    const candidates:string[]=[];
+    const patterns=[
+     /<meta[^>]+(?:property|name)=["']product:price:amount["'][^>]+content=["']([^"']+)["']/i,
+     /<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']product:price:amount["']/i,
+     /<meta[^>]+itemprop=["']price["'][^>]+content=["']([^"']+)["']/i,
+     /["']price["']\s*:\s*["']([\d,٬،.]+)["']/i,
+     /(?:قیمت|مبلغ)[^<>]{0,80}?([\d,٬،۰-۹٠-٩]{7,})\s*(تومان|تومن|ریال)/i
+    ];
+    let explicitCurrency="";
+    for(const p of patterns){const m=html.match(p);if(m?.[1]){candidates.push(m[1]);if(m[2]&&/تومان|تومن|ریال/.test(m[2]))explicitCurrency=m[2];break}}
+    if(!candidates.length)return null;
+    const currency=(html.match(/(?:priceCurrency|currency)["']?\s*[:=]\s*["'](IRR|IRT|تومان|ریال)["']/i)?.[1]||explicitCurrency).toUpperCase();
+    if(!["IRR","IRT","تومان","تومن","ریال"].includes(currency))return null;
+    const digits=candidates[0].replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^\d]/g,"");
+    const n=Number(digits);if(!Number.isFinite(n)||n<10000000||n>100000000000000)return null;
+    if(currency==="IRR"||currency==="ریال")return Math.round(n/10);
+    return n;
+   }catch(_){return null}
+  };
+  for(const [key,domain,sourceName] of [["bama","bama.ir","باما"],["sheypoor","sheypoor.com","شیپور"]]){
+   try{
+    const found=await searchHtml(domain);
+    for(const ad of found){
+     const price=await readListingPrice(ad.url);
+     listings.push({source:sourceName,title:ad.title,url:ad.url,city,price_toman:price,price_is_placeholder:false,price_note:price?"قیمت از داده قابل‌خواندن صفحه آگهی استخراج شد":"آگهی پیدا شد، اما قیمت آن از صفحه قابل تأیید نبود؛ در محاسبه وارد نمی‌شود",verified_price:!!price,search_snippet:ad.snippet||""});
+    }
+    sourceStatus[key]=found.length?("پیدا شد "+found.length+" نتیجه؛ فقط قیمت‌های قابل‌تأیید استفاده می‌شوند"):"نتیجه قابل‌دسترسی پیدا نشد";
+   }catch(e){sourceStatus[key]="دسترسی خودکار فعلاً ناموفق بود: "+String(e).slice(0,120)}
+  }
+  const normalizeDigits=(s:string)=>String(s||"").replace(/[۰-۹]/g,(d)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+  const targetYear=Number(normalizeDigits(year).replace(/[^0-9]/g,""));
+  const yearShort=targetYear>=1300?targetYear%100:targetYear;
+  const yearMatchState=(listing:any):boolean|null=>{
+   if(!targetYear)return true;
+   const text=normalizeDigits([listing.title,listing.description,listing.search_snippet,listing.model_year,listing.year].filter(Boolean).join(" "));
+   // Detect full Iranian years directly; accept 2-digit years only when explicitly attached to a year/model label.
+   const fullYears=[...text.matchAll(/(?<!\d)(?:13|14)\d{2}(?!\d)/g)].map((m:any)=>Number(m[0]));
+   const shortYears=[...text.matchAll(/(?:مدل|سال(?:\s*ساخت)?|ساخت|model\s*year|year)\s*[:：-]?\s*(\d{2})(?!\d)/gi)].map((m:any)=>Number(m[1]));
+   const years=[...fullYears,...shortYears];
+   if(!years.length)return null;
+   return years.some((y:number)=>y===targetYear||((y<100)&&(y===yearShort))||((targetYear<100)&&(y%100===targetYear)));
+  };
+  const beforeYearFilter=listings.length;
+  const taggedListings=listings.map((x:any)=>({...x,year_match:yearMatchState(x)}));
+  const yearFilteredListings=taggedListings.filter((x:any)=>x.year_match!==false);
+  listings.splice(0,listings.length,...yearFilteredListings);
+  const yearExcludedCount=beforeYearFilter-listings.length;
+  const unknownYearCount=listings.filter((x:any)=>x.year_match===null).length;
+  if(targetYear){const label=String(targetYear);sourceStatus.year_filter="آگهی‌های دارای سال مدل "+label+" (یا "+String(yearShort)+" در نگارش کوتاه) برای مقایسه قیمت نگه داشته می‌شوند؛ "+yearExcludedCount+" مورد با سال متفاوت حذف شد و "+unknownYearCount+" آگهی بدون سال مشخص فقط برای بررسی دستی نمایش داده می‌شود."}
+  const verified=listings.filter((x:any)=>x.verified_price&&Number.isFinite(Number(x.price_toman))&&Number(x.price_toman)>0);
+  return json({ok:true,checked_at:new Date().toISOString(),query,city,requested_year:year,year_excluded_count:yearExcludedCount,source_status:sourceStatus,listings,priced_count:verified.length,notice:"قیمت‌ها فقط وقتی محاسبه می‌شوند که منبع مقدار عددی قابل‌خواندن ارائه کند. جست‌وجوی دیوار از سرویس عمومی غیررسمیِ بدون کلید استفاده می‌کند و ممکن است با تغییر منبع متوقف شود؛ باما و شیپور از نتایج وب عمومی و صفحه آگهی بررسی می‌شوند، نه API رسمی.",method:"public-listing-search"});
+ }
  if(a==="team-update"&&req.method==="POST"){
   if(!["admin","intake","expert","sales","followup","legal","finance","contracts"].includes(role))return json({error:"این عملیات برای واحد شما مجاز نیست."},403);
   if(!id)return json({error:"شناسه پرونده مشخص نشده است."},400);
   let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات ارسالی نامعتبر است."},400)}
   const type=String(b.update_type||"").slice(0,60),note=String(b.note||"").trim().slice(0,2000),payload=b.payload&&typeof b.payload==="object"&&!Array.isArray(b.payload)?b.payload:{};
+  if(role==="legal"&&type==="documents_rejected"&&!note)return json({error:"برای بازگرداندن پرونده به‌دلیل نقص مدارک، ثبت دلیل نقص الزامی است."},400);
+  if(type==="documents_checklist_save"){
+   if(!["admin","sales","legal","intake"].includes(role))return json({error:"برای ثبت چک‌لیست مدارک اجازه ندارید."},403);
+   const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();if(cr.error)return json({error:cr.error.message},500);if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
+   if(!["awaiting_docs","docs","legal_review"].includes(cr.data.status))return json({error:"چک‌لیست فقط در مرحله تکمیل مدارک یا کنترل حقوقی قابل ثبت است."},409);
+   const items=payload.items&&typeof payload.items==="object"?payload.items:{};
+   const requiredKeys=["owner_national_id","vehicle_card","green_card"];
+   const uploaded=await db.from("documents").select("document_type").eq("case_id",id).in("document_type",requiredKeys);
+   if(uploaded.error)return json({error:uploaded.error.message},500);
+   const uploadedTypes=new Set((uploaded.data||[]).map((x:any)=>x.document_type));
+   const missing=requiredKeys.filter(k=>!uploadedTypes.has(k));
+   const approved=payload.approved===true&&missing.length===0&&requiredKeys.every(k=>items[k]===true);
+   const savedPayload={items,approved,missing_documents:missing,reviewer_name:String(payload.reviewer_name||"").trim().slice(0,120),reviewed_at:approved?new Date().toISOString():null};
+   const ins=await db.from("case_team_updates").insert({case_id:id,team_role:role,staff_member_id:staffMemberId||null,update_type:"documents_checklist",payload:savedPayload,note:note||null});
+   if(ins.error)return json({error:"ذخیره چک‌لیست ناموفق بود: "+ins.error.message},500);
+   await historyAdd(id,cr.data.status,cr.data.status,approved?"چک‌لیست مدارک تأیید شد":"چک‌لیست مدارک ذخیره شد؛ موارد ناقص: "+missing.join(", "));
+   return json({ok:true,approved,missing_documents:missing,message:approved?"مدارک ضروری کامل و تأیید شد.":("مدارک هنوز کامل نیست؛ موارد ضروری بارگذاری/تأیید نشده: "+missing.join("، "))});
+  }
   const transitions:any={
    intake:{confirm_contact:{from:["new"],to:"booking_confirmed"},confirm_visit:{from:["booking_confirmed"],to:"expert_visit_confirmed"}},
-   expert:{start_inspection:{from:["expert_visit_confirmed","refer"],to:"inspection"},finish_inspection:{from:["inspection"],to:"review"}},
-   sales:{price_review:{from:["review"],to:"auction-ready"},calculate_branch_offer:{from:["auction-end"],to:"awaiting_negotiation"},begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},buyer_coordination_complete:{from:["contract_approved"],to:"awaiting_custody_receipt"}},
+   expert:{start_inspection:{from:["awaiting_expert_confirmation","expert_visit_confirmed","refer"],to:"inspection"},finish_inspection:{from:["inspection"],to:"review"}},
+   sales:{price_review:{from:["review","auction-ready"],to:"auction-ready"},calculate_branch_offer:{from:["auction-end"],to:"awaiting_negotiation"},begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},buyer_coordination_complete:{from:["contract_approved"],to:"awaiting_custody_receipt"}},
    followup:{begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},seller_settlement_confirmed:{from:["buyer_settlement_review"],to:"awaiting_seller_settlement_confirmation"}},
    legal:{docs_received:{from:["awaiting_docs"],to:"docs"},legal_review:{from:["docs"],to:"legal_review"},legal_approved:{from:["legal_review"],to:"prepayment"},documents_rejected:{from:["docs","legal_review"],to:"awaiting_docs"},transfer_method_confirmed:{from:["awaiting_transfer_method_confirmation"],to:"awaiting_buyer_confirmation"}},
-   finance:{guarantee_received:{from:["awaiting_guarantee_deposit"],to:"auction-ready"},prepayment_received:{from:["prepayment","deposit"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_notary"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"awaiting_plate_release"}},
-   contracts:{contract_approved:{from:["ready_to_sign"],to:"contract_approved"},await_buyer_settlement:{from:["contract_approved"],to:"awaiting_buyer_settlement"},custody_receipt_issued:{from:["awaiting_custody_receipt"],to:"deductions_review"},buyer_confirmed:{from:["awaiting_buyer_confirmation"],to:"awaiting_seller_confirmation"},seller_confirmed:{from:["awaiting_seller_confirmation"],to:"awaiting_notary"},notary_attended:{from:["awaiting_notary"],to:"awaiting_power_of_attorney_signature"},poa_signed:{from:["awaiting_power_of_attorney_signature"],to:"seller_final_payout_pending"},plate_release:{from:["awaiting_plate_release"],to:"vehicle_delivery"},vehicle_delivered:{from:["vehicle_delivery"],to:"done"},transaction_completed:{from:["vehicle_delivery","contract"],to:"done"}}
+   finance:{prepayment_received:{from:["prepayment","deposit"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_transfer_method_confirmation"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"settled"}},
+   contracts:{contract_approved:{from:["ready_to_sign"],to:"contract_approved"},await_buyer_settlement:{from:["contract_approved"],to:"awaiting_buyer_settlement"},custody_receipt_issued:{from:["awaiting_custody_receipt"],to:"deductions_review"},buyer_confirmed:{from:["awaiting_buyer_confirmation"],to:"awaiting_seller_confirmation"},seller_confirmed:{from:["awaiting_seller_confirmation"],to:"awaiting_notary"},notary_attended:{from:["awaiting_notary"],to:"awaiting_power_of_attorney_signature"},poa_signed:{from:["awaiting_power_of_attorney_signature"],to:"seller_final_payout_pending"},start_plate_release:{from:["settled"],to:"awaiting_plate_release"},plate_release:{from:["awaiting_plate_release"],to:"vehicle_delivery"},vehicle_delivered:{from:["vehicle_delivery"],to:"done"},transaction_completed:{from:["vehicle_delivery","contract"],to:"done"}}
   };
+  if(type==="docs_received"){
+   const latest=await db.from("case_team_updates").select("payload,created_at").eq("case_id",id).eq("update_type","documents_checklist").order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(latest.error)return json({error:latest.error.message},500);
+   const required=["owner_national_id","vehicle_card","green_card"],items=latest.data?.payload?.items||{};
+   const docs=await db.from("documents").select("document_type").eq("case_id",id).in("document_type",required);
+   if(docs.error)return json({error:docs.error.message},500);
+   const types=new Set((docs.data||[]).map((x:any)=>x.document_type));
+   const missing=required.filter(k=>!types.has(k)||items[k]!==true);
+   if(!latest.data?.payload?.approved||missing.length)return json({error:"تکمیل مدارک مجاز نیست؛ ابتدا سه مدرک ضروری را بارگذاری کنید، در چک‌لیست تأیید بزنید و چک‌لیست را ذخیره کنید.",missing_documents:missing},409);
+  }
   const salesManualStatuses=["review","auction-ready","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","legal_review","prepayment","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery"];
   let spec=transitions[role]?.[type];
   if(role==="sales"&&type==="sales_change_status"){
@@ -957,9 +1121,10 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    spec={from:["__sales_manual__"],to:target};
   }
   if(!spec)return json({error:"این نوع عملیات برای نقش شما تعریف نشده است."},403);
-  const cr=await db.from("cases").select("id,status,case_number,customer_name,customer_mobile,agreed_price,prepayment_amount,prepayment_status,sales_suggested_price").eq("id",id).maybeSingle();
+  const cr=await db.from("cases").select("id,status,case_number,customer_name,customer_mobile,agreed_price,prepayment_amount,prepayment_status,sales_suggested_price,assigned_expert_staff_id").eq("id",id).maybeSingle();
   if(cr.error)return json({error:cr.error.message},500);
   if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
+  if(role==="expert"&&cr.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است؛ فقط پرونده‌های ارجاع‌شده به خودتان قابل ویرایش هستند."},403);
   if(spec.from.includes("__sales_manual__")){if(!salesManualStatuses.includes(cr.data.status))return json({error:"تغییر دستی فقط برای مراحل قابل‌کنترل واحد فروش مجاز است؛ از عملیات تخصصی همان مرحله استفاده کنید.",current_status:cr.data.status},409);if(cr.data.status===spec.to)return json({error:"وضعیت پرونده از قبل همین است."},400)}else if(!spec.from.includes(cr.data.status))return json({error:"وضعیت پرونده تغییر کرده است؛ ابتدا فهرست را به‌روزرسانی کنید.",current_status:cr.data.status},409);
   const updates:any={status:spec.to,updated_at:new Date().toISOString()};
   if((role==="followup"||role==="intake"||role==="sales")&&type==="customer_accept"){
@@ -971,19 +1136,20 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"مشتری پیشنهاد را نپذیرفت.";
   }
   if(role==="sales"&&type==="price_review"){
-   const amount=Number(payload.estimated_price||0);
+   const amount=Number(payload.estimated_price||0),fair=Number(payload.fair_price||0),target=Number(payload.target_price||0);
    if(!Number.isFinite(amount)||amount<=0)return json({error:"قیمت پیشنهادی معتبر و بیشتر از صفر لازم است."},400);
-   updates.sales_suggested_price=amount;
+   if(!Number.isFinite(fair)||fair<=0||!Number.isFinite(target)||target<=0)return json({error:"قیمت منصفانه و هدف باید از برآورد قیمت‌گذاری به‌صورت خودکار ثبت شوند."},400);
+   updates.sales_suggested_price=amount;updates.sales_fair_price=fair;updates.sales_target_price=Math.max(amount,target,fair);
   }
   if(role==="sales"&&type==="calculate_branch_offer"){
    const auctionResult=await db.from("auctions").select("id,status,current_bid,winner_id,winner_response_status").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(auctionResult.error)return json({error:auctionResult.error.message},500);
    if(!auctionResult.data||auctionResult.data.status!=="ended")return json({error:"ابتدا پایان مزایده را ثبت کنید."},409);
    if(!auctionResult.data.winner_id||auctionResult.data.winner_response_status!=="accepted")return json({error:"تا زمانی که برنده مزایده قیمت را تأیید نکرده، ارسال قیمت به شعبه مجاز نیست."},409);
-   const finalPrice=Number(auctionResult.data.current_bid||0),profit=Number(payload.company_profit_amount);
-   if(!Number.isFinite(finalPrice)||finalPrice<=0||!Number.isFinite(profit)||profit<0||profit>=finalPrice)return json({error:"مبلغ سود باید معتبر، صفر یا بیشتر و کمتر از قیمت نهایی مزایده باشد."},400);
+   const finalPrice=Number(auctionResult.data.current_bid||0);if(!Number.isFinite(finalPrice)||finalPrice<=0)return json({error:"قیمت نهایی مزایده معتبر نیست."},400);const profit=Math.round(finalPrice*0.02);
+   
    const offer=finalPrice-profit;
-   payload.auction_final_price=finalPrice;payload.company_profit_amount=profit;payload.branch_offer_price=offer;payload.auction_id=auctionResult.data.id;
+   payload.auction_final_price=finalPrice;payload.company_profit_rate=2;payload.company_profit_amount=profit;payload.branch_offer_price=offer;payload.auction_id=auctionResult.data.id;
    updates.sales_suggested_price=offer;
   }
   if(role==="finance"&&type==="buyer_settlement_received"){
@@ -1084,8 +1250,43 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(cr.error){await db.from("staff_members").delete().eq("id",ins.data.id);return json({error:"ساخت رمز همکار ناموفق بود؛ حساب ایجاد نشد."},500)}
   return json({ok:true,staff:ins.data});
  }
+ if(a==="expert-departure"&&role==="expert"&&req.method==="POST"){
+  if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
+  let b:any;try{b=await req.json()}catch(_){return json({error:"درخواست نامعتبر است"},400)}
+  if(!["start","arrived"].includes(String(b.action||"")))return json({error:"عملیات شمارش معکوس نامعتبر است"},400);
+  const cr=await db.from("cases").select("id,status,assigned_expert_staff_id,expert_departed_at,expert_arrived_at").eq("id",id).maybeSingle();
+  if(cr.error)return json({error:cr.error.message},500);
+  if(!cr.data)return json({error:"پرونده پیدا نشد"},404);
+  if(!staffMemberId||cr.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است؛ فقط پرونده‌های ارجاع‌شده به خودتان قابل ویرایش هستند."},403);
+  if(!["awaiting_expert_confirmation","expert_visit_confirmed","refer","inspection"].includes(cr.data.status))return json({error:"وضعیت فعلی پرونده اجازه ثبت حرکت کارشناس را نمی‌دهد."},409);
+  if(b.action==="arrived"&&!cr.data.expert_departed_at)return json({error:"ابتدا حرکت به سمت مشتری را ثبت کنید."},400);
+  const changes:any=b.action==="start"?{expert_departed_at:new Date().toISOString(),expert_arrived_at:null}:{expert_arrived_at:new Date().toISOString()};
+  const up=await db.from("cases").update(changes).eq("id",id).eq("assigned_expert_staff_id",staffMemberId).select("expert_departed_at,expert_arrived_at").maybeSingle();
+  if(up.error)return json({error:"ثبت زمان حرکت ناموفق بود: "+up.error.message},500);
+  if(!up.data)return json({error:"پرونده تغییر کرده یا دیگر به شما ارجاع نشده است."},409);
+  return json({ok:true,expert_departed_at:up.data.expert_departed_at,expert_arrived_at:up.data.expert_arrived_at});
+ }
+ if(a==="upload-photo"&&role==="expert"&&req.method==="POST"){if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);const cr=await db.from("cases").select("id,assigned_expert_staff_id").eq("id",id).maybeSingle();if(cr.error)return json({error:cr.error.message},500);if(!cr.data)return json({error:"پرونده پیدا نشد"},404);if(!staffMemberId||cr.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است."},403);let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات عکس نامعتبر است"},400)}const dataUrl=String(b.data_url||"");const raw=dataUrl.split(",");if(raw.length<2||!raw[0].includes("base64"))return json({error:"فایل عکس معتبر نیست"},400);const mime=(raw[0].match(/data:(.*?);base64/)||[])[1]||"image/jpeg";if(!mime.startsWith("image/"))return json({error:"فقط فایل تصویری پذیرفته می‌شود"},400);let bytes:Uint8Array;try{bytes=Uint8Array.from(atob(raw[1]),(x:string)=>x.charCodeAt(0))}catch(_){return json({error:"رمزگشایی عکس ناموفق بود"},400)}if(bytes.length>12*1024*1024)return json({error:"حجم عکس بیش از حد مجاز است"},413);const path=`${id}/inspection/uploads/${crypto.randomUUID()}.jpg`;const up=await db.storage.from("s2s-documents").upload(path,bytes,{contentType:mime,upsert:false});if(up.error)return json({error:"ذخیره عکس ناموفق بود: "+up.error.message},500);return json({ok:true,storage_path:path})}
+ if(a==="upload-document"&&req.method==="POST"){
+  if(!["admin","sales","legal","intake"].includes(role))return json({error:"برای بارگذاری مدارک اجازه ندارید."},403);
+  if(!id)return json({error:"شناسه پرونده مشخص نشده است."},400);
+  const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();if(cr.error)return json({error:cr.error.message},500);if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
+  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات فایل نامعتبر است."},400)}
+  const dataUrl=String(b.data_url||""),docType=String(b.document_type||"other").slice(0,80),fileName=String(b.file_name||"document").replace(/[^a-zA-Z0-9._-]/g,"_").slice(0,100);
+  const raw=dataUrl.split(",");if(raw.length<2||!raw[0].includes("base64"))return json({error:"فایل انتخاب‌شده معتبر نیست."},400);
+  const mime=(raw[0].match(/data:(.*?);base64/)||[])[1]||"application/octet-stream";
+  if(!/^(image\/(jpeg|png|webp|pdf)|application\/pdf|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|application\/msword)$/.test(mime))return json({error:"فقط عکس، PDF یا فایل Word پذیرفته می‌شود."},400);
+  let bytes:Uint8Array;try{bytes=Uint8Array.from(atob(raw[1]),(x:string)=>x.charCodeAt(0))}catch(_){return json({error:"خواندن فایل ناموفق بود."},400)}
+  if(!bytes.length||bytes.length>12*1024*1024)return json({error:"حجم فایل باید کمتر از ۱۲ مگابایت باشد."},413);
+  const ext=(fileName.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,8)||"bin";
+  const path=`${id}/case-documents/${crypto.randomUUID()}.${ext}`;
+  const up=await db.storage.from("s2s-documents").upload(path,bytes,{contentType:mime,upsert:false});if(up.error)return json({error:"ذخیره فایل ناموفق بود: "+up.error.message},500);
+  const ins=await db.from("documents").insert({case_id:id,document_type:docType,storage_path:path,required:["owner_national_id","vehicle_card","green_card"].includes(docType)}).select("id").single();
+  if(ins.error){await db.storage.from("s2s-documents").remove([path]);return json({error:"فایل بارگذاری شد اما ثبت مدرک ناموفق بود: "+ins.error.message},500)}
+  return json({ok:true,document_id:ins.data.id,storage_path:path,file_name:fileName});
+ }
  if(a==="list")return listCases(role,staffMemberId);
- if(a==="assign-case-expert"&&role==="admin"&&req.method==="POST"){
+ if(a==="assign-case-expert"&&(role==="admin"||role==="sales")&&req.method==="POST"){
   if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
   let b:any;try{b=await req.json()}catch(_){return json({error:"درخواست نامعتبر است"},400)}
   const personnelId=String(b.personnel_id||"").trim();
@@ -1096,10 +1297,11 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();
   if(cr.error)return json({error:cr.error.message},500);
   if(!cr.data)return json({error:"پرونده پیدا نشد"},404);
-  const up=await db.from("cases").update({assigned_expert_staff_id:sr.data.id,assigned_expert_name:sr.data.full_name,status:"refer",updated_at:new Date().toISOString()}).eq("id",id);
+  if(role==="sales"&&!["expert_visit_confirmed","refer"].includes(cr.data.status))return json({error:"ارجاع کارشناس فقط پس از تأیید مراجعه کارشناس امکان‌پذیر است."},409);
+  const up=await db.from("cases").update({assigned_expert_staff_id:sr.data.id,assigned_expert_name:sr.data.full_name,status:"awaiting_expert_confirmation",updated_at:new Date().toISOString()}).eq("id",id);
   if(up.error)return json({error:up.error.message},500);
-  await historyAdd(id,cr.data.status||"new","refer","ارجاع پرونده به کارشناس: "+sr.data.full_name);
-  return json({ok:true,expert:{id:sr.data.id,full_name:sr.data.full_name},status:"refer"});
+  await historyAdd(id,cr.data.status||"new","awaiting_expert_confirmation","ارجاع پرونده به کارشناس: "+sr.data.full_name);
+  return json({ok:true,expert:{id:sr.data.id,full_name:sr.data.full_name},status:"awaiting_expert_confirmation"});
  }
  if(a==="delivery-record"&&role==="admin"&&req.method==="POST"){
    if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
@@ -1141,7 +1343,8 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    return json({ok:true,delivery:data,status:data.completed?"done":cr.data.status});
   }
   if(a==="dispatch-address"&&role==="admin"&&req.method==="POST"){const b=await req.json();const address=String(b.address||"").trim().slice(0,1200);const cr=await db.from("cases").select("notes").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);const base=String(cr.data.notes||"").replace(/\n?\n?\[\[S2S_DISPATCH_ADDRESS\]\][\s\S]*?\[\[\/S2S_DISPATCH_ADDRESS\]\]/g,"").trim();const notes=(base?base+"\n\n":"")+(address?"[[S2S_DISPATCH_ADDRESS]]"+address+"[[/S2S_DISPATCH_ADDRESS]]":"");const up=await db.from("cases").update({notes,updated_at:new Date().toISOString()}).eq("id",id);if(up.error)return json({error:up.error.message},500);await historyAdd(id,"dispatch","dispatch","آدرس اعزام توسط مدیر "+(address?"ثبت/ویرایش شد":"پاک شد"));return json({ok:true})}
- if(a==="case-comments"&&req.method==="GET")return caseComments(req,id,role);
+ if(a==="case-address"&&req.method==="POST"){if(!["admin","intake"].includes(role))return json({error:"فقط واحد ثبت درخواست یا مدیریت می‌تواند آدرس مشتری را تغییر دهد."},403);if(!id)return json({error:"پرونده مشخص نیست"},400);const b=await req.json(),address=String(b.address||"").trim();if(address.length>1000)return json({error:"آدرس نباید بیشتر از ۱۰۰۰ نویسه باشد."},400);const up=await db.from("cases").update({customer_address:address}).eq("id",id).select("id,customer_address").maybeSingle();if(up.error)return json({error:up.error.message},500);if(!up.data)return json({error:"پرونده پیدا نشد"},404);return json({ok:true,customer_address:up.data.customer_address});}
+ if(a==="case-comments"&&req.method==="GET")return caseComments(req,id,role,staffMemberId);
  if(a==="case-comment"&&req.method==="POST")return caseComments(req,id,role);
  if(a==="draft"&&role==="expert"&&req.method==="GET")return getDraft(id);
  if(a==="draft"&&role==="expert"&&req.method==="POST")return saveDraft(req,id);
@@ -1200,7 +1403,7 @@ if(a==="update_auction_time"&&role==="admin"){const b=await req.json();const min
  if(winner)await db.from("buyer_notifications").insert({buyer_id:winner,auction_id:id,title:"🎉 برنده مزایده شدی؛ قیمت را تأیید کن",message:"تبریک! برنده مزایده شدی. قیمت نهایی شما "+Number(br.data?.amount||ar.data.current_bid||0).toLocaleString("fa-IR")+" تومان است. لطفاً تا ۳ دقیقه آینده مشخص کن با این قیمت موافقی یا خیر. اگر زمان تمام شود، پیشنهاد به‌عنوان عدم تأیید ثبت می‌شود."});
  return json({ok:true,winner_id:winner,current_bid:br.data?.amount||ar.data.current_bid});
 }
-if(a==="confirm-call"&&role==="admin")return setStatus(id,"booking_confirmed","تأیید رزرو توسط مدیریت");if(a==="customer-decision"&&role==="admin"){const b=await req.json();if(!["accept","decline"].includes(b.decision))return json({error:"decision_invalid"},400);const next=b.decision==="accept"?"docs":"disagreement";const r=await db.from("cases").update({status:next,agreed_price:b.decision==="accept"?(Number(b.agreed_price||0)||null):null,customer_decision_at:new Date().toISOString(),customer_decision_note:b.note||null}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,"customer",next,b.decision==="accept"?"مشتری قیمت را پذیرفت":"عدم توافق با قیمت");return json({ok:true,status:next})}if(a==="prepayment"&&role==="admin"){const b=await req.json(),amount=Number(b.amount||0);if(amount<=0)return json({error:"مبلغ پیش‌پرداخت نامعتبر است"},400);const r=await db.from("cases").update({status:"contract",prepayment_amount:amount,prepayment_status:"received",prepayment_received_at:new Date().toISOString()}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,"deposit","contract","پیش‌پرداخت دریافت شد: "+amount);return json({ok:true,status:"contract"})}if(a==="continue-selling"&&role==="admin")return setStatus(id,"selling","ادامه فعالیت برای فروش خودرو");if(a==="set-status"&&role==="admin"){const b=await req.json();if(!b.status||!statusFa[b.status])return json({error:"status_invalid"},400);if(["review","auction"].includes(b.status))return json({error:"این مرحله فقط از مسیر اختصاصی کارشناسی یا شروع مزایده قابل ثبت است"},403);if(b.status==="inspection"){const cr=await db.from("cases").select("status").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);if(!["refer","inspection"].includes(cr.data.status))return json({error:"ابتدا پرونده را به کارشناس ارجاع دهید"},400)}return setStatus(id,b.status,b.note||"تغییر وضعیت توسط مدیر")}if(a==="expert-status"&&role==="expert"){const b=await req.json();if(!["inspection","review"].includes(b.status))return json({error:"status_invalid"},400);const cr=await db.from("cases").select("status").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);if(b.status==="review"&&cr.data.status!=="inspection")return json({error:"فقط کارشناسِ پرونده در حال کارشناسی می‌تواند پایان کارشناسی را ثبت کند"},403);if(b.status==="inspection"&&!["refer","inspection"].includes(cr.data.status))return json({error:"پرونده هنوز به کارشناس ارجاع نشده"},400);return setStatus(id,b.status,b.note||(b.status==="inspection"?"کارشناس شروع به کارشناسی کرد":"کارشناسی پایان یافت"))}if(req.method!=="POST")return json({error:"method_not_allowed"},405);
+if(a==="confirm-call"&&role==="admin")return setStatus(id,"booking_confirmed","تأیید رزرو توسط مدیریت");if(a==="customer-decision"&&role==="admin"){const b=await req.json();if(!["accept","decline"].includes(b.decision))return json({error:"decision_invalid"},400);const next=b.decision==="accept"?"docs":"disagreement";const r=await db.from("cases").update({status:next,agreed_price:b.decision==="accept"?(Number(b.agreed_price||0)||null):null,customer_decision_at:new Date().toISOString(),customer_decision_note:b.note||null}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,"customer",next,b.decision==="accept"?"مشتری قیمت را پذیرفت":"عدم توافق با قیمت");return json({ok:true,status:next})}if(a==="prepayment"&&role==="admin"){const b=await req.json(),amount=Number(b.amount||0);if(amount<=0)return json({error:"مبلغ پیش‌پرداخت نامعتبر است"},400);const r=await db.from("cases").update({status:"contract",prepayment_amount:amount,prepayment_status:"received",prepayment_received_at:new Date().toISOString()}).eq("id",id);if(r.error)return json({error:r.error.message},500);await historyAdd(id,"deposit","contract","پیش‌پرداخت دریافت شد: "+amount);return json({ok:true,status:"contract"})}if(a==="continue-selling"&&role==="admin")return setStatus(id,"selling","ادامه فعالیت برای فروش خودرو");if(a==="set-status"&&role==="admin"){const b=await req.json();if(!b.status||!statusFa[b.status])return json({error:"status_invalid"},400);if(["review","auction"].includes(b.status))return json({error:"این مرحله فقط از مسیر اختصاصی کارشناسی یا شروع مزایده قابل ثبت است"},403);if(b.status==="inspection"){const cr=await db.from("cases").select("status").eq("id",id).single();if(cr.error)return json({error:"پرونده پیدا نشد"},404);if(!["refer","inspection"].includes(cr.data.status))return json({error:"ابتدا پرونده را به کارشناس ارجاع دهید"},400)}return setStatus(id,b.status,b.note||"تغییر وضعیت توسط مدیر")}if(a==="expert-status"&&role==="expert"){const assignedCase=await db.from("cases").select("assigned_expert_staff_id").eq("id",id).maybeSingle();if(assignedCase.error)return json({error:assignedCase.error.message},500);if(!assignedCase.data||assignedCase.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است؛ فقط پرونده‌های ارجاع‌شده به خودتان قابل ویرایش هستند."},403);const b=await req.json();if(!["inspection","review","expert_visit_confirmed"].includes(b.status))return json({error:"status_invalid"},400);const currentCase=await db.from("cases").select("status").eq("id",id).single();if(currentCase.error)return json({error:"پرونده پیدا نشد"},404);if(b.status==="expert_visit_confirmed"){if(currentCase.data.status!=="awaiting_expert_confirmation")return json({error:"این پرونده در انتظار تأیید کارشناس نیست"},400);return setStatus(id,"expert_visit_confirmed",b.note||"کارشناس پرونده را تأیید کرد")}if(b.status==="review"&&currentCase.data.status!=="inspection")return json({error:"فقط کارشناسِ پرونده در حال کارشناسی می‌تواند پایان کارشناسی را ثبت کند"},403);if(b.status==="inspection"&&!["refer","inspection","expert_visit_confirmed"].includes(currentCase.data.status))return json({error:"ابتدا پرونده را تأیید کنید؛ سپس شروع کارشناسی را بزنید."},400);return setStatus(id,b.status,b.note||(b.status==="inspection"?"کارشناس شروع به کارشناسی کرد":"کارشناسی پایان یافت"))}if(req.method!=="POST")return json({error:"method_not_allowed"},405);
  if(a==="next"&&role==="admin"){const {data,error}=await db.from("cases").select("status").eq("id",id).single();if(error)return json({error:error.message},500);const i=order.indexOf(data?.status||"new"),next=order[Math.min(i+1,order.length-1)];return setStatus(id,next,"مرحله بعد")}
  if(a==="cancel"&&role==="admin")return setStatus(id,"cancelled","انصراف");
  if(a==="inspect"&&role==="expert")return inspect(req,id);
