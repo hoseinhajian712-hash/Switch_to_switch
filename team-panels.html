@@ -13,6 +13,13 @@
 /* Match the shared outer dimensions of admin.html */
 .shell{max-width:1600px;margin:auto;padding:20px}@media(max-width:520px){.shell{padding:10px}}
 .case-phone-line{margin-top:5px}.case-phone-link{display:inline-flex;align-items:center;gap:6px;direction:ltr;text-decoration:none!important;color:#67e8f9!important;font-weight:800;padding:4px 9px;border:1px solid #0891b2;border-radius:9px;background:rgba(8,145,178,.12);min-height:32px;touch-action:manipulation}.case-phone-link:active{transform:scale(.98)}
+/* Compact sales summary metrics */
+#appView.sales-mode .stats{gap:8px;margin:9px 0}
+#appView.sales-mode .stat{padding:9px 12px;border-radius:12px}
+#appView.sales-mode .stat .label{font-size:10px;line-height:1.5}
+#appView.sales-mode .stat strong{font-size:18px;margin-top:4px}
+#appView.sales-mode .stat small{font-size:9px}
+@media(max-width:520px){#appView.sales-mode .stats{gap:6px;margin:7px 0}#appView.sales-mode .stat{padding:7px 9px}#appView.sales-mode .stat strong{font-size:16px}}
 /* Sales panel cleanup and wider case queue */
 #appView.sales-mode .layout{grid-template-columns:minmax(0,1fr);gap:0;margin-top:12px}
 #appView.sales-mode #nav{display:none!important}
