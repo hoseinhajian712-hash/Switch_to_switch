@@ -12,7 +12,36 @@
 .expertAssignOverlay{position:fixed;inset:0;z-index:3200;display:flex;align-items:center;justify-content:center;padding:16px;background:#020814d9;backdrop-filter:blur(10px)}.expertAssignOverlay.hidden{display:none!important}.expertAssignDialog{width:min(500px,100%);border:1px solid #496582;border-radius:24px;background:linear-gradient(150deg,#12243a,#071321);box-shadow:0 28px 100px #000b;padding:22px}.expertAssignDialog h3{margin:0 0 8px;font-size:20px}.expertAssignDialog .sub{color:#9fb4ca;font-size:13px;line-height:1.9;margin-bottom:18px}.expertAssignDialog select{width:100%;padding:14px;border:1px solid #3a536e;border-radius:13px;background:#071321;color:#f4f8ff;outline:none}.expertAssignDialog select:focus{border-color:var(--gold)}.expertAssignActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.expertAssignActions button{flex:1;min-width:120px}.expertAssignError{color:#fda4af;min-height:22px;margin-top:10px;font-size:13px;line-height:1.8}
 /* Match the shared outer dimensions of admin.html */
 .shell{max-width:1600px;margin:auto;padding:20px}@media(max-width:520px){.shell{padding:10px}}
-.case-phone-line{margin-top:5px}.case-phone-link{display:inline-flex;align-items:center;gap:6px;direction:ltr;text-decoration:none!important;color:#67e8f9!important;font-weight:800;padding:4px 9px;border:1px solid #0891b2;border-radius:9px;background:rgba(8,145,178,.12);min-height:32px;touch-action:manipulation}.case-phone-link:active{transform:scale(.98)}</style></head>
+.case-phone-line{margin-top:5px}.case-phone-link{display:inline-flex;align-items:center;gap:6px;direction:ltr;text-decoration:none!important;color:#67e8f9!important;font-weight:800;padding:4px 9px;border:1px solid #0891b2;border-radius:9px;background:rgba(8,145,178,.12);min-height:32px;touch-action:manipulation}.case-phone-link:active{transform:scale(.98)}</style>
+<style id="sales-case-workspace-css">
+#caseModal .caseDialog{width:min(1380px,99vw);max-height:95vh}
+#caseModal #detailArea>.sectionHead{margin-bottom:12px}
+.sales-case-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.88fr);gap:14px;align-items:start;direction:ltr}
+.sales-case-left,.sales-case-right{min-width:0;direction:rtl}
+.sales-case-left{display:flex;flex-direction:column;gap:10px}
+.sales-case-right{position:sticky;top:68px}
+.sales-case-left .detail{display:flex;flex-direction:column;gap:10px}
+.sales-case-left .sales-fold{margin:0;background:linear-gradient(145deg,#102033,#0a1727);border:1px solid #29415f;border-radius:13px;overflow:hidden}
+.sales-fold>summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:12px;font-weight:900;color:#e4efff;display:flex;align-items:center;gap:8px}
+.sales-fold>summary::-webkit-details-marker{display:none}
+.sales-fold>summary:after{content:'＋';margin-right:auto;color:#d5ad65;font-size:15px}
+.sales-fold[open]>summary:after{content:'−'}
+.sales-fold-content{padding:0 12px 12px}
+.sales-fold-content>.card{margin:0!important}
+.sales-price-calc{border:1px solid #806a42;border-radius:15px;padding:14px;background:linear-gradient(145deg,#182b3d,#101c2a)}
+.sales-price-calc h3{margin:0 0 6px;font-size:14px}
+.sales-price-calc p{font-size:11px;line-height:1.9;color:#a9bdd2;margin:0 0 10px}
+.sales-price-calc label{display:block;font-size:11px;font-weight:800;margin:10px 0 5px;color:#dbeafe}
+.sales-price-calc input{width:100%;min-width:0;box-sizing:border-box;background:#081321;color:#fff;border:1px solid #36506e;border-radius:10px;padding:11px;font:13px Tahoma;direction:ltr;text-align:left}
+.sales-calc-results{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.sales-calc-results>div{background:#081321;border:1px solid #29415f;border-radius:10px;padding:10px;min-width:0}
+.sales-calc-results small{display:block;font-size:10px;color:#9fb2c8;margin-bottom:5px}
+.sales-calc-results b{font-size:12px;color:#a7f3d0;overflow-wrap:anywhere}
+.sales-case-right .chatBox{margin:0;position:static}
+.sales-case-right .chatMessages{height:calc(95vh - 300px);min-height:260px;max-height:none}
+@media(max-width:800px){#caseModal .caseDialog{width:100%;padding:12px;max-height:97vh}.sales-case-workspace{grid-template-columns:1fr;direction:rtl}.sales-case-right{position:static;grid-row:1}.sales-case-right .chatMessages{height:230px;min-height:180px;max-height:35vh}.sales-calc-results{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.sales-calc-results{grid-template-columns:1fr}}
+</style></head>
 <body>
 <div id="loginView" class="shell login">
  <div class="brand" style="justify-content:center;margin:18px 0 22px"><div class="logo">S2S</div><div><h1>سوییچ به سوییچ</h1><div class="muted">مرکز عملیات و گردش پرونده‌ها</div></div></div>
@@ -258,8 +287,51 @@ function openCase(id){
    '<article class="card"><h3>تاریخچه پرونده</h3>'+(historyRows||'<div class="muted">تاریخچه‌ای موجود نیست.</div>')+'</article>'+
   '</div>'+
   '<section class="chatBox"><div class="chatHead"><div><strong>گفت‌وگوی مشترک پرونده</strong><div class="caseSub">همه واحدها می‌توانند پیام بگذارند و پیام‌های همدیگر را ببینند.</div></div><span class="tag">به‌روزرسانی خودکار</span></div><div id="caseChatMessages" class="chatMessages"><div class="empty">در حال دریافت پیام‌ها…</div></div><form class="chatCompose" onsubmit="sendCaseComment(event)"><textarea id="caseChatInput" maxlength="3000" placeholder="پیام یا یادداشت خود را برای همه واحدها بنویسید…" required></textarea><button class="btn primary" id="caseChatSend" type="submit">ارسال پیام</button></form><div class="chatHint">پیام‌ها با نام واحد ثبت می‌شوند و در همین پرونده برای همکاران قابل مشاهده‌اند.</div></section>';
+ arrangeSalesCaseWorkspace(c);
  loadCaseComments();
 }
+
+function arrangeSalesCaseWorkspace(c){
+ const host=document.getElementById("detailArea");if(!host||host.querySelector(".sales-case-workspace"))return;
+ const head=host.querySelector(":scope > .sectionHead"),address=host.querySelector(":scope > article.card"),detail=host.querySelector(":scope > .detail"),chat=host.querySelector(":scope > .chatBox");
+ if(!head||!detail||!chat)return;
+ const workspace=document.createElement("div");workspace.className="sales-case-workspace";
+ const left=document.createElement("div");left.className="sales-case-left";
+ const right=document.createElement("aside");right.className="sales-case-right";
+ if(address){
+  const sum=document.createElement("summary");sum.textContent="📍 آدرس مشتری";
+  const fold=document.createElement("details");fold.className="sales-fold";fold.appendChild(sum);
+  const body=document.createElement("div");body.className="sales-fold-content";
+  const h=address.querySelector("h3");if(h)h.remove();body.appendChild(address);fold.appendChild(body);left.appendChild(fold);
+ }
+ const cards=Array.from(detail.querySelectorAll(":scope > .card"));
+ cards.forEach(card=>{
+  const h=card.querySelector(":scope > h3");const label=h?h.textContent.trim():"جزئیات پرونده";
+  if(h)h.remove();
+  const fold=document.createElement("details");fold.className="sales-fold";
+  const sum=document.createElement("summary");sum.textContent=(label.includes("اطلاعات مشتری")?"👤 ":label.includes("خودروی فعلی")?"🚘 ":label.includes("کارشناسی")||label.includes("گزارش")?"🛠 ":label.includes("تاریخچه")?"🕒 ":"")+label;
+  const body=document.createElement("div");body.className="sales-fold-content";body.appendChild(card);fold.appendChild(sum);fold.appendChild(body);left.appendChild(fold);
+ });
+ detail.remove();
+ const calc=document.createElement("section");calc.className="sales-price-calc";
+ const existing=c.sales_calculation||{};
+ const initialGross=existing.auction_final_price||"";
+ const initialPercent=initialGross&&existing.company_profit_amount?Number(existing.company_profit_amount)/Number(initialGross)*100:2;
+ calc.innerHTML='<h3>🧮 محاسبه قیمت و سهم مجموعه</h3><p>قیمت نهایی مزایده و درصد سهم مجموعه را وارد کنید؛ سهم مجموعه و مبلغ خالص فروشنده فوراً محاسبه می‌شود.</p><label for="salesCalcGross">قیمت نهایی مزایده (تومان)</label><input id="salesCalcGross" inputmode="numeric" autocomplete="off" placeholder="مثلاً ۱,۷۰۰,۰۰۰,۰۰۰" value="'+esc(initialGross?String(initialGross):"")+'"><label for="salesCalcPercent">درصد سهم مجموعه (%)</label><input id="salesCalcPercent" type="number" min="0" max="100" step="0.1" value="'+esc(String(Number.isFinite(initialPercent)?initialPercent:2))+'"><div class="sales-calc-results"><div><small>سهم مجموعه</small><b id="salesCalcFee">۰ تومان</b></div><div><small>مبلغ خالص فروشنده</small><b id="salesCalcNet">۰ تومان</b></div></div>';
+ left.insertBefore(calc,left.firstChild);
+ const gross=calc.querySelector("#salesCalcGross"),pct=calc.querySelector("#salesCalcPercent");
+ gross.addEventListener("input",()=>{const raw=gross.value.replace(/[^0-9۰-۹٠-٩]/g,"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));gross.value=raw?Number(raw).toLocaleString("en-US"):"";updateSalesCaseCalc()});
+ pct.addEventListener("input",updateSalesCaseCalc);
+ left.appendChild(detail);right.appendChild(chat);workspace.appendChild(left);workspace.appendChild(right);host.appendChild(workspace);updateSalesCaseCalc();
+}
+function updateSalesCaseCalc(){
+ const gross=Number(String(document.getElementById("salesCalcGross")?.value||"").replace(/[^0-9]/g,""))||0;
+ const rawPct=Number(document.getElementById("salesCalcPercent")?.value);const pct=Number.isFinite(rawPct)?Math.max(0,Math.min(100,rawPct)):0;
+ const fmt=n=>Math.round(n).toLocaleString("fa-IR")+" تومان";
+ const fee=document.getElementById("salesCalcFee"),net=document.getElementById("salesCalcNet");
+ if(fee)fee.textContent=fmt(gross*pct/100);if(net)net.textContent=fmt(gross-gross*pct/100);
+}
+
 function printCustodyReceipt(id){const c=cases.find(x=>x.id===id);if(!c)return;const v=(c.vehicles||[]).find(x=>x.vehicle_role==="current")||(c.vehicles||[])[0]||{};const html='<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><title>رسید امانت خودرو</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:32px;color:#111;line-height:2}h1{text-align:center;font-size:22px}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{border:1px solid #888;padding:8px;text-align:right}.sign{display:flex;justify-content:space-between;margin-top:70px}.muted{color:#555;font-size:12px}@media print{button{display:none}}</style><h1>رسید امانت خودرو و مدارک</h1><p>شماره پرونده: '+esc(c.case_number||"—")+'</p><p>بدین‌وسیله تأیید می‌شود خودرو و مدارک درج‌شده در این رسید برای انجام مراحل معامله نزد سوییچ به سوییچ به امانت نگهداری می‌شود.</p><table><tr><th>نام فروشنده</th><td>'+esc(c.customer_name||"—")+'</td><th>شماره تماس</th><td>'+(c.customer_mobile?'<a class="case-phone-link" href="tel:'+esc(String(c.customer_mobile).replace(/[^0-9+]/g,''))+'">'+esc(c.customer_mobile)+'</a>':'—')+'</td></tr><tr><th>برند</th><td>'+esc(v.brand||"—")+'</td><th>مدل و تیپ</th><td>'+esc([v.model,v.trim].filter(Boolean).join(" ")||"—")+'</td></tr><tr><th>سال ساخت</th><td>'+esc(v.model_year||"—")+'</td><th>شماره پلاک</th><td>'+esc(v.plate_number||"—")+'</td></tr><tr><th>مدارک تحویلی</th><td colspan="3">طبق فهرست مدارک ثبت‌شده در پرونده شماره '+esc(c.case_number||"—")+'</td></tr></table><p>این رسید صرفاً تأیید دریافت امانی خودرو و مدارک است و به‌تنهایی سند انتقال مالکیت محسوب نمی‌شود.</p><div class="sign"><div>امضای فروشنده: ....................</div><div>نام و امضای همکار: ....................</div></div><p class="muted">تاریخ چاپ: '+new Date().toLocaleString("fa-IR")+'</p><script>window.onload=()=>window.print()<\/script></html>';const w=window.open("","_blank","width=900,height=700");if(!w){alert("برای چاپ رسید، اجازه بازشدن پنجره را در مرورگر فعال کنید.");return}w.document.open();w.document.write(html);w.document.close()}
 function closeCase(){document.getElementById("caseModal").classList.add("hidden");document.body.style.overflow="";selected=null}
 function roleLabel(r){return ({admin:"مدیریت کل",intake:"ثبت درخواست و پیگیری مشتری",expert:"کارشناسی خودرو",sales:"تیم فروش، خرید و معاوضه",followup:"پیگیری مشتری",legal:"امور حقوقی",finance:"مالی و تسویه",contracts:"قرارداد و تحویل",followup:"شعبه و مذاکره با مشتری"})[r]||r||"همکار"}
