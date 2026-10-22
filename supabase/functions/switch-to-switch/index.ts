@@ -948,12 +948,19 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    finance:{guarantee_received:{from:["awaiting_guarantee_deposit"],to:"auction-ready"},prepayment_received:{from:["prepayment","deposit"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_notary"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"awaiting_plate_release"}},
    contracts:{contract_approved:{from:["ready_to_sign"],to:"contract_approved"},await_buyer_settlement:{from:["contract_approved"],to:"awaiting_buyer_settlement"},custody_receipt_issued:{from:["awaiting_custody_receipt"],to:"deductions_review"},buyer_confirmed:{from:["awaiting_buyer_confirmation"],to:"awaiting_seller_confirmation"},seller_confirmed:{from:["awaiting_seller_confirmation"],to:"awaiting_notary"},notary_attended:{from:["awaiting_notary"],to:"awaiting_power_of_attorney_signature"},poa_signed:{from:["awaiting_power_of_attorney_signature"],to:"seller_final_payout_pending"},plate_release:{from:["awaiting_plate_release"],to:"vehicle_delivery"},vehicle_delivered:{from:["vehicle_delivery"],to:"done"},transaction_completed:{from:["vehicle_delivery","contract"],to:"done"}}
   };
-  const spec=transitions[role]?.[type];
+  const salesManualStatuses=["review","auction-ready","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","legal_review","prepayment","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery"];
+  let spec=transitions[role]?.[type];
+  if(role==="sales"&&type==="sales_change_status"){
+   const target=String(payload.target_status||"");
+   if(!salesManualStatuses.includes(target))return json({error:"این وضعیت از پنل فروش قابل تغییر دستی نیست؛ از عملیات تخصصی همان مرحله استفاده کنید."},403);
+   if(!note)return json({error:"برای تغییر وضعیت، دلیل الزامی است."},400);
+   spec={from:["__sales_manual__"],to:target};
+  }
   if(!spec)return json({error:"این نوع عملیات برای نقش شما تعریف نشده است."},403);
   const cr=await db.from("cases").select("id,status,case_number,customer_name,customer_mobile,agreed_price,prepayment_amount,prepayment_status,sales_suggested_price").eq("id",id).maybeSingle();
   if(cr.error)return json({error:cr.error.message},500);
   if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
-  if(!spec.from.includes(cr.data.status))return json({error:"وضعیت پرونده تغییر کرده است؛ ابتدا فهرست را به‌روزرسانی کنید.",current_status:cr.data.status},409);
+  if(spec.from.includes("__sales_manual__")){if(!salesManualStatuses.includes(cr.data.status))return json({error:"تغییر دستی فقط برای مراحل قابل‌کنترل واحد فروش مجاز است؛ از عملیات تخصصی همان مرحله استفاده کنید.",current_status:cr.data.status},409);if(cr.data.status===spec.to)return json({error:"وضعیت پرونده از قبل همین است."},400)}else if(!spec.from.includes(cr.data.status))return json({error:"وضعیت پرونده تغییر کرده است؛ ابتدا فهرست را به‌روزرسانی کنید.",current_status:cr.data.status},409);
   const updates:any={status:spec.to,updated_at:new Date().toISOString()};
   if((role==="followup"||role==="intake"||role==="sales")&&type==="customer_accept"){
    const agreed=Number(payload.agreed_price||0);
