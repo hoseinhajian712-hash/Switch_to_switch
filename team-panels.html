@@ -195,6 +195,7 @@ function actionButton(c){
  if(role!=="sales")return primary;
  const statuses=["review","auction-ready","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","legal_review","prepayment","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery"];
  const opts=statuses.map(st=>'<option value="'+st+'" '+(c.status===st?'selected':'')+'>'+esc(statusFa[st]||st)+'</option>').join("");
+ if(!statuses.includes(c.status))return primary;
  return primary+'<div class="salesStatusControl" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><select id="salesStatusTarget-'+esc(c.id)+'" aria-label="تغییر وضعیت پرونده" style="min-width:155px;max-width:210px">'+opts+'</select><button class="btn" type="button" onclick="salesChangeStatus(\''+esc(c.id)+'\')">ثبت وضعیت</button></div>';
 }
 function actionButtonPrimary(c){
@@ -334,6 +335,15 @@ async function teamAction(id,type){
  
  if(type!=="price_review"){const enteredNote=await openStageNoteModal();if(enteredNote===null)return;note=String(enteredNote||"").trim()}if(type==="documents_rejected"&&!note){alert("برای بازگرداندن پرونده به‌دلیل نقص مدارک، ثبت دلیل نقص الزامی است.");return;}
  try{await api("team-update",{id,method:"POST",body:{update_type:type,payload,note}});await loadCases();alert("مرحله پرونده ثبت شد.")}catch(e){alert(e.message)}
+}
+async function salesChangeStatus(id){
+ const select=document.getElementById("salesStatusTarget-"+id);if(!select)return;
+ const target=select.value,current=cases.find(c=>String(c.id)===String(id));
+ if(!current||target===current.status)return;
+ const note=await openStageNoteModal();
+ if(note===null)return;
+ if(!String(note||"").trim()){alert("برای تغییر وضعیت، دلیل کوتاهی ثبت کنید.");return}
+ try{await api("team-update",{id,method:"POST",body:{update_type:"sales_change_status",payload:{target_status:target},note:String(note).trim()}});await loadCases();alert("وضعیت پرونده با موفقیت تغییر کرد.")}catch(e){alert(e.message)}
 }
 function inspectionReportHtml(c,v){
  if(role!=="sales"||!c.inspection)return "";
