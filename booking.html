@@ -1243,7 +1243,7 @@ const trimCatalog={
 'پالیسید':['SE','Limited'],
 'آزرا':['GL','Limited'],
 'وینو':['SE','SEL'],'206':['تیپ ۱','تیپ ۲','تیپ ۳','تیپ ۴','تیپ ۵','تیپ ۶','SD V1','SD V2','SD V8','SD V9'],
-'207':['دنده‌ای TU5 سقف فلزی','دنده‌ای TU5 پانوراما','دنده‌ای TU5P سقف فلزی','دنده‌ای TU5P پانوراما','اتوماتیک TU5 سقف فلزی','اتوماتیک TU5 پانوراما','اتوماتیک TU5P سقف فلزی','اتوماتیک TU5P پانوراما','MC اتوماتیک','TU3 دنده‌ای'],
+'207':['دنده‌ای TU5 سقف فلزی','دنده‌ای TU5 پانوراما','دنده‌ای TU5P سقف فلزی','دنده‌ای TU5P پانوراما','اتوماتیک TU5 سقف فلزی','اتوماتیک TU5 پانوراما','اتوماتیک TU5P سقف فلزی','اتوماتیک TU5P پانوراما','MC اتوماتیک','TU3 دنده‌ای','تیپ ۵'],
 'پژو ۴۰۵ جی‌ال‌ایکس':['Gال‌ایکس','بنزینی','دوگانه‌سوز'],
 'پژو ۴۰۵ اس‌ال‌ایکس':['Sال‌ایکس TU5'],
 'پژو پارس ای‌ال‌ایکس':['Eال‌ایکس'],
@@ -1402,7 +1402,10 @@ function isSolarCalendarBrand(brand){
 }
 function yearsFor(brand,model,trim){
  let range=productionYears[model]||[1390,1405];
+ // اصلاح بازه‌های تیپ‌های پژو: ۲۰۶ تیپ ۵ تا ۱۳۹۹؛ ۲۰۷ MC از ۱۴۰۰.
  if((model==='پژو ۲۰۶'||model==='پژو 206')&&trim==='تیپ ۵')range=[1385,1399];
+ if(model==='207'&&trim==='MC اتوماتیک')range=[1400,1405];
+ if(model==='207'&&trim==='تیپ ۵')range=[1389,1405];
  if(model==='پژو ۲۰۶ اس‌دی'&&String(trim||'').startsWith('اس‌دی'))range=[1385,1400];
  // productionYears stores source ranges in Solar Hijri; foreign-brand display converts them to Gregorian.
  if(!isSolarCalendarBrand(brand))range=range.map(y=>y+621);
