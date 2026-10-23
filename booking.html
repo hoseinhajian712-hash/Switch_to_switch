@@ -1647,7 +1647,27 @@ function validateWizardStep(){
  if(id==='contactMobileInput'){$('customerMobile').value=normalizeDigits(el.value).replace(/\D/g,'')}
  hideMessage();return true;
 }
-function advanceFlow(id){const flow=currentFlow();if(flow[wizardStep-1]?.id!==id)return;if(!validateWizardStep())return;saveBookingDraft();if(wizardStep<flow.length)showWizardStep(wizardStep+1)}
+function advanceFlow(id){
+ const flow=currentFlow();if(flow[wizardStep-1]?.id!==id)return;
+ if(!validateWizardStep())return;
+ saveBookingDraft();
+ if(wizardStep<flow.length){
+  showWizardStep(wizardStep+1);
+  const nextId=currentFlow()[wizardStep-1]?.id;
+  const nextEl=$(nextId),nextField=flowField(nextId);
+  if(nextEl&&nextField){
+   nextField.scrollIntoView({behavior:'smooth',block:'center'});
+   if(nextEl.tagName==='SELECT'){
+    setTimeout(()=>{
+     if(typeof nextEl._openModernDropdown==='function')nextEl._openModernDropdown();
+     else {const trigger=nextField.querySelector('.modern-select-trigger');if(trigger&&!trigger.disabled)trigger.click();else nextEl.focus({preventScroll:true})}
+    },420);
+   }else{
+    setTimeout(()=>{nextEl.focus({preventScroll:true})},320);
+   }
+  }
+ }
+}
 function hideMessage(){$('message').className='message hidden';$('message').textContent=''}
 function showMessage(text,kind){$('message').className='message '+kind;$('message').textContent=text;$('message').scrollIntoView({behavior:'smooth',block:'nearest'})}
 function vehicle(prefix,role){const obj={vehicle_role:role,brand:$(prefix+'brand').value,model:$(prefix+'model').value,trim:$(prefix+'trim').value,model_year:Number($(prefix+'year').value)||null};if(prefix===''){obj.color=$('color').value;obj.vehicle_type=$('vehicleType').value||null;obj.fuel_type=$('fuel').value||null;obj.mileage=Number($('mileage').value.replace(/\D/g,''))||0;obj.options=$('options').value||null;obj.condition=$('vehicleCondition').value||null}else{obj.color=$('tcolor').value||null;obj.vehicle_type=$('tvehicleType').value||null;obj.mileage_preference=$('tmileage')?.value||null;obj.budget=$('tbudget')?.value||null;obj.transmission=$('tgearbox')?.value||null;obj.fuel_type=$('tfuel')?.value||null;obj.mileage=0}return obj}
