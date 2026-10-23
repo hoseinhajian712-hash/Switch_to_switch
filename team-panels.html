@@ -404,7 +404,7 @@ function openCase(id){
    '<article class="card"><h3>گزارش و مدارک</h3><div class="muted" style="line-height:2">مدارک: '+(c.documents||[]).length+' · عکس‌ها: '+(c.photos||[]).length+' · رسیدها: '+(c.contract_records||[]).length+' · اسناد مالی: '+(c.financial_entries||[]).length+'</div>'+((c.contract_records||[]).some(r=>r.contract_type==="custody_receipt")?'<button class="btn primary" style="margin-top:10px" onclick="printCustodyReceipt(\''+c.id+'\')">چاپ رسید امانت خودرو</button>':'')+'</article>'+
    '<article class="card"><h3>تاریخچه پرونده</h3>'+(historyRows||'<div class="muted">تاریخچه‌ای موجود نیست.</div>')+'</article>'+
   '</div>'+
-  '<section class="chatBox"><div class="chatHead"><div><strong>گفت‌وگوی مشترک پرونده</strong><div class="caseSub">همه واحدها می‌توانند پیام بگذارند و پیام‌های همدیگر را ببینند.</div></div><span class="tag">به‌روزرسانی خودکار</span></div><div id="caseChatMessages" class="chatMessages"><div class="empty">در حال دریافت پیام‌ها…</div></div><form class="chatCompose" onsubmit="sendCaseComment(event)"><textarea id="caseChatInput" maxlength="3000" placeholder="پیام یا یادداشت خود را برای همه واحدها بنویسید…" required></textarea><button class="btn primary" id="caseChatSend" type="submit">ارسال پیام</button></form><div class="chatHint">پیام‌ها با نام واحد ثبت می‌شوند و در همین پرونده برای همکاران قابل مشاهده‌اند.</div></section>';
+  '<section class="chatBox"><div class="chatHead"><div><strong>گفت‌وگوی مشترک پرونده</strong><div class="caseSub">همه واحدها می‌توانند پیام بگذارند و پیام‌های همدیگر را ببینند.</div></div><span class="tag">به‌روزرسانی خودکار</span></div><div id="caseChatMessages" class="chatMessages"><div class="empty">در حال دریافت پیام‌ها…</div></div><form class="chatCompose" onsubmit="sendCaseComment(event)"><textarea id="caseChatInput" maxlength="3000" placeholder="پیام یا یادداشت خود را برای همه واحدها بنویسید…" required></textarea><button class="btn primary" id="caseChatSend" type="submit">ارسال پیام</button></form><div class="chatHint">پیام‌ها با نام واحد ثبت می‌شوند و در همین پرونده برای همکاران قابل مشاهده‌اند.</div>'+(["intake","admin"].includes(role)?'<div class="quickComments" style="padding:12px;border-top:1px solid #263c56"><div style="font-weight:700;margin-bottom:9px">کامنت‌های آماده ثبت درخواست</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+["کارواش و تخلیه صندوق اعلام شد","قیمت مدنظر","تماس اولیه؛ پاسخگو نبودند","تأیید رزرو انجام شد","سند در دست بررسی است و بررسی مدارک انجام شد","روال به‌طور کامل توضیح داده شد"].map((label,i)=>'<button type="button" class="btn" onclick="sendPresetCaseComment('+i+')">'+label+'</button>').join("")+'</div></div>':'')+'</section>';
  arrangeSalesCaseWorkspace(c);
  loadCaseComments();
 }
@@ -448,12 +448,32 @@ async function loadCaseComments(silent=false){
   const msgs=r.comments||[];
   box.innerHTML=msgs.length?msgs.map(m=>'<div class="chatMsg '+(m.author_role===role?"mine":"")+'"><div class="chatMeta"><strong>'+esc(roleLabel(m.author_role))+'</strong><span>'+esc(date(m.created_at))+'</span></div><div class="chatText">'+esc(m.message)+'</div></div>').join(""):'<div class="empty">هنوز پیامی ثبت نشده؛ اولین پیام را بنویسید.</div>';
   box.scrollTop=box.scrollHeight;
+  if(role==="intake")ensureMileageComment();
  }catch(e){if(!silent){const box=document.getElementById("caseChatMessages");if(box)box.innerHTML='<div class="empty">'+esc(e.message)+'</div>'}}
  finally{commentsLoading=false}
 }
 function parseCustomerAddress(raw){const out={province:"",city:"",street:"",alley:"",plaque:"",unit:"",postalCode:""};const labels={"استان":"province","شهر":"city","خیابان / بلوار":"street","کوچه":"alley","پلاک":"plaque","واحد":"unit","کد پستی":"postalCode"};String(raw||"").split(/\n|،/).forEach(part=>{const m=part.trim().match(/^([^:：]+)[:：]\s*(.*)$/);if(m&&labels[m[1].trim()])out[labels[m[1].trim()]]=m[2].trim()});if(!Object.values(out).some(Boolean)&&raw)out.street=raw;return out}
 function addressField(id,label,value,placeholder){return '<div class="field"><label for="'+id+'">'+label+'</label><input id="'+id+'" maxlength="180" placeholder="'+placeholder+'" value="'+esc(value||"")+'"></div>'}
 async function saveCustomerAddress(id){if(!selected||selected.id!==id)return;const fields=[["استان","addressProvince"],["شهر","addressCity"],["خیابان / بلوار","addressStreet"],["کوچه","addressAlley"],["پلاک","addressPlaque"],["واحد","addressUnit"],["کد پستی","addressPostalCode"]];const vals=fields.map(([label,key])=>[label,(document.getElementById(key)?.value||"").trim()]);if(!vals[1][1]||!vals[2][1]){alert("لطفاً حداقل شهر و خیابان را وارد کنید.");return}const address=vals.filter(([,value])=>value).map(([label,value])=>label+": "+value).join("\n");try{await api("case-address",{id,method:"POST",body:{address}});selected.customer_address=address;const c=cases.find(x=>x.id===id);if(c)c.customer_address=address;alert("آدرس مرحله‌ای ذخیره شد.")}catch(e){alert(e.message)}}
+const intakePresetComments=["کارواش و تخلیه صندوق اعلام شد","قیمت مدنظر","تماس اولیه؛ پاسخگو نبودند","تأیید رزرو انجام شد","سند در دست بررسی است و بررسی مدارک انجام شد","روال به‌طور کامل توضیح داده شد"];
+async function sendPresetCaseComment(index){
+ if(!selected||!["intake","admin"].includes(role))return;
+ const message=intakePresetComments[index];if(!message)return;
+ try{await api("case-comment",{id:selected.id,method:"POST",body:{message}});await loadCaseComments();}
+ catch(e){alert(e.message||"ثبت کامنت انجام نشد.")}
+}
+async function ensureMileageComment(){
+ if(!selected||!["intake","admin"].includes(role))return;
+ const vehicle=(selected.vehicles||[]).find(x=>x.vehicle_role==="current")||(selected.vehicles||[])[0];
+ const mileage=String(vehicle?.mileage??"").trim();if(!mileage)return;
+ const message="کارکرد خودرو: "+mileage+" کیلومتر";
+ try{
+  const r=await api("case-comments",{id:selected.id});
+  if((r.comments||[]).some(m=>String(m.message||"").trim()===message))return;
+  await api("case-comment",{id:selected.id,method:"POST",body:{message}});
+  await loadCaseComments(true);
+ }catch(e){console.warn("ثبت خودکار کامنت کارکرد انجام نشد",e)}
+}
 async function sendCaseComment(event){
  event.preventDefault();if(!selected)return;
  const input=document.getElementById("caseChatInput"),btn=document.getElementById("caseChatSend"),message=(input.value||"").trim();if(!message)return;
