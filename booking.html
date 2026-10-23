@@ -1910,7 +1910,7 @@ $('requestForm').addEventListener('submit',async event=>{
    if(result.code==='appointment_taken')throw new Error('این روز و ساعت همین حالا رزرو شد؛ لطفاً ساعت دیگری انتخاب کن.');
    if(result.code==='booking_unavailable')throw new Error(result.error||'این زمان دیگر آزاد نیست؛ لطفاً ساعت دیگری انتخاب کن.');
    if(result.code==='legacy_mobile_limit'||String(result.error||'').includes('cases_unique_active_mobile'))throw new Error('با این شماره یک پرونده فعال وجود دارد؛ برای پیگیری، از پشتیبانی کمک بگیر.');
-   throw new Error('خطای سرور ('+response.status+'): '+String(result.error||result.message||raw||'پاسخ خالی از سرور'));
+   throw new Error('خطای سرور ('+response.status+'): '+String(result.error||result.message||raw||'پاسخ خالی از سرور')+(result.case_number?'\nشماره پرونده ایجادشده: '+result.case_number+'\nبرای جلوگیری از ثبت پرونده تکراری، فرم را دوباره ارسال نکن.':''));
   }
   window.location.href='success.html?case='+encodeURIComponent(result.case_number||'');
  }catch(error){showMessage('ثبت درخواست انجام نشد: '+error.message,'error')}
