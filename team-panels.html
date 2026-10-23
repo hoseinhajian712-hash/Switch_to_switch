@@ -472,6 +472,19 @@ function openCase(id){
    '<article class="card"><h3>تاریخچه پرونده</h3>'+(historyRows||'<div class="muted">تاریخچه‌ای موجود نیست.</div>')+'</article>'+
   '</div>'+
   '<section class="chatBox"><div class="chatHead"><div><strong>گفت‌وگوی مشترک پرونده</strong><div class="caseSub">همه واحدها می‌توانند پیام بگذارند و پیام‌های همدیگر را ببینند.</div></div><span class="tag">به‌روزرسانی خودکار</span></div><div id="caseChatMessages" class="chatMessages"><div class="empty">در حال دریافت پیام‌ها…</div></div><form class="chatCompose" onsubmit="sendCaseComment(event)"><textarea id="caseChatInput" maxlength="3000" placeholder="پیام یا یادداشت خود را برای همه واحدها بنویسید…" required></textarea><button class="btn primary" id="caseChatSend" type="submit">ارسال پیام</button></form><div class="chatHint">پیام‌ها با نام واحد ثبت می‌شوند و در همین پرونده برای همکاران قابل مشاهده‌اند.</div>'+(["intake","admin"].includes(role)?'<div class="quickComments" style="padding:12px;border-top:1px solid #263c56"><div style="font-weight:700;margin-bottom:9px">کامنت‌های آماده ثبت درخواست</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+["کارواش و تخلیه صندوق اعلام شد","قیمت مدنظر","تماس اولیه؛ پاسخگو نبودند","تأیید رزرو انجام شد","سند در دست بررسی است و بررسی مدارک انجام شد","روال به‌طور کامل توضیح داده شد"].map((label,i)=>'<button type="button" class="btn" onclick="sendPresetCaseComment('+i+')">'+label+'</button>').join("")+'</div></div>':'')+'</section>';
+ if(role==="intake"){
+  // Intake staff should see only address, customer, vehicle, inspection/report documents, and history.
+  const intakeDetail=document.querySelector("#detailArea > .detail");
+  if(intakeDetail){
+   const intakeCards=Array.from(intakeDetail.querySelectorAll(":scope > .card"));
+   intakeCards.forEach((card,index)=>{
+    const heading=(card.querySelector("h3")?.textContent||"").trim();
+    const keep=index<2||/کارشناسی|گزارش|مدارک|تاریخچه/.test(heading);
+    if(!keep)card.remove();
+   });
+  }
+  document.querySelector("#detailArea > .chatBox")?.remove();
+ }
  arrangeSalesCaseWorkspace(c);
  updateSalesExpertTravelCountdown();
  loadCaseComments();
