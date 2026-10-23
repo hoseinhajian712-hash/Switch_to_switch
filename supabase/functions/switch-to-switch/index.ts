@@ -480,19 +480,55 @@ async function adminSetCancellationFine(req:Request){
  await historyAdd(ar.data.case_id,ar.data.purchase_stage||"customer",ar.data.purchase_stage||"customer","مبلغ وجه التزام انصراف به‌صورت خودکار طبق جدول شرایط مزایده و قیمت فعلی محاسبه شد: "+amount.toLocaleString("fa-IR")+" تومان؛ این مبلغ به‌صورت خودکار از کیف پول برداشت نمی‌شود.");
  return json({ok:true,automatic:true,auction:up.data,calculated_from_price:price});
 }
-async function adminReviewBuyerPayment(req:Request){
- const b=await req.json(),paymentId=String(b.payment_id||""),status=String(b.status||""),note=String(b.note||"").slice(0,500);if(!paymentId||!["approved","rejected"].includes(status))return json({error:"درخواست بررسی پرداخت نامعتبر است"},400);
- const p=await db.from("buyer_payment_submissions").select("*").eq("id",paymentId).single();if(p.error)return json({error:p.error.message},404);
- const up=await db.from("buyer_payment_submissions").update({status,review_note:note,reviewed_at:new Date().toISOString()}).eq("id",paymentId);if(up.error)return json({error:up.error.message},500);
+async function adminReviewBuyerPayment(req:Request,reviewerRole:string="admin"){
+ const b=await req.json(),paymentId=String(b.payment_id||""),status=String(b.status||""),note=String(b.note||"").slice(0,500);
+ if(!paymentId||!["approved","rejected"].includes(status))return json({error:"درخواست بررسی پرداخت نامعتبر است"},400);
+ const p=await db.from("buyer_payment_submissions").select("*").eq("id",paymentId).single();
+ if(p.error)return json({error:p.error.message},404);
+ if(p.data.status==="approved")return json({ok:true,already_reviewed:true});
+ if(p.data.status==="rejected"&&status==="approved")return json({error:"فیش ردشده باید توسط خریدار دوباره ارسال شود."},409);
+ let caseId:string|null=null,prepaymentAmount=0,previousCaseStatus="";
+ if(status==="approved"){
+  const ar=await db.from("auctions").select("id,case_id,winner_id,current_bid,prepayment_amount,purchase_stage").eq("id",p.data.auction_id).eq("winner_id",p.data.buyer_id).maybeSingle();
+  if(ar.error||!ar.data)return json({error:"مزایده یا خریدار این فیش پیدا نشد."},404);
+  caseId=ar.data.case_id||null;
+  if(p.data.stage==="prepayment"){
+   prepaymentAmount=Number(p.data.amount||ar.data.prepayment_amount||0);
+   const expected=Number(ar.data.prepayment_amount||0);
+   if(!prepaymentAmount||!Number.isFinite(prepaymentAmount)||prepaymentAmount<=0)return json({error:"مبلغ پیش‌پرداخت در فیش مشخص نیست؛ مبلغ معتبر باید هنگام ارسال فیش ثبت شود."},400);
+   if(expected>0&&Math.abs(prepaymentAmount-expected)>0.5)return json({error:"مبلغ فیش با مبلغ پیش‌پرداخت اعلام‌شده برابر نیست: "+expected.toLocaleString("fa-IR")+" تومان"},400);
+   if(caseId){
+    const cr=await db.from("cases").select("id,status,prepayment_amount,prepayment_status").eq("id",caseId).maybeSingle();
+    if(cr.error)return json({error:cr.error.message},500);
+    if(cr.data){previousCaseStatus=cr.data.status||"";if(!["awaiting_prepayment","ready_to_sign","prepayment"].includes(previousCaseStatus))return json({error:"وضعیت پرونده برای تأیید پیش‌پرداخت مناسب نیست؛ ابتدا مرحله اعلام پیش‌پرداخت را تکمیل کنید."},409);}
+   }
+  }
+ }
+ const up=await db.from("buyer_payment_submissions").update({status,review_note:note,reviewed_at:new Date().toISOString()}).eq("id",paymentId).neq("status","approved").select("id").maybeSingle();
+ if(up.error)return json({error:up.error.message},500);
+ if(!up.data)return json({error:"این فیش قبلاً بررسی شده است؛ فهرست را تازه‌سازی کنید."},409);
  if(status==="approved"){
   const stage=p.data.stage==="prepayment"?"seller_settlement":"vehicle-filed";
-  const ar=await db.from("auctions").select("case_id").eq("id",p.data.auction_id).eq("winner_id",p.data.buyer_id).maybeSingle();
   const au=await db.from("auctions").update({purchase_stage:stage}).eq("id",p.data.auction_id).eq("winner_id",p.data.buyer_id);
   if(au.error)return json({error:au.error.message},500);
-  if(ar.data?.case_id)await historyAdd(ar.data.case_id,p.data.stage,stage,p.data.stage==="prepayment"?"فیش پیش‌پرداخت توسط مدیر تأیید شد":"فیش تسویه کامل توسط مدیر تأیید شد");
-  await db.from("buyer_notifications").insert({buyer_id:p.data.buyer_id,auction_id:p.data.auction_id,title:p.data.stage==="prepayment"?"پیش‌پرداخت تأیید شد":"تسویه تأیید شد",message:p.data.stage==="prepayment"?"پیش‌پرداخت تأیید شد. حالا وارد مرحله تسویه کامل شوید.":"تسویه کامل تأیید شد؛ خودرو در بخش «خودروهای من» ثبت شد."});
+  if(p.data.stage==="prepayment"&&caseId){
+   const now=new Date().toISOString(),caseUpdates:any={prepayment_amount:prepaymentAmount,prepayment_status:"received",prepayment_received_at:now};
+   if(previousCaseStatus==="awaiting_prepayment"||previousCaseStatus==="prepayment")caseUpdates.status="ready_to_sign";
+   const cu=await db.from("cases").update(caseUpdates).eq("id",caseId).select("id,status").single();
+   if(cu.error)return json({error:"فیش تأیید شد اما به‌روزرسانی پرونده ناموفق بود: "+cu.error.message},500);
+   const existing=await db.from("case_financial_entries").select("id").eq("case_id",caseId).eq("entry_type","prepayment").eq("receipt_storage_path",p.data.receipt_path).limit(1);
+   if(existing.error)return json({error:existing.error.message},500);
+   if(!(existing.data||[]).length){
+    const led=await db.from("case_financial_entries").insert({case_id:caseId,entry_type:"prepayment",amount:prepaymentAmount,note:"پیش‌پرداخت به‌صورت خودکار پس از تأیید فیش توسط تیم مالی ثبت شد. شناسه فیش: "+paymentId+(note?"؛ "+note:""),receipt_storage_path:p.data.receipt_path||null});
+    if(led.error)return json({error:"وضعیت پرونده تغییر کرد اما ثبت گردش مالی ناموفق بود: "+led.error.message},500);
+   }
+   const audit=await db.from("case_team_updates").insert({case_id:caseId,team_role:reviewerRole,update_type:"prepayment_received",payload:{amount:prepaymentAmount,payment_submission_id:paymentId,receipt_storage_path:p.data.receipt_path||null,reviewed_at:now,automatic:true},note:"فیش پیش‌پرداخت توسط تیم مالی تأیید و به‌صورت خودکار در پرونده ثبت شد."+(note?" "+note:"")});
+   if(audit.error)return json({error:"پیش‌پرداخت ثبت شد اما تاریخچه پرونده ذخیره نشد: "+audit.error.message},500);
+   if(caseUpdates.status)await historyAdd(caseId,previousCaseStatus,caseUpdates.status,"فیش پیش‌پرداخت توسط تیم مالی تأیید شد؛ مبلغ و گردش مالی به‌صورت خودکار ثبت شد.");
+  }else if(caseId)await historyAdd(caseId,p.data.stage,stage,p.data.stage==="prepayment"?"فیش پیش‌پرداخت توسط تیم مالی تأیید شد":"فیش تسویه کامل توسط تیم مالی تأیید شد");
+  await db.from("buyer_notifications").insert({buyer_id:p.data.buyer_id,auction_id:p.data.auction_id,title:p.data.stage==="prepayment"?"پیش‌پرداخت تأیید شد":"تسویه تأیید شد",message:p.data.stage==="prepayment"?"پیش‌پرداخت توسط تیم مالی تأیید و ثبت شد. مرحله بعدی معامله فعال شد.":"تسویه کامل تأیید شد؛ خودرو در بخش «خودروهای من» ثبت شد."});
  }else await db.from("buyer_notifications").insert({buyer_id:p.data.buyer_id,auction_id:p.data.auction_id,title:"نیاز به اصلاح فیش",message:"فیش پرداخت تأیید نشد. لطفاً فیش را اصلاح کنید. "+note});
- return json({ok:true});
+ return json({ok:true,automatic:p.data.stage==="prepayment"&&status==="approved"});
 }
 async function adminBuyerPayments(u:URL){
  const r=await db.from("buyer_payment_submissions").select("id,buyer_id,auction_id,stage,amount,status,buyer_note,review_note,created_at,reviewed_at,receipt_path").order("created_at",{ascending:false}).limit(100);if(r.error)return json({error:r.error.message},500);
@@ -952,7 +988,7 @@ async function api(req:Request,u:URL){
  if(a==="place-bid"&&req.method==="POST")return placeBid(req,id);
  if(a==="market_prices")return marketPrices(u); if(a==="estimate"&&req.method==="POST")return estimate(req);
  if(a==="auction-login-codes"&&role==="admin"&&req.method==="GET")return auctionLoginCodes(u);
-if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminUpdateVehicle(req);if(a==="admin-review-identity"&&role==="admin"&&req.method==="POST")return adminReviewIdentity(req);if(a==="admin-approve-seller"&&role==="admin"&&req.method==="POST")return adminApproveSeller(req);if(a==="admin-set-auction-settlement"&&role==="admin"&&req.method==="POST")return adminSetAuctionSettlement(req);if(a==="admin-set-cancellation-fine"&&role==="admin"&&req.method==="POST")return adminSetCancellationFine(req);if(a==="admin-review-buyer-payment"&&role==="admin"&&req.method==="POST")return adminReviewBuyerPayment(req);if(a==="admin-buyer-payments"&&role==="admin"&&req.method==="GET")return adminBuyerPayments(u);if(a==="wallet-topup-request"&&req.method==="POST")return buyerSubmitWalletTopup(req,u);if(a==="subscription-payment-request"&&req.method==="POST")return buyerSubmitSubscriptionPayment(req,u);if(a==="subscription-payment-requests"&&req.method==="GET")return buyerSubscriptionPaymentRequests(req,u);if(a==="admin-subscription-payment-requests"&&role==="admin"&&req.method==="GET")return adminSubscriptionPaymentRequests();if(a==="admin-review-subscription-payment"&&role==="admin"&&req.method==="POST")return adminReviewSubscriptionPayment(req);if(a==="wallet-topup-requests"&&req.method==="GET")return buyerWalletTopupRequests(req,u);if(a==="admin-wallet-topup-requests"&&role==="admin"&&req.method==="GET")return adminWalletTopupRequests(u);if(a==="admin-review-wallet-topup"&&role==="admin"&&req.method==="POST")return adminReviewWalletTopup(req);if(a==="wallet-bank-settings"&&req.method==="GET")return getWalletBankSettings();if(a==="wallet-bank-settings"&&role==="admin"&&req.method==="POST")return saveWalletBankSettings(req);if(a==="admin-topup-wallet"&&role==="admin"&&req.method==="POST")return adminTopupWallet(req);if(a==="auction-members"&&role==="admin"&&req.method==="GET")return auctionMembers();if(a==="delete-auction-member"&&role==="admin"&&req.method==="POST")return deleteAuctionMember(req);if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(a==="deactivate-auction-member"&&role==="admin"&&req.method==="POST")return deactivateAuctionMember(req);if(a==="update-auction-member"&&role==="admin"&&req.method==="POST")return updateAuctionMember(req);if(!role)return json({error:"unauthorized"},401);
+if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminUpdateVehicle(req);if(a==="admin-review-identity"&&role==="admin"&&req.method==="POST")return adminReviewIdentity(req);if(a==="admin-approve-seller"&&role==="admin"&&req.method==="POST")return adminApproveSeller(req);if(a==="admin-set-auction-settlement"&&role==="admin"&&req.method==="POST")return adminSetAuctionSettlement(req);if(a==="admin-set-cancellation-fine"&&role==="admin"&&req.method==="POST")return adminSetCancellationFine(req);if(a==="admin-review-buyer-payment"&&["admin","finance"].includes(role)&&req.method==="POST")return adminReviewBuyerPayment(req,role);if(a==="admin-buyer-payments"&&["admin","finance"].includes(role)&&req.method==="GET")return adminBuyerPayments(u);if(a==="wallet-topup-request"&&req.method==="POST")return buyerSubmitWalletTopup(req,u);if(a==="subscription-payment-request"&&req.method==="POST")return buyerSubmitSubscriptionPayment(req,u);if(a==="subscription-payment-requests"&&req.method==="GET")return buyerSubscriptionPaymentRequests(req,u);if(a==="admin-subscription-payment-requests"&&role==="admin"&&req.method==="GET")return adminSubscriptionPaymentRequests();if(a==="admin-review-subscription-payment"&&role==="admin"&&req.method==="POST")return adminReviewSubscriptionPayment(req);if(a==="wallet-topup-requests"&&req.method==="GET")return buyerWalletTopupRequests(req,u);if(a==="admin-wallet-topup-requests"&&role==="admin"&&req.method==="GET")return adminWalletTopupRequests(u);if(a==="admin-review-wallet-topup"&&role==="admin"&&req.method==="POST")return adminReviewWalletTopup(req);if(a==="wallet-bank-settings"&&req.method==="GET")return getWalletBankSettings();if(a==="wallet-bank-settings"&&role==="admin"&&req.method==="POST")return saveWalletBankSettings(req);if(a==="admin-topup-wallet"&&role==="admin"&&req.method==="POST")return adminTopupWallet(req);if(a==="auction-members"&&role==="admin"&&req.method==="GET")return auctionMembers();if(a==="delete-auction-member"&&role==="admin"&&req.method==="POST")return deleteAuctionMember(req);if(a==="activate-auction-member"&&role==="admin"&&req.method==="POST")return activateAuctionMember(u,req);if(a==="deactivate-auction-member"&&role==="admin"&&req.method==="POST")return deactivateAuctionMember(req);if(a==="update-auction-member"&&role==="admin"&&req.method==="POST")return updateAuctionMember(req);if(!role)return json({error:"unauthorized"},401);
 
  if(a==="price-market-search"&&req.method==="POST"){
   if(!["admin","sales"].includes(role))return json({error:"جست‌وجوی قیمت بازار فقط برای مدیریت و واحد فروش مجاز است."},403);
