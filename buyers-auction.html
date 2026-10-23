@@ -886,7 +886,7 @@ const schematicPartMap=[
  {part:'رکاب راننده',aliases:['رکاب راننده'],x:144,y:362},
  {part:'رکاب شاگرد',aliases:['رکاب شاگرد'],x:476,y:362}
 ];
-const schematicNorm=value=>String(value||'').toLocaleLowerCase('fa').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\\u200c\\u200f\\u200e\\sـ]/g,'');
+const schematicNorm=value=>String(value||'').toLocaleLowerCase('fa').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\u200c\u200f\u200e\sـ]/g,'');
 const schematicDefectType=d=>schematicNorm(d?.defect_type||d?.defect||'');
 const schematicForPart=part=>{
  const p=schematicNorm(part);
