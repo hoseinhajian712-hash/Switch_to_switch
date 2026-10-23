@@ -1648,7 +1648,8 @@ function currentFlow(){return flowForType()}
 function flowField(id){const el=$(id);return el?.closest('.field')||null}
 function showWizardStep(n,fromBrowserBack=false){
  const flow=currentFlow();wizardStep=Math.max(1,Math.min(flow.length,n));
- try{sessionStorage.setItem('s2sWizardState',JSON.stringify({type,step:wizardStep}))}catch(e){}
+ const wizardState={type,step:wizardStep};
+ try{sessionStorage.setItem('s2sWizardState',JSON.stringify(wizardState));localStorage.setItem('s2sWizardState',JSON.stringify(wizardState))}catch(e){}
  if(!fromBrowserBack){try{history.pushState({s2sWizard:true,type,step:wizardStep},'',location.pathname+'#request-step-'+wizardStep)}catch(e){}}
  const active=flow[wizardStep-1],id=active.id;
  document.querySelectorAll('#currentPanel .fields>.field,#targetPanel .fields>.field,#contactPanel .fields>.field,#appointmentPanel .fields>.field').forEach(f=>f.classList.add('hidden'));
@@ -1676,8 +1677,9 @@ window.addEventListener('popstate',event=>{
  if(state&&state.s2sWizard&&state.type===type&&Number.isFinite(Number(state.step))){
   showWizardStep(Number(state.step),true);
  }else if(wizardStep>1){
-  try{history.pushState({s2sWizard:true,type,step:wizardStep},'',location.pathname+'#request-step-'+wizardStep)}catch(e){}
-  showWizardStep(wizardStep-1,true);
+  const previousStep=wizardStep-1;
+  try{history.replaceState({s2sWizard:true,type,step:previousStep},'',location.pathname+'#request-step-'+previousStep)}catch(e){}
+  showWizardStep(previousStep,true);
  }
 });
 function validateWizardStep(){
@@ -1777,7 +1779,14 @@ document.querySelectorAll('#requestForm input,#requestForm select,#requestForm t
 setType(new URLSearchParams(location.search).get('type')||(restoredDraft?JSON.parse(sessionStorage.getItem(FORM_DRAFT_KEY)||'{}').type:null)||'sell');
 initModernDropdowns();
 initBrandGridPickers();
-let restoreStep=1;try{const savedWizard=JSON.parse(sessionStorage.getItem('s2sWizardState')||'null');if(savedWizard&&savedWizard.type===type&&Number.isFinite(Number(savedWizard.step)))restoreStep=Number(savedWizard.step)}catch(e){}
+let restoreStep=1;
+try{
+ const hashMatch=location.hash.match(/^#request-step-(\\d+)$/);
+ const sessionWizard=JSON.parse(sessionStorage.getItem('s2sWizardState')||'null');
+ const localWizard=JSON.parse(localStorage.getItem('s2sWizardState')||'null');
+ const candidates=[hashMatch?{type,step:Number(hashMatch[1])}:null,sessionWizard,localWizard].filter(x=>x&&x.type===type&&Number.isFinite(Number(x.step))&&Number(x.step)>=1);
+ if(candidates.length)restoreStep=Number(candidates[0].step);
+}catch(e){}
 async function initializeCustomerWizard(){
  try{
   const {data}=await sb.auth.getSession();
