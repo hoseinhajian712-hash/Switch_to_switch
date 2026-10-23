@@ -377,7 +377,7 @@ async function saveCaseForm(){
  btn.disabled=true;btn.textContent="در حال ذخیره…";
  try{
   let result;
-  if(vehicleOnly)result=await api("case-edit-details",{method:"POST",body:{id,vehicle_only:true,vehicle_current,vehicle_target}});
+  if(vehicleOnly)result=await api("case-edit-details",{id,method:"POST",body:{id,vehicle_only:true,vehicle_current,vehicle_target}});
   else if(mode==="create")result=await api("case-create-manual",{method:"POST",body:{customer_name,customer_mobile,service_type,vehicle_current,vehicle_target}});
   else result=await api("case-edit-details",{id,method:"POST",body:{customer_name,customer_mobile,service_type,vehicle_current,vehicle_target}});
   closeCaseForm();await loadCases();
