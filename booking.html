@@ -1401,14 +1401,27 @@ function isSolarCalendarBrand(brand){
  return [...solarYearBrands].some(name=>normalizeCarName(name)===key)
 }
 function yearsFor(brand,model,trim){
- let range=productionYears[model]||[1390,1405];
- // اصلاح بازه‌های تیپ‌های پژو: ۲۰۶ تیپ ۵ تا ۱۳۹۹؛ ۲۰۷ MC از ۱۴۰۰.
- if((model==='پژو ۲۰۶'||model==='پژو 206')&&trim==='تیپ ۵')range=[1385,1399];
- if(model==='207'&&trim==='MC اتوماتیک')range=[1400,1405];
- if(model==='207'&&trim==='تیپ ۵')range=[1389,1405];
- if(model==='پژو ۲۰۶ اس‌دی'&&String(trim||'').startsWith('اس‌دی'))range=[1385,1400];
- // productionYears stores source ranges in Solar Hijri; foreign-brand display converts them to Gregorian.
- if(!isSolarCalendarBrand(brand))range=range.map(y=>y+621);
+ const modelKey=normalizeCarName(model),trimKey=normalizeCarName(trim);
+ // تطبیق نام مدل بدون وابستگی به فاصله، نیم‌فاصله، شکل اعداد و ی/ک عربی.
+ let range=productionYears[model];
+ if(!range){
+  const match=Object.entries(productionYears).find(([name])=>normalizeCarName(name)===modelKey);
+  if(match)range=match[1];
+ }
+ if(!range)range=[1390,1405];
+ // تیپ‌های پژو باید سال ساخت شمسی داشته باشند، حتی اگر برند انتخابی «پژو» باشد.
+ const isPeugeot206=/^(پژو)?206$/.test(modelKey)||modelKey.includes('پژو206');
+ const isPeugeot207=/^(پژو)?207$/.test(modelKey)||modelKey.includes('پژو207');
+ if(isPeugeot206&&trimKey==='تیپ5')range=[1382,1399];
+ if(isPeugeot207&&trimKey.includes('mc'))range=[1402,1405];
+ if(isPeugeot207&&trimKey==='تیپ5')range=[1403,1405];
+ if(isPeugeot207&&trimKey.includes('tu3'))range=[1396,1405];
+ if(modelKey.includes('206صندوقدار')||modelKey.includes('206اسدی'))range=[1385,1400];
+ // مدل‌های مونتاژ/تولید داخل، سال شمسی دارند؛ وارداتی‌های برندهای خارجی با سال میلادی نمایش داده می‌شوند.
+ const locallyBuiltPeugeot=isPeugeot206||isPeugeot207||modelKey.includes('پژو2008')||modelKey.includes('پژو301')||modelKey.includes('پژو405')||modelKey.includes('پژوپارس');
+ const locallyBuiltRenault=/^(ساندرو|استپوی|لوگان|تندر90ایرانخودرو|مگانمونتاژ|زانتیا|ریومونتاژ)$/.test(modelKey);
+ const solarCalendar=isSolarCalendarBrand(brand)||locallyBuiltPeugeot||locallyBuiltRenault;
+ if(!solarCalendar)range=range.map(y=>y+621);
  const [min,max]=range;const a=[];for(let y=max;y>=min;y--)a.push(String(y));return a
 }
 function openNextCarChoice(id){
