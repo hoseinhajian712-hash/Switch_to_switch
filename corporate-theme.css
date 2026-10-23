@@ -1,0 +1,76 @@
+/* Switch to Switch — corporate palette: navy, white, orange */
+:root{
+  --s2s-navy:#071a33;
+  --s2s-navy-2:#0b2447;
+  --s2s-navy-3:#102f59;
+  --s2s-white:#f8fafc;
+  --s2s-orange:#f97316;
+  --s2s-orange-light:#fb923c;
+  --s2s-orange-soft:rgba(249,115,22,.14);
+  --s2s-line:rgba(148,177,210,.24);
+  --s2s-muted:#b8c7d9;
+  --bg:var(--s2s-navy);
+  --panel:var(--s2s-navy-2);
+  --panel2:var(--s2s-navy-3);
+  --line:var(--s2s-line);
+  --text:var(--s2s-white);
+  --muted:var(--s2s-muted);
+  --blue:var(--s2s-orange);
+  --gold:var(--s2s-orange);
+  --g:var(--s2s-orange);
+  --orange:var(--s2s-orange);
+}
+html{color-scheme:dark}
+body{
+  background-color:var(--s2s-navy)!important;
+  color:var(--s2s-white)!important;
+  accent-color:var(--s2s-orange);
+}
+.top,.topbar,header,.hero,.intro{
+  border-color:var(--s2s-line)!important;
+  background:linear-gradient(125deg,var(--s2s-navy-3),var(--s2s-navy-2) 72%,var(--s2s-navy))!important;
+}
+.side,.card,.panel,.stat,.case,.column,.toolbar,.board,.modal,.caseDialog,.priceModalDialog,.branchOfferDialog,.delivery-modal,.login .card{
+  border-color:var(--s2s-line)!important;
+}
+.logo,.brand-mark,.brandLogo{
+  background:linear-gradient(140deg,var(--s2s-orange-light),var(--s2s-orange))!important;
+  color:var(--s2s-navy)!important;
+  box-shadow:0 8px 22px rgba(249,115,22,.2)!important;
+}
+button,.btn,.button,.primary,.btn.primary,.primaryCta,.ctaBtn,.submit{
+  --btn-accent:var(--s2s-orange);
+}
+button.primary,.btn.primary,.primaryCta,.ctaBtn,.submit,.primary{
+  background:linear-gradient(135deg,var(--s2s-orange-light),var(--s2s-orange))!important;
+  border-color:var(--s2s-orange)!important;
+  color:#fff!important;
+  box-shadow:0 8px 22px rgba(249,115,22,.18)!important;
+}
+button:not(.secondary):not(.green):not(.good):not(.danger):not(.red):not(.purple):not(.close):not(.nav):not(.photo-source-cancel):not(.camera-btn):not(.photo-source-option):not(.review-delete):not(.btn.secondary):not(.btn.green):not(.btn.good):not(.btn.danger):not(.btn.red):not(.btn.purple){
+  border-color:var(--s2s-orange);
+}
+button.primary:hover,.btn.primary:hover,.primaryCta:hover,.ctaBtn:hover,.submit:hover{filter:brightness(1.06)!important}
+a{ text-decoration-color:var(--s2s-orange); }
+a:hover{color:var(--s2s-orange-light)}
+.nav.active,.nav:hover,.tabs button.active,.service-link.active{
+  border-color:var(--s2s-orange)!important;
+  background:var(--s2s-orange-soft)!important;
+  color:var(--s2s-white)!important;
+}
+input:focus,select:focus,textarea:focus,.field input:focus,.field select:focus,.field textarea:focus,.search:focus{
+  border-color:var(--s2s-orange)!important;
+  box-shadow:0 0 0 3px rgba(249,115,22,.16)!important;
+}
+.tag.gold,.tag,.badge,.pill,.count,.status,.case-no,.caseNo,.heroMark,.eyebrow,.kicker{
+  --accent:var(--s2s-orange);
+}
+.tag.gold,.status,.case-no,.caseNo,.heroMark{color:var(--s2s-orange-light)!important}
+.tag.gold{background:var(--s2s-orange-soft)!important;border-color:rgba(249,115,22,.3)!important}
+th{background:var(--s2s-navy-3)!important;color:var(--s2s-white)!important}
+tr:hover td,.caseRow:hover{background:rgba(249,115,22,.055)!important}
+.caseRow:focus-visible{outline-color:var(--s2s-orange)!important}
+::selection{background:rgba(249,115,22,.35);color:#fff}
+@media(prefers-reduced-motion:no-preference){
+  button,.btn,.nav,.case,.card{transition:border-color .18s ease,background-color .18s ease,filter .18s ease}
+}
