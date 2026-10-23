@@ -1022,9 +1022,13 @@ const trimCatalog={
 'کی‌ام‌سی جی ۷':['Premium','اتوماتیک'],
 'کی‌ام‌سی تی ۸':['دنده‌ای','اتوماتیک'],
 'کی‌ام‌سی ایکس ۵':['اتوماتیک'],
-'ام‌وی‌ام ایکس ۲۲':['دنده‌ای','اتوماتیک','Pro دنده‌ای','Pro اتوماتیک','Pro IE'],
-'ام‌وی‌ام ایکس ۳۳':['دنده‌ای','اتوماتیک','New','S','کراس'],
-'ام‌وی‌ام ایکس ۵۵':['دنده‌ای','Pro IE','Pro Premium'],
+'ام‌وی‌ام ایکس ۲۲':['دنده‌ای ساده','اتوماتیک ساده','دنده‌ای لاکچری','اتوماتیک لاکچری','دنده‌ای اسپرت','اتوماتیک اسپرت','دنده‌ای اسپرت لاکچری','اتوماتیک اسپرت لاکچری','دنده‌ای اسپرت اکسلنت','اتوماتیک اسپرت اکسلنت'],
+'ام‌وی‌ام ایکس ۲۲ پرو':['دنده‌ای MT','اتوماتیک CVT','اکسلنت','IE'],
+'ام‌وی‌ام X22 Pro':['دنده‌ای MT','اتوماتیک CVT','اکسلنت','IE'],
+'ام‌وی‌ام ایکس ۳۳ اس':['اتوماتیک','اسپرت','اسپرت اکسلنت','نیو فیس'],
+'ام‌وی‌ام ایکس ۳۳ کراس':['دنده‌ای','اتوماتیک CVT'],
+'ام‌وی‌ام ایکس ۳۳':['دنده‌ای','اتوماتیک','New (نسل دوم)','X33S','X33S اسپرت','X33S اسپرت اکسلنت','X33S نیوفیس'],
+'ام‌وی‌ام ایکس ۵۵':['اتوماتیک','Pro اکسلنت','Pro اکسلنت اسپرت','Pro IE','Pro IE اسپرت','Pro Li'],
 'ام‌وی‌ام ایکس ۷۷':['اکسلنت','پرمیوم'],
 'آریزو ۵':['دنده‌ای','Turbo دنده‌ای','Turbo CVT','Sport','IE'],
 'آریزو ۶':['Turbo','پرو','Pro Max'],
@@ -1741,6 +1745,20 @@ function yearsFor(brand,model,trim){
  const isPeugeot206=/^(پژو)?206$/.test(modelKey)||modelKey.includes('پژو206');
  const isPeugeot207=/^(پژو)?207$/.test(modelKey)||modelKey.includes('پژو207');
  if(isPeugeot206&&trimKey==='تیپ5')range=[1382,1399];
+ // MVM X22 trim-specific production years, Iranian market (Solar Hijri).
+ const isMvmX22=/^(امویام)?x22$/.test(modelKey)||modelKey.includes('امویامایکس22');
+ const isMvmX22Pro=modelKey.includes('x22pro')||modelKey.includes('امویامایکس22پرو');
+ if(isMvmX22){
+  if(trimKey.includes('ساده'))range=[1395,1397];
+  else if(trimKey.includes('لاکچری'))range=[1396,1402];
+  else if(trimKey.includes('اسپرت')&&trimKey.includes('اکسلنت'))range=[1396,1402];
+  else if(trimKey.includes('اسپرت'))range=[1396,1402];
+  else range=[1395,1402];
+ }
+ if(isMvmX22Pro){
+  if(trimKey.includes('ie'))range=[1400,1405];
+  else range=[1400,1405];
+ }
  if(isPeugeot207&&trimKey.includes('mc'))range=[1402,1405];
  if(isPeugeot207&&trimKey==='تیپ5')range=[1403,1405];
  if(isPeugeot207&&trimKey.includes('tu3'))range=[1396,1405];
