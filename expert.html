@@ -679,30 +679,37 @@ function backToInspectionSections(){if(!current)return;history.pushState({},'','
 function backToList(){history.pushState({},'','expert.html');current=null;localStorage.removeItem(CASE_STORAGE);hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden');loadCases();scrollTo(0,0)}
 function renderRoute(){const p=new URLSearchParams(location.search),qcase=p.get('case'),view=p.get('view'),section=p.get('section');if(qcase){let found=cases.find(x=>x.id===qcase);if(!found&&p.get('done')==='1'){found=JSON.parse(sessionStorage.getItem('s2s_done_case')||'null')}if(found){if(found.status==='awaiting_expert_confirmation'){current=null;hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden');history.replaceState({},'','expert.html');alert('ابتدا دکمه «تأیید کارشناس» را در کارت پرونده بزنید؛ سپس امکان ورود به پرونده فعال می‌شود.');return}current=found;hydrateCase();restoreDraft().catch(()=>{});if(view==='inspection'){if(section)openInspectionSection(section,false);else startInspectionView(true)}else renderCaseLanding();return}}current=null;hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden')}
 function filterDefects(){
- const raw=(document.getElementById('defectSearch')?.value||'').trim().toLowerCase();
- const normalize=v=>String(v||'').toLowerCase()
+ const input=document.getElementById('defectSearch');
+ const raw=String(input?.value||'').trim();
+ const normalize=v=>String(v||'').toLocaleLowerCase('fa')
   .replace(/[يى]/g,'ی').replace(/ك/g,'ک')
-  .replace(/[\u200c\u200f\u200e\s]+/g,'')
-  .replaceAll('راننده','چپ').replaceAll('شاگرد','راست');
- const q=normalize(raw);
- const groups=[...document.querySelectorAll('.defect-group')];
+  .replace(/[\u200c\u200f\u200e\sـ]+/g,'')
+  .replace(/راننده/g,'چپ').replace(/شاگرد/g,'راست');
+ const query=normalize(raw);
+ const groups=Array.from(document.querySelectorAll('.defect-group'));
  const active=groups.find(g=>g.dataset.group===activeDefectGroup);
- let visible=0;
- groups.forEach(g=>{
-   // With a search query, search every defect category, not only the currently open category.
-   const searchThisGroup=!!q;
-   let groupVisible=0;
-   g.querySelectorAll('.defect-card').forEach(card=>{
-     const haystack=normalize(card.dataset.partSearch||card.textContent||'');
-     const ok=(searchThisGroup||g===active)&&(!q||haystack.includes(q));
-     card.classList.toggle('is-hidden',!ok);
-     if(ok){visible++;groupVisible++}
-   });
-   g.style.display=(q?groupVisible>0:g===active)?'':'none';
+ let total=0;
+ groups.forEach(group=>{
+  let groupCount=0;
+  group.querySelectorAll('.defect-card').forEach(card=>{
+   const label=card.querySelector('.defect-head b')?.textContent||'';
+   const haystack=normalize([label,card.dataset.partSearch,card.textContent,card.dataset.area].filter(Boolean).join(' '));
+   const match=!query ? group===active : haystack.includes(query);
+   card.classList.toggle('is-hidden',!match);
+   card.style.display=match?'':'none';
+   if(match){groupCount++;total++}
+  });
+  const showGroup=query?groupCount>0:group===active;
+  group.style.setProperty('display',showGroup?'':'none','important');
+  group.querySelectorAll('.part-cluster').forEach(cluster=>{
+   const count=cluster.querySelectorAll('.defect-card:not(.is-hidden)').length;
+   cluster.style.setProperty('display',count?'':'none','important');
+   if(query&&count)cluster.open=true;
+   else if(!query)cluster.open=false;
+  });
  });
- document.querySelectorAll('.part-cluster').forEach(cluster=>{const n=cluster.querySelectorAll('.defect-card:not(.is-hidden)').length;cluster.style.display=n?'':'none';if(q&&n)cluster.open=true;else if(!q)cluster.open=false;});
  const count=document.getElementById('defectCount');
- if(count)count.textContent=visible+' مورد '+(q?'پیدا شد':'در این بخش');
+ if(count)count.textContent=query?(total+' مورد پیدا شد'):(total+' مورد در این بخش');
 }
 function toggleMarkup(btn){const w=btn.nextElementSibling;w.classList.toggle("show-markup");btn.textContent=w.classList.contains("show-markup")?"− بستن علامت‌گذاری":"✏️ علامت‌گذاری روی عکس"}
 function toggleDefectDrawer(e){const c=e.target,p=c.closest('.pill');p.classList.toggle('selected',c.checked);p.classList.toggle('open',c.checked);const inputs=[...p.querySelectorAll('.defphoto')];inputs.forEach(i=>{i.onchange=()=>previewDef(i);if(!c.checked)i.value=''});if(c.checked){restoreOneDefectPhoto(c).catch(err=>console.warn('بازیابی عکس ایراد ناموفق بود',err))}else{const b=p.querySelector('.defect-detail-toggle');if(b)b.textContent='📷 عکس و توضیح';/* عکس‌های ذخیره‌شده را پاک نکن؛ فقط پنل ایراد بسته می‌شود. */}persistDraft();try{localStorage.setItem(draftKey(),JSON.stringify(collectDraft()))}catch(err){console.error('ذخیره فوری وضعیت ایراد ناموفق بود',err)}}
