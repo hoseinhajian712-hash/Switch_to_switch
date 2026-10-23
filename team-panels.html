@@ -468,7 +468,7 @@ function openCase(id){
    (["finance","admin"].includes(role)?financeCasePaymentCard(c):"")+
    (()=>{const calc=(c.team_updates||[]).find(x=>["customer_accept","calculate_branch_offer"].includes(x.update_type))?.payload||c.sales_calculation;if(!calc&&role!=="finance")return "";const finalPrice=Number(calc?.auction_final_price||c.auction?.current_bid||c.agreed_price||0),profit=Number(calc?.company_profit_amount||0),net=Number(calc?.branch_offer_price||Math.max(0,finalPrice-profit)),entries=c.financial_entries||[],advance=Number(c.prepayment_amount||0),deducted=entries.filter(x=>["deduction","fine","commission","expense"].includes(x.entry_type)).reduce((n,x)=>n+Number(x.amount||0),0),buyerPaid=entries.filter(x=>["buyer_payment","prepayment"].includes(x.entry_type)).reduce((n,x)=>n+Number(x.amount||0),0),sellerPaid=entries.filter(x=>x.entry_type==="seller_payout").reduce((n,x)=>n+Number(x.amount||0),0);return '<article class="card"><h3>خلاصه حسابداری معامله</h3><div class="row"><span class="muted">قیمت نهایی خریدار / مزایده</span><b>'+money(finalPrice)+'</b></div><div class="row"><span class="muted">سود مجموعه</span><b>'+money(profit)+(calc?.company_profit_percent!=null?" ("+Number(calc.company_profit_percent).toLocaleString("fa-IR")+"٪)":"")+'</b></div><div class="row"><span class="muted">مبلغ فروشنده پس از کسر سود مجموعه</span><b>'+money(net)+'</b></div><div class="row"><span class="muted">پیش‌پرداخت ثبت‌شده</span><b>'+money(advance)+'</b></div><div class="row"><span class="muted">مجموع کسورات ثبت‌شده</span><b>'+money(deducted)+'</b></div><div class="row"><span class="muted">مانده محاسباتی فروشنده</span><b>'+money(Math.max(0,advance-deducted-sellerPaid))+'</b></div><div class="row"><span class="muted">کل مبالغ دریافتی از خریدار ثبت‌شده در دفتر مالی</span><b>'+money(buyerPaid)+'</b></div></article>'})()+
    ((c.financial_entries||[]).length?'<article class="card"><h3>گردش مالی پرونده</h3>'+c.financial_entries.slice(0,12).map(e=>'<div class="row" style="padding:8px 0;border-bottom:1px solid #20354c"><div><b>'+esc(({prepayment:"پیش‌پرداخت",buyer_payment:"تسویه خریدار",deduction:"کسورات",fine:"خلافی",commission:"سود/کارمزد",expense:"هزینه",seller_payout:"پرداخت مانده فروشنده",refund:"استرداد",other:"سایر"})[e.entry_type]||e.entry_type)+'</b><div class="caseSub">'+esc(e.note||"")+' · '+esc(date(e.created_at))+'</div></div><b>'+money(e.amount)+'</b></div>').join("")+'</article>':'')+
-   '<article class="card"><h3>گزارش و مدارک</h3><div class="muted" style="line-height:2">مدارک: '+(c.documents||[]).length+' · عکس‌ها: '+(c.photos||[]).length+' · رسیدها: '+(c.contract_records||[]).length+' · اسناد مالی: '+(c.financial_entries||[]).length+'</div>'+((c.contract_records||[]).some(r=>r.contract_type==="custody_receipt")?'<button class="btn primary" style="margin-top:10px" onclick="printCustodyReceipt(\''+c.id+'\')">چاپ رسید امانت خودرو</button>':'')+'</article>'+
+   '<article class="card"><h3>گزارش و مدارک</h3><div class="muted" style="line-height:2">مدارک: '+(c.documents||[]).length+' · عکس‌ها: '+(c.photos||[]).length+(role==="legal"?"":" · رسیدها: "+(c.contract_records||[]).length+" · اسناد مالی: "+(c.financial_entries||[]).length)+'</div>'+((c.contract_records||[]).some(r=>r.contract_type==="custody_receipt")?'<button class="btn primary" style="margin-top:10px" onclick="printCustodyReceipt(\''+c.id+'\')">چاپ رسید امانت خودرو</button>':'')+'</article>'+
    '<article class="card"><h3>تاریخچه پرونده</h3>'+(historyRows||'<div class="muted">تاریخچه‌ای موجود نیست.</div>')+'</article>'+
   '</div>'+
   '<section class="chatBox"><div class="chatHead"><div><strong>گفت‌وگوی مشترک پرونده</strong><div class="caseSub">همه واحدها می‌توانند پیام بگذارند و پیام‌های همدیگر را ببینند.</div></div><span class="tag">به‌روزرسانی خودکار</span></div><div id="caseChatMessages" class="chatMessages"><div class="empty">در حال دریافت پیام‌ها…</div></div><form class="chatCompose" onsubmit="sendCaseComment(event)"><textarea id="caseChatInput" maxlength="3000" placeholder="پیام یا یادداشت خود را برای همه واحدها بنویسید…" required></textarea><button class="btn primary" id="caseChatSend" type="submit">ارسال پیام</button></form><div class="chatHint">پیام‌ها با نام واحد ثبت می‌شوند و در همین پرونده برای همکاران قابل مشاهده‌اند.</div>'+(["intake","admin"].includes(role)?'<div class="quickComments" style="padding:12px;border-top:1px solid #263c56"><div style="font-weight:700;margin-bottom:9px">کامنت‌های آماده ثبت درخواست</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+["کارواش و تخلیه صندوق اعلام شد","قیمت مدنظر","تماس اولیه؛ پاسخگو نبودند","تأیید رزرو انجام شد","سند در دست بررسی است و بررسی مدارک انجام شد","روال به‌طور کامل توضیح داده شد"].map((label,i)=>'<button type="button" class="btn" onclick="sendPresetCaseComment('+i+')">'+label+'</button>').join("")+'</div></div>':'')+'</section>';
@@ -484,6 +484,19 @@ function openCase(id){
    });
   }
   // Keep the shared case conversation and intake preset comments visible in the intake panel.
+ }
+ if(role==="legal"){
+  // Legal staff should only see parties, expert reports, and documents; hide accounting and unrelated sections.
+  document.querySelectorAll("#detailArea > article.card").forEach(card=>{
+   if((card.querySelector("h3")?.textContent||"").trim()==="آدرس مشتری")card.remove();
+  });
+  const legalDetail=document.querySelector("#detailArea > .detail");
+  if(legalDetail){
+   Array.from(legalDetail.querySelectorAll(":scope > .card")).forEach(card=>{
+    const heading=(card.querySelector("h3")?.textContent||"").trim();
+    if(!/گزارش|مدارک/.test(heading))card.remove();
+   });
+  }
  }
  arrangeSalesCaseWorkspace(c);
  updateSalesExpertTravelCountdown();
