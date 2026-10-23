@@ -1549,14 +1549,14 @@ function initBrandGridPickers(){
     const localBrandLogoFiles={
       'toyota':'toyota-logo.svg','تویوتا':'toyota-logo.svg','volkswagen':'volkswagen-logo.svg','فولکس واگن':'volkswagen-logo.svg','bmw':'bmw-logo.svg','بی ام و':'bmw-logo.svg','audi':'audi-logo.svg','آئودی':'audi-logo.svg',
       'renault':'renault-logo.svg','رنو':'renault-logo.svg','peugeot':'peugeot-logo.svg','پژو':'peugeot-logo.svg','hyundai':'hyundai-logo.svg','هیوندای':'hyundai-logo.svg','kia':'kia-logo.svg','کیا':'kia-logo.svg',
-      'nissan':'nissan-logo.svg','نیسان':'nissan-logo.svg','mazda':'mazda-logo.svg','مزدا':'mazda-logo.svg','honda':'honda-logo.png','هوندا':'honda-logo.png','suzuki':'suzuki-logo.svg','سوزوکی':'suzuki-logo.svg',
+      'nissan':'nissan-logo.svg','نیسان':'nissan-logo.svg','mazda':'mazda-logo.svg','مزدا':'mazda-logo.svg','suzuki':'suzuki-logo.svg','سوزوکی':'suzuki-logo.svg',
       'mercedes benz':'mercedes-benz-logo.svg','مرسدس بنز':'mercedes-benz-logo.svg','porsche':'porsche-logo.svg','پورشه':'porsche-logo.svg','volvo':'volvo-logo.svg','ولوو':'volvo-logo.svg','jeep':'jeep-logo.svg','جیپ':'jeep-logo.svg',
       'tesla':'tesla-logo.svg','تسلا':'tesla-logo.svg','geely':'geely-logo.svg','جیلی':'geely-logo.svg','mitsubishi':'mitsubishi-logo.svg','میتسوبیشی':'mitsubishi-logo.svg','fiat':'fiat-logo.svg','فیات':'fiat-logo.svg',
       'mini':'mini-logo.svg','مینی':'mini-logo.svg','jaguar':'jaguar-logo.svg','جگوار':'jaguar-logo.svg','land rover':'land-rover-logo.svg','لندرور':'land-rover-logo.svg','bentley':'bentley-logo.svg','بنتلی':'bentley-logo.svg',
       'rolls royce':'rolls-royce-logo.svg','رولزرویس':'rolls-royce-logo.svg','byd':'byd-logo.svg','بی وای دی':'byd-logo.svg','citroen':'citroen-logo.svg','سیتروئن':'citroen-logo.svg','ferrari':'ferrari-logo.svg','فراری':'ferrari-logo.svg',
       'mclaren':'mclaren-logo.svg','مک لارن':'mclaren-logo.svg','skoda':'skoda-logo.svg','اشکودا':'skoda-logo.svg','seat':'seat-logo.svg','سئات':'seat-logo.svg','infiniti':'infiniti-logo.svg','اینفینیتی':'infiniti-logo.svg',
       'isuzu':'isuzu-logo.svg','ایسوزو':'isuzu-logo.svg','chrysler':'chrysler-logo.svg','کرایسلر':'chrysler-logo.svg','ram':'ram-logo.svg','رام':'ram-logo.svg','opel':'opel-logo.svg','اوپل':'opel-logo.svg',
-      'baic':'baic-logo.svg','بایک':'baic-logo.svg','faw':'faw-logo.svg','فاو':'faw-logo.svg','kgm':'kgm-logo.svg','سانگ یانگ':'kgm-logo.svg','ssangyong':'kgm-logo.svg','zotye':'zotye-logo.png','زوتی':'zotye-logo.png',
+      'baic':'baic-logo.svg','بایک':'baic-logo.svg','faw':'faw-logo.svg','فاو':'faw-logo.svg','kgm':'kgm-logo.svg','سانگ یانگ':'kgm-logo.svg','ssangyong':'kgm-logo.svg',
       'jetour':'jetour-logo.svg','جتور':'jetour-logo.svg','lincoln':'lincoln-logo.svg','لینکلن':'lincoln-logo.svg','mclaren':'mclaren-logo.svg','مک لارن':'mclaren-logo.svg'
     };
     const localKeys=[normalizeBrandKey(opt.value),normalizeBrandKey(opt.textContent)];
@@ -1566,7 +1566,11 @@ function initBrandGridPickers(){
     const hostedLogoFiles={
       'چانگان':'changan-logo.png','changan':'changan-logo.png','چری':'chery-logo.png','chery':'chery-logo.png','شورلت':'chevrolet-logo.png','شورولت':'chevrolet-logo.png','chevrolet':'chevrolet-logo.png',
       'دونگ فنگ':'dongfeng-logo.png','دانگ فنگ':'dongfeng-logo.png','dongfeng':'dongfeng-logo.png','دوج':'dodge-logo.png','dodge':'dodge-logo.png','فورد':'ford-logo.png','ford':'ford-logo.png',
-      'جی ام سی':'gmc-logo.png','gmc':'gmc-logo.png','گریت وال':'great-wall-logo.png','هاوال':'haval-logo.png','ام جی':'mg-logo.png','mg':'mg-logo.png','سانگ یانگ':'ssangyong-logo.png','swm':'swm-logo.png'
+      'جی ام سی':'gmc-logo.png','جی‌ام‌سی':'gmc-logo.png','gmc':'gmc-logo.png','گریت وال':'great-wall-logo.png','greatwall':'great-wall-logo.png','هاوال':'haval-logo.png','haval':'haval-logo.png',
+      'ام جی':'mg-logo.png','ام‌جی':'mg-logo.png','mg':'mg-logo.png','سانگ یانگ':'ssangyong-logo.png','سانگ‌یانگ':'ssangyong-logo.png','ssangyong':'ssangyong-logo.png','swm':'swm-logo.png','اس دبلیو ام':'swm-logo.png',
+      'فوتون':'foton-logo.svg','foton':'foton-logo.svg','ایسوز':'isuzu-logo.svg','ایسوزو':'isuzu-logo.svg','ایویکو':'iveco-logo.svg','iveco':'iveco-logo.svg',
+      'هوندا':'honda-logo.png','honda':'honda-logo.png','زوتی':'zotye-logo.png','zotye':'zotye-logo.png','مدیران خودرو':'mvm-logo.png','مدیران‌خودرو':'mvm-logo.png','فونیکس':'exeed-logo.png','رنو سامسونگ':'renault-samsung-logo.png',
+      'سایپا':'saipa-logo.png','کرمان موتور':'kerman-motor-logo.png'
     };
     const hostedEntry=Object.entries(hostedLogoFiles).find(([k])=>localKeys.includes(normalizeBrandKey(k)));
     if(hostedEntry)logoUrls.push('https://cdn.jsdelivr.net/npm/car-brand-logos/'+hostedEntry[1]);
