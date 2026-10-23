@@ -701,7 +701,8 @@ function filterDefects(){
    if(show){
     card.style.removeProperty('display');
     matches++;total++;
-    if(query && card.tagName==='DETAILS')card.open=true;
+    // Keep matching part cards collapsed during search to save vertical space.
+    if(query && card.tagName==='DETAILS')card.open=false;
    }else{
     card.style.setProperty('display','none','important');
     if(query && card.tagName==='DETAILS')card.open=false;
