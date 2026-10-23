@@ -1539,7 +1539,10 @@ function initBrandGridPickers(){
    visible.forEach(opt=>{
     const tile=document.createElement('button');tile.type='button';tile.className='brand-tile'+(sel.value===opt.value?' selected':'');tile.setAttribute('role','option');tile.setAttribute('aria-selected',String(sel.value===opt.value));tile.setAttribute('aria-label',opt.textContent);
     const logoBox=document.createElement('span');logoBox.className='brand-tile-logo';
-    const slug=domains[opt.value],domain=logoDomains[opt.value];
+    const normalizeBrandKey=value=>String(value||'').trim().toLocaleLowerCase('fa').replace(/[\\u200c\\u200f\\u200e]/g,'').replace(/[\\sـ_-]+/g,'');
+    const brandKeys=[opt.value,opt.textContent].map(normalizeBrandKey);
+    const findBrandSource=map=>{for(const key of brandKeys){for(const candidate of Object.keys(map)){if(normalizeBrandKey(candidate)===key)return map[candidate]}}return null};
+    const slug=findBrandSource(domains),domain=findBrandSource(logoDomains);
     logoBox.classList.add('brand-tile-fallback');
     // Use clean symbol marks first. Avoid Clearbit wordmarks that render as tiny text in the tile.
     const tryNextLogo=(img,urls,index)=>{
@@ -1550,8 +1553,9 @@ function initBrandGridPickers(){
     };
     const img=document.createElement('img');img.alt=opt.textContent+' لوگو';img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';
     const urls=[];
-    if(slug)urls.push('https://cdn.simpleicons.org/'+encodeURIComponent(slug));
+    // Prefer a domain favicon first: Simple Icons does not contain every regional/legacy automaker.
     if(domain)urls.push('https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128');
+    if(slug)urls.push('https://cdn.simpleicons.org/'+encodeURIComponent(slug));
     const localLogoDomains={'ایران‌خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','مدیران‌خودرو':'mvmco.ir','فونیکس':'mvmco.ir','بهمن موتور':'bahman.ir','فردا موتور':'fardamotors.com','لاماری':'lamari.ir','دنا':'ikco.ir','شاهین':'saipacorp.com','تارا':'ikco.ir','سمند':'ikco.ir','کوئیک':'saipacorp.com','ساینا':'saipacorp.com','سهند':'saipacorp.com','اطلس':'saipacorp.com','ری‌را':'ikco.ir','پارس خودرو':'pars-khodro.com'};
     if(localLogoDomains[opt.value])urls.push('https://www.google.com/s2/favicons?domain='+encodeURIComponent(localLogoDomains[opt.value])+'&sz=128');
     tryNextLogo(img,urls,0);logoBox.appendChild(img);
