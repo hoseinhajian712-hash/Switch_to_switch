@@ -886,7 +886,7 @@ const schematicPartMap=[
  {part:'رکاب راننده',aliases:['رکاب راننده'],x:144,y:362},
  {part:'رکاب شاگرد',aliases:['رکاب شاگرد'],x:476,y:362}
 ];
-const schematicNorm=value=>String(value||'').toLocaleLowerCase('fa').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\u200c\u200f\u200e\sـ]/g,'');
+const schematicNorm=value=>String(value||'').toLocaleLowerCase('fa').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\u200c\u200f\u200eـ]/g,'').replace(/\s+/g,' ').trim();
 const schematicDefectType=d=>schematicNorm(d?.defect_type||d?.defect||'');
 const schematicForPart=part=>{
  const p=schematicNorm(part);
@@ -896,7 +896,7 @@ const schematicMarker=(d,x,y)=>{
  const t=schematicDefectType(d);
  if(t.includes('استوک تعویض'))return '<g class="schematic-mark" transform="translate('+(x+15)+' '+(y-12)+')" aria-label="استوک تعویض"><circle r="8" fill="#dc2626" stroke="#fff" stroke-width="2"/><circle r="3" fill="#fff"/></g>';
  if(t.includes('صافکاری بدون رنگ'))return '<g class="schematic-mark" transform="translate('+(x+14)+' '+(y-12)+')" aria-label="صافکاری بدون رنگ"><path d="M-7 -7 L1 -1 L-2 2 L-8 -4 Z" fill="#facc15" stroke="#854d0e" stroke-width="1.4"/><path d="M-2 2 L6 10" stroke="#854d0e" stroke-width="3" stroke-linecap="round"/><path d="M-10 -9 L-3 -15 L4 -8 L-3 -2 Z" fill="#facc15" stroke="#854d0e" stroke-width="1.5"/></g>';
- if(t.includes('صافکاری نقاشی')||t.includes('صافکاری و نقاشی')||t.includes('رنگ شدگی')||t.includes('رنگ پریدگی'))return '<g class="schematic-mark" transform="translate('+(x+14)+' '+(y-12)+')" aria-label="صافکاری نقاشی"><path d="M-9 -6 H2 V0 H-9 Z" fill="#ef4444" stroke="#991b1b" stroke-width="1.5"/><path d="M2 -3 H7 V5 H2" fill="none" stroke="#991b1b" stroke-width="2.4" stroke-linecap="round"/><path d="M5 5 V11" stroke="#991b1b" stroke-width="2.4" stroke-linecap="round"/><path d="M-11 -8 H4" stroke="#991b1b" stroke-width="2" stroke-linecap="round"/></g>';
+ if(t.includes('صافکاری نقاشی')||t.includes('صافکاری و نقاشی')||t.includes('رنگشدگی')||t.includes('رنگپریدگی'))return '<g class="schematic-mark" transform="translate('+(x+14)+' '+(y-12)+')" aria-label="صافکاری نقاشی"><path d="M-9 -6 H2 V0 H-9 Z" fill="#ef4444" stroke="#991b1b" stroke-width="1.5"/><path d="M2 -3 H7 V5 H2" fill="none" stroke="#991b1b" stroke-width="2.4" stroke-linecap="round"/><path d="M5 5 V11" stroke="#991b1b" stroke-width="2.4" stroke-linecap="round"/><path d="M-11 -8 H4" stroke="#991b1b" stroke-width="2" stroke-linecap="round"/></g>';
  if(t.includes('تعویض')||t.includes('برش و تعویض'))return '<g class="schematic-mark" transform="translate('+(x+14)+' '+(y-12)+')" aria-label="تعویض قطعه"><circle r="8" fill="#dc2626" stroke="#fff" stroke-width="2"/><path d="M-3 0 H3 M0 -3 V3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g>';
  return '<g class="schematic-mark" transform="translate('+(x+14)+' '+(y-12)+')" aria-label="ایراد ثبت‌شده"><circle r="7" fill="#dc2626" stroke="#fff" stroke-width="2"/></g>';
 };
