@@ -1356,10 +1356,83 @@ function trimsFor(model,brand){
   [/جکاس5/, 'جک اس ۵'],
   [/ساندرو|استپوی/, 'ساندرو'],
   [/206/, 'پژو ۲۰۶'],
-  [/207/, 'پژو ۲۰۷']
+  [/207/, 'پژو ۲۰۷'],
+  [/وانت151|۱۵۱/, 'پراید ۱۵۱'],
+  [/نسیم|صبا/, 'پراید'],
+  [/ریومونتاژ/, 'ریو'],
+  [/مگانمونتاژ/, 'مگان'],
+  [/زانتیا/, 'زانتیا'],
+  [/پیکاپریچ|ریچ/, 'گریت وال وینگل'],
+  [/سیتروئنc3|c3/, 'سی‌اس ۳۵'],
+  [/سیتروئنc5|c5/, 'سی‌اس ۳۵'],
+  [/چانگانایدو|ایدو/, 'ایدو'],
+  [/کیامسیتی9/, 'جک تی ۹'],
+  [/کیامسیای5پلاس/, 'کی‌ام‌سی ای ۵'],
+  [/هاوالاچ6|هاوالاچ۶/, 'اچ ۶'],
+  [/پاژرومونتاژ|پاجرو/, 'پاجرو']
  ];
  for(const [pattern,target] of aliases){if(pattern.test(key)&&trimCatalog[target])return trimCatalog[target]}
- return ['استاندارد','دنده‌ای','اتوماتیک'];
+ // تیپ‌های اختصاصی برای مدل‌هایی که در بازار ایران با نام دیگری ثبت شده‌اند.
+ if(key.includes('کیامسیتی9'))return ['دنده‌ای ۴×۴','اتوماتیک ۴×۴'];
+ if(key.includes('کیامسیای5پلاس'))return ['اتوماتیک DCT'];
+ if(key.includes('هایمااس6')||key.includes('هاوالاچ6'))return ['۱.۵ توربو اتوماتیک','۲.۰ توربو اتوماتیک'];
+ if(key.includes('لامارینئو'))return ['۱.۵ توربو CVT'];
+ if(key.includes('پراید151')||key.includes('وانت151'))return ['SE','SL'];
+ // مدل‌های وارداتی فاقد تیپ ثبت‌شده، بر اساس نام رسمی خانواده و پکیج‌های رایج همان سازنده.
+ const brandTrimFallbacks=[
+  [/^(میتسوبیشی)/,['GLX','GLS','GT']],
+  [/^(سوبارو)/,['2.0i','2.5i','Sport','Limited']],
+  [/^(سانگ یانگkgm|kgm)/,['Standard','Luxury','Premium']],
+  [/^(اشکودا)/,['Ambition','Style','Sportline','Laurin & Klement']],
+  [/^(سئات)/,['Reference','Style','FR','Xcellence']],
+  [/^(فیات)/,['Pop','Easy','Lounge','Sport']],
+  [/^(مینی)/,['Cooper','Cooper S','John Cooper Works']],
+  [/^(جگوار)/,['S','SE','HSE','R-Dynamic']],
+  [/^(لندرور)/,['S','SE','HSE','Autobiography']],
+  [/^(اینفینیتی)/,['Pure','Luxe','Sensory','Autograph']],
+  [/^(آلفارومئو)/,['Super','Sprint','Veloce','Quadrifoglio']],
+  [/^(بنتلی)/,['Azure','S','Speed','Mulliner']],
+  [/^(رولزرویس)/,['Standard','Black Badge']],
+  [/^(تسلا)/,['Standard Range','Long Range','Performance']],
+  [/^(بی وای دی)/,['Comfort','Premium','Flagship']],
+  [/^(گک)/,['Comfort','Luxury','Premium']],
+  [/^(جتور)/,['Comfort','Luxury','Premium']],
+  [/^(گریت وال)/,['2WD','4WD','Luxury']],
+  [/^(بایک)/,['Comfort','Luxury','Premium']],
+  [/^(swm)/,['Standard','Luxury']],
+  [/^(زوتی)/,['1.5T','1.8T','Luxury']],
+  [/^(بورگوارد)/,['Comfort','Luxury','Premium']],
+  [/^(فاو)/,['Comfort','Luxury','Premium']],
+  [/^(دانگ فنگ)/,['Comfort','Luxury','Premium']],
+  [/^(رنو سامسونگ)/,['SE','LE','RE']],
+  [/^(لادا)/,['Classic','Comfort','Luxe']],
+  [/^(اوپل)/,['Edition','Elegance','GS','Ultimate']],
+  [/^(سیتروئن)/,['Feel','Shine','Live']],
+  [/^(ds)/,['Performance Line','Rivoli','Opera']],
+  [/^(اسمارت)/,['Pure','Passion','Prime']],
+  [/^(مازراتی)/,['GT','Modena','Trofeo']],
+  [/^(فراری)/,['Base','Assetto Fiorano']],
+  [/^(لامبورگینی)/,['Base','S','Performante','Tecnica']],
+  [/^(استون مارتین)/,['Base','S','AMR','Volante']],
+  [/^(مک لارن)/,['Standard','Performance','Luxury']],
+  [/^(لینکلن)/,['Standard','Reserve','Black Label']],
+  [/^(کادیلاک)/,['Luxury','Premium Luxury','Sport','Platinum']],
+  [/^(کرایسلر)/,['Touring','Limited','Pinnacle']],
+  [/^(دوج)/,['SXT','GT','R/T','SRT']],
+  [/^(شورولت)/,['LS','LT','RS','Premier']],
+  [/^(فورد)/,['S','SE','SEL','Titanium','ST']],
+  [/^(جی ام سی)/,['SLE','SLT','AT4','Denali']],
+  [/^(رام)/,['Tradesman','Big Horn','Laramie','Limited']],
+  [/^(ایسوزو)/,['LS','LS-M','LS-U','X-Terrain']],
+  [/^(ایویکو)/,['Daily','Eurocargo']]
+ ];
+ for(const [pattern,options] of brandTrimFallbacks){if(pattern.test(brandKey))return options}
+ // برای برندهای دارای تیپ ثبت‌شده، یک خانواده نزدیک را بر اساس مدل انتخاب کن؛ نه گزینه‌های عمومی ثابت.
+ if(/برقی|تسلا|مدلاس|مدل3|مدلایکس|مدل وای|سایبرتراک|آیون|اتو3|دلفین|سیل/.test(key))return ['Standard Range','Long Range','Performance'];
+ if(/پیکاپ|وانت|ریچ6|وینگل|پوئر|تانلند|دیمکس|هایلوکس|ناوارا|موسو|تی6|تی9/.test(key))return ['تک‌کابین','دوکابین 4×2','دوکابین 4×4'];
+ if(/هیبرید|hev|phev|هیبریدی/.test(key))return ['هیبرید','پلاگین هیبرید'];
+ if(/اسپرت|sport|gt|amg|m.?power|rs\b/.test(key))return ['استاندارد','Sport','Performance'];
+ return ['نسخه پایه','نسخه اتوماتیک','نسخه فول آپشن'];
 }
 // بازه تقریبی سال ساخت شمسی هر مدل؛ سال‌ها خارج از دوره تولید نمایش داده نمی‌شوند.
 const productionYears={
