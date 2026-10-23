@@ -681,38 +681,46 @@ function renderRoute(){const p=new URLSearchParams(location.search),qcase=p.get(
 function filterDefects(){
  const input=document.getElementById('defectSearch');
  const raw=String(input?.value||'').trim();
- const normalize=v=>String(v||'')
-  .toLowerCase().replace(/[يى]/g,'ی').replace(/ك/g,'ک')
-  .replace(/[\u200c\u200f\u200e\sـ]+/g,'')
+ const normalize=v=>String(v||'').toLocaleLowerCase('fa')
+  .replace(/[يى]/g,'ی').replace(/ك/g,'ک')
+  .replace(/[\u200c\u200f\u200e\sـ]/g,'')
   .replace(/راننده/g,'چپ').replace(/شاگرد/g,'راست');
  const query=normalize(raw);
- const groups=[...document.querySelectorAll('#defects .defect-group')];
+ const host=document.getElementById('defects');
+ if(!host)return;
+ const groups=Array.from(host.querySelectorAll('.defect-group'));
  let total=0;
  groups.forEach(group=>{
   let matches=0;
-  group.querySelectorAll('.defect-card').forEach(card=>{
-   const name=card.querySelector('.defect-head b')?.textContent||'';
-   const haystack=normalize(name+' '+(card.getAttribute('data-part-search')||'')+' '+(card.getAttribute('data-area')||''));
-   const show=query ? haystack.includes(query) : group.dataset.group===activeDefectGroup;
+  Array.from(group.querySelectorAll('.defect-card')).forEach(card=>{
+   const text=card.querySelector('.defect-head b')?.textContent||card.textContent||'';
+   const haystack=normalize(text+' '+(card.dataset.partSearch||'')+' '+(card.dataset.area||''));
+   const show=query.length ? haystack.includes(query) : group.dataset.group===activeDefectGroup;
    card.classList.toggle('is-hidden',!show);
    card.hidden=!show;
-   card.style.setProperty('display',show?'':'none','important');
-   if(show){matches++;total++;if(query)card.open=true;}
-   else if(query)card.open=false;
+   if(show){
+    card.style.removeProperty('display');
+    matches++;total++;
+    if(query && card.tagName==='DETAILS')card.open=true;
+   }else{
+    card.style.setProperty('display','none','important');
+    if(query && card.tagName==='DETAILS')card.open=false;
+   }
   });
-  const showGroup=query?matches>0:group.dataset.group===activeDefectGroup;
+  const showGroup=query.length ? matches>0 : group.dataset.group===activeDefectGroup;
   group.hidden=!showGroup;
-  group.style.setProperty('display',showGroup?'block':'none','important');
-  group.querySelectorAll('.part-cluster').forEach(cluster=>{
-   const n=cluster.querySelectorAll('.defect-card:not(.is-hidden)').length;
-   cluster.hidden=!!query&&!n;
-   cluster.style.setProperty('display',n?'':'none','important');
-   if(query&&n)cluster.open=true;
-  });
+  if(showGroup)group.style.removeProperty('display');
+  else group.style.setProperty('display','none','important');
  });
  const count=document.getElementById('defectCount');
- if(count)count.textContent=query?(total?' '+total+' قطعه پیدا شد':'قطعه‌ای پیدا نشد'):(total+' مورد در این بخش');
+ if(count)count.textContent=query.length?(total?total+' قطعه پیدا شد':'قطعه‌ای پیدا نشد'):(total+' مورد در این بخش');
 }
+document.addEventListener('input',function(e){
+ if(e.target&&e.target.id==='defectSearch')filterDefects();
+},true);
+document.addEventListener('keyup',function(e){
+ if(e.target&&e.target.id==='defectSearch')filterDefects();
+},true);
 function toggleMarkup(btn){const w=btn.nextElementSibling;w.classList.toggle("show-markup");btn.textContent=w.classList.contains("show-markup")?"− بستن علامت‌گذاری":"✏️ علامت‌گذاری روی عکس"}
 function toggleDefectDrawer(e){const c=e.target,p=c.closest('.pill');p.classList.toggle('selected',c.checked);p.classList.toggle('open',c.checked);const inputs=[...p.querySelectorAll('.defphoto')];inputs.forEach(i=>{i.onchange=()=>previewDef(i);if(!c.checked)i.value=''});if(c.checked){restoreOneDefectPhoto(c).catch(err=>console.warn('بازیابی عکس ایراد ناموفق بود',err))}else{const b=p.querySelector('.defect-detail-toggle');if(b)b.textContent='📷 عکس و توضیح';/* عکس‌های ذخیره‌شده را پاک نکن؛ فقط پنل ایراد بسته می‌شود. */}persistDraft();try{localStorage.setItem(draftKey(),JSON.stringify(collectDraft()))}catch(err){console.error('ذخیره فوری وضعیت ایراد ناموفق بود',err)}}
 function toggleDefectDetails(e,btn){e.preventDefault();e.stopPropagation();const p=btn.closest('.pill'),c=p.querySelector('input[type=checkbox]');if(!c.checked){c.checked=true;p.classList.add('selected');toggleDefectDrawer({target:c})}p.classList.toggle('open');btn.textContent='جزئیات';}function toggleDefectNotes(btn){const drawer=btn.closest('.inline-drawer');if(!drawer)return;drawer.classList.toggle('notes-open');btn.textContent=drawer.classList.contains('notes-open')?'− بستن نکات':'📝 نکات';}
