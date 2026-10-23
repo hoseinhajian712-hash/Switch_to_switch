@@ -1650,7 +1650,10 @@ function showWizardStep(n,fromBrowserBack=false){
  $('currentHint').classList.add('hidden');
  $('wizardNav').classList.add('hidden');$('wizardPrev').classList.add('hidden');$('wizardNext').classList.add('hidden');
  const last=wizardStep===flow.length;
- $('submitPanel').classList.toggle('hidden',!last);$('submitBtn').classList.toggle('hidden',!last);
+ $('submitPanel').classList.remove('hidden');$('submitBtn').classList.remove('hidden');
+ $('submitBtn').textContent=last?'ثبت نهایی درخواست ←':'ادامه به مرحله بعد ←';
+ $('submitBtn').type='button';
+ $('submitBtn').onclick=()=>{if(!validateWizardStep())return;if(last){$('requestForm').requestSubmit()}else{advanceFlow(id)}};
  $('progressCaption').textContent=active.caption;$('progressPercent').textContent=Math.round(wizardStep/flow.length*100)+'%';
  $('progressFill').style.width=(wizardStep/flow.length*100)+'%';
  const dots=$('progressDots');dots.innerHTML='';flow.forEach((s,i)=>{const d=document.createElement('i');if(i<wizardStep-1)d.className='done';if(i===wizardStep-1)d.className='active';dots.appendChild(d)});
