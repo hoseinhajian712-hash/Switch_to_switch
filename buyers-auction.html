@@ -902,8 +902,10 @@ const schematicMarker=(d,x,y)=>{
 };
 let schematicPathIndex=0;
 const schematicSvg=schematic.replace(/<path class="schematic-part" /g,()=>{
- const map=[{key:'frontBumper'},{key:'hood'},{key:'frontFenderDriver'},{key:'frontFenderPassenger'},{key:'roof'},{key:'frontDoorDriver'},{key:'frontDoorPassenger'},{key:'rearDoorDriver'},{key:'rearDoorPassenger'},{key:'rearFenderDriver'},{key:'rearFenderPassenger'},{key:'trunk'},{key:'rearBumper'},{key:'sillDriver'},{key:'sillPassenger'}][schematicPathIndex++];
- return '<path class="schematic-part" data-schematic-key="'+(map?.key||'body')+'" ';
+ const map=schematicPartMap[schematicPathIndex++];
+ const types=map?schematicForPart(map.part).map(schematicDefectType):[];
+ const replaced=types.some(t=>(t.includes('تعویض')||t.includes('برش و تعویض'))&&!t.includes('استوک'));
+ return '<path class="schematic-part'+(replaced?' schematic-replaced':'')+'" data-schematic-key="'+(map?.part||'body')+'" ';
 });
 const schematicMarkers=schematicPartMap.map(item=>{
  const related=schematicForPart(item.part);
