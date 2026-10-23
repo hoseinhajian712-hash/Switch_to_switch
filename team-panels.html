@@ -64,7 +64,7 @@
 .sales-case-right .chatMessages{height:calc(95vh - 300px);min-height:260px;max-height:none}
 @media(max-width:800px){#caseModal .caseDialog{width:100%;padding:12px;max-height:97vh}.sales-case-workspace{grid-template-columns:1fr;direction:rtl}.sales-case-right{position:static;grid-row:1}.sales-case-right .chatMessages{height:230px;min-height:180px;max-height:35vh}.sales-calc-results{grid-template-columns:1fr 1fr}}
 @media(max-width:420px){.sales-calc-results{grid-template-columns:1fr}}
-</style><link rel="stylesheet" href="./corporate-theme.css?v=1">
+.finance-case-sections{display:flex;flex-direction:column;gap:10px;margin-top:12px}.finance-case-fold{margin:0;background:linear-gradient(145deg,#102033,#0a1727);border:1px solid #29415f;border-radius:13px;overflow:hidden}.finance-case-fold>summary{list-style:none;cursor:pointer;padding:14px;font-size:13px;font-weight:900;color:#e4efff;display:flex;align-items:center;gap:8px}.finance-case-fold>summary::-webkit-details-marker{display:none}.finance-case-fold>summary:after{content:"＋";margin-right:auto;color:#65d5a6;font-size:15px}.finance-case-fold[open]>summary:after{content:"−"}.finance-case-fold .sales-fold-content{padding:0 12px 12px}.finance-case-fold .card{margin:0!important}</style><link rel="stylesheet" href="./corporate-theme.css?v=1">
 <style>
 #buyerFineModal{position:fixed;inset:0;z-index:99999;background:rgba(3,10,20,.78);display:flex;align-items:center;justify-content:center;padding:16px}
 #buyerFineModal.hidden{display:none!important}
@@ -184,7 +184,7 @@ async function loadWalletPrepaymentForCase(caseId){
   const c=a.case||{},b=a.buyer||{},v=a.vehicle||{};
   const card=document.createElement("article");card.className="card";card.id="walletPrepaymentCaseCard";card.style.cssText="margin:12px 0;border-color:#3b8068;background:linear-gradient(135deg,#0d2b2a,#0d1a2b)";
   card.innerHTML='<div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0">تأیید پیش‌پرداخت کیف پول</h3><span class="tag gold">در انتظار تأیید مالی</span></div><div class="muted" style="line-height:1.9;margin-top:10px">خریدار: '+esc(b.full_name||"—")+' · '+esc(b.mobile||"—")+'</div><div class="muted" style="line-height:1.9">خودرو: '+esc([v.brand,v.model,v.trim,v.model_year].filter(Boolean).join(" ")||"—")+'</div><div style="margin-top:10px;font-size:16px"><b>مبلغ پرداخت‌شده: '+money(a.prepayment_amount||0)+' تومان</b></div><div id="walletPrepaymentCaseMessage" class="hint" style="margin-top:8px">تراکنش کیف پول ثبت شده است؛ پس از بررسی، از همین پرونده تأیید کنید.</div><div class="actions" style="margin-top:12px"><button class="btn primary" type="button" onclick="approveWalletPrepayment(\''+a.id+'\',\''+caseId+'\')">تأیید پرداخت از همین پرونده</button></div>';
-  const head=host.querySelector(":scope > .sectionHead");if(head)head.insertAdjacentElement("afterend",card);else host.prepend(card);
+  const fold=host.querySelector("#financePrepaymentFold .sales-fold-content");if(fold)fold.appendChild(card);else{const head=host.querySelector(":scope > .sectionHead");if(head)head.insertAdjacentElement("afterend",card);else host.prepend(card)}
  }catch(e){console.warn("دریافت وضعیت پیش‌پرداخت کیف پول ناموفق بود",e)}
 }
 async function approveWalletPrepayment(auctionId,caseId){const msg=document.getElementById("walletPrepaymentCaseMessage");if(!confirm("آیا پرداخت پیش‌پرداخت این پرونده را بررسی کرده‌اید و تأیید می‌کنید؟"))return;if(msg)msg.textContent="در حال ثبت تأیید مالی…";try{await api("finance-review-wallet-prepayment",{method:"POST",body:{auction_id:auctionId}});if(msg)msg.textContent="پرداخت تأیید شد؛ پیش‌پرداخت و گردش مالی ثبت شد و معامله به مرحله بعد رفت.";await loadCases();if(caseId)openCase(caseId)}catch(e){if(msg)msg.textContent=e.message||"تأیید پرداخت ناموفق بود."}}
@@ -504,6 +504,34 @@ function openCase(id){
    '<article class="card"><h3>تاریخچه پرونده</h3>'+(historyRows||'<div class="muted">تاریخچه‌ای موجود نیست.</div>')+'</article>'+
   '</div>'+
   '<section class="chatBox"><div class="chatHead"><div><strong>گفت‌وگوی مشترک پرونده</strong><div class="caseSub">همه واحدها می‌توانند پیام بگذارند و پیام‌های همدیگر را ببینند.</div></div><span class="tag">به‌روزرسانی خودکار</span></div><div id="caseChatMessages" class="chatMessages"><div class="empty">در حال دریافت پیام‌ها…</div></div><form class="chatCompose" onsubmit="sendCaseComment(event)"><textarea id="caseChatInput" maxlength="3000" placeholder="پیام یا یادداشت خود را برای همه واحدها بنویسید…" required></textarea><button class="btn primary" id="caseChatSend" type="submit">ارسال پیام</button></form><div class="chatHint">پیام‌ها با نام واحد ثبت می‌شوند و در همین پرونده برای همکاران قابل مشاهده‌اند.</div>'+(["intake","admin"].includes(role)?'<div class="quickComments" style="padding:12px;border-top:1px solid #263c56"><div style="font-weight:700;margin-bottom:9px">کامنت‌های آماده ثبت درخواست</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+["کارواش و تخلیه صندوق اعلام شد","قیمت مدنظر","تماس اولیه؛ پاسخگو نبودند","تأیید رزرو انجام شد","سند در دست بررسی است و بررسی مدارک انجام شد","روال به‌طور کامل توضیح داده شد"].map((label,i)=>'<button type="button" class="btn" onclick="sendPresetCaseComment('+i+')">'+label+'</button>').join("")+'</div></div>':'')+'</section>';
+ if(role==="finance"){
+  const host=document.getElementById("detailArea"),detail=host?.querySelector(":scope > .detail"),head=host?.querySelector(":scope > .sectionHead");
+  if(host&&detail&&head){
+   const cards=Array.from(detail.querySelectorAll(":scope > .card"));
+   const customer=cards.find(x=>(x.querySelector("h3")?.textContent||"").trim()==="اطلاعات مشتری");
+   const prepay=cards.find(x=>x.id==="financeCasePaymentCard");
+   const accounting=cards.find(x=>(x.querySelector("h3")?.textContent||"").trim()==="خلاصه حسابداری معامله");
+   const history=cards.find(x=>(x.querySelector("h3")?.textContent||"").trim()==="تاریخچه پرونده");
+   const wrap=(label,card,id)=>{if(!card)return null;const fold=document.createElement("details");fold.className="sales-fold finance-case-fold";fold.id=id;const sum=document.createElement("summary");sum.textContent=label;const body=document.createElement("div");body.className="sales-fold-content";body.appendChild(card);fold.append(sum,body);return fold};
+   const workspace=document.createElement("div");workspace.className="finance-case-sections";
+   const a=wrap("👤 اطلاعات مشتری",customer,"financeCustomerFold");
+   const b=wrap("🧾 بررسی پیش‌پرداخت",prepay,"financePrepaymentFold");
+   const d=wrap("💳 بررسی تسویه نهایی",null,"financeFinalSettlementFold");
+   const settlement=document.createElement("article");settlement.className="card";settlement.innerHTML='<h3>بررسی تسویه نهایی</h3><div class="muted" style="line-height:1.9">وضعیت تسویه و مانده قابل پرداخت را کنترل کنید؛ عملیات مالی از همین پنجره داخلی ثبت می‌شود.</div>';
+   const actions=document.createElement("div");actions.className="actions";actions.style.marginTop="12px";
+   const status=String(c.status||"");
+   if(status==="awaiting_buyer_settlement")actions.innerHTML='<button type="button" class="btn primary" onclick="openFinanceModal(\'buyer_settlement_received\',selected)">ثبت تسویه خریدار</button>';
+   else if(status==="awaiting_seller_settlement_confirmation")actions.innerHTML='<button type="button" class="btn primary" onclick="teamAction(\''+c.id+'\',\'settlement_completed\')">تأیید تسویه فروشنده</button>';
+   else if(status==="seller_final_payout_pending")actions.innerHTML='<button type="button" class="btn primary" onclick="openFinanceModal(\'seller_final_payout_completed\',selected)">ثبت پرداخت مانده فروشنده</button>';
+   else if(status==="deductions_review")actions.innerHTML='<button type="button" class="btn primary" onclick="teamAction(\''+c.id+'\',\'deductions_completed\')">ثبت کسورات و ادامه تسویه</button>';
+   settlement.appendChild(actions);if(d)d.querySelector(".sales-fold-content")?.appendChild(settlement);
+   const e=wrap("📊 خلاصه حسابداری معامله",accounting,"financeAccountingFold");
+   const f=wrap("🕘 تاریخچه پرونده",history,"financeHistoryFold");
+   [a,b,d,e,f].filter(Boolean).forEach(x=>workspace.appendChild(x));
+   detail.replaceWith(workspace);
+   host.querySelector(":scope > article.card")?.remove();host.querySelector(".chatBox")?.remove();
+  }
+ }
  if(role==="intake"){
   // Intake staff should see only address, customer, vehicle, inspection/report documents, and history.
   const intakeDetail=document.querySelector("#detailArea > .detail");
