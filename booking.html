@@ -1299,7 +1299,23 @@ const productionYears={
 'اف‌ام‌سی ام ۴':[1402,1405],
 'اف‌ام‌سی ۵۱۱':[1401,1405],
 'اف‌ام‌سی تی ۵':[1400,1405]};
-function yearsFor(brand,model,trim){const domesticBrands=new Set(['ایران‌خودرو','سایپا']);let range=productionYears[model]||[1390,1405];if(domesticBrands.has(brand)){if((model==='پژو ۲۰۶'||model==='پژو ۲۰۶')&&trim==='تیپ ۵')range=[1385,1399];if((model==='پژو ۲۰۶ اس‌دی'||model==='پژو ۲۰۶ اس‌دی')&&trim.startsWith('اس‌دی'))range=[1385,1400];}else{range=range.map(y=>y+621);if(!productionYears[model])range=[1980,2026];}const [min,max]=range;const a=[];for(let y=max;y>=min;y--)a.push(String(y));return a}
+// تقویم سال ساخت بر اساس مبدأ برند: ایرانی و چینی شمسی؛ برندهای اروپایی و سایر برندهای خارجی میلادی.
+const solarYearBrands=new Set([
+'ایران‌خودرو','سایپا','پارس خودرو','زامیاد','بهمن موتور','کرمان موتور','مدیران خودرو','فونیکس','آرین پارس موتور','فردا موتور','ایران خودرو دیزل','سروش دیزل','گروه بهمن','کارمانیا','دیار خودرو','ریگان خودرو','مکث موتور','آذریوردسال','سایر خودروسازان داخلی',
+'چری','ام‌وی‌ام','فونیکس','جک','کی‌ام‌سی','لیفان','گریت وال','هاوال','تانک','بسترن','فاو','بی‌وای‌دی','بی‌وای‌دی (BYD)','چانگان','دانگ فنگ','فوتون','جتور','گک','بایک','SWM','زوتی','بورگوارد','رنو سامسونگ','هونگچی','دی‌اف‌اس‌کی','رووی','وولینگ','جیلی','اومودا','جیکو','لوکانو','اکستریم','آریزو','تیگو'
+]);
+function isSolarCalendarBrand(brand){
+ const key=normalizeCarName(brand);
+ return [...solarYearBrands].some(name=>normalizeCarName(name)===key)
+}
+function yearsFor(brand,model,trim){
+ let range=productionYears[model]||[1390,1405];
+ if((model==='پژو ۲۰۶'||model==='پژو 206')&&trim==='تیپ ۵')range=[1385,1399];
+ if(model==='پژو ۲۰۶ اس‌دی'&&String(trim||'').startsWith('اس‌دی'))range=[1385,1400];
+ // productionYears stores source ranges in Solar Hijri; foreign-brand display converts them to Gregorian.
+ if(!isSolarCalendarBrand(brand))range=range.map(y=>y+621);
+ const [min,max]=range;const a=[];for(let y=max;y>=min;y--)a.push(String(y));return a
+}
 function openNextCarChoice(id){
  const el=$(id),field=el?.closest('.field');
  if(!el||!field||field.classList.contains('hidden'))return;
