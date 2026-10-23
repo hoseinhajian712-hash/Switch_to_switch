@@ -2000,26 +2000,28 @@ initializeCustomerWizard();
 
 <script src="money-format.js"></script>
 <style id="s2s-home-green-text-accent">
-/* Use the homepage mint-green accent for text that was still blue in the booking flow. */
-.brand span,
-.kicker,.go,.ctaIcon,.hero h1 span,
-.field label,.field .label,
-.step-title,.step-subtitle,
-.modern-field-heading,
-.modern-select-menu-title,
-.modern-select-option.selected,
+/* Align booking-page accent text with the homepage mint green, overriding earlier blue rules. */
+:root{--blue:#6bd6a9!important;--blue2:#83e2ba!important;--green:#6bd6a9!important}
+.brand span,.kicker,.go,.ctaIcon,.hero h1 span,
+.eyebrow,.field:focus-within>span,.modern-field-heading,
+.modern-select-menu-title,.modern-select-option.selected,
 .modern-select-option[aria-selected="true"],
-.modern-select-trigger:hover,
-.modern-select.open .modern-select-trigger,
-.back:hover,
-a.link-accent {
+.modern-select-trigger:hover,.modern-select.open .modern-select-trigger,
+.back:hover,a.link-accent,
+.panel-number,.step-title,.step-subtitle,
+.priceList th,.priceTabs button.active {
   color:#6bd6a9!important;
 }
+.eyebrow{background:#6bd6a912!important;border-color:#6bd6a966!important}
+.field:focus-within,.field input:focus,.field select:focus,.field textarea:focus,
+input:focus,select:focus,textarea:focus{border-color:#6bd6a9!important;box-shadow:0 0 0 3px #6bd6a922!important}
+.modern-select-menu{border-color:#6bd6a966!important}
 .modern-select-option.selected,
 .modern-select-option[aria-selected="true"]{
+  background:linear-gradient(100deg,#19483c,#15352f)!important;
   color:#aaf5d5!important;
 }
-.modern-select-menu{border-color:#6bd6a966!important}
 .modern-select-option.selected:after{background:linear-gradient(145deg,#9cf2ce,#42bd8d)!important;color:#08271d!important}
-
+.stepper .step.active b{background:linear-gradient(145deg,#6bd6a9,#20a887)!important;border-color:#9ef1ce!important;box-shadow:0 6px 20px #20a88755!important}
+</style>
 </body></html>
