@@ -820,7 +820,7 @@ let report='<div class="report" id="caseReport"><details><summary>🔎 ایرا�
 const hasPart=(...words)=>defects.some(d=>words.some(w=>(String(d.area||"")+" "+String(d.part||"")+" "+String(d.defect_type||"")).includes(w)));
 const partClass=(...words)=>hasPart(...words)?"schematic-part schematic-bad":"schematic-part";
 const schematic=`<details class="schematic-box" open>
-<summary><span>🚘 نقشه تخصصی بدنه خودرو</span><span class="sub">${defects.length?fa(defects.length)+' مورد ایراد ثبت‌شده':'انتخاب قطعه برای بررسی'}</span></summary>
+<summary><span>🚘 نقشه تخصصی بدنه خودرو</span><span class="sub">فعلاً بدون علامت ایراد</span></summary>
 <div class="pro-schematic-wrap">
 <div class="pro-schematic-head"><span>نمای بالای خودرو · قطعات مجزا و قابل تشخیص</span></div>
 <div class="schematic-view-title">۱. نمای بالا — بدنه و قطعات اصلی</div>
