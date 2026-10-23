@@ -353,36 +353,36 @@ body{background:radial-gradient(ellipse at 90% 2%,#38ffac14,transparent 30%),lin
 @media(prefers-reduced-motion:reduce){.wizard-page{animation:none!important}*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 
 
-/* دکمه ادامه: طراحی لوکس و مدرن */
+/* دکمه اصلی «ادامه ثبت درخواست»؛ سبز برند، شیشه‌ای و خوش‌دست */
 .wizard-next{
  position:relative;isolation:isolate;overflow:hidden;
- min-height:58px!important;padding:15px 26px!important;
- display:inline-flex;align-items:center;justify-content:center;gap:12px;
- border:1px solid #8ae8c1!important;border-radius:17px!important;
- background:linear-gradient(115deg,#171717 0%,#292721 52%,#275140 100%)!important;
- color:#b2f8db!important;font-family:Tahoma,Arial,sans-serif!important;
- font-size:15px!important;font-weight:900!important;letter-spacing:-.2px;
- box-shadow:0 12px 25px #19150d24,inset 0 1px #ffffff24,0 0 0 1px #43b18320!important;
+ min-height:62px!important;width:100%;padding:15px 22px!important;
+ display:inline-flex;align-items:center;justify-content:center;gap:13px;
+ border:1px solid #83f0c5!important;border-radius:20px!important;
+ background:linear-gradient(115deg,#087f5b 0%,#079669 48%,#12b981 100%)!important;
+ color:#fff!important;font-family:Tahoma,Arial,sans-serif!important;
+ font-size:16px!important;font-weight:900!important;letter-spacing:0;
+ box-shadow:0 10px 24px #10b98130,0 4px 0 #056849,inset 0 1px #ffffff45!important;
  transition:transform .22s ease,box-shadow .22s ease,filter .22s ease!important;
- -webkit-tap-highlight-color:transparent;
+ -webkit-tap-highlight-color:transparent;cursor:pointer;
 }
 .wizard-next:before{
  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
- background:linear-gradient(105deg,transparent 20%,#fff3 43%,transparent 62%);
- transform:translateX(130%);transition:transform .65s ease;
+ background:linear-gradient(105deg,transparent 15%,#ffffff38 43%,transparent 68%);
+ transform:translateX(130%);transition:transform .7s cubic-bezier(.2,.7,.2,1);
 }
 .wizard-next:after{
- content:"←";display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;
- border:1px solid #98f1cc88;border-radius:10px;
- background:linear-gradient(145deg,#8ae8c1,#42b585);color:#211a0c;
- font-size:18px;line-height:1;box-shadow:inset 0 1px #fff8;
+ content:"↙";display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;
+ border:1px solid #ffffff75;border-radius:11px;
+ background:#ffffff20;color:#fff;font-size:19px;line-height:1;
+ box-shadow:inset 0 1px #ffffff30;
 }
-.wizard-next:hover{transform:translateY(-2px)!important;filter:brightness(1.06);box-shadow:0 16px 32px #19150d35,0 0 0 4px #5ac79a18,inset 0 1px #ffffff30!important}
+.wizard-next:hover{transform:translateY(-2px)!important;filter:brightness(1.06);box-shadow:0 15px 30px #10b98140,0 5px 0 #056849,inset 0 1px #ffffff55!important}
 .wizard-next:hover:before{transform:translateX(-130%)}
-.wizard-next:active{transform:translateY(0) scale(.985)!important;box-shadow:0 6px 14px #19150d22!important}
-.wizard-next:focus-visible{outline:3px solid #5ec99c88;outline-offset:3px}
-.wizard-next:disabled{opacity:.55;cursor:wait;transform:none!important}
-@media(max-width:520px){.wizard-next{min-height:56px!important;padding:13px 17px!important;border-radius:16px!important;font-size:14px!important}.wizard-next:after{width:28px;height:28px;flex-basis:28px}}
+.wizard-next:active{transform:translateY(2px) scale(.99)!important;box-shadow:0 4px 12px #10b98125,0 1px 0 #056849!important}
+.wizard-next:focus-visible{outline:3px solid #6ee7b788;outline-offset:4px}
+.wizard-next:disabled{opacity:.55;cursor:wait;transform:none!important;box-shadow:none!important}
+@media(max-width:520px){.wizard-next{min-height:59px!important;padding:14px 16px!important;border-radius:17px!important;font-size:14px!important}.wizard-next:after{width:29px;height:29px;flex-basis:29px}}
 
 </style>
 
@@ -794,7 +794,7 @@ input,select,textarea,button{touch-action:manipulation}
 <label class="field"><span>ساعت مراجعه <em>*</em></span><select id="appointmentTime" required><option value="">انتخاب ساعت</option></select></label>
 </div><div class="notice">ساعت کاری مجموعه از ۹ صبح تا ۵ عصر است. زمان انتخاب‌شده پس از ثبت درخواست بررسی و هماهنگ می‌شود.</div></div>
 </section>
-<div class="wizard-nav" id="wizardNav"><button type="button" class="wizard-prev" id="wizardPrev">← مرحله قبل</button><button type="button" class="wizard-next" id="wizardNext">مرحله بعد ←</button></div><section class="submit-panel" id="submitPanel"><div class="submit-row"><button type="submit" class="submit" id="submitBtn">ثبت درخواست ←</button></div><div id="message" class="message hidden" role="status" aria-live="polite"></div></section>
+<div class="wizard-nav" id="wizardNav"><button type="button" class="wizard-prev" id="wizardPrev">← مرحله قبل</button><button type="button" class="wizard-next" id="wizardNext">ادامه ثبت درخواست</button></div><section class="submit-panel" id="submitPanel"><div class="submit-row"><button type="submit" class="submit" id="submitBtn">ثبت درخواست ←</button></div><div id="message" class="message hidden" role="status" aria-live="polite"></div></section>
 </form>
 <div class="footer">Switch to Switch · مسیر ساده‌تر برای معامله خودرو <span style="display:inline-block;margin-right:14px">| پشتیبانی: <a href="tel:09004258657" dir="ltr" style="color:inherit;font-weight:700;text-decoration:none">۰۹۰۰۴۲۵۸۶۵۷</a></span></div>
 </main>
