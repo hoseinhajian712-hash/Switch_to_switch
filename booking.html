@@ -1910,7 +1910,11 @@ function yearsFor(brand,model,trim){
  if(isPeugeot207&&trimKey==='تیپ5')range=[1403,1405];
  if(isPeugeot207&&trimKey.includes('tu3'))range=[1396,1405];
  if(modelKey.includes('206صندوقدار')||modelKey.includes('206اسدی'))range=[1385,1400];
- // اصلاح‌های برند/مدل برای نام‌های مشترک یا کلیدهای تکراری در فهرست.
+ // اصلاح‌های برند/مدل برای نام‌های مشترک، کدهای کوتاه و کلیدهای تکراری در فهرست.
+ if(modelKey==='آ3')range=[1391,1405];
+ if(modelKey==='آ4')range=[1373,1405];
+ if(modelKey==='آ6')range=[1373,1405];
+ if(modelKey==='t2'&&normalizeCarName(brand).includes('جتور'))range=[1402,1405];
  if(modelKey==='اطلس'&&normalizeCarName(brand).includes('سایپا'))range=[1402,1405];
  if(modelKey==='اطلس'&&normalizeCarName(brand).includes('فولکسواگن'))range=[1397,1400];
  if(modelKey.includes('جلالای(gla)'))range=[1393,1405];
