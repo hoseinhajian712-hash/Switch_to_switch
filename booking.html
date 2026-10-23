@@ -1538,32 +1538,29 @@ function initBrandGridPickers(){
    const visible=term||showAllBrands?matches:matches.slice(0,limit);
    visible.forEach(opt=>{
     const tile=document.createElement('button');tile.type='button';tile.className='brand-tile'+(sel.value===opt.value?' selected':'');tile.setAttribute('role','option');tile.setAttribute('aria-selected',String(sel.value===opt.value));tile.setAttribute('aria-label',opt.textContent);
-    const logoBox=document.createElement('span');logoBox.className='brand-tile-logo';
-    const normalizeBrandKey=value=>String(value||'').trim().toLocaleLowerCase('fa').replace(/[\\u200c\\u200f\\u200e]/g,'').replace(/[\\sـ_-]+/g,'');
-    const brandKeys=[opt.value,opt.textContent].map(normalizeBrandKey);
-    const findBrandSource=map=>{for(const key of brandKeys){for(const candidate of Object.keys(map)){if(normalizeBrandKey(candidate)===key)return map[candidate]}}return null};
-    const slug=findBrandSource(domains),domain=findBrandSource(logoDomains);
-    logoBox.classList.add('brand-tile-fallback');
-    // Use clean symbol marks first. Avoid Clearbit wordmarks that render as tiny text in the tile.
-    const tryNextLogo=(img,urls,index)=>{
-     if(index>=urls.length){img.remove();logoBox.classList.add('brand-tile-fallback');return}
-     img.onerror=()=>tryNextLogo(img,urls,index+1);
-     img.onload=()=>{logoBox.classList.remove('brand-tile-fallback');logoBox.classList.add('brand-tile-has-logo')};
-     img.src=urls[index];
-    };
-    const img=document.createElement('img');img.alt=opt.textContent+' لوگو';img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';
-    const urls=[];
-    // Prefer a domain favicon first: Simple Icons does not contain every regional/legacy automaker.
-    if(domain)urls.push('https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128');
-    if(slug)urls.push('https://cdn.simpleicons.org/'+encodeURIComponent(slug));
-    const localLogoDomains={'ایران‌خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','مدیران‌خودرو':'mvmco.ir','فونیکس':'mvmco.ir','بهمن موتور':'bahman.ir','فردا موتور':'fardamotors.com','لاماری':'lamari.ir','دنا':'ikco.ir','شاهین':'saipacorp.com','تارا':'ikco.ir','سمند':'ikco.ir','کوئیک':'saipacorp.com','ساینا':'saipacorp.com','سهند':'saipacorp.com','اطلس':'saipacorp.com','ری‌را':'ikco.ir','پارس خودرو':'pars-khodro.com'};
-    if(localLogoDomains[opt.value])urls.push('https://www.google.com/s2/favicons?domain='+encodeURIComponent(localLogoDomains[opt.value])+'&sz=128');
-    tryNextLogo(img,urls,0);logoBox.appendChild(img);
-    // A graphic fallback, not a text-based logo, for brands with no reachable symbol.
-    const fallbackSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    fallbackSvg.setAttribute('viewBox','0 0 64 64');fallbackSvg.setAttribute('class','brand-fallback-art');fallbackSvg.setAttribute('aria-hidden','true');
-    fallbackSvg.innerHTML='<defs><linearGradient id="brandMarkGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2e9d80"/><stop offset="1" stop-color="#12385d"/></linearGradient></defs><path d="M32 4 55 16v21L32 60 9 37V16Z" fill="url(#brandMarkGradient)"/><path d="m13 32 5-9c1-2 3-3 5-3h18c2 0 4 1 5 3l5 9v9H13Z" fill="none" stroke="#fff" stroke-width="2.8" stroke-linejoin="round"/><path d="M19 32h26M20 41l4-4m20 4-4-4" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>';
-    logoBox.appendChild(fallbackSvg);
+    const logoBox=document.createElement('span');logoBox.className='brand-tile-logo brand-tile-fallback';
+    // Draw a local, always-available emblem for every brand; no remote logo service or tiny wordmarks.
+    const brandName=String(opt.value||opt.textContent||'car');
+    let hash=0;for(let n=0;n<brandName.length;n++)hash=(hash*31+brandName.charCodeAt(n))>>>0;
+    const hue=hash%360,shape=hash%4;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 64 64');svg.setAttribute('class','brand-fallback-art');svg.setAttribute('aria-hidden','true');
+    const ns='http://www.w3.org/2000/svg';
+    const defs=document.createElementNS(ns,'defs');
+    const gradient=document.createElementNS(ns,'linearGradient');gradient.setAttribute('id','brand-gradient-'+(hash.toString(16)));gradient.setAttribute('x1','0');gradient.setAttribute('y1','0');gradient.setAttribute('x2','1');gradient.setAttribute('y2','1');
+    const stop1=document.createElementNS(ns,'stop');stop1.setAttribute('offset','0');stop1.setAttribute('stop-color','hsl('+hue+',58%,54%)');
+    const stop2=document.createElementNS(ns,'stop');stop2.setAttribute('offset','1');stop2.setAttribute('stop-color','hsl('+((hue+42)%360)+',62%,28%)');
+    gradient.append(stop1,stop2);defs.appendChild(gradient);svg.appendChild(defs);
+    const badge=document.createElementNS(ns,shape===0?'circle':shape===1?'path':shape===2?'rect':'path');
+    if(shape===0){badge.setAttribute('cx','32');badge.setAttribute('cy','32');badge.setAttribute('r','27')}
+    else if(shape===1){badge.setAttribute('d','M32 4 56 17 53 43 32 60 11 43 8 17Z')}
+    else if(shape===2){badge.setAttribute('x','6');badge.setAttribute('y','6');badge.setAttribute('width','52');badge.setAttribute('height','52');badge.setAttribute('rx','17')}
+    else{badge.setAttribute('d','M32 4 58 32 32 60 6 32Z')}
+    badge.setAttribute('fill','url(#brand-gradient-'+hash.toString(16)+')');svg.appendChild(badge);
+    const car=document.createElementNS(ns,'path');car.setAttribute('d','M13 35l4-9c1-2 3-4 6-4h18c3 0 5 2 6 4l4 9v9H13Z');car.setAttribute('fill','none');car.setAttribute('stroke','#fff');car.setAttribute('stroke-width','3');car.setAttribute('stroke-linejoin','round');svg.appendChild(car);
+    const windowShape=document.createElementNS(ns,'path');windowShape.setAttribute('d','M20 31l3-6h18l3 6Z');windowShape.setAttribute('fill','#fff');windowShape.setAttribute('opacity','.92');svg.appendChild(windowShape);
+    const wheels=document.createElementNS(ns,'path');wheels.setAttribute('d','M19 44v-4m26 4v-4');wheels.setAttribute('stroke','#fff');wheels.setAttribute('stroke-width','3');wheels.setAttribute('stroke-linecap','round');svg.appendChild(wheels);
+    logoBox.appendChild(svg);
     const name=document.createElement('span');name.className='brand-tile-name';name.textContent=opt.textContent;tile.append(logoBox,name);
     tile.addEventListener('click',()=>{sel.value=opt.value;sel.dispatchEvent(new Event('change',{bubbles:true}));render();const nextId=id==='brand'?'model':'tmodel';const next=$(nextId);if(next&&!next.closest('.field').classList.contains('hidden'))openNextCarChoice(nextId)});
     grid.appendChild(tile);
