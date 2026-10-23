@@ -1941,9 +1941,11 @@ function restoreBookingDraft(){let draft;try{draft=JSON.parse(sessionStorage.get
  if(v.contactNameInput!==undefined)$('contactNameInput').value=v.contactNameInput;
  if(v.contactMobileInput!==undefined)$('contactMobileInput').value=v.contactMobileInput;
  return true}
-const restoredDraft=restoreBookingDraft();
+/* Start each visit with a clean booking form. Never restore stale draft values or type into a new booking. */
+try{sessionStorage.removeItem(FORM_DRAFT_KEY);sessionStorage.removeItem('s2sWizardState');localStorage.removeItem('s2sWizardState')}catch(e){}
+const restoredDraft=false;
 document.querySelectorAll('#requestForm input,#requestForm select,#requestForm textarea').forEach(el=>{el.addEventListener('input',saveBookingDraft);el.addEventListener('change',saveBookingDraft)});
-setType(new URLSearchParams(location.search).get('type')||(restoredDraft?JSON.parse(sessionStorage.getItem(FORM_DRAFT_KEY)||'{}').type:null)||'sell');
+setType(new URLSearchParams(location.search).get('type')||'sell');
 initModernDropdowns();
 initBrandGridPickers();
 // Never restore a stale wizard step from a previous booking or URL.
