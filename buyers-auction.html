@@ -1093,5 +1093,16 @@ setTimeout(updateSubscriptionBankInfo,1800);
   <p style="font-size:12px;color:#a9bfd3;margin-top:14px">با انتخاب هر گزینه، پاسخ ثبت می‌شود.</p>
  </div>
 </dialog>
-<style>#winnerDecisionModal::backdrop{background:rgba(2,8,18,.86);backdrop-filter:blur(7px)}#winnerDecisionModal[open]{display:block!important;position:fixed;inset:0;margin:auto;max-height:calc(100% - 36px);overflow:auto}</style>
+<style>#winnerDecisionModal::backdrop{background:rgba(2,8,18,.86);backdrop-filter:blur(7px)}#winnerDecisionModal[open]{display:block!important;position:fixed;inset:0;margin:auto;max-height:calc(100% - 36px);overflow:auto}
+/* فشرده‌سازی چیدمان موبایل و حذف فضای خالی انتهای پنل مزایده */
+@media(max-width:720px){
+ body.dashboard-open .wrap{min-height:0!important;padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important}
+ body.dashboard-open #auctionArea:not(.hidden){padding:6px 8px calc(18px + env(safe-area-inset-bottom))!important;margin-bottom:0!important}
+ body.dashboard-open #auctionArea:not(.hidden) #tab-auctions{padding-bottom:8px!important;margin-bottom:0!important}
+ body.dashboard-open #auctionArea:not(.hidden) .buyer-tab{padding-bottom:8px!important;margin-bottom:0!important}
+ body.dashboard-open #auctionArea:not(.hidden) .auction-card:last-child,
+ body.dashboard-open #auctionArea:not(.hidden) .auction-list>*:last-child{margin-bottom:0!important}
+ body.dashboard-open #auctionArea:not(.hidden) .auction-card{max-width:100%;box-sizing:border-box}
+}
+</style>
 </body></html>
