@@ -1315,6 +1315,10 @@ function trimsFor(model,brand){
   if(brandKey.includes('سایپا')||brandKey.includes('پارسخودرو'))return ['G','GL','E پلاس','اتوماتیک'];
  }
  if(key==='امویامایکس33کراس')return ['دنده‌ای','اتوماتیک CVT'];
+ if(key.includes('کیامسیتی9'))return ['دنده‌ای ۴×۴','اتوماتیک ۴×۴'];
+ if(key.includes('کیامسیای5پلاس'))return ['اتوماتیک DCT'];
+ if(key.includes('هایمااس6')||key.includes('هاوالاچ6'))return ['۱.۵ توربو اتوماتیک','۲.۰ توربو اتوماتیک'];
+ if(key.includes('پیکاپریچ')||key==='ریچ')return ['2WD','4WD','دوکابین 4×4'];
  if(key.includes('پژو206اسدی')||key.includes('206صندوقدار'))return ['V1','V2','V8','V9','V10','V20'];
  if(key.includes('امویامایکس33اس'))return ['اتوماتیک','اسپرت','اسپرت اکسلنت','نیو فیس'];
  if(key==='جلالایgla'||key==='جلالای(gla)')return ['GLA 200','GLA 250','GLA 45 AMG'];
@@ -1451,7 +1455,7 @@ function trimsFor(model,brand){
   [/^(مازراتی)/,['GT','Modena','Trofeo']],
   [/^(فراری)/,['Base','Assetto Fiorano']],
   [/^(لامبورگینی)/,['Base','S','Performante','Tecnica']],
-  [/^(استون مارتین)/,['Base','S','AMR','Volante']],
+  [/^(استونمارتین)/,['Base','Vantage','AMR','Volante']],
   [/^(مکلارن)/,['Standard','Performance','Luxury']],
   [/^(لینکلن)/,['Standard','Reserve','Black Label']],
   [/^(کادیلاک)/,['Luxury','Premium Luxury','Sport','Platinum']],
