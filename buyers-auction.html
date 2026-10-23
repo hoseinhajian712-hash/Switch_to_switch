@@ -1104,5 +1104,32 @@ setTimeout(updateSubscriptionBankInfo,1800);
  body.dashboard-open #auctionArea:not(.hidden) .auction-list>*:last-child{margin-bottom:0!important}
  body.dashboard-open #auctionArea:not(.hidden) .auction-card{max-width:100%;box-sizing:border-box}
 }
+
+/* دکمه بزرگ و چسبیده به پایین نمایشگر؛ فقط محتوای گزارش اسکرول می‌شود */
+#fixedBidBar{
+ position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;
+ z-index:2147483647!important;width:100%!important;min-height:82px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important;
+ background:linear-gradient(180deg,#102238f7,#06101dfc)!important;
+ border-top:1px solid #e4c27b!important;box-shadow:0 -8px 30px #0008!important;
+ transform:none!important;will-change:auto!important;box-sizing:border-box!important;
+}
+#fixedBidBar.hidden{display:none!important}
+#fixedBidBar .fixed-bid-copy{display:none!important}
+#fixedBidBar button{
+ display:block!important;width:100%!important;max-width:760px!important;min-width:0!important;
+ min-height:60px!important;padding:15px 18px!important;border:0!important;border-radius:16px!important;
+ font-size:19px!important;font-weight:900!important;line-height:1.5!important;
+ background:linear-gradient(120deg,#ffe7a3,#d2a34e)!important;color:#211707!important;
+ box-shadow:0 5px 18px #0005!important;white-space:normal!important;
+}
+body.has-fixed-bid-bar{padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
+body.dashboard-open #auctionArea:not(.hidden){padding-bottom:calc(120px + env(safe-area-inset-bottom))!important}
+@media(max-width:480px){
+ #fixedBidBar{min-height:82px!important;padding:8px 10px calc(9px + env(safe-area-inset-bottom))!important}
+ #fixedBidBar button{min-height:62px!important;font-size:18px!important;border-radius:14px!important}
+}
+
 </style>
 </body></html>
