@@ -774,6 +774,49 @@ input,select,textarea,button{touch-action:manipulation}
 .brand-tile-name{font-weight:800!important;line-height:1.6!important}
 @media(max-width:540px){.brand-tile-logo{flex-basis:55px!important;width:55px!important;height:55px!important;border-radius:15px!important}.brand-tile-logo img{max-width:43px!important;max-height:43px!important}.brand-tile-logo.brand-tile-fallback{font-size:0!important}}
 </style>
+
+<style id="s2s-mint-dropdown-theme">
+/* Brand-matched dropdown palette: midnight navy + mint green, replacing blue selection highlights */
+.modern-select-menu,
+.modern-select-menu.popup-detached{
+  border-color:rgba(124,230,193,.42)!important;
+  background:linear-gradient(145deg,#102b2a 0%,#091b22 100%)!important;
+  box-shadow:0 24px 64px rgba(0,0,0,.58),0 0 0 1px rgba(124,230,193,.08)!important;
+}
+.modern-select-menu-title{color:#a9f2d5!important}
+.modern-select-search{
+  border-color:#376b5b!important;
+  background:linear-gradient(145deg,#0b201f,#081719)!important;
+  color:#f4fff9!important;
+}
+.modern-select-search:focus{border-color:#7ce6c1!important;box-shadow:0 0 0 3px rgba(124,230,193,.13)!important}
+.modern-select-option{color:#e2f4ed!important}
+.modern-select-option:hover,
+.modern-select-option:focus-visible{
+  background:linear-gradient(100deg,#19483c,#15352f)!important;
+  color:#ffffff!important;
+}
+.modern-select-option.selected{
+  background:linear-gradient(100deg,#205b48,#163b34)!important;
+  color:#c5ffe7!important;
+  box-shadow:inset 0 0 0 1px rgba(124,230,193,.55)!important;
+}
+.modern-select-option.selected:after{
+  background:linear-gradient(145deg,#9cf2ce,#42bd8d)!important;
+  color:#08271d!important;
+}
+.modern-select-trigger:hover:not(:disabled),
+.modern-select.open .modern-select-trigger{
+  border-color:#7ce6c1!important;
+  box-shadow:0 0 0 3px rgba(124,230,193,.12)!important;
+}
+.modern-select-trigger .select-chevron{
+  background:linear-gradient(145deg,#9cf2ce,#42bd8d)!important;
+  color:#08271d!important;
+}
+.modern-select-options{scrollbar-color:#4a9d7c transparent!important}
+</style>
+
 </head>
 <body><div class="switch-brand-banner"><a href="./index.html" aria-label="صفحه اصلی سوییچ به سوییچ"><img src="./brand-logo.svg" alt="سوییچ به سوییچ | Switch to Switch"></a></div>
 <main class="wrap">
