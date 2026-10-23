@@ -918,8 +918,7 @@ const schematicMarkers=schematicPartMap.map(item=>{
 }).join('');
 const schematicMarkup=schematicSvg.replace('</svg>','<g class="schematic-overlays">'+schematicMarkers+'</g></svg>')
  .replace('<span class="sub">فعلاً بدون علامت ایراد</span>','<span class="sub">'+(defects.length?('علامت‌گذاری '+fa(defects.length)+' ایراد ثبت‌شده'):'هنوز ایرادی ثبت نشده')+'</span>')
- .replace('<div class="schematic-legend"><span><i class="schematic-dot"></i> قطعات بدنه · بدون علامت‌گذاری ایراد</span></div>','<div class="schematic-legend"><span><i class="schematic-dot"></i> بدون ایراد</span><span><i class="schematic-dot bad"></i> تعویض قطعه</span><span>🟡 چکش: صافکاری بدون رنگ</span><span>🔴 غلطک: صافکاری نقاشی</span><span>🔴 دایره: استوک تعویض</span></div>')
- .replace('فعلاً هیچ ایرادی روی شماتیک نمایش داده نمی‌شود. اطلاعات گزارش کارشناسی، در صورت وجود، جداگانه در پرونده قابل مشاهده است.','علامت‌ها از گزینه‌های ثبت‌شده در گزارش کارشناسی ساخته می‌شوند؛ قطعاتی که در نمای بالا وجود دارند مستقیماً روی شماتیک مشخص می‌شوند.');
+ .replace('<div class="schematic-legend"><span><i class="schematic-dot"></i> قطعات بدنه · بدون علامت‌گذاری ایراد</span></div>','<div class="schematic-legend"><span><i class="schematic-dot"></i> بدون ایراد</span><span><i class="schematic-dot bad"></i> تعویض قطعه</span><span>🟡 چکش: صافکاری بدون رنگ</span><span>🔴 غلطک: صافکاری نقاشی</span><span>🔴 دایره: استوک تعویض</span></div>');
 const current=Number(a.current_bid||a.starting_price||0),suggested=current+minIncrement;
 const consumerPrice=Number(a.target_price??a.consumer_price??a.fair_price??0);
 const consumerPriceLabel=consumerPrice>0?money(consumerPrice)+" تومان":"هنوز توسط فروش ثبت نشده";
