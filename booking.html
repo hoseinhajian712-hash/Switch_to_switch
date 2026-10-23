@@ -1634,9 +1634,10 @@ const flowSteps=[
 function flowForType(){return type==='buy'?[{id:'tbrand',caption:'انتخاب برند خودرو'},{id:'tmodel',caption:'انتخاب مدل خودرو'},{id:'ttrim',caption:'انتخاب تیپ خودرو'},{id:'tyear',caption:'انتخاب سال ساخت'},{id:'tcolor',caption:'انتخاب رنگ خودرو'},{id:'tbudget',caption:'انتخاب بازه بودجه'},{id:'contactNameInput',caption:'نام و نام خانوادگی'},{id:'contactMobileInput',caption:'شماره همراه'},{id:'vehicleCondition',caption:'وضعیت خودرو'}]:flowSteps}
 function currentFlow(){return flowForType()}
 function flowField(id){const el=$(id);return el?.closest('.field')||null}
-function showWizardStep(n){
+function showWizardStep(n,fromBrowserBack=false){
  const flow=currentFlow();wizardStep=Math.max(1,Math.min(flow.length,n));
  try{sessionStorage.setItem('s2sWizardState',JSON.stringify({type,step:wizardStep}))}catch(e){}
+ if(!fromBrowserBack){try{history.pushState({s2sWizard:true,type,step:wizardStep},'',location.pathname+'#request-step-'+wizardStep)}catch(e){}}
  const active=flow[wizardStep-1],id=active.id;
  document.querySelectorAll('#currentPanel .fields>.field,#targetPanel .fields>.field,#contactPanel .fields>.field,#appointmentPanel .fields>.field').forEach(f=>f.classList.add('hidden'));
  ['currentPanel','targetPanel','contactPanel','appointmentPanel'].forEach(pid=>$(pid).classList.add('hidden'));
@@ -1655,6 +1656,15 @@ function showWizardStep(n){
  const dots=$('progressDots');dots.innerHTML='';flow.forEach((s,i)=>{const d=document.createElement('i');if(i<wizardStep-1)d.className='done';if(i===wizardStep-1)d.className='active';dots.appendChild(d)});
  window.scrollTo({top:0,behavior:'smooth'});
 }
+window.addEventListener('popstate',event=>{
+ const state=event.state;
+ if(state&&state.s2sWizard&&state.type===type&&Number.isFinite(Number(state.step))){
+  showWizardStep(Number(state.step),true);
+ }else if(wizardStep>1){
+  try{history.pushState({s2sWizard:true,type,step:wizardStep},'',location.pathname+'#request-step-'+wizardStep)}catch(e){}
+  showWizardStep(wizardStep-1,true);
+ }
+});
 function validateWizardStep(){
  const flow=currentFlow(),id=flow[wizardStep-1]?.id,el=$(id);
  if(!el)return true;
