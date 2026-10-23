@@ -318,9 +318,6 @@ function setupCaseWorkspace(x,v,ins){
  const car=document.createElement('details');car.className='case-fold';
  car.innerHTML='<summary>🚘 خودروی فعلی</summary><div class="case-fold-body"><div class="case-info-grid"><div class="case-info-item"><small>خودرو</small><b>'+esc(vehicleText(v)||'ثبت نشده')+'</b></div><div class="case-info-item"><small>سال / رنگ</small><b>'+esc(v.model_year||v.year||'—')+' · '+esc(v.color||'—')+'</b></div><div class="case-info-item"><small>کیلومتر</small><b>'+esc(v.mileage||'—')+'</b></div><div class="case-info-item"><small>پلاک</small><b>'+esc(v.plate_number||v.plate||'—')+'</b></div></div></div>';
  left.appendChild(car);
- const price=document.createElement('section');price.className='case-price-panel';
- price.innerHTML='<h3>🧮 محاسبه قیمت و سهم مجموعه</h3><p>قیمت نهایی مزایده و درصد مجموعه را وارد کنید تا سهم مجموعه و مبلغ خالص پیشنهادی به فروشنده محاسبه شود. این محاسبه به‌تنهایی چیزی را در پرونده ذخیره نمی‌کند.</p><label class="case-price-field" for="caseCalcGross">قیمت نهایی مزایده (تومان)</label><input id="caseCalcGross" inputmode="numeric" autocomplete="off" placeholder="مثلاً ۱,۷۰۰,۰۰۰,۰۰۰"><label class="case-price-field" for="caseCalcPercent">درصد سهم مجموعه (%)</label><input id="caseCalcPercent" type="number" min="0" max="100" step="0.1" value="2"><div class="case-price-results"><div class="case-price-result"><small>سهم مجموعه</small><b id="caseCalcFee">۰ تومان</b></div><div class="case-price-result"><small>مبلغ خالص فروشنده</small><b id="caseCalcNet">۰ تومان</b></div></div><button class="btn green" type="button" style="width:100%;margin-top:10px" onclick="calculateCasePrice()">محاسبه مجدد</button>';
- left.appendChild(price);
  const reportTitleMap=['گزارش کارشناسی','خلاصه کارشناسی','مشخصات خودرو','عکس‌های اصلی خودرو','مدارک','ایرادات ثبت‌شده','تاریخچه پرونده','توضیحات مشتری','اصلاح مشخصات خودرو'];
  oldNodes.forEach(node=>{
    if(node===chat)return;
