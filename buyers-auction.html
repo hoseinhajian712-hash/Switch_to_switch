@@ -822,7 +822,7 @@ const partClass=(...words)=>hasPart(...words)?"schematic-part schematic-bad":"sc
 const schematic=`<details class="schematic-box" open>
 <summary><span>🚘 نقشه تخصصی بدنه خودرو</span><span class="sub">${defects.length?fa(defects.length)+' مورد ایراد ثبت‌شده':'انتخاب قطعه برای بررسی'}</span></summary>
 <div class="pro-schematic-wrap">
-<div class="pro-schematic-head"><span>قطعات مجزا و قابل تشخیص · نمای بالا، سمت چپ و سمت راست</span></div>
+<div class="pro-schematic-head"><span>نمای بالای خودرو · قطعات مجزا و قابل تشخیص</span></div>
 <div class="schematic-view-title">۱. نمای بالا — بدنه و قطعات اصلی</div>
 <svg class="pro-car-map" viewBox="0 0 620 760" role="img" aria-label="نقشه فنی نمای بالای خودرو با قطعات جداگانه و برچسب فارسی">
 <defs>
@@ -862,44 +862,6 @@ const schematic=`<details class="schematic-box" open>
 <path class="car-map-mirror" d="M143 240 Q112 226 108 252 L138 275 Z M477 240 Q508 226 512 252 L482 275 Z"/>
 </g>
 <g class="car-map-labels"><text x="310" y="28">جلو خودرو</text><text x="310" y="735">عقب خودرو</text><text x="310" y="150">کاپوت</text><text x="310" y="378">سقف</text><text x="310" y="590">صندوق</text><text x="122" y="310" transform="rotate(-90 122 310)">درب جلو چپ</text><text x="498" y="310" transform="rotate(90 498 310)">درب جلو راست</text><text x="122" y="420" transform="rotate(-90 122 420)">درب عقب چپ</text><text x="498" y="420" transform="rotate(90 498 420)">درب عقب راست</text><text x="170" y="166">گلگیر</text><text x="450" y="166">گلگیر</text><text x="170" y="572">گلگیر</text><text x="450" y="572">گلگیر</text><text x="310" y="62">سپر جلو</text><text x="310" y="716">سپر عقب</text></g>
-</svg>
-<div class="schematic-view-title">۲. نمای جانبی چپ</div>
-<svg class="pro-car-side" viewBox="0 0 760 260" role="img" aria-label="نمای جانبی چپ خودرو با کاپوت، سقف، درها، گلگیرها و سپرها">
-<rect x="8" y="8" width="744" height="244" rx="16" fill="#f7fafc" stroke="#e1e8ef"/>
-<g class="car-map-wheels"><rect x="139" y="145" width="55" height="77" rx="13"/><rect x="566" y="145" width="55" height="77" rx="13"/></g>
-<path class="car-map-body" d="M54 180 L67 139 Q82 121 130 117 L222 99 L282 53 Q299 42 338 42 L464 44 Q495 46 525 86 L576 112 L673 128 Q701 139 710 169 L710 191 L54 191 Z"/>
-<path class="${partClass('سپر جلو','جلو')}" d="M54 166 L74 166 L74 194 L54 191 Z"/>
-<path class="${partClass('کاپوت','درب موتور')}" d="M80 139 L130 121 L222 104 L245 143 L231 179 L72 179 Z"/>
-<path class="${partClass('گلگیر جلو چپ','گلگیر جلو')}" d="M130 117 L222 99 L246 143 L231 181 L180 188 L145 176 Z"/>
-<path class="car-map-glass" d="M253 105 L294 58 Q307 50 338 50 L373 51 L373 106 Z M386 51 L461 53 Q485 57 512 104 L386 106 Z"/>
-<path class="${partClass('سقف','ستون')}" d="M291 48 L464 49 Q493 54 516 105 L254 105 Z"/>
-<path class="${partClass('درب جلو چپ','درب جلو','درب','در')}" d="M252 111 L374 111 L374 184 L237 184 Z"/>
-<path class="${partClass('درب عقب چپ','درب عقب','درب','در')}" d="M386 111 L513 108 L550 139 L553 184 L386 184 Z"/>
-<path class="${partClass('گلگیر عقب چپ','گلگیر عقب')}" d="M513 103 L576 112 L673 128 Q699 140 707 169 L707 184 L565 184 L549 145 Z"/>
-<path class="car-map-line" d="M242 146 L374 146 M386 146 L553 146 M374 111 L374 184 M386 111 L386 184"/>
-<path class="${partClass('سپر عقب','عقب')}" d="M690 159 L710 169 L710 191 L690 191 Z"/>
-<circle cx="166" cy="190" r="33" fill="#263747" stroke="#111d29" stroke-width="4"/><circle cx="166" cy="190" r="16" fill="#cbd8e4" stroke="#8297aa" stroke-width="4"/><circle cx="594" cy="190" r="33" fill="#263747" stroke="#111d29" stroke-width="4"/><circle cx="594" cy="190" r="16" fill="#cbd8e4" stroke="#8297aa" stroke-width="4"/>
-<g class="car-map-labels"><text x="105" y="215">سپر جلو</text><text x="170" y="92">کاپوت</text><text x="308" y="136">درب جلو</text><text x="462" y="136">درب عقب</text><text x="382" y="34">سقف</text><text x="620" y="98">گلگیر عقب</text><text x="690" y="215">سپر عقب</text></g>
-</svg>
-<div class="schematic-view-title">۳. نمای جانبی راست</div>
-<svg class="pro-car-side" viewBox="0 0 760 260" role="img" aria-label="نمای جانبی راست خودرو با کاپوت، سقف، درها، گلگیرها و سپرها">
-<rect x="8" y="8" width="744" height="244" rx="16" fill="#f7fafc" stroke="#e1e8ef"/>
-<g transform="translate(760 0) scale(-1 1)">
-<g class="car-map-wheels"><rect x="139" y="145" width="55" height="77" rx="13"/><rect x="566" y="145" width="55" height="77" rx="13"/></g>
-<path class="car-map-body" d="M54 180 L67 139 Q82 121 130 117 L222 99 L282 53 Q299 42 338 42 L464 44 Q495 46 525 86 L576 112 L673 128 Q701 139 710 169 L710 191 L54 191 Z"/>
-<path class="${partClass('سپر جلو','جلو')}" d="M54 166 L74 166 L74 194 L54 191 Z"/>
-<path class="${partClass('کاپوت','درب موتور')}" d="M80 139 L130 121 L222 104 L245 143 L231 179 L72 179 Z"/>
-<path class="${partClass('گلگیر جلو راست','گلگیر جلو')}" d="M130 117 L222 99 L246 143 L231 181 L180 188 L145 176 Z"/>
-<path class="car-map-glass" d="M253 105 L294 58 Q307 50 338 50 L373 51 L373 106 Z M386 51 L461 53 Q485 57 512 104 L386 106 Z"/>
-<path class="${partClass('سقف','ستون')}" d="M291 48 L464 49 Q493 54 516 105 L254 105 Z"/>
-<path class="${partClass('درب جلو راست','درب جلو','درب','در')}" d="M252 111 L374 111 L374 184 L237 184 Z"/>
-<path class="${partClass('درب عقب راست','درب عقب','درب','در')}" d="M386 111 L513 108 L550 139 L553 184 L386 184 Z"/>
-<path class="${partClass('گلگیر عقب راست','گلگیر عقب')}" d="M513 103 L576 112 L673 128 Q699 140 707 169 L707 184 L565 184 L549 145 Z"/>
-<path class="car-map-line" d="M242 146 L374 146 M386 146 L553 146 M374 111 L374 184 M386 111 L386 184"/>
-<path class="${partClass('سپر عقب','عقب')}" d="M690 159 L710 169 L710 191 L690 191 Z"/>
-<circle cx="166" cy="190" r="33" fill="#263747" stroke="#111d29" stroke-width="4"/><circle cx="166" cy="190" r="16" fill="#cbd8e4" stroke="#8297aa" stroke-width="4"/><circle cx="594" cy="190" r="33" fill="#263747" stroke="#111d29" stroke-width="4"/><circle cx="594" cy="190" r="16" fill="#cbd8e4" stroke="#8297aa" stroke-width="4"/>
-</g>
-<g class="car-map-labels"><text x="105" y="215">سپر جلو</text><text x="170" y="92">کاپوت</text><text x="308" y="136">درب جلو</text><text x="462" y="136">درب عقب</text><text x="382" y="34">سقف</text><text x="620" y="98">گلگیر عقب</text><text x="690" y="215">سپر عقب</text></g>
 </svg>
 <div class="schematic-legend"><span><i class="schematic-dot"></i> بدون ایراد ثبت‌شده</span><span><i class="schematic-dot bad"></i> دارای ایراد در گزارش کارشناسی</span></div>
 <p class="schematic-caption">قرمز شدن قطعه به معنی وجود ایراد ثبت‌شده در گزارش کارشناسی است. نقشه برای مشخص‌کردن محل ایرادهاست و جایگزین عکس واقعی قطعه نیست.</p>
