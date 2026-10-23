@@ -1825,6 +1825,32 @@ $('contactNameInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preve
 $('contactMobileInput').addEventListener('change',()=>advanceFlow('contactMobileInput'));
 $('contactMobileInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();advanceFlow('contactMobileInput')}});
 
+// Keep the active text field visible when Android/iOS opens or resizes the virtual keyboard.
+(function keepFocusedFieldVisible(){
+ let scrollTimer=0;
+ const bringFieldIntoView=()=>{
+  const el=document.activeElement;
+  if(!el||!el.matches('input,textarea,[contenteditable="true"]')||el.type==='hidden')return;
+  const field=el.closest('.field')||el;
+  clearTimeout(scrollTimer);
+  scrollTimer=setTimeout(()=>{
+   if(document.activeElement!==el)return;
+   const rect=field.getBoundingClientRect();
+   const vv=window.visualViewport;
+   const visibleBottom=vv?vv.height:window.innerHeight;
+   const visibleTop=vv?vv.offsetTop:0;
+   const margin=22;
+   if(rect.bottom>visibleTop+visibleBottom-margin||rect.top<visibleTop+margin){
+    const target=window.scrollY+rect.top-(visibleTop+Math.max(margin,(visibleBottom-rect.height)/2));
+    window.scrollTo({top:Math.max(0,target),behavior:'smooth'});
+   }
+  },180);
+ };
+ document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea,[contenteditable="true"]')){bringFieldIntoView();setTimeout(bringFieldIntoView,350);setTimeout(bringFieldIntoView,700)}});
+ if(window.visualViewport)window.visualViewport.addEventListener('resize',bringFieldIntoView);
+ window.addEventListener('resize',bringFieldIntoView);
+})();
+
 try{const saved=JSON.parse(sessionStorage.getItem('s2sContact')||'null');if(saved){$('contactNameInput').value=saved.name||'';$('contactMobileInput').value=saved.mobile||''}}catch(e){}
 setupCar('');setupCar('t');setupColors('brand','model','color','ابتدا مدل خودرو را انتخاب کن');setupColors('tbrand','tmodel','tcolor','فرقی ندارد');setupDates();
 const FORM_DRAFT_KEY='s2sBookingDraftV1';
