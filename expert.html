@@ -701,11 +701,11 @@ function filterDefects(){
    if(show){
     card.style.removeProperty('display');
     matches++;total++;
-    // Keep matching part cards collapsed during search to save vertical space.
-    if(query && card.tagName==='DETAILS')card.open=false;
+    // Search results show only compact part rows; opening a row is always manual.
+    if(query && card.tagName==='DETAILS'){card.removeAttribute('open');card.open=false;card.querySelectorAll('details').forEach(d=>{d.removeAttribute('open');d.open=false});card.querySelectorAll('.pill.open').forEach(p=>p.classList.remove('open'));}
    }else{
     card.style.setProperty('display','none','important');
-    if(query && card.tagName==='DETAILS')card.open=false;
+    if(query && card.tagName==='DETAILS'){card.removeAttribute('open');card.open=false;card.querySelectorAll('details').forEach(d=>{d.removeAttribute('open');d.open=false});}
    }
   });
   const showGroup=query.length ? matches>0 : group.dataset.group===activeDefectGroup;
@@ -1402,4 +1402,10 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 })();
 </script>
 
+
+<style id="s2s-defect-search-collapse-fix">
+/* Keep every matching part collapsed during filtering, even if earlier CSS overrides details defaults. */
+#defects .defect-card.defect-part-dropdown:not([open]) > .part-defect-content{display:none!important;}
+#defects .defect-card.defect-part-dropdown[open] > .part-defect-content{display:block!important;}
+</style>
 </body></html>
