@@ -91,7 +91,7 @@ async function api(a,id,body){let u=base+"?key="+encodeURIComponent(token())+"&a
 function car(c){let v=(c.vehicles||[]).find(x=>x.vehicle_role==="current")||(c.vehicles||[])[0]||{};return {v,name:[v.brand,v.model,v.trim].filter(Boolean).join(" ")||"خودرو",meta:"مدل "+(v.model_year||"—")+" · رنگ "+(v.color||"—")+" · کارکرد "+(v.mileage?fa(v.mileage)+" کیلومتر":"—")}}
 function auctionSchematic(c){
  const rawDefects=Array.isArray(c&&c.defects)?c.defects:Array.isArray(c&&c.inspection&&c.inspection.defects)?c.inspection.defects:Array.isArray(c&&c.case&&c.case.defects)?c.case.defects:[];
- const norm=s=>String(s||'').toLocaleLowerCase('fa').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[ۀة]/g,'ه').replace(/[\\u200c\\u200f\\u200e\\sـ،,؛;:_-]/g,'');
+ const norm=s=>String(s||'').toLocaleLowerCase('fa').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[ۀة]/g,'ه').replace(/[\u200c\u200f\u200e\sـ،,؛;:_-]/g,'');
  const defects=rawDefects.map(d=>({...d,part:d.part??d.part_name??d.vehicle_part??'',defect_type:d.defect_type??d.defect??d.type??''}));
  function zoneFor(part){const p=norm(part);
   if(p.includes('گلگیرجلو')&&p.includes('راننده'))return 'frontFenderDriver';if(p.includes('گلگیرجلو')&&p.includes('شاگرد'))return 'frontFenderPassenger';
@@ -109,7 +109,7 @@ function auctionSchematic(c){
   if(p.includes('چراغعقب')&&p.includes('راننده'))return 'rearLampDriver';if(p.includes('چراغعقب')&&p.includes('شاگرد'))return 'rearLampPassenger';
   return null;
  }
- function kind(d){const v=norm(d.defect_type||d.defect||d.type||'');if(v.includes('استوک')&&v.includes('تعویض'))return 'stock';if(v.includes('تعویض')&&!v.includes('استوک'))return 'replace';if(v.includes('صافکاری')&&(v.includes('بدونرنگ')||v.includes('بیرنگ')||v.includes('بیرنگ')))return 'hammer';if(v.includes('صافکاری')&&(v.includes('نقاشی')||v.includes('رنگ')))return 'paint';return null}
+ function kind(d){const v=norm(d.defect_type||d.defect||d.type||'');if(v.includes('استوک')&&v.includes('تعویض'))return 'stock';if(v.includes('تعویض')&&!v.includes('استوک'))return 'replace';if(v.includes('صافکاری')&&(v.includes('بدونرنگ')||v.includes('بیرنگ')))return 'hammer';if(v.includes('صافکاری')&&(v.includes('نقاشی')||v.includes('رنگ')))return 'paint';return null}
  const casePhotos=Array.isArray(c&&c.photos)?c.photos:[];const mapped=defects.map(d=>({id:d.id,part:String(d.part||d.part_name||d.vehicle_part||''),type:String(d.defect_type||d.defect||d.type||''),explanation:String(d.explanation||''),photos:Array.isArray(d.photos)&&d.photos.length?d.photos.filter(p=>p.url).map(p=>({url:p.url,label:p.label||'عکس ایراد'})):casePhotos.filter(p=>p.defect_id===d.id&&p.url).map(p=>({url:p.url,label:p.label||'عکس ایراد'})),zone:zoneFor(d.part||d.part_name||d.vehicle_part),kind:kind(d)})).filter(x=>x.zone&&x.kind);
  if(!mapped.length)return '';
  const zones=[
