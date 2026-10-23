@@ -1865,8 +1865,18 @@ function yearsFor(brand,model,trim){
  // تطبیق نام مدل بدون وابستگی به فاصله، نیم‌فاصله، شکل اعداد و ی/ک عربی.
  let range=productionYears[model];
  if(!range){
-  const match=Object.entries(productionYears).find(([name])=>normalizeCarName(name)===modelKey);
-  if(match)range=match[1];
+  const entries=Object.entries(productionYears);
+  const exact=entries.find(([name])=>normalizeCarName(name)===modelKey);
+  if(exact)range=exact[1];
+  else{
+   // مدل‌های دارای پیشوند برند/شرکت (مثل «ایران خودرو ری‌را» یا «پژو ۲۰۰۸»)
+   // از بازهٔ دقیق‌تر نام پایه استفاده کنند؛ کلیدهای کوتاه برای جلوگیری از تطبیق اشتباه نادیده گرفته می‌شوند.
+   const aliases=entries
+    .map(([name,years])=>({key:normalizeCarName(name),years}))
+    .filter(item=>item.key.length>=3&&(modelKey.includes(item.key)||item.key.includes(modelKey)))
+    .sort((a,b)=>b.key.length-a.key.length);
+   if(aliases.length)range=aliases[0].years;
+  }
  }
  // برای مدل‌هایی که بازه دقیق هنوز ثبت نشده، سال‌ها را به‌اشتباه از ۱۳۹۰ شروع نکن:
  // خودروهای مونتاژ/داخلی شمسی و خودروهای وارداتی میلادی نمایش داده می‌شوند.
