@@ -687,6 +687,8 @@ function filterDefects(){
   .replace(/راننده/g,'چپ').replace(/شاگرد/g,'راست');
  const query=normalize(raw);
  const host=document.getElementById('defects');
+ // While searching, collapse every defect drawer (including checked/previously opened options).
+ if(query&&host){host.querySelectorAll('.defect-options .pill').forEach(p=>p.classList.remove('open'));host.querySelectorAll('.defect-card[open]').forEach(card=>{card.removeAttribute('open');card.open=false;});}
  if(!host)return;
  const groups=Array.from(host.querySelectorAll('.defect-group'));
  let total=0;
@@ -1407,5 +1409,9 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 /* Keep every matching part collapsed during filtering, even if earlier CSS overrides details defaults. */
 #defects .defect-card.defect-part-dropdown:not([open]) > .part-defect-content{display:none!important;}
 #defects .defect-card.defect-part-dropdown[open] > .part-defect-content{display:block!important;}
+
+/* Search results must stay compact: selected pills must not force their drawers open. */
+#defects .defect-group .defect-options .pill:not(.open) .inline-drawer{display:none!important;visibility:hidden!important;max-height:0!important;overflow:hidden!important;}
+#defects .defect-group .defect-options .pill.open .inline-drawer{visibility:visible!important;max-height:none!important;}
 </style>
 </body></html>
