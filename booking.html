@@ -1983,7 +1983,8 @@ initBrandGridPickers();
 // Never restore a stale wizard step from a previous booking or URL.
 let restoreStep=1;
 try{sessionStorage.removeItem('s2sWizardState');localStorage.removeItem('s2sWizardState')}catch(e){}
-try{if(/^#request-step-\d+$/.test(location.hash))history.replaceState(history.state,'',location.pathname+location.search)}catch(e){}
+// Initialize history immediately, before the asynchronous account lookup can finish.
+setWizardHistoryStep(1,true);
 async function initializeCustomerWizard(){
  try{
   const {data}=await sb.auth.getSession();
@@ -2004,8 +2005,11 @@ async function initializeCustomerWizard(){
    }
   }
  }catch(e){console.warn('Customer profile could not be loaded',e)}
- showWizardStep(restoreStep);
- setWizardHistoryStep(restoreStep,true);
+ // Never overwrite navigation if the user already moved through the wizard while the profile request was pending.
+ if(wizardStep===1){
+  showWizardStep(restoreStep);
+  setWizardHistoryStep(restoreStep,true);
+ }
 }
 initializeCustomerWizard();
 </script>
