@@ -573,15 +573,15 @@ body.dashboard-open #auctionArea:not(.hidden){position:relative!important;displa
 body.dashboard-open #auctionArea:not(.hidden) .buyer-tab,body.dashboard-open #auctionArea:not(.hidden) .buyer-tab:not(.hidden),body.dashboard-open #auctionArea:not(.hidden) .panel,body.dashboard-open #auctionArea:not(.hidden) .grid{height:auto!important;max-height:none!important;overflow:visible!important;overscroll-behavior:auto!important}
 body.dashboard-open #auctionArea:not(.hidden) .buyer-tab.hidden{display:none!important}
 body.dashboard-open #buyerSidebar{max-height:100vh!important;max-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
-body.dashboard-open #auctionArea:not(.hidden){padding-bottom:calc(170px + env(safe-area-inset-bottom))!important}
-@media(min-width:700px){body.dashboard-open #auctionArea:not(.hidden){padding-bottom:100px!important}}
+body.dashboard-open #auctionArea:not(.hidden){padding-bottom:14px!important}
+@media(min-width:700px){body.dashboard-open #auctionArea:not(.hidden){padding-bottom:14px!important}}
 
 
 /* اصلاح نهایی: اسکرول طبیعی مرورگر در همه تب‌های حساب کاربری */
 html,body{height:auto!important;min-height:100%!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important}
 body.dashboard-open{display:block!important;position:static!important;inset:auto!important;height:auto!important;min-height:100vh!important;max-height:none!important;overflow:visible!important;overflow-y:auto!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important}
 body.dashboard-open .wrap,body.dashboard-open main.wrap,body.dashboard-open #auctionArea,body.dashboard-open #auctionArea .buyer-tab,body.dashboard-open #auctionArea .buyer-tab:not(.hidden),body.dashboard-open #auctionArea .panel,body.dashboard-open #auctionArea .grid{position:relative!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;overscroll-behavior:auto!important;touch-action:pan-y!important}
-body.dashboard-open #auctionArea{padding-bottom:calc(170px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important}
+body.dashboard-open #auctionArea{padding-bottom:14px!important;box-sizing:border-box!important}
 body.dashboard-open #auctionArea .buyer-tab.hidden{display:none!important}
 body.dashboard-open #buyerSidebar{overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
 
@@ -1036,6 +1036,17 @@ updateSubscriptionBankInfo();
 setTimeout(updateSubscriptionBankInfo,1800);
 
 </script><div id="fixedBidBar" class="hidden" role="region" aria-label="ثبت پیشنهاد مزایده"><div class="fixed-bid-copy"><strong>ثبت پیشنهاد قیمت</strong><span>مبلغ را از داخل کارت خودرو انتخاب کن</span></div><button id="fixedBidSubmit" type="button">✓ ثبت پیشنهاد</button></div>
+<script>
+(function(){
+ const bar=document.getElementById("fixedBidBar"),button=document.getElementById("fixedBidSubmit");
+ if(!bar||!button||bar.dataset.initialized==="1")return;
+ bar.dataset.initialized="1";document.body.appendChild(bar);
+ function sync(){const area=document.getElementById("auctionArea"),login=document.getElementById("login"),tab=document.getElementById("tab-auctions");const show=!!(area&&login&&tab&&!area.classList.contains("hidden")&&login.classList.contains("hidden")&&!tab.classList.contains("hidden"));bar.classList.toggle("hidden",!show);document.body.classList.toggle("has-fixed-bid-bar",show);}
+ button.addEventListener("click",function(){const forms=Array.from(document.querySelectorAll("form[data-bid]"));const visible=forms.filter(f=>{const card=f.closest("[data-auction-card]")||f;const r=card.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight;});const form=visible[0]||forms[0];if(!form){const target=document.getElementById("auctionArea");if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return;}if(!visible.length)form.scrollIntoView({behavior:"smooth",block:"center"});form.requestSubmit();});
+ new MutationObserver(sync).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style"]});
+ window.addEventListener("scroll",sync,{passive:true});window.addEventListener("resize",sync);sync();
+})();
+</script>
 
 <script>
 /* قابلیت نصب پنل مزایده روی صفحه اصلی موبایل */
@@ -1097,7 +1108,7 @@ setTimeout(updateSubscriptionBankInfo,1800);
 /* فشرده‌سازی چیدمان موبایل و حذف فضای خالی انتهای پنل مزایده */
 @media(max-width:720px){
  body.dashboard-open .wrap{min-height:0!important;padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important}
- body.dashboard-open #auctionArea:not(.hidden){padding:6px 8px calc(18px + env(safe-area-inset-bottom))!important;margin-bottom:0!important}
+ body.dashboard-open #auctionArea:not(.hidden){padding:6px 8px 14px!important;margin-bottom:0!important}
  body.dashboard-open #auctionArea:not(.hidden) #tab-auctions{padding-bottom:8px!important;margin-bottom:0!important}
  body.dashboard-open #auctionArea:not(.hidden) .buyer-tab{padding-bottom:8px!important;margin-bottom:0!important}
  body.dashboard-open #auctionArea:not(.hidden) .auction-card:last-child,
@@ -1125,7 +1136,7 @@ setTimeout(updateSubscriptionBankInfo,1800);
  box-shadow:0 5px 18px #0005!important;white-space:normal!important;
 }
 body.has-fixed-bid-bar{padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
-body.dashboard-open #auctionArea:not(.hidden){padding-bottom:calc(120px + env(safe-area-inset-bottom))!important}
+body.dashboard-open #auctionArea:not(.hidden){padding-bottom:14px!important}
 @media(max-width:480px){
  #fixedBidBar{min-height:82px!important;padding:8px 10px calc(9px + env(safe-area-inset-bottom))!important}
  #fixedBidBar button{min-height:62px!important;font-size:18px!important;border-radius:14px!important}
