@@ -2517,7 +2517,7 @@ async function initializeCustomerWizard(){
     $('contactPanel').classList.add('hidden');
     document.querySelectorAll('[data-stepdot="1"]').forEach(el=>el.classList.add('hidden'));
     const firstLine=document.querySelector('.stepper>i');if(firstLine)firstLine.classList.add('hidden');
-    restoreStep=Math.max(2,restoreStep);
+    restoreStep=Math.max(1,restoreStep); // Do not skip vehicle-brand selection for signed-in customers.
    }
   }
  }catch(e){console.warn('Customer profile could not be loaded',e)}
