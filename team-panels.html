@@ -389,23 +389,7 @@ function arrangeSalesCaseWorkspace(c){
   const body=document.createElement("div");body.className="sales-fold-content";body.appendChild(card);fold.appendChild(sum);fold.appendChild(body);left.appendChild(fold);
  });
  detail.remove();
- const calc=document.createElement("section");calc.className="sales-price-calc";
- const existing=c.sales_calculation||{};
- const initialGross=existing.auction_final_price||"";
- const initialPercent=initialGross&&existing.company_profit_amount?Number(existing.company_profit_amount)/Number(initialGross)*100:2;
- calc.innerHTML='<h3>🧮 محاسبه قیمت و سهم مجموعه</h3><p>قیمت نهایی مزایده و درصد سهم مجموعه را وارد کنید؛ سهم مجموعه و مبلغ خالص فروشنده فوراً محاسبه می‌شود.</p><label for="salesCalcGross">قیمت نهایی مزایده (تومان)</label><input id="salesCalcGross" inputmode="numeric" autocomplete="off" placeholder="مثلاً ۱,۷۰۰,۰۰۰,۰۰۰" value="'+esc(initialGross?String(initialGross):"")+'"><label for="salesCalcPercent">درصد سهم مجموعه (%)</label><input id="salesCalcPercent" type="number" min="0" max="100" step="0.1" value="'+esc(String(Number.isFinite(initialPercent)?initialPercent:2))+'"><div class="sales-calc-results"><div><small>سهم مجموعه</small><b id="salesCalcFee">۰ تومان</b></div><div><small>مبلغ خالص فروشنده</small><b id="salesCalcNet">۰ تومان</b></div></div>';
- left.insertBefore(calc,left.firstChild);
- const gross=calc.querySelector("#salesCalcGross"),pct=calc.querySelector("#salesCalcPercent");
- gross.addEventListener("input",()=>{const raw=gross.value.replace(/[^0-9۰-۹٠-٩]/g,"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));gross.value=raw?Number(raw).toLocaleString("en-US"):"";updateSalesCaseCalc()});
- pct.addEventListener("input",updateSalesCaseCalc);
- left.appendChild(detail);right.appendChild(chat);workspace.appendChild(left);workspace.appendChild(right);host.appendChild(workspace);updateSalesCaseCalc();
-}
-function updateSalesCaseCalc(){
- const gross=Number(String(document.getElementById("salesCalcGross")?.value||"").replace(/[^0-9]/g,""))||0;
- const rawPct=Number(document.getElementById("salesCalcPercent")?.value);const pct=Number.isFinite(rawPct)?Math.max(0,Math.min(100,rawPct)):0;
- const fmt=n=>Math.round(n).toLocaleString("fa-IR")+" تومان";
- const fee=document.getElementById("salesCalcFee"),net=document.getElementById("salesCalcNet");
- if(fee)fee.textContent=fmt(gross*pct/100);if(net)net.textContent=fmt(gross-gross*pct/100);
+ left.appendChild(detail);right.appendChild(chat);workspace.appendChild(left);workspace.appendChild(right);host.appendChild(workspace);
 }
 
 function printCustodyReceipt(id){const c=cases.find(x=>x.id===id);if(!c)return;const v=(c.vehicles||[]).find(x=>x.vehicle_role==="current")||(c.vehicles||[])[0]||{};const html='<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><title>رسید امانت خودرو</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:32px;color:#111;line-height:2}h1{text-align:center;font-size:22px}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{border:1px solid #888;padding:8px;text-align:right}.sign{display:flex;justify-content:space-between;margin-top:70px}.muted{color:#555;font-size:12px}@media print{button{display:none}}</style><h1>رسید امانت خودرو و مدارک</h1><p>شماره پرونده: '+esc(c.case_number||"—")+'</p><p>بدین‌وسیله تأیید می‌شود خودرو و مدارک درج‌شده در این رسید برای انجام مراحل معامله نزد سوییچ به سوییچ به امانت نگهداری می‌شود.</p><table><tr><th>نام فروشنده</th><td>'+esc(c.customer_name||"—")+'</td><th>شماره تماس</th><td>'+(c.customer_mobile?'<a class="case-phone-link" href="tel:'+esc(String(c.customer_mobile).replace(/[^0-9+]/g,''))+'">'+esc(c.customer_mobile)+'</a>':'—')+'</td></tr><tr><th>برند</th><td>'+esc(v.brand||"—")+'</td><th>مدل و تیپ</th><td>'+esc([v.model,v.trim].filter(Boolean).join(" ")||"—")+'</td></tr><tr><th>سال ساخت</th><td>'+esc(v.model_year||"—")+'</td><th>شماره پلاک</th><td>'+esc(v.plate_number||"—")+'</td></tr><tr><th>مدارک تحویلی</th><td colspan="3">طبق فهرست مدارک ثبت‌شده در پرونده شماره '+esc(c.case_number||"—")+'</td></tr></table><p>این رسید صرفاً تأیید دریافت امانی خودرو و مدارک است و به‌تنهایی سند انتقال مالکیت محسوب نمی‌شود.</p><div class="sign"><div>امضای فروشنده: ....................</div><div>نام و امضای همکار: ....................</div></div><p class="muted">تاریخ چاپ: '+new Date().toLocaleString("fa-IR")+'</p><script>window.onload=()=>window.print()<\/script></html>';const w=window.open("","_blank","width=900,height=700");if(!w){alert("برای چاپ رسید، اجازه بازشدن پنجره را در مرورگر فعال کنید.");return}w.document.open();w.document.write(html);w.document.close()}
