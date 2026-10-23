@@ -65,6 +65,14 @@
 @media(max-width:800px){#caseModal .caseDialog{width:100%;padding:12px;max-height:97vh}.sales-case-workspace{grid-template-columns:1fr;direction:rtl}.sales-case-right{position:static;grid-row:1}.sales-case-right .chatMessages{height:230px;min-height:180px;max-height:35vh}.sales-calc-results{grid-template-columns:1fr 1fr}}
 @media(max-width:420px){.sales-calc-results{grid-template-columns:1fr}}
 </style><link rel="stylesheet" href="./corporate-theme.css?v=1">
+<style>
+#buyerFineModal{position:fixed;inset:0;z-index:99999;background:rgba(3,10,20,.78);display:flex;align-items:center;justify-content:center;padding:16px}
+#buyerFineModal.hidden{display:none!important}
+#buyerFineModal .modalCard{width:min(100%,480px);max-height:90vh;overflow:auto;background:#101d2e;color:#f4f7fb;border:1px solid #34465e;border-radius:18px;padding:22px;box-shadow:0 24px 80px #0009}
+#buyerFineModal label{display:block;margin:12px 0 6px;font-weight:700}
+#buyerFineModal input,#buyerFineModal textarea{box-sizing:border-box;width:100%;padding:12px;border:1px solid #40516a;border-radius:10px;background:#081322;color:#fff;font:inherit}
+#buyerFineModal .error{color:#fda4af;min-height:1.4em}
+</style>
 </head>
 <body>
 <div id="loginView" class="shell login">
@@ -339,7 +347,7 @@ async function teamAction(id,type){
  if(type==="customer_decision"){const decision=await openCustomerDecisionModal(cases.find(x=>x.id===id));if(!decision)return;if(decision.accepted){payload.agreed_price=decision.agreed_price;type="customer_accept"}else{payload.seller_desired_price=decision.seller_desired_price;type="customer_decline"}}
  if(type==="legal_decision"){const choice=await openLegalDecisionModal(cases.find(x=>x.id===id));if(!choice)return;type=choice.approved?"legal_approved":"documents_rejected";if(!choice.approved)note=choice.note;}
  
- if(type!=="price_review"){const enteredNote=await openStageNoteModal();if(enteredNote===null)return;note=String(enteredNote||"").trim()}if(type==="documents_rejected"&&!note){alert("برای بازگرداندن پرونده به‌دلیل نقص مدارک، ثبت دلیل نقص الزامی است.");return;}
+ if(!["price_review","set_buyer_cancellation_fine","relist_after_buyer_cancel"].includes(type)){const enteredNote=await openStageNoteModal();if(enteredNote===null)return;note=String(enteredNote||"").trim()}if(type==="documents_rejected"&&!note){alert("برای بازگرداندن پرونده به‌دلیل نقص مدارک، ثبت دلیل نقص الزامی است.");return;}
  try{await api("team-update",{id,method:"POST",body:{update_type:type,payload,note}});await loadCases();alert("مرحله پرونده ثبت شد.")}catch(e){alert(e.message)}
 }
 async function salesChangeStatus(id){ alert("تغییر وضعیت مستقیم از پرونده‌های واحد فروش غیرفعال است. از عملیات اختصاصی هر مرحله استفاده کنید.");return; } function inspectionReportHtml(c,v){
