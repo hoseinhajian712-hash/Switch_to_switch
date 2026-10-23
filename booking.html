@@ -819,29 +819,50 @@ input,select,textarea,button{touch-action:manipulation}
 
 
 <style id="s2s-olive-option-colors">
-/* Dark olive green for dropdown option rows and their active states */
-.modern-select-option,
+/* Force olive green on every custom dropdown row, not only hover/selected rows. */
+.modern-select-menu .modern-select-option,
 .modern-select-menu.popup-detached .modern-select-option{
-  color:#eaf2d5!important;
+  background:#435719!important;
+  color:#f2f7df!important;
+  border-color:#627b28!important;
 }
-.modern-select-option:hover,
-.modern-select-option:focus-visible,
+.modern-select-menu .modern-select-option:hover,
+.modern-select-menu .modern-select-option:focus,
+.modern-select-menu .modern-select-option:focus-visible,
 .modern-select-menu.popup-detached .modern-select-option:hover,
+.modern-select-menu.popup-detached .modern-select-option:focus,
 .modern-select-menu.popup-detached .modern-select-option:focus-visible{
-  background:linear-gradient(100deg,#526b19,#3d5212)!important;
+  background:#526b19!important;
   color:#ffffff!important;
-  outline:none!important;
+  outline:2px solid #9fbd46!important;
+  outline-offset:-2px!important;
 }
-.modern-select-option.selected,
+.modern-select-menu .modern-select-option.selected,
 .modern-select-menu.popup-detached .modern-select-option.selected{
-  background:linear-gradient(100deg,#536b17,#35490e)!important;
-  color:#f4ffd9!important;
-  box-shadow:inset 0 0 0 1px #829d35!important;
+  background:#35490e!important;
+  color:#ffffff!important;
+  box-shadow:inset 0 0 0 2px #9fbd46!important;
 }
-.modern-select-option.selected:after,
+.modern-select-menu .modern-select-option.selected:after,
 .modern-select-menu.popup-detached .modern-select-option.selected:after{
-  background:linear-gradient(145deg,#a8c957,#78992c)!important;
+  background:#a8c957!important;
   color:#202b08!important;
+}
+/* Native select fallback and browser-rendered option lists */
+.field select,
+.field select option,
+.field select option:checked,
+select option,
+select option:checked{
+  background-color:#435719!important;
+  color:#f2f7df!important;
+}
+.field select option:hover,
+.field select option:focus,
+select option:hover,
+select option:focus{
+  background-color:#526b19!important;
+  color:#ffffff!important;
 }
 </style>
 
