@@ -469,7 +469,7 @@ button,.btn,.submit,.primary{font-size:14px!important;min-height:44px}
 .field em{color:#fca5a5!important}
 .field .hint,small.hint{color:#b9d8ff!important;font-size:12px!important;line-height:1.9!important}
 /* Selects and typed contact details must be clearly readable */
-#contactNameInput,#contactMobileInput,#brand,#model,#trim,#year,#color,#mileage,#fuel,#gearbox,#city,#province{color:#ffffff!important;background-color:#071a30!important;border:1px solid #6485ac!important;font-size:16px!important;font-weight:700!important}
+#contactNameInput,#contactMobileInput,#brand,#model,#trim,#year,#options,#vehicleCondition,#color,#mileage,#fuel,#gearbox,#city,#province{color:#ffffff!important;background-color:#071a30!important;border:1px solid #6485ac!important;font-size:16px!important;font-weight:700!important}
 #contactNameInput::placeholder,#contactMobileInput::placeholder{color:#c1d1e4!important;opacity:1!important}
 select:disabled{color:#b6c7dc!important;background-color:#13243a!important;opacity:1!important}
 select option{color:#f8fbff!important;background:#0d1a2b!important}
@@ -764,9 +764,11 @@ input,select,textarea,button{touch-action:manipulation}
 <label class="field"><span>مدل خودرو <em>*</em></span><select id="model" required disabled><option value="">ابتدا برند را انتخاب کن</option></select></label>
 <label class="field"><span>تیپ خودرو <em>*</em></span><select id="trim" required disabled><option value="">ابتدا مدل را انتخاب کن</option></select></label>
 <label class="field"><span>سال ساخت <em>*</em></span><select id="year" required disabled><option value="">ابتدا تیپ را انتخاب کن</option></select></label>
+<label class="field"><span>آپشن خودرو <em>*</em></span><select id="options" required><option value="">انتخاب سطح آپشن</option><option value="استاندارد">استاندارد</option><option value="کم‌آپشن">کم‌آپشن</option><option value="نیمه‌فول">نیمه‌فول</option><option value="فول‌آپشن">فول‌آپشن</option><option value="فول‌آپشن پلاس">فول‌آپشن پلاس</option><option value="نامشخص">اطلاع ندارم</option></select></label>
 <label class="field"><span>رنگ خودرو <em>*</em></span><select id="color" required disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select><small class="hint">رنگ‌های رایج متناسب با برند و مدل انتخابی نمایش داده می‌شوند.</small></label>
 <label class="field"><span>نوع خودرو</span><select id="vehicleType" disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select></label>
 <label class="field"><span>نوع سوخت</span><select id="fuel" disabled><option value="">ابتدا مدل خودرو را انتخاب کن</option></select></label>
+<label class="field"><span>وضعیت خودرو <em>*</em></span><select id="vehicleCondition" required><option value="">انتخاب وضعیت خودرو</option><option value="سالم و بی‌رنگ">سالم و بی‌رنگ</option><option value="دارای رنگ‌شدگی">دارای رنگ‌شدگی</option><option value="دارای تعویض قطعه">دارای تعویض قطعه</option><option value="تصادفی">تصادفی</option><option value="نیازمند تعمیر">نیازمند تعمیر</option><option value="کارکرده با ایراد فنی">کارکرده با ایراد فنی</option><option value="نامشخص">نیاز به بررسی کارشناس</option></select></label>
 <label class="field"><span>کارکرد خودرو (کیلومتر) <em>*</em></span><select id="mileage" required><option value="">انتخاب بازه کارکرد</option><option value="5000">کمتر از ۱۰٬۰۰۰ کیلومتر</option><option value="15000">۱۰٬۰۰۰ تا ۲۰٬۰۰۰ کیلومتر</option><option value="25000">۲۰٬۰۰۰ تا ۳۰٬۰۰۰ کیلومتر</option><option value="35000">۳۰٬۰۰۰ تا ۴۰٬۰۰۰ کیلومتر</option><option value="45000">۴۰٬۰۰۰ تا ۵۰٬۰۰۰ کیلومتر</option><option value="55000">۵۰٬۰۰۰ تا ۶۰٬۰۰۰ کیلومتر</option><option value="65000">۶۰٬۰۰۰ تا ۷۰٬۰۰۰ کیلومتر</option><option value="75000">۷۰٬۰۰۰ تا ۸۰٬۰۰۰ کیلومتر</option><option value="85000">۸۰٬۰۰۰ تا ۹۰٬۰۰۰ کیلومتر</option><option value="95000">۹۰٬۰۰۰ تا ۱۰۰٬۰۰۰ کیلومتر</option><option value="110000">۱۰۰٬۰۰۰ تا ۱۲۰٬۰۰۰ کیلومتر</option><option value="130000">۱۲۰٬۰۰۰ تا ۱۴۰٬۰۰۰ کیلومتر</option><option value="150000">۱۴۰٬۰۰۰ تا ۱۶۰٬۰۰۰ کیلومتر</option><option value="170000">۱۶۰٬۰۰۰ تا ۱۸۰٬۰۰۰ کیلومتر</option><option value="190000">۱۸۰٬۰۰۰ تا ۲۰۰٬۰۰۰ کیلومتر</option><option value="220000">بیشتر از ۲۰۰٬۰۰۰ کیلومتر</option></select><small class="hint">کارکرد را از بین بازه‌ها انتخاب کن؛ نیازی به باز کردن صفحه‌کلید نیست.</small></label>
 </div>
 <div class="notice" id="currentHint">برای نمایش مدل‌ها و تیپ‌های مرتبط، ابتدا برند خودرو را انتخاب کن.</div>
@@ -1603,7 +1605,7 @@ function showWizardStep(n){
  $('wizardPrev').classList.toggle('hidden',wizardStep===1);
  $('wizardNext').classList.toggle('hidden',wizardStep===last);
  $('submitBtn').classList.toggle('hidden',wizardStep!==last);
- $('wizardNext').textContent='ادامه ←';
+ $('wizardNext').textContent='ادامه ثبت درخواست';
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function validateWizardStep(){
@@ -1619,14 +1621,15 @@ function validateWizardStep(){
   if(type!=='buy'&&!$('model').value){showMessage('لطفاً مدل خودرو را انتخاب کن.','error');return false}
   if(type!=='sell'&&!$('tbrand').value){showMessage('لطفاً برند خودروی موردنظر را انتخاب کن.','error');return false}
   if(type!=='sell'&&!$('tmodel').value){showMessage('لطفاً مدل خودروی موردنظر را انتخاب کن.','error');return false}
-  if(type!=='buy'){$('currentPanel').querySelectorAll('[required]').forEach(el=>{});}
+  if(type!=='buy'&&!$('options').value){$('options').focus();showMessage('لطفاً سطح آپشن خودرو را انتخاب کن.','error');return false}
+  if(type!=='buy'&&!$('vehicleCondition').value){$('vehicleCondition').focus();showMessage('لطفاً وضعیت خودرو را انتخاب کن.','error');return false}
  }
  if(wizardStep===3&&type!=='buy'&&(!$('appointmentDate').value||!$('appointmentTime').value)){showMessage('لطفاً روز و ساعت مراجعه کارشناس را انتخاب کن.','error');return false}
  hideMessage();return true;
 }
 function hideMessage(){$('message').className='message hidden';$('message').textContent=''}
 function showMessage(text,kind){$('message').className='message '+kind;$('message').textContent=text;$('message').scrollIntoView({behavior:'smooth',block:'nearest'})}
-function vehicle(prefix,role){const obj={vehicle_role:role,brand:$(prefix+'brand').value,model:$(prefix+'model').value,trim:$(prefix+'trim').value,model_year:Number($(prefix+'year').value)||null};if(prefix===''){obj.color=$('color').value;obj.vehicle_type=$('vehicleType').value||null;obj.fuel_type=$('fuel').value||null;obj.mileage=Number($('mileage').value.replace(/\D/g,''))||0}else{obj.color=$('tcolor').value||null;obj.vehicle_type=$('tvehicleType').value||null;obj.mileage_preference=$('tmileage')?.value||null;obj.budget=$('tbudget')?.value||null;obj.transmission=$('tgearbox')?.value||null;obj.fuel_type=$('tfuel')?.value||null;obj.mileage=0}return obj}
+function vehicle(prefix,role){const obj={vehicle_role:role,brand:$(prefix+'brand').value,model:$(prefix+'model').value,trim:$(prefix+'trim').value,model_year:Number($(prefix+'year').value)||null};if(prefix===''){obj.color=$('color').value;obj.vehicle_type=$('vehicleType').value||null;obj.fuel_type=$('fuel').value||null;obj.mileage=Number($('mileage').value.replace(/\D/g,''))||0;obj.options=$('options').value||null;obj.condition=$('vehicleCondition').value||null}else{obj.color=$('tcolor').value||null;obj.vehicle_type=$('tvehicleType').value||null;obj.mileage_preference=$('tmileage')?.value||null;obj.budget=$('tbudget')?.value||null;obj.transmission=$('tgearbox')?.value||null;obj.fuel_type=$('tfuel')?.value||null;obj.mileage=0}return obj}
 function validCar(prefix,withCurrent){const fields=prefix===''?['brand','model']:['tbrand','tmodel'];for(const id of fields){if(!$(id).value){$(id).focus();return id}}if(prefix===''&&$('mileage').value.trim()===''){$('mileage').focus();return 'mileage'}return ''}
 $('requestForm').addEventListener('submit',async event=>{
  event.preventDefault();hideMessage();
