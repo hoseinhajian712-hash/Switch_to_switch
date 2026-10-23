@@ -1840,8 +1840,10 @@ $('contactMobileInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.pre
    const visibleBottom=vv?vv.height:window.innerHeight;
    const visibleTop=vv?vv.offsetTop:0;
    const margin=22;
-   if(rect.bottom>visibleTop+visibleBottom-margin||rect.top<visibleTop+margin){
-    const target=window.scrollY+rect.top-(visibleTop+Math.max(margin,(visibleBottom-rect.height)/2));
+   // Contact-name field should sit a little lower in the visible area, not hug the top.
+   const contactNameOffset=el.id==='contactNameInput'?78:0;
+   if(rect.bottom>visibleTop+visibleBottom-margin||rect.top<visibleTop+margin||contactNameOffset){
+    const target=window.scrollY+rect.top-(visibleTop+Math.max(margin,(visibleBottom-rect.height)/2)-contactNameOffset);
     window.scrollTo({top:Math.max(0,target),behavior:'smooth'});
    }
   },180);
