@@ -106,7 +106,7 @@ function auctionSchematic(c){
   if(p.includes('چراغعقب')&&p.includes('راننده'))return 'rearLampDriver';if(p.includes('چراغعقب')&&p.includes('شاگرد'))return 'rearLampPassenger';
   return null;
  }
- function kind(d){const v=norm(d.defect_type||d.defect||'');if(v.includes('استوک')&&v.includes('تعویض'))return 'stock';if(v.includes('برشوتعویض')||/^تعویض/.test(v))return 'replace';if(v.includes('صافکاری')&&(v.includes('نقاشی')||v.includes('رنگ')))return 'paint';if(v.includes('صافکاری')&&(v.includes('بدونرنگ')||v.includes('بیرنگ')))return 'hammer';return null}
+ function kind(d){const v=norm(d.defect_type||d.defect||'');if(v.includes('استوک')&&v.includes('تعویض'))return 'stock';if(v.includes('برشوتعویض')||/^تعویض/.test(v))return 'replace';if(v.includes('صافکاری')&&(v.includes('بدونرنگ')||v.includes('بیرنگ')))return 'hammer';if(v.includes('صافکاری')&&(v.includes('نقاشی')||v.includes('رنگ')))return 'paint';return null}
  const mapped=defects.map(d=>({part:String(d.part||''),type:String(d.defect_type||d.defect||''),zone:zoneFor(d.part),kind:kind(d)})).filter(x=>x.zone&&x.kind);
  if(!mapped.length)return '';
  const zones=[
