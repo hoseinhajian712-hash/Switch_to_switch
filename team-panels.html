@@ -450,7 +450,7 @@ function openCase(id){
  if(!selected)return;
  const c=selected;
  const v=(c.vehicles||[]).find(x=>x.vehicle_role==="current")||(c.vehicles||[])[0]||{};
- const vehicleRows=Object.entries({برند:v.brand,مدل:v.model,تیپ:v.trim,سال:v.model_year,رنگ:v.color,کارکرد:v.mileage})
+ const vehicleRows=Object.entries({برند:v.brand,مدل:v.model,تیپ:v.trim,سال:v.model_year,رنگ:v.color,کارکرد:v.mileage,"نوع سوخت":v.fuel_type||v.fuelType,"نوع خودرو":v.vehicle_type||v.vehicleType,"شماره شاسی (VIN)":v.vin||v.chassis_number||v.chassisNumber,"شماره موتور":v.engine_number||v.engineNumber,"شماره پلاک":v.plate_number||v.plateNumber})
   .map(([k,val])=>'<div class="row" style="padding:7px 0;border-bottom:1px solid #20354c"><span class="muted">'+esc(k)+'</span><span>'+esc(val??"—")+'</span></div>').join("");
  const historyRows=(c.history||[]).slice(0,8).map(h=>'<div style="padding:9px 0;border-bottom:1px solid #20354c"><div class="vv">'+esc(h.note||h.message||h.to_status||"به‌روزرسانی وضعیت")+'</div><div class="caseSub">'+esc(date(h.created_at))+'</div></div>').join("");
  document.getElementById("caseModal").classList.remove("hidden");
@@ -494,7 +494,7 @@ function openCase(id){
   if(legalDetail){
    Array.from(legalDetail.querySelectorAll(":scope > .card")).forEach(card=>{
     const heading=(card.querySelector("h3")?.textContent||"").trim();
-    if(!/گزارش|مدارک/.test(heading))card.remove();
+    if(!/مشخصات خودرو|گزارش|مدارک/.test(heading))card.remove();
    });
   }
  }
