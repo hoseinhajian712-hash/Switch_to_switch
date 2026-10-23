@@ -1783,9 +1783,9 @@ function yearsFor(brand,model,trim){
  if(modelKey.includes('206صندوقدار')||modelKey.includes('206اسدی'))range=[1385,1400];
  // اصلاح‌های برند/مدل برای نام‌های مشترک یا کلیدهای تکراری در فهرست.
  if(modelKey==='اطلس'&&normalizeCarName(brand).includes('سایپا'))range=[1402,1405];
- if(modelKey==='اطلس'&&normalizeCarName(brand).includes('فولکسواگن'))range=[2018,2021];
- if(modelKey.includes('جلالای(gla)'))range=[2014,2026];
- if(modelKey.includes('جلالای(gle)'))range=[2015,2026];
+ if(modelKey==='اطلس'&&normalizeCarName(brand).includes('فولکسواگن'))range=[1397,1400];
+ if(modelKey.includes('جلالای(gla)'))range=[1393,1405];
+ if(modelKey.includes('جلالای(gle)'))range=[1394,1405];
  // بازه‌های ثبت‌شده در جدول برای خودروهای وارداتی به تقویم میلادی تبدیل می‌شوند.
  // بازهٔ پیش‌فرض وارداتی از قبل میلادی است و نباید دوباره تبدیل شود.
  if(!solarCalendar&&!fallbackIsGregorian)range=range.map(y=>y+621);
