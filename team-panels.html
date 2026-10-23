@@ -448,7 +448,7 @@ async function loadCaseComments(silent=false){
   const msgs=r.comments||[];
   box.innerHTML=msgs.length?msgs.map(m=>'<div class="chatMsg '+(m.author_role===role?"mine":"")+'"><div class="chatMeta"><strong>'+esc(roleLabel(m.author_role))+'</strong><span>'+esc(date(m.created_at))+'</span></div><div class="chatText">'+esc(m.message)+'</div></div>').join(""):'<div class="empty">هنوز پیامی ثبت نشده؛ اولین پیام را بنویسید.</div>';
   box.scrollTop=box.scrollHeight;
-  if(role==="intake")ensureMileageComment();
+  if(role==="intake")ensureMileageComment(msgs);
  }catch(e){if(!silent){const box=document.getElementById("caseChatMessages");if(box)box.innerHTML='<div class="empty">'+esc(e.message)+'</div>'}}
  finally{commentsLoading=false}
 }
@@ -462,14 +462,13 @@ async function sendPresetCaseComment(index){
  try{await api("case-comment",{id:selected.id,method:"POST",body:{message}});await loadCaseComments();}
  catch(e){alert(e.message||"ثبت کامنت انجام نشد.")}
 }
-async function ensureMileageComment(){
+async function ensureMileageComment(existingComments=[]){
  if(!selected||!["intake","admin"].includes(role))return;
  const vehicle=(selected.vehicles||[]).find(x=>x.vehicle_role==="current")||(selected.vehicles||[])[0];
  const mileage=String(vehicle?.mileage??"").trim();if(!mileage)return;
  const message="کارکرد خودرو: "+mileage+" کیلومتر";
  try{
-  const r=await api("case-comments",{id:selected.id});
-  if((r.comments||[]).some(m=>String(m.message||"").trim()===message))return;
+  if((existingComments||[]).some(m=>String(m.message||"").trim()===message))return;
   await api("case-comment",{id:selected.id,method:"POST",body:{message}});
   await loadCaseComments(true);
  }catch(e){console.warn("ثبت خودکار کامنت کارکرد انجام نشد",e)}
