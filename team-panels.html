@@ -498,7 +498,7 @@ function openCase(id){
    });
   }
  }
- arrangeSalesCaseWorkspace(c);
+ if(role!=="legal")arrangeSalesCaseWorkspace(c);
  updateSalesExpertTravelCountdown();
  loadCaseComments();
  if(["finance","admin"].includes(role))loadFinanceCasePayments(c.id);
@@ -522,6 +522,7 @@ function arrangeSalesCaseWorkspace(c){
   const h=card.querySelector("h3");
   // First two cards are always customer details, then vehicle details.
   let label=index===0?"اطلاعات مشتری":index===1?"مشخصات خودرو":(h?h.textContent.trim():"اطلاعات پرونده");
+  if(label.includes("مسیر کارشناسی"))label=index===0?"اطلاعات مشتری":index===1?"مشخصات خودرو":"گزارش کارشناسی";
   if(index>1&&(label.includes("خودروی فعلی")||label==="اطلاعات خودرو"))label="مشخصات خودرو";
   if(h)h.remove();
   const fold=document.createElement("details");fold.className="sales-fold";
