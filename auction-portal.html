@@ -10,6 +10,52 @@
 @media(min-width:1100px){body:has(.s2s-right-rail) main.wrap{width:calc(100% - 290px);max-width:1600px;margin-left:0;margin-right:270px}}
 @media(max-width:1099px){.s2s-right-rail{position:relative;right:auto;top:auto;bottom:auto;width:auto;margin:12px 12px 0;max-height:none}.s2s-rail-nav{grid-template-columns:repeat(2,minmax(0,1fr))}body:has(.s2s-right-rail) main.wrap{width:auto;margin:0;max-width:1600px}}
 @media(max-width:520px){.s2s-right-rail{padding:12px;border-radius:15px}.s2s-rail-nav{grid-template-columns:1fr 1fr}.s2s-rail-stat strong{font-size:17px}}
+
+/* Mobile app shell: edge-to-edge, no outer frame */
+html{min-height:100%;background:#07111f}
+body{min-height:100vh;min-height:100dvh;margin:0;width:100%;overflow-x:hidden}
+main.wrap{width:100%!important;max-width:none!important;margin:0!important;padding:12px 16px 28px!important}
+.switch-brand-banner{padding:8px 12px 2px}
+.switch-brand-banner a{max-width:220px;width:min(56vw,220px)}
+.switch-brand-banner img{max-height:58px}
+header{padding:10px 0 14px}
+@media(max-width:760px){
+  body{background:#07111f}
+  main.wrap{padding:8px 12px calc(88px + env(safe-area-inset-bottom))!important}
+  .switch-brand-banner{padding:6px 12px 0}
+  .switch-brand-banner a{width:min(48vw,180px)}
+  .switch-brand-banner img{max-height:48px}
+  header{gap:8px;padding:8px 0 12px}
+  .brand{gap:8px;min-width:0}
+  .logo{flex:0 0 38px;width:38px;height:38px;border-radius:12px}
+  h1{font-size:17px;line-height:1.5}
+  header p{font-size:10px}
+  header>.btn{padding:8px 10px;white-space:nowrap}
+  .hero{padding:16px 0 8px}
+  .hero h2{font-size:20px}
+  .hero p{font-size:12px;line-height:1.9}
+  .stats{margin:12px 0;gap:8px}
+  .stat{border-radius:13px;padding:10px 12px}
+  .section{margin-top:18px}
+  .head{margin:12px 0 9px;align-items:center}
+  .head h2{font-size:17px}
+  .grid{gap:10px}
+  .card{border-radius:14px;padding:13px}
+  .panel{border-radius:14px}
+  .btn{min-height:42px}
+  .s2s-right-rail{position:fixed!important;right:0!important;left:0!important;top:auto!important;bottom:0!important;width:100%!important;max-height:none!important;margin:0!important;padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important;border-radius:16px 16px 0 0!important;border:0!important;border-top:1px solid #29415b!important;background:#081321f5!important;box-shadow:0 -8px 28px #0005!important;z-index:1000}
+  .s2s-rail-brand,.s2s-rail-caption,.s2s-rail-stats,.s2s-rail-note{display:none!important}
+  .s2s-rail-nav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important}
+  .s2s-rail-nav a{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;min-height:48px;padding:5px 2px!important;text-align:center;font-size:9px!important;line-height:1.5;border-radius:9px!important;background:transparent!important;border:1px solid transparent!important}
+  .s2s-rail-nav a:nth-child(n+5){display:none!important}
+  footer{padding:18px 0 8px}
+}
+@media(max-width:380px){
+  main.wrap{padding-left:9px!important;padding-right:9px!important}
+  .s2s-rail-nav a{font-size:8px!important}
+  header>.btn{font-size:10px;padding:7px 8px}
+}
+
 </style><link rel="stylesheet" href="./corporate-theme.css?v=1">
 </head><body><aside class="s2s-right-rail" aria-label="منوی سریع پنل مزایده"><div class="s2s-rail-brand">سوییچ به سوییچ</div><div class="s2s-rail-caption">مرکز دسترسی و آمار مزایده</div><div class="s2s-rail-stats"><div class="s2s-rail-stat"><small>کل مزایده‌ها</small><strong id="railAuctionTotal">۰</strong></div><div class="s2s-rail-stat"><small>مزایده فعال</small><strong id="railAuctionActive">۰</strong></div><div class="s2s-rail-stat"><small>پایان‌یافته</small><strong id="railAuctionEnded">۰</strong></div><div class="s2s-rail-stat"><small>کل پیشنهادها</small><strong id="railAuctionBids">۰</strong></div></div><nav class="s2s-rail-nav"><a href="#eligible">🚘 پرونده‌های آماده مزایده</a><a href="#allCases">📁 همه پرونده‌ها</a><a href="#auctions">🔨 فهرست مزایده‌ها</a><a href="./team-panels.html">🧭 پنل فروش و عملیات</a><a href="./expert.html">🔎 پنل کارشناسی</a><a href="./admin.html">⚙️ پنل مدیریت</a><a href="./workflow.html">🔄 گردش وضعیت پرونده</a><a href="./index.html">🏠 صفحه اصلی سایت</a></nav><div class="s2s-rail-note">آمار این بخش از اطلاعات داشبورد مزایده خوانده می‌شود و با به‌روزرسانی خودکار پنل هماهنگ می‌شود.</div></aside><div class="switch-brand-banner"><a href="./index.html" aria-label="صفحه اصلی سوییچ به سوییچ"><img src="./brand-logo.svg" alt="سوییچ به سوییچ | Switch to Switch"></a></div><main class="wrap"><header><div class="brand"><div class="logo switch-wordmark" aria-label="SWITCH TO SWITCH"><span class="wordmark-main">SWITCH</span><span class="wordmark-to">TO</span><span class="wordmark-main">SWITCH</span></div><div><h1>مدیریت مزایده سوییچ به سوییچ</h1><p>داشبورد کنترل مزایده‌ها و پیشنهادهای ثبت‌شده</p></div></div><a class="btn" href="admin.html">← پنل مدیریت</a></header><section class="hero"><span class="eyebrow">AUCTION CONTROL CENTER</span><h2>کنترل کامل مزایده‌های خودرو</h2><p>پرونده‌های پایان کارشناسی را به مزایده منتقل کن، قیمت پایه را تعیین کن و پیشنهادها و زمان باقی‌مانده را زنده پیگیری کن. مدت هر مزایده دقیقاً ۶۰ دقیقه است.</p></section><div id="message"></div><div id="locked" class="panel" style="padding:20px"><b>🔐 ورود امن پنل مزایده</b><p class="muted">برای دیدن خودروهای مزایده، کد پرسنلی ۴ رقمی و رمز مدیر را همین‌جا وارد کن.</p><form id="auctionLoginForm" style="max-width:420px;display:grid;gap:10px;margin-top:14px"><input id="auctionStaffCode" type="text" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="off" placeholder="کد پرسنلی ۴ رقمی" required style="width:100%;padding:12px;border-radius:10px;background:#081321;color:#fff;border:1px solid #29415f;font:inherit"><input id="auctionStaffPassword" type="password" autocomplete="current-password" placeholder="رمز عبور مدیر" required style="width:100%;padding:12px;border-radius:10px;background:#081321;color:#fff;border:1px solid #29415f;font:inherit"><button id="auctionLoginButton" class="btn primary" type="submit">ورود و نمایش مزایده‌ها</button><div id="auctionLoginError" class="muted" role="status"></div></form></div><div id="content" class="hidden"><div class="stats"><div class="stat"><small>کل مزایده‌ها</small><b id="total">۰</b></div><div class="stat"><small>مزایده فعال</small><b id="active">۰</b></div><div class="stat"><small>پایان‌یافته</small><b id="ended">۰</b></div><div class="stat"><small>کل پیشنهادها</small><b id="bids">۰</b></div></div><section class="section"><div class="head"><div><h2>پرونده‌های آماده مزایده</h2><p>فقط پرونده‌های پایان کارشناسی یا آماده انتقال نمایش داده می‌شوند.</p></div><button id="refresh" class="btn">↻ بروزرسانی</button></div><div id="eligible" class="grid"><div class="empty">در حال دریافت پرونده‌ها…</div></div></section><section class="section"><div class="head"><div><h2>همه پرونده‌های سامانه</h2><p>فهرست مشترک پرونده‌ها و آخرین وضعیت ثبت‌شده در پنل مدیریت؛ این بخش برای مشاهده است.</p></div></div><div id="allCases" class="grid"><div class="empty">در حال دریافت پرونده‌ها…</div></div></section><section class="section"><div class="head"><div><h2>فهرست مزایده‌ها</h2><p>جزئیات پیشنهادها و کنترل پایان مزایده</p></div></div><div id="auctions" class="grid"><div class="empty">در حال دریافت مزایده‌ها…</div></div></section></div><div style="text-align:center;margin:12px 0"><a class="btn" href="./workflow.html">مشاهده گردش کامل وضعیت‌های پرونده</a></div><footer>سوییچ به سوییچ · پنل مدیریتی مزایده</footer></main><script src="config.js"></script><script>
 (()=>{const base=(window.SUPABASE_URL||"")+"/functions/v1/switch-to-switch", $=x=>document.getElementById(x), token=()=>sessionStorage.getItem("s2s_admin_token_v2")||"";let cases=[],auctions=[],auctionMembers=[],statusMap={};
