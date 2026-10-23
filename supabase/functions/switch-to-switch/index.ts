@@ -1102,7 +1102,28 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    finance:{prepayment_received:{from:["prepayment","deposit"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_transfer_method_confirmation"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"settled"}},
    contracts:{contract_approved:{from:["ready_to_sign"],to:"contract_approved"},await_buyer_settlement:{from:["contract_approved"],to:"awaiting_buyer_settlement"},custody_receipt_issued:{from:["awaiting_custody_receipt"],to:"deductions_review"},buyer_confirmed:{from:["awaiting_buyer_confirmation"],to:"awaiting_seller_confirmation"},seller_confirmed:{from:["awaiting_seller_confirmation"],to:"awaiting_notary"},notary_attended:{from:["awaiting_notary"],to:"awaiting_power_of_attorney_signature"},poa_signed:{from:["awaiting_power_of_attorney_signature"],to:"seller_final_payout_pending"},start_plate_release:{from:["settled"],to:"awaiting_plate_release"},plate_release:{from:["awaiting_plate_release"],to:"vehicle_delivery"},vehicle_delivered:{from:["vehicle_delivery"],to:"done"},transaction_completed:{from:["vehicle_delivery","contract"],to:"done"}}
   };
-  if(type==="docs_received"){
+  if(role==="sales"&&type==="relist_after_buyer_cancel"){
+    const ar=await db.from("auctions").select("id,case_id,status,winner_id,winner_response_status,purchase_stage").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+    if(ar.error)return json({error:ar.error.message},500);
+    if(!ar.data||ar.data.status!=="ended"||!(ar.data.purchase_stage==="cancelled"||ar.data.winner_response_status==="declined"))return json({error:"بازگشت به مزایده فقط پس از ثبت انصراف خریدار یا رد قیمت مجاز است."},409);
+    const up=await db.from("cases").update({status:"auction-ready",updated_at:new Date().toISOString()}).eq("id",id).eq("status","auction-end").select("id").maybeSingle();
+    if(up.error)return json({error:up.error.message},500);
+    if(!up.data)return json({error:"پرونده در وضعیت پایان مزایده نیست؛ فهرست را تازه کنید."},409);
+    await historyAdd(id,"auction-end","auction-ready","تیم فروش پس از انصراف خریدار، خودرو را برای انتشار مجدد در مزایده آماده کرد. سوابق مزایده قبلی حفظ شد.");
+    return json({ok:true,status:"auction-ready"});
+   }
+   if(role==="sales"&&type==="set_buyer_cancellation_fine"){
+    const amount=Number(payload.fine_amount),reason=String(payload.fine_reason||note||"").trim().slice(0,1000);
+    if(!Number.isSafeInteger(amount)||amount<=0||!reason)return json({error:"مبلغ مثبت و علت مستند جریمه الزامی است."},400);
+    const ar=await db.from("auctions").select("id,case_id,status,purchase_stage,winner_response_status").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+    if(ar.error)return json({error:ar.error.message},500);
+    if(!ar.data||ar.data.status!=="ended"||!(ar.data.purchase_stage==="cancelled"||ar.data.winner_response_status==="declined"))return json({error:"جریمه فقط برای مزایده‌ای که خریدار آن انصراف داده یا قیمت را رد کرده قابل ثبت است."},409);
+    const up=await db.from("auctions").update({cancellation_fine_amount:amount}).eq("id",ar.data.id).select("id,cancellation_fine_amount").single();
+    if(up.error)return json({error:"ثبت مبلغ جریمه ناموفق بود: "+up.error.message},500);
+    await historyAdd(id,"customer","customer","تیم فروش مبلغ جریمه انصراف را ثبت کرد: "+amount.toLocaleString("fa-IR")+" تومان؛ علت: "+reason+"؛ ثبت مبلغ به‌تنهایی به معنی برداشت وجه از کیف پول نیست.");
+    return json({ok:true,fine_amount:amount});
+   }
+   if(type==="docs_received"){
    const latest=await db.from("case_team_updates").select("payload,created_at").eq("case_id",id).eq("update_type","documents_checklist").order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(latest.error)return json({error:latest.error.message},500);
    const required=["owner_national_id","vehicle_card","green_card"],items=latest.data?.payload?.items||{};
