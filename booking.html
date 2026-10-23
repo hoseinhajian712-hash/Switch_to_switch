@@ -760,6 +760,16 @@ html{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;t
 body{max-width:100%;overflow-x:hidden}
 input,select,textarea,button{touch-action:manipulation}
 </style>
+
+<style id="s2s-all-brand-logo-polish">
+.brand-tile-logo{position:relative;display:grid!important;place-items:center!important;flex:0 0 68px!important;width:68px!important;height:68px!important;padding:8px!important;overflow:hidden!important;border:1px solid #dce6f1!important;border-radius:18px!important;background:linear-gradient(145deg,#fff 0%,#f0f5fb 100%)!important;box-shadow:0 5px 15px #071a3214,inset 0 1px 0 #fff!important;color:#17395f!important}
+.brand-tile-logo img{display:block;width:100%!important;height:100%!important;max-width:52px!important;max-height:52px!important;object-fit:contain!important;background:#fff!important;border-radius:10px!important;padding:2px!important}
+.brand-tile-logo.brand-tile-fallback{font-size:21px!important;font-weight:900!important;letter-spacing:-.5px!important;color:#12385d!important;background:linear-gradient(145deg,#fff,#e7f0fa)!important}
+.brand-tile-logo.brand-tile-has-logo{background:#fff!important}
+.brand-tile{gap:11px!important}
+.brand-tile-name{font-weight:800!important;line-height:1.6!important}
+@media(max-width:540px){.brand-tile-logo{flex-basis:55px!important;width:55px!important;height:55px!important;border-radius:15px!important}.brand-tile-logo img{max-width:43px!important;max-height:43px!important}.brand-tile-logo.brand-tile-fallback{font-size:19px!important}}
+</style>
 </head>
 <body><div class="switch-brand-banner"><a href="./index.html" aria-label="صفحه اصلی سوییچ به سوییچ"><img src="./brand-logo.svg" alt="سوییچ به سوییچ | Switch to Switch"></a></div>
 <main class="wrap">
@@ -1522,7 +1532,9 @@ function initBrandGridPickers(){
     };
     const img=document.createElement('img');img.alt=opt.textContent+' لوگو';img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';
     const urls=[];
+    // Try a brand image first, then the manufacturer's own site icon, then Simple Icons.
     if(domain)urls.push('https://logo.clearbit.com/'+domain+'?size=128');
+    if(domain)urls.push('https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128');
     if(slug)urls.push('https://cdn.simpleicons.org/'+encodeURIComponent(slug));
     const slugFallback={'ایران‌خودرو':'iran-khodro','سایپا':'saipa','کرمان موتور':'kerman-motor','مدیران خودرو':'mvm','بهمن موتور':'bahman-motor','فردا موتور':'farda-motors','لاماری':'lamari','دنا':'iran-khodro','شاهین':'saipa','تارا':'iran-khodro','سمند':'iran-khodro','کوئیک':'saipa','ساینا':'saipa','سهند':'saipa','اطلس':'saipa','ری‌را':'iran-khodro'};
     if(slugFallback[opt.value])urls.push('https://logo.clearbit.com/'+({'ایران‌خودرو':'ikco.ir','سایپا':'saipacorp.com','کرمان موتور':'kermanmotor.com','مدیران خودرو':'mvmco.ir','بهمن موتور':'bahman.ir','فردا موتور':'fardamotors.com','لاماری':'lamari.ir','دنا':'ikco.ir','شاهین':'saipacorp.com','تارا':'ikco.ir','سمند':'ikco.ir','کوئیک':'saipacorp.com','ساینا':'saipacorp.com','سهند':'saipacorp.com','اطلس':'saipacorp.com','ری‌را':'ikco.ir'}[opt.value])+'?size=128');
