@@ -997,7 +997,8 @@ const $=id=>document.getElementById(id);
 function optionList(el,items,placeholder){el.innerHTML='';const first=document.createElement('option');first.value='';first.textContent=placeholder;el.appendChild(first);items.forEach(item=>{const o=document.createElement('option');o.value=item;o.textContent=item;el.appendChild(o)});el.disabled=!items.length}
 // نسخه‌ها و تیپ‌ها بر اساس مدل خودرو جدا شده‌اند؛ نام‌ها در بازار ممکن است با سال/سری عرضه فرق کنند.
 const trimCatalog={
-'پژو ۲۰۶':['تیپ ۱','تیپ ۲','تیپ ۳','تیپ ۴','تیپ ۵','تیپ ۶','SD V1','SD V2','SD V8','SD V9'],
+'پژو ۲۰۶':['تیپ ۱','تیپ ۲','تیپ ۳','تیپ ۴','تیپ ۵','تیپ ۶','سقف شیشه‌ای'],
+'پژو ۲۰۶ اس‌دی':['V1','V2','V8','V9','V10','V20','اتوماتیک'],
 'پژو ۲۰۷':['دنده‌ای TU5 سقف فلزی','دنده‌ای TU5 پانوراما','دنده‌ای TU5P سقف فلزی','دنده‌ای TU5P پانوراما','اتوماتیک TU5 سقف فلزی','اتوماتیک TU5 پانوراما','اتوماتیک TU5P سقف فلزی','اتوماتیک TU5P پانوراما','MC اتوماتیک','TU3 دنده‌ای','دنده‌ای ۸۵گانه','اتوماتیک ۸۵گانه','پانوراما دو رنگ (MC)'],
 'دنا':['معمولی EF7','Eال‌ایکس','EF7 دوگانه‌سوز'],
 'دنا پلاس':['دنده‌ای EF7','دنده‌ای توربو','اتوماتیک توربو','دنده‌ای ۶ سرعته','توربو اتوماتیک آپشنال','توربو اتوماتیک ۸۵گانه'],
