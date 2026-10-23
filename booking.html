@@ -1870,7 +1870,9 @@ function yearsFor(brand,model,trim){
  }
  // برای مدل‌هایی که بازه دقیق هنوز ثبت نشده، سال‌ها را به‌اشتباه از ۱۳۹۰ شروع نکن:
  // خودروهای مونتاژ/داخلی شمسی و خودروهای وارداتی میلادی نمایش داده می‌شوند.
- const locallyBuiltPeugeot=/پژو(206|207|2008|301|405|پارس)/.test(modelKey);
+ const brandKeyForYear=normalizeCarName(brand);
+ const locallyBuiltPeugeot=/پژو(206|207|2008|301|405|پارس)/.test(modelKey)||
+  (brandKeyForYear==='پژو'&&/^(206|207|2008|301|405|پارس)$/.test(modelKey));
  const locallyBuiltRenault=/^(ساندرو|استپوی|لوگان|تندر90ایرانخودرو|مگانمونتاژ|زانتیا|ریومونتاژ)$/.test(modelKey);
  const solarCalendar=isSolarCalendarBrand(brand)||locallyBuiltPeugeot||locallyBuiltRenault;
  const hasKnownRange=Array.isArray(range);
