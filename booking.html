@@ -1559,8 +1559,8 @@ function initBrandGridPickers(){
       'baic':'baic-logo.svg','بایک':'baic-logo.svg','faw':'faw-logo.svg','فاو':'faw-logo.svg','kgm':'kgm-logo.svg','سانگ یانگ':'kgm-logo.svg','ssangyong':'kgm-logo.svg','zotye':'zotye-logo.png','زوتی':'zotye-logo.png',
       'jetour':'jetour-logo.svg','جتور':'jetour-logo.svg','lincoln':'lincoln-logo.svg','لینکلن':'lincoln-logo.svg','mclaren':'mclaren-logo.svg','مک لارن':'mclaren-logo.svg'
     };
-    const localKey=normalizeBrandKey(opt.value||opt.textContent);
-    const localEntry=Object.entries(localBrandLogoFiles).find(([k])=>normalizeBrandKey(k)===localKey);
+    const localKeys=[normalizeBrandKey(opt.value),normalizeBrandKey(opt.textContent)];
+    const localEntry=Object.entries(localBrandLogoFiles).find(([k])=>localKeys.includes(normalizeBrandKey(k)));
     if(localEntry)logoUrls.push('assets/brand-logos/'+localEntry[1]);
     // For brands not yet available as local SVG, use the actual logo collection's image asset before favicon fallback.
     const hostedLogoFiles={
@@ -1568,7 +1568,7 @@ function initBrandGridPickers(){
       'دونگ فنگ':'dongfeng-logo.png','دانگ فنگ':'dongfeng-logo.png','dongfeng':'dongfeng-logo.png','دوج':'dodge-logo.png','dodge':'dodge-logo.png','فورد':'ford-logo.png','ford':'ford-logo.png',
       'جی ام سی':'gmc-logo.png','gmc':'gmc-logo.png','گریت وال':'great-wall-logo.png','هاوال':'haval-logo.png','ام جی':'mg-logo.png','mg':'mg-logo.png','سانگ یانگ':'ssangyong-logo.png','swm':'swm-logo.png'
     };
-    const hostedEntry=Object.entries(hostedLogoFiles).find(([k])=>normalizeBrandKey(k)===localKey);
+    const hostedEntry=Object.entries(hostedLogoFiles).find(([k])=>localKeys.includes(normalizeBrandKey(k)));
     if(hostedEntry)logoUrls.push('https://cdn.jsdelivr.net/npm/car-brand-logos/'+hostedEntry[1]);
     if(slug)logoUrls.push('https://cdn.simpleicons.org/'+encodeURIComponent(slug));
     if(domain)logoUrls.push('https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128');
