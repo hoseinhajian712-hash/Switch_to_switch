@@ -493,10 +493,11 @@ function arrangeSalesCaseWorkspace(c){
  }
  const cards=Array.from(detail.querySelectorAll(":scope > .card"));
  cards.forEach(card=>{
-  const h=card.querySelector(":scope > h3");const label=h?h.textContent.trim():"اطلاعات مشتری";
+  const h=card.querySelector(":scope > h3");let label=h?h.textContent.trim():"اطلاعات مشتری";
+  if(label.includes("خودروی فعلی"))label="اطلاعات خودرو";
   if(h)h.remove();
   const fold=document.createElement("details");fold.className="sales-fold";
-  const sum=document.createElement("summary");sum.textContent=(label.includes("اطلاعات مشتری")?"👤 ":label.includes("خودروی فعلی")?"🚘 ":label.includes("کارشناسی")||label.includes("گزارش")?"🛠 ":label.includes("تاریخچه")?"🕒 ":"")+label;
+  const sum=document.createElement("summary");sum.textContent=(label.includes("اطلاعات مشتری")?"👤 ":label==="اطلاعات خودرو"?"🚘 ":label.includes("کارشناسی")||label.includes("گزارش")?"🛠 ":label.includes("تاریخچه")?"🕒 ":"")+label;
   const body=document.createElement("div");body.className="sales-fold-content";body.appendChild(card);fold.appendChild(sum);fold.appendChild(body);left.appendChild(fold);
  });
  detail.remove();
