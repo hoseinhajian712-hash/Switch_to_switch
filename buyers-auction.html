@@ -1323,4 +1323,70 @@ body.dashboard-open #auctionArea:not(.hidden){padding-bottom:14px!important}
 .case-details-page .bid-form-simple .bid-submit{min-height:58px!important;border:0!important;border-radius:14px!important;background:linear-gradient(110deg,#117d73,#159c8c)!important;color:#fff!important;font-size:16px!important;font-weight:900!important;box-shadow:0 8px 18px #117d7328!important}
 .case-details-page .bid-form-simple .bid-submit:hover{filter:brightness(1.04)}
 @media(max-width:380px){.case-details-page .bid-form-simple{padding:13px!important}.case-details-page .bid-form-simple .bid-current-box{padding:12px!important}}
+
+/* هماهنگ‌سازی رنگ کل پنل مزایده با هویت بصری سایت اصلی */
+:root{
+ --bg:#07111f!important;--panel:#0d1b2e!important;--panel2:#12243a!important;
+ --line:#263c55!important;--text:#edf4ff!important;--muted:#aebbd0!important;
+ --gold:#60a5fa!important;--green:#7ce6c1!important;
+}
+html,body{background-color:#07111f!important;color:#edf4ff!important}
+body{
+ background:
+ radial-gradient(ellipse at 12% -8%,#2563eb30 0,transparent 36%),
+ radial-gradient(ellipse at 88% 4%,#14b8a622 0,transparent 32%),
+ linear-gradient(160deg,#07111f 0%,#0a1424 58%,#07111f 100%)!important;
+ color:#edf4ff!important
+}
+.bar,.topbar,.header,.site-header,.nav,.toolbar{
+ border-color:#ffffff12!important
+}
+.logo,.brand .logo{
+ border-color:#60a5fa77!important;color:#7ce6c1!important;
+ background:linear-gradient(145deg,#2563eb20,#14b8a610)!important;
+ box-shadow:0 8px 24px #0003!important
+}
+.panel,.car-card,.card,.section,.auction-card,.buyer-overview,.buyer-case-overview{
+ background:linear-gradient(145deg,#12243a 0%,#0b1729 100%)!important;
+ border-color:#ffffff16!important;
+ box-shadow:0 12px 32px #0003!important
+}
+h1,h2,h3,.car-title,.section-title{color:#f4f8ff!important}
+.eyebrow,.section-label,.case-chevron,.photo-thumb span,.hero-photo span{color:#7ce6c1!important}
+.muted,small,.sub,.meta,footer{color:#aebbd0!important}
+.btn,button,.case-collapse>summary,.report>details>summary,.schematic-box>summary,.items-docs>summary{
+ border-color:#ffffff1c!important;
+ background:linear-gradient(145deg,#172a42,#101e31)!important;
+ color:#edf4ff!important
+}
+.btn.primary,.primary,.bid-submit,.case-open-link{
+ background:linear-gradient(120deg,#60a5fa,#2563eb)!important;
+ color:#fff!important;border:0!important;
+ box-shadow:0 7px 20px #2563eb35!important
+}
+.btn.primary:hover,.primary:hover,.bid-submit:hover,.case-open-link:hover{filter:brightness(1.08)!important}
+.field,input,select,textarea,.bid-form input,.bid-form-simple input{
+ background:#081524!important;color:#f4f8ff!important;border-color:#304967!important
+}
+.field:focus,input:focus,select:focus,textarea:focus{
+ outline:2px solid #60a5fa66!important;border-color:#60a5fa!important
+}
+.price,.timer,.defect,.case-collapse>summary,.photo-thumb,.hero-photo{
+ background:linear-gradient(145deg,#0b1729,#0a1423)!important;
+ border-color:#ffffff16!important;color:#edf4ff!important
+}
+.timer b,.auction-card-timer b,.bid-inline-timer b{color:#7ce6c1!important}
+.pill,.ok{background:#0b3b2e!important;border-color:#34d39966!important;color:#c7f9e5!important}
+.err{background:#391e29!important;border-color:#82464b!important}
+.msg{background:#102b45!important;border-color:#60a5fa55!important;color:#dbeafe!important}
+.target-prices>div{background:linear-gradient(145deg,#0b3b2e,#102b30)!important;border-color:#34d39955!important}
+.target-prices small{color:#c7f9e5!important}
+.photos img,.photo-thumb img,.hero-photo img{border-color:#263c55!important}
+.empty{border-color:#304967!important;background:#0b172966!important;color:#aebbd0!important}
+#fixedBidBar{background:linear-gradient(120deg,#0d1b2eF5,#07111fF5)!important;border-color:#ffffff18!important;backdrop-filter:blur(14px)!important}
+#fixedBidSubmit{background:linear-gradient(120deg,#60a5fa,#2563eb)!important;color:#fff!important}
+@media(prefers-reduced-motion:no-preference){
+ .panel,.car-card,.card,.auction-card{transition:border-color .18s ease,box-shadow .18s ease}
+ .panel:hover,.car-card:hover,.card:hover,.auction-card:hover{border-color:#60a5fa55!important;box-shadow:0 16px 34px #0004!important}
+}
 </style>
