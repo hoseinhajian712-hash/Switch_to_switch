@@ -1467,6 +1467,7 @@ function initModernDropdowns(){
    const mark=document.createElement('span');mark.className='brand-mark';
    const slug=brandDomains[name],domain=brandLogoDomains[name],hosted=brandHostedLogos[name],urls=[];
    if(name==='سایپا')urls.push('https://upload.wikimedia.org/wikipedia/commons/3/3f/SAIPA-wiki.png');
+   if(name==='کرمان موتور')urls.push('https://cdn.brandfetch.io/domain/kermanmotor.ir/fallback/lettermark/theme/dark/h/400/w/400/icon?c=1bfwsmEH20zzEfSNTed');
    if(hosted)urls.push('https://cdn.jsdelivr.net/npm/car-brand-logos/'+hosted);
    if(slug&&!slug.includes('.'))urls.push('https://cdn.simpleicons.org/'+encodeURIComponent(slug));
    if(domain)urls.push('https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128');
@@ -1552,6 +1553,7 @@ function initBrandGridPickers(){
     const logoUrls=[];
     // Use the verified current Saipa emblem directly; the generic hosted filename was missing from the logo collection.
     if(brandKeys.some(key=>key==='سایپا'))logoUrls.push('https://upload.wikimedia.org/wikipedia/commons/3/3f/SAIPA-wiki.png');
+    if(brandKeys.some(key=>key==='کرمانموتور'))logoUrls.push('https://cdn.brandfetch.io/domain/kermanmotor.ir/fallback/lettermark/theme/dark/h/400/w/400/icon?c=1bfwsmEH20zzEfSNTed');
     // Prefer logo files stored inside this project so they load reliably without third-party favicon services.
     const localBrandLogoFiles={
       'toyota':'toyota-logo.svg','تویوتا':'toyota-logo.svg','volkswagen':'volkswagen-logo.svg','فولکس واگن':'volkswagen-logo.svg','bmw':'bmw-logo.svg','بی ام و':'bmw-logo.svg','audi':'audi-logo.svg','آئودی':'audi-logo.svg',
