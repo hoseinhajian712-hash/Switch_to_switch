@@ -57,7 +57,7 @@ input,select,textarea,button{touch-action:manipulation}
 <button class="ghost hidden" id="resendOtpBtn" type="button" style="width:100%;margin-top:10px">ارسال دوباره کد</button>
 <button class="ghost hidden" id="changePhoneBtn" type="button" style="width:100%;margin-top:10px">تغییر شماره همراه یا ایمیل</button>
 <div class="msg hidden" id="message" role="status" aria-live="polite"></div>
-<p class="small">برای ورود یا ساخت حساب، فقط شماره همراه لازم است. برای ورود با شماره همراه، کد پیامکی ارسال نمی‌شود؛ مدیر کد را از پنل مدیریت صادر می‌کند. ورود با ایمیل همچنان از طریق کد ایمیل است.</p>
+<p class="small">برای ورود با شماره همراه، بعد از واردکردن شماره و زدن دکمه، کادر «کد تأیید مدیر» نمایش داده می‌شود. کد ۸ رقمی را از مدیر بگیر و همان‌جا وارد کن؛ پیامک ارسال نمی‌شود. ورود با ایمیل از طریق کد ایمیل است.</p>
 </form>
 </section>
 <section class="panel hidden" id="dashboard">
@@ -103,7 +103,12 @@ async function showDashboard(session){activeSession=session;document.getElementB
        pendingMethod='phone';
        const fullName=document.getElementById('fullName').value.trim();
        const response=await fetch(API+'?api=customer-register-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:pendingPhone.replace(/^\+98/,'0'),full_name:fullName})});
-       const result=await response.json();if(!response.ok)throw Error(result.error||'ثبت درخواست انجام نشد.');
+       const result=await response.json();
+       // If the manager has already approved this mobile, continue to the code-entry step instead of stopping on the "already approved" message.
+       if(!response.ok){
+         const alreadyApproved=response.status===409&&/قبلاً حساب تأیید شده|کد ورود را از مدیر دریافت کنید/.test(String(result.error||''));
+         if(!alreadyApproved)throw Error(result.error||'ثبت درخواست انجام نشد.');
+       }
      }
      document.getElementById('mobile').disabled=true;document.getElementById('changePhoneBtn').classList.remove('hidden');document.getElementById('resendOtpBtn').classList.remove('hidden');
      if(pendingMethod==='email'){
@@ -117,7 +122,7 @@ async function showDashboard(session){activeSession=session;document.getElementB
      }else{
        phase='otp';document.getElementById('otpWrap').classList.remove('hidden');document.getElementById('otp').required=true;
        document.getElementById('formTitle').textContent='کد تأیید مدیر';document.getElementById('formSub').textContent='درخواست برای '+pendingPhone+' ثبت شد. بعد از صدور کد توسط مدیر، کد ۸ رقمی را وارد کن.';
-       document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';submit.textContent='تأیید کد و ورود ←';showMsg('درخواست ثبت شد؛ کد پیامکی ارسال نمی‌شود. پس از صدور کد در پنل مدیریت آن را وارد کن.','success');
+       document.getElementById('changePhoneBtn').textContent='تغییر شماره همراه یا ایمیل';submit.textContent='تأیید کد و ورود ←';showMsg('کادر «کد تأیید مدیر» همین پایین نمایش داده شد. کد ۸ رقمی را که مدیر از پنل مدیریت صادر می‌کند در آن وارد کن؛ پیامک ارسال نمی‌شود.','success');
      }
    }else{
      const token=norm(document.getElementById('otp').value).replace(/\D/g,'');
