@@ -1361,10 +1361,7 @@ function trimsFor(model,brand){
   [/نسیم|صبا/, 'پراید'],
   [/ریومونتاژ/, 'ریو'],
   [/مگانمونتاژ/, 'مگان'],
-  [/زانتیا/, 'زانتیا'],
   [/پیکاپریچ|ریچ/, 'گریت وال وینگل'],
-  [/سیتروئنc3|c3/, 'سی‌اس ۳۵'],
-  [/سیتروئنc5|c5/, 'سی‌اس ۳۵'],
   [/چانگانایدو|ایدو/, 'ایدو'],
   [/کیامسیتی9/, 'جک تی ۹'],
   [/کیامسیای5پلاس/, 'کی‌ام‌سی ای ۵'],
@@ -1378,9 +1375,50 @@ function trimsFor(model,brand){
  if(key.includes('هایمااس6')||key.includes('هاوالاچ6'))return ['۱.۵ توربو اتوماتیک','۲.۰ توربو اتوماتیک'];
  if(key.includes('لامارینئو'))return ['۱.۵ توربو CVT'];
  if(key.includes('پراید151')||key.includes('وانت151'))return ['SE','SL'];
+ if(key==='نسیم'||key==='صبا')return ['SE','SX','LX'];
+ if(key.includes('زانتیا'))return ['1.8 SX','2.0 SX','2.0 Exclusive'];
+ if(key.includes('ژیان'))return ['602','وان','سواری'];
+ if(key.includes('پیکاپریچ')||key==='ریچ')return ['2WD','4WD','دوکابین 4×4'];
+ if(key.includes('سیتروئنc3')||key==='سی3')return ['1.2 PureTech','Feel','Shine'];
+ if(key.includes('سیتروئنc5')||key==='سی5')return ['2.0 SX','2.0 Exclusive'];
+ if(key.includes('زامیادپادراپلاس'))return ['دنده‌ای تک‌کابین','دنده‌ای دوکابین'];
+ if(key.includes('زامیادکارون'))return ['دنده‌ای تک‌کابین','دنده‌ای دوکابین'];
+ if(key.includes('ریرا'))return ['توربو اتوماتیک'];
+ if(key.includes('پارسخودروکادیلا'))return ['دنده‌ای','اتوماتیک'];
+ if(key.includes('پاژرومونتاژ'))return ['3.0 GLS','3.8 Signature'];
  // مدل‌های وارداتی فاقد تیپ ثبت‌شده، بر اساس نام رسمی خانواده و پکیج‌های رایج همان سازنده.
  const brandTrimFallbacks=[
-  [/^(میتسوبیشی)/,['GLX','GLS','GT']],
+  [/^(ایرانخودرو)/,['معمولی','ELX','پلاس','توربو']],
+  [/^(سایپا|پارسخودرو)/,['SE','SX','EX','پلاس']],
+  [/^(کرمانموتور|جک|کیامسی)/,['دنده‌ای','اتوماتیک CVT','اتوماتیک DCT']],
+  [/^(مدیرانخودرو|امویام|چری|فونیکس)/,['Comfort','Luxury','Excellent','IE']],
+  [/^(بهمنموتور|بهمن)/,['دنده‌ای','اتوماتیک','Luxury','Premium']],
+  [/^(فرداموتور|افامسی)/,['دنده‌ای','اتوماتیک CVT','اتوماتیک DCT']],
+  [/^(لاماری|آرینپارسموتور)/,['بنزینی','هیبرید','توربو اتوماتیک']],
+  [/^(هیوندای)/,['GL','GLS','Limited','Sport']],
+  [/^(کیا)/,['LX','EX','GT-Line','GT']],
+  [/^(تویوتا)/,['XLI','GLI','XLE','Limited','Hybrid']],
+  [/^(نیسان)/,['S','SV','SL','Platinum','4×4']],
+  [/^(رنو)/,['Life','Zen','Intens','Iconic']],
+  [/^(پژو)/,['Active','Allure','GT-Line','GT']],
+  [/^(فولکسواگن)/,['Trendline','Comfortline','Highline','R-Line']],
+  [/^(مزدا)/,['Core','Touring','GT']],
+  [/^(هوندا)/,['LX','EX','Sport','Touring']],
+  [/^(چانگان)/,['Comfort','Luxury','Premium']],
+  [/^(امجی)/,['Comfort','Luxury','Premium']],
+  [/^(هاوال|گریتوال)/,['Comfort','Luxury','Premium','4WD']],
+  [/^(بسترن|فاو)/,['Comfort','Luxury','Premium']],
+  [/^(فوتون)/,['2WD','4WD','Luxury']],
+  [/^(دونگفنگ|دانگفنگ)/,['Comfort','Luxury','Premium']],
+  [/^(مرسدسبنز)/,['Classic','Avantgarde','AMG Line','AMG']],
+  [/^(بامو)/,['Advantage','Luxury Line','M Sport']],
+  [/^(بیامو)/,['Advantage','Luxury Line','M Sport']],
+  [/^(آئودی)/,['Base','S line','Sport','RS']],
+  [/^(لکسوس)/,['Base','Luxury','F Sport','Hybrid']],
+  [/^(پورشه)/,['Base','S','GTS','Turbo']],
+  [/^(ولوو)/,['Momentum','Inscription','R-Design','Ultimate']],
+  [/^(جیپ)/,['Sport','Limited','Overland','Rubicon']],
+  [/^(میتسوبیشی)/,['GLX','GLS','GT']], 
   [/^(سوبارو)/,['2.0i','2.5i','Sport','Limited']],
   [/^(سانگیانگ.*|kgm)/,['Standard','Luxury','Premium']],
   [/^(اشکودا)/,['Ambition','Style','Sportline','Laurin & Klement']],
