@@ -515,7 +515,7 @@ async function saveVehicleContractTerms(id){
  const payload={};keys.forEach(k=>{const el=document.getElementById("contract_modal_"+k);payload[k]=el?el.value.trim():""});
  payload.custom_contract_terms=document.getElementById("contract_modal_custom_terms")?.value.trim()||"";
 
- try{await api("team-update",{id,method:"POST",body:{update_type:"contract_draft",payload,note:"ذخیره ویرایش متن قرارداد توسط تیم حقوقی"}});await loadCases();await openFinanceConfirm("قرارداد ذخیره شد","مشخصات و شروط اختصاصی قرارداد برای همین پرونده ذخیره شد.","ادامه")}catch(e){await openFinanceConfirm("ذخیره انجام نشد",e.message||"ذخیره ویرایش قرارداد ناموفق بود.","بستن")}
+ try{await api("team-update",{id,method:"POST",body:{update_type:"contract_draft",payload,note:"ذخیره مشخصات قرارداد و شروط اختصاصی توسط تیم حقوقی"}});await loadCases();await openFinanceConfirm("قرارداد ذخیره شد","مشخصات معامله و شروط اختصاصی همین پرونده ذخیره شد.","ادامه")}catch(e){await openFinanceConfirm("ذخیره انجام نشد",e.message||"ذخیره ویرایش قرارداد ناموفق بود.","بستن")}
 }
 function closeVehicleContractModal(){const m=document.getElementById("vehicleContractModal");if(m)m.remove();document.body.classList.remove("printing-vehicle-contract")}
 function printVehicleContract(){const modal=document.getElementById("vehicleContractModal"),area=document.getElementById("vehicleContractPrintArea");if(!modal||!area){return}document.body.classList.add("printing-vehicle-contract");window.print();setTimeout(()=>document.body.classList.remove("printing-vehicle-contract"),800)}
