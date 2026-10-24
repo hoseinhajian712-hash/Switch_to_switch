@@ -1153,7 +1153,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    sales:{price_review:{from:["review","auction-ready"],to:"auction-ready"},calculate_branch_offer:{from:["auction-end"],to:"awaiting_negotiation"},begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},sales_contract_approved:{from:["ready_to_sign","contract"],to:"contract_approved"},buyer_coordination_complete:{from:["contract_approved"],to:"awaiting_custody_receipt"}},
    followup:{begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},seller_settlement_confirmed:{from:["buyer_settlement_review"],to:"awaiting_seller_settlement_confirmation"}},
    legal:{legal_approved:{from:["legal_review"],to:"awaiting_legal_inquiries"},legal_inquiries_completed:{from:["awaiting_legal_inquiries"],to:"prepayment"},documents_rejected:{from:["legal_review","awaiting_legal_inquiries"],to:"awaiting_docs"},transfer_method_confirmed:{from:["awaiting_transfer_method_confirmation"],to:"awaiting_buyer_confirmation"}},
-   finance:{set_prepayment_amount:{from:["prepayment","awaiting_prepayment"],to:"awaiting_prepayment"},prepayment_received:{from:["prepayment","deposit","awaiting_prepayment"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_transfer_method_confirmation"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"settled"}},
+   finance:{send_seller_account:{from:["contract_approved"],to:"contract_approved"},set_prepayment_amount:{from:["prepayment","awaiting_prepayment"],to:"awaiting_prepayment"},prepayment_received:{from:["prepayment","deposit","awaiting_prepayment"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_transfer_method_confirmation"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"settled"}},
    contracts:{contract_approved:{from:["ready_to_sign"],to:"contract_approved"},await_buyer_settlement:{from:["contract_approved"],to:"awaiting_buyer_settlement"},custody_receipt_issued:{from:["awaiting_custody_receipt"],to:"deductions_review"},buyer_confirmed:{from:["awaiting_buyer_confirmation"],to:"awaiting_seller_confirmation"},seller_confirmed:{from:["awaiting_seller_confirmation"],to:"awaiting_notary"},notary_attended:{from:["awaiting_notary"],to:"awaiting_power_of_attorney_signature"},poa_signed:{from:["awaiting_power_of_attorney_signature"],to:"seller_final_payout_pending"},start_plate_release:{from:["settled"],to:"awaiting_plate_release"},plate_release:{from:["awaiting_plate_release"],to:"vehicle_delivery"},vehicle_delivered:{from:["vehicle_delivery"],to:"done"},transaction_completed:{from:["vehicle_delivery","contract"],to:"done"}}
   };
   if(role==="sales"&&type==="relist_after_buyer_cancel"){
@@ -1202,6 +1202,18 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(role==="expert"&&cr.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است؛ فقط پرونده‌های ارجاع‌شده به خودتان قابل ویرایش هستند."},403);
   if(spec.from.includes("__sales_manual__")){if(!salesManualStatuses.includes(cr.data.status))return json({error:"تغییر دستی فقط برای مراحل قابل‌کنترل واحد فروش مجاز است؛ از عملیات تخصصی همان مرحله استفاده کنید.",current_status:cr.data.status},409);if(cr.data.status===spec.to)return json({error:"وضعیت پرونده از قبل همین است."},400)}else if(!spec.from.includes(cr.data.status))return json({error:"وضعیت پرونده تغییر کرده است؛ ابتدا فهرست را به‌روزرسانی کنید.",current_status:cr.data.status},409);
   const updates:any={status:spec.to,updated_at:new Date().toISOString()};
+  let sellerAccountForBuyer:any=null;
+  if(role==="finance"&&type==="send_seller_account"){
+   const saved=await db.from("case_team_updates").select("payload").eq("case_id",id).eq("update_type","documents_checklist").order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(saved.error)return json({error:"دریافت مشخصات حساب فروشنده ناموفق بود: "+saved.error.message},500);
+   const details=saved.data?.payload?.seller_payment_details||{};
+   const accountNumber=String(details.iban||details.account_number||details.card_number||"").trim();
+   if(!saved.data?.payload?.approved||!accountNumber||!String(details.national_id||"").trim())return json({error:"اطلاعات حساب فروشنده در چک‌لیست مدارک کامل و تأیید نشده است."},409);
+   const auction=await db.from("auctions").select("id,winner_id,status,purchase_stage").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(auction.error)return json({error:"دریافت مزایده برای ارسال حساب فروشنده ناموفق بود: "+auction.error.message},500);
+   if(!auction.data?.id||!auction.data?.winner_id||auction.data.status!=="ended")return json({error:"مزایده برنده تأییدشده ندارد؛ ارسال اطلاعات حساب به خریدار ممکن نیست."},409);
+   sellerAccountForBuyer={auction_id:auction.data.id,buyer_id:auction.data.winner_id,account_name:String(cr.data.customer_name||"فروشنده").trim(),account_number:accountNumber};
+  }
   let auctionResultForPrepayment:any=null;
   if(role==="finance"&&["set_prepayment_amount","prepayment_received"].includes(type)){
    const aq=await db.from("auctions").select("id,case_id,status,current_bid,starting_price,winner_id,purchase_stage,prepayment_amount").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
@@ -1356,6 +1368,14 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(role==="finance"&&type==="seller_final_payout_completed"){
    const ledger=await db.from("case_financial_entries").insert({case_id:id,entry_type:"seller_payout",amount:Number(payload.amount||0),note:note||"پرداخت مانده پیش‌پرداخت فروشنده پس از تأیید وکالت‌نامه",created_by:staffMemberId||null});
    if(ledger.error)return json({error:"مرحله ثبت شد اما ثبت سند پرداخت فروشنده ناموفق بود: "+ledger.error.message},500);
+  }
+  if(role==="finance"&&type==="send_seller_account"&&sellerAccountForBuyer){
+   const sent=await db.from("auctions").update({seller_account_name:sellerAccountForBuyer.account_name,seller_account_number:sellerAccountForBuyer.account_number,purchase_stage:"seller_settlement"}).eq("id",sellerAccountForBuyer.auction_id).eq("winner_id",sellerAccountForBuyer.buyer_id).select("id").maybeSingle();
+   if(sent.error)return json({error:"ثبت اطلاعات حساب انجام نشد: "+sent.error.message},500);
+   if(!sent.data)return json({error:"برنده مزایده هم‌زمان تغییر کرده است؛ فهرست را تازه کنید."},409);
+   const notice=await db.from("buyer_notifications").insert({buyer_id:sellerAccountForBuyer.buyer_id,auction_id:sellerAccountForBuyer.auction_id,title:"اطلاعات حساب فروشنده آماده است",message:"تیم مالی اطلاعات حساب فروشنده را تأیید و ارسال کرده است. برای مشاهده شماره حساب/شبا و ثبت فیش تسویه، وارد پنل مزایده شوید."});
+   if(notice.error)return json({error:"اطلاعات حساب ثبت شد اما اعلان خریدار ارسال نشد: "+notice.error.message},500);
+   await historyAdd(id,"contract_approved","contract_approved","تیم مالی اطلاعات حساب فروشنده را برای خریدار ارسال کرد.");
   }
   return json({ok:true,status:spec.to,payload});
  }
