@@ -862,6 +862,7 @@ function caseVehicleFields(prefix,title,v){
  const val=k=>v&&v[k]!=null?String(v[k]):"";
  return '<fieldset id="'+prefix+'VehicleBox" style="border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0"><legend style="padding:0 8px;color:var(--gold)">'+title+'</legend><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px">'+
  [['brand','برند','مثلاً سایپا'],['model','مدل','مثلاً شاهین'],['trim','تیپ / مدل دقیق','مثلاً اتوماتیک'],['model_year','سال ساخت','مثلاً ۱۴۰۲'],['color','رنگ','مثلاً سفید'],['mileage','کارکرد (کیلومتر)','مثلاً ۸۵۰۰۰'],['options','آپشن‌های خودرو','مثلاً سانروف، دوربین عقب، گرم‌کن صندلی']].map(([k,l,p])=>'<div class="field"><label for="'+prefix+'_'+k+'">'+l+'</label><input id="'+prefix+'_'+k+'" maxlength="100" placeholder="'+p+'" value="'+esc(val(k))+'" '+(k==='model_year'||k==='mileage'?'inputmode="numeric"':'')+'></div>').join("")+
+ '<div class="field"><label for="'+prefix+'_vehicle_type">نوع بدنه خودرو</label><select id="'+prefix+'_vehicle_type"><option value="">انتخاب نوع بدنه</option>'+[['hatchback','هاچ‌بک'],['sedan','سدان'],['suv','شاسی‌بلند / SUV'],['crossover','کراس‌اوور'],['pickup','وانت'],['coupe','کوپه'],['convertible','کروک'],['station_wagon','استیشن'],['van','ون'],['minibus','مینی‌بوس'],['truck','کامیون'],['other','سایر']].map(([value,label])=>'<option value="'+value+'" '+(val('vehicle_type')===value||val('vehicle_type')===label?'selected':'')+'>'+label+'</option>').join("")+'</select></div>'+
  '</div></fieldset>';
 }
 function openCaseForm(mode,id){
@@ -906,7 +907,7 @@ function updateCaseVehicleLabels(){
  const t=document.getElementById("cf_type")?.value||"sell",cur=document.getElementById("cf_currentVehicleBox"),tar=document.getElementById("cf_targetVehicleBox");
  if(cur)cur.style.display=t==="buy"?"none":"block";if(tar){tar.style.display=(t==="buy"||t==="exchange")?"block":"none";const leg=tar.querySelector("legend");if(leg)leg.textContent=t==="buy"?"خودروی موردنظر برای خرید":"خودروی هدف برای معاوضه"}const appt=document.getElementById("cf_appointment_box");if(appt)appt.style.display=t==="buy"?"none":"block";
 }
-function readCaseVehicle(prefix){const get=k=>document.getElementById(prefix+"_"+k)?.value.trim()||"";return {brand:get("brand"),model:get("model"),trim:get("trim"),options:get("options"),model_year:get("model_year").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)),color:get("color"),mileage:get("mileage").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))}}
+function readCaseVehicle(prefix){const get=k=>document.getElementById(prefix+"_"+k)?.value.trim()||"";return {brand:get("brand"),model:get("model"),trim:get("trim"),options:get("options"),vehicle_type:get("vehicle_type"),model_year:get("model_year").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)),color:get("color"),mileage:get("mileage").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))}}
 async function saveCaseForm(){
  const mode=caseFormMode,id=caseFormId;
  const error=document.getElementById("caseFormError"),btn=document.getElementById("saveCaseFormBtn");error.textContent="";
