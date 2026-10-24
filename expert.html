@@ -675,9 +675,23 @@ function toggleInspectionChat(){const p=document.getElementById('inspectionChatP
  function startInspectionView(markStatus=true){hideAllViews();inspectionHome.classList.remove('hidden');loadExpertComments();if(markStatus&&current&&current.status!=='inspection'){fetch(API+'?key='+encodeURIComponent(KEY)+'&api=expert-status&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({status:'inspection',note:'شروع کارشناسی'})}).catch(()=>{});current.status='inspection'}scrollTo(0,0)}
 let activeDefectGroup='body';
 function openInspectionSection(key,navigate=true){if(!current)return;if(navigate)history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection&section='+encodeURIComponent(key));hideAllViews();formArea.classList.remove('hidden');if(['body','climate','suspension','electrical','engine','brakes'].includes(key)){activeDefectGroup=key;const search=document.getElementById('defectSearch');if(search)search.value='';const s=document.getElementById('section-defects');s.classList.remove('hidden');document.querySelectorAll('.defect-group').forEach(g=>g.style.display=g.dataset.group===key?'':'none');filterDefects()}else{const s=document.getElementById('section-'+key);if(s)s.classList.remove('hidden')}if(key==='gallery')restoreMainPhotoDraft();if(key==='docs')restoreDocPhotoDraft();scrollTo(0,0)}
-function backToInspectionSections(){if(!current)return;history.pushState({},'','expert.html?case='+encodeURIComponent(current.id)+'&view=inspection');startInspectionView(false)}
+function backToInspectionSections(){
+ if(!current)return;
+ // بازگشت فقط یک صفحه در تاریخچه؛ پرونده و پیش‌نویس‌ها حفظ می‌شوند.
+ try{persistDraft()}catch(_){}
+ const targetCase=String(current.id),p=new URLSearchParams(location.search);
+ if(p.get('case')===targetCase&&p.get('view')==='inspection'&&p.get('section')){
+  const prev=history.state;
+  history.back();
+  // اگر تاریخچهٔ مرورگر در دسترس نباشد، فقط به فهرست بخش‌ها برگرد؛ وضعیت پرونده را تغییر نده.
+  setTimeout(()=>{const now=new URLSearchParams(location.search);if(now.get('case')!==targetCase||now.get('view')!=='inspection'){history.replaceState({expertBackFallback:true},'','expert.html?case='+encodeURIComponent(targetCase)+'&view=inspection');startInspectionView(false)}},250);
+  return;
+ }
+ history.pushState({expertView:'inspection',caseId:targetCase},'','expert.html?case='+encodeURIComponent(targetCase)+'&view=inspection');
+ startInspectionView(false);
+}
 function backToList(){history.pushState({},'','expert.html');current=null;localStorage.removeItem(CASE_STORAGE);hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden');loadCases();scrollTo(0,0)}
-function renderRoute(){const p=new URLSearchParams(location.search),qcase=p.get('case'),view=p.get('view'),section=p.get('section');if(qcase){let found=cases.find(x=>x.id===qcase);if(!found&&p.get('done')==='1'){found=JSON.parse(sessionStorage.getItem('s2s_done_case')||'null')}if(found){if(found.status==='awaiting_expert_confirmation'){current=null;hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden');history.replaceState({},'','expert.html');alert('ابتدا دکمه «تأیید کارشناس» را در کارت پرونده بزنید؛ سپس امکان ورود به پرونده فعال می‌شود.');return}current=found;hydrateCase();restoreDraft().catch(()=>{});if(view==='inspection'){if(section)openInspectionSection(section,false);else startInspectionView(true)}else renderCaseLanding();return}}current=null;hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden')}
+function renderRoute(){const p=new URLSearchParams(location.search),qcase=p.get('case'),view=p.get('view'),section=p.get('section');if(qcase){let found=cases.find(x=>x.id===qcase);if(!found&&p.get('done')==='1'){found=JSON.parse(sessionStorage.getItem('s2s_done_case')||'null')}if(found){if(found.status==='awaiting_expert_confirmation'){current=null;hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden');history.replaceState({},'','expert.html');alert('ابتدا دکمه «تأیید کارشناس» را در کارت پرونده بزنید؛ سپس امکان ورود به پرونده فعال می‌شود.');return}current=found;hydrateCase();restoreDraft().catch(()=>{});if(view==='inspection'){if(section)openInspectionSection(section,false);else startInspectionView(false)}else renderCaseLanding();return}}current=null;hideAllViews();listCard.classList.remove('hidden');document.getElementById('completedCasesCard')?.classList.remove('hidden')}
 function filterDefects(){
  const input=document.getElementById('defectSearch');
  const raw=String(input?.value||'').trim();
