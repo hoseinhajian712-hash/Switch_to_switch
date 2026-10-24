@@ -246,11 +246,73 @@ function toolsFor(r){const items={
 function toggleLegalHamburger(){const menu=document.getElementById("legalHamburgerMenu"),button=document.getElementById("legalHamburgerButton");if(!menu||!button)return;const opening=menu.style.display==="none";menu.style.display=opening?"block":"none";button.setAttribute("aria-expanded",opening?"true":"false")}
 function closeLegalHamburger(){const menu=document.getElementById("legalHamburgerMenu"),button=document.getElementById("legalHamburgerButton");if(menu)menu.style.display="none";if(button)button.setAttribute("aria-expanded","false")}
 function legalContractTemplateCard(){return '<article class="card" style="grid-column:1/-1;border-color:#47735f"><div class="row" style="align-items:flex-start"><div><h3>قالب اصلی قرارداد حقوقی</h3><div class="muted" style="line-height:2">متن استاندارد قرارداد را یک‌بار در سطح پنل حقوقی تنظیم کنید؛ از این پس در پیش‌نمایش قرارداد پرونده‌ها اعمال می‌شود. برای درج اطلاعات متغیر از کدهای آماده استفاده کنید.</div></div><span style="font-size:28px;color:var(--gold)">⚖</span></div><div class="actions" style="margin-top:12px"><button class="btn primary" type="button" onclick="openLegalContractTemplateModal()">ویرایش قالب اصلی قرارداد</button></div><div class="muted" style="margin-top:10px">کدها: {{SELLER_NAME}}، {{BUYER_NAME}}، {{VEHICLE_BRAND}}، {{VEHICLE_MODEL}}، {{AGREED_PRICE}}، {{PREPAYMENT_AMOUNT}}، {{CASE_NUMBER}}، {{DATE}}</div></article>'}
+function legalDefaultContractTemplate(){
+ return `قرارداد خرید و فروش خودرو — سوییچ به سوییچ
+
+شماره پرونده: {{CASE_NUMBER}}
+تاریخ تنظیم: {{DATE}}
+
+ماده ۱ ـ طرفین قرارداد
+فروشنده: {{SELLER_NAME}}
+کد ملی فروشنده: {{SELLER_NATIONAL_ID}}
+تلفن فروشنده: {{SELLER_MOBILE}}
+نشانی فروشنده: {{SELLER_ADDRESS}}
+
+خریدار: {{BUYER_NAME}}
+کد ملی خریدار: {{BUYER_NATIONAL_ID}}
+تلفن خریدار: {{BUYER_MOBILE}}
+نشانی خریدار: {{BUYER_ADDRESS}}
+
+ماده ۲ ـ مشخصات خودرو
+برند: {{VEHICLE_BRAND}}
+مدل: {{VEHICLE_MODEL}}
+تیپ: {{VEHICLE_TRIM}}
+سال ساخت: {{VEHICLE_YEAR}}
+رنگ: {{VEHICLE_COLOR}}
+کارکرد: {{VEHICLE_MILEAGE}} کیلومتر
+شماره شاسی (VIN): {{VEHICLE_VIN}}
+شماره موتور: {{VEHICLE_ENGINE}}
+شماره پلاک: {{VEHICLE_PLATE}}
+
+ماده ۳ ـ مبلغ معامله و پیش‌پرداخت
+مبلغ کل توافق‌شده: {{AGREED_PRICE}} تومان
+مبلغ پیش‌پرداخت / وجه التزام: {{PREPAYMENT_AMOUNT}} تومان
+پیش‌پرداخت باید به حساب اعلام‌شده شرکت «سوییچ به سوییچ» واریز و با رسید قابل پیگیری ثبت شود. ماهیت، نگهداری، استرداد یا تهاتر این مبلغ تابع مفاد قرارداد امضاشده و قوانین لازم‌الاجراست و ضبط خودکار وجه بدون مبنای معتبر مجاز نیست.
+خریدار متعهد است حداکثر ظرف ۴۸ ساعت از زمان امضای قرارداد و ثبت ساعت شروع مهلت، مانده قابل پرداخت را با فروشنده تسویه کند. هر تمدید باید کتبی و مورد توافق طرفین باشد.
+در صورت تخلف خریدار از مهلت ۴۸ ساعته، وجه التزام معادل ۲ درصد مبلغ کل معامله پیش‌بینی می‌شود: ۱ درصد به نفع شرکت «سوییچ به سوییچ» و ۱ درصد به نفع فروشنده؛ اعمال آن منوط به درج و امضای صریح طرفین، احراز تخلف و رعایت قوانین لازم‌الاجراست.
+مانده قابل پرداخت برابر است با مبلغ کل معامله منهای پیش‌پرداخت واقعیِ وصول‌شده. هرگونه کسورات از جمله جرایم، مالیات، عوارض و هزینه‌های انتقال باید با مبلغ، دلیل و مستندات مربوط ثبت و مطابق قرارداد تسویه شود.
+
+ماده ۴ ـ تعهدات فروشنده
+فروشنده اعلام می‌کند تا حد اطلاع خود اطلاعات مؤثر درباره مالکیت، محدودیت انتقال، عیب فنی مهم، سابقه تصادف مؤثر و ادعای اشخاص ثالث را پنهان نکرده است. فروشنده متعهد به ارائه مدارک معتبر و همکاری در انتقال قانونی است.
+اگر فروشنده پس از امضای قرارداد و بدون دلیل قانونی یا توافق کتبی معتبر از انجام معامله منصرف شود، مسئولیت و وجه التزام انصراف باید در نسخه نهایی با مبلغ یا روش محاسبه روشن، به‌صورت صریح درج و به امضای طرفین برسد. مبالغ قابل پرداخت یا قابل استرداد فقط بر اساس قرارداد امضاشده و قوانین لازم‌الاجرا محاسبه می‌شود.
+
+ماده ۵ ـ تعهدات خریدار
+خریدار متعهد است مبلغ معامله را در موعد مقرر بپردازد، مدارک هویتی و اطلاعات لازم را ارائه کند و از ارائه اطلاعات خلاف واقع خودداری نماید. ارائه تصویر رسید به‌تنهایی اثبات‌کننده وصول وجه در حساب مقصد نیست.
+امضای قرارداد به‌تنهایی موجب اسقاط حقوق قانونی طرفین در خصوص جعل، تدلیس، عیب پنهان یا تخلف اثبات‌شده نمی‌شود.
+
+ماده ۶ ـ کارشناسی و وضعیت خودرو
+گزارش کارشناسی، در صورت وجود، جزء پیوست‌های قرارداد است. وضعیت بدنه، فنی، کارکرد، تجهیزات و متعلقات باید بر اساس گزارش و مدارک واقعی ثبت شود. شروط مربوط به عیب مشخص، کلید یدک، کارت سوخت و سایر متعلقات باید پیش از تحویل به‌صورت مکتوب ثبت شود.
+
+ماده ۷ ـ کسورات و هزینه‌ها
+کسورات قانونی و هزینه‌های مربوط به خودرو و انتقال، از جمله جرایم، مالیات، عوارض و هزینه‌های اداری، باید پیش از تسویه نهایی مشخص و با مستندات ثبت شود. مسئولیت هر هزینه مطابق توافق صریح طرفین و قوانین لازم‌الاجرا تعیین می‌شود و هیچ مبلغی بدون ثبت دلیل و مبلغ قابل کسر نیست.
+
+ماده ۸ ـ نقش شرکت و نگهداری مدارک
+نقش شرکت «سوییچ به سوییچ» در معرفی طرفین، هماهنگی معامله، دریافت وجه تضمین یا نگهداری امانی خودرو و مدارک، صرفاً در حدود اختیارات و تعهداتی است که صریحاً در این قرارداد درج شده است. دریافت هر وجه یا مدرک باید با رسید قابل پیگیری ثبت شود.
+
+ماده ۹ ـ حل اختلاف و نسخه‌های قرارداد
+طرفین تأیید می‌کنند متن قرارداد و پیوست‌های مورد توافق را مطالعه کرده‌اند و نسخه نهایی پس از تکمیل اطلاعات، بررسی حقوقی و امضای طرفین معتبر خواهد بود. اختلاف‌ها از طریق مذاکره و در صورت عدم توافق، از مراجع صالح قانونی پیگیری می‌شود.
+
+امضای فروشنده: ........................
+امضای خریدار: ........................
+نماینده مجاز شرکت: ........................
+محل مهر شرکت: ........................
+`;
+}
 function openLegalContractTemplateModal(){
  let m=document.getElementById("legalContractTemplateModal");
  if(!m){m=document.createElement("div");m.id="legalContractTemplateModal";m.className="priceModalOverlay";m.style.zIndex="60000";m.onclick=e=>{if(e.target===m)m.remove()};document.body.appendChild(m)}
- const current=localStorage.getItem("s2s_legal_contract_template")||"";
- m.innerHTML='<section class="priceModalDialog" role="dialog" aria-modal="true" style="width:min(1000px,100%);max-height:94vh"><div class="row"><h3>قالب اصلی قرارداد حقوقی</h3><button class="btn" type="button" onclick="document.getElementById(\'legalContractTemplateModal\').remove()">بستن ✕</button></div><p class="hint">این متن برای همه قراردادهای بعدی در همین مرورگر استفاده می‌شود. کدهای داخل آکولاد دوتایی هنگام ساخت قرارداد با اطلاعات همان پرونده جایگزین می‌شوند. اگر قالب خالی باشد، از قرارداد استاندارد سامانه استفاده می‌شود.</p><label for="legalContractTemplateText">متن استاندارد قرارداد</label><textarea id="legalContractTemplateText" rows="22" style="width:100%;box-sizing:border-box;padding:13px;border:1px solid #38516d;border-radius:12px;background:#071321;color:#f3f7fc;font:inherit;line-height:2;resize:vertical" placeholder="متن کامل قالب قرارداد را وارد کنید...">'+esc(current)+'</textarea><div class="actions" style="margin-top:14px"><button class="btn primary" type="button" onclick="saveLegalContractTemplate()">ذخیره قالب قرارداد</button><button class="btn" type="button" onclick="document.getElementById(\'legalContractTemplateText\').value=\'\'">پاک‌کردن متن</button></div><p id="legalContractTemplateMessage" class="muted" style="margin-top:10px"></p></section>';
+ const current=localStorage.getItem("s2s_legal_contract_template")||legalDefaultContractTemplate();
+ m.innerHTML='<section class="priceModalDialog" role="dialog" aria-modal="true" style="width:min(1000px,100%);max-height:94vh"><div class="row"><h3>قالب اصلی قرارداد حقوقی</h3><button class="btn" type="button" onclick="document.getElementById(\'legalContractTemplateModal\').remove()">بستن ✕</button></div><p class="hint">متن پیش‌فرض قرارداد سامانه در این کادر قرار دارد و می‌توانید تمام بندها را مستقیم ویرایش کنید. کدهای داخل آکولاد دوتایی هنگام ساخت قرارداد با اطلاعات همان پرونده جایگزین می‌شوند. پس از ذخیره، این قالب در پیش‌نمایش قراردادها اعمال می‌شود.</p><label for="legalContractTemplateText">متن استاندارد قرارداد</label><textarea id="legalContractTemplateText" rows="22" style="width:100%;box-sizing:border-box;padding:13px;border:1px solid #38516d;border-radius:12px;background:#071321;color:#f3f7fc;font:inherit;line-height:2;resize:vertical" placeholder="متن کامل قالب قرارداد را وارد کنید...">'+esc(current)+'</textarea><div class="actions" style="margin-top:14px"><button class="btn primary" type="button" onclick="saveLegalContractTemplate()">ذخیره قالب قرارداد</button><button class="btn" type="button" onclick="document.getElementById(\'legalContractTemplateText\').value=\'\'">پاک‌کردن متن</button></div><p id="legalContractTemplateMessage" class="muted" style="margin-top:10px"></p></section>';
 }
 function saveLegalContractTemplate(){
  const value=document.getElementById("legalContractTemplateText")?.value||"";
