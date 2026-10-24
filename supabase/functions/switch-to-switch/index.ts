@@ -1245,8 +1245,9 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    if(!Number.isFinite(profit)||profit<0||profit>=finalPrice)return json({error:"سود مجموعه باید صفر یا بیشتر و کمتر از قیمت نهایی خریدار باشد."},400);
    const percent=finalPrice?profit/finalPrice*100:0,offer=finalPrice-profit;
    payload.auction_final_price=finalPrice;payload.company_profit_amount=profit;payload.company_profit_percent=requestedPercent!==null?requestedPercent:percent;payload.branch_offer_price=offer;payload.auction_id=auctionResult.data.id;
-   payload.prepayment_gross_amount=0;payload.company_profit_deducted_from_prepayment=0;payload.contract_prepayment_amount=0;
-   updates.sales_suggested_price=offer;updates.company_profit_percent=payload.company_profit_percent;updates.company_profit_amount=profit;updates.contract_prepayment_amount=0;
+   const grossPrepayment=Math.max(0,Number(cr.data.prepayment_amount||0)),profitDeducted=Math.min(grossPrepayment,profit),netPrepayment=Math.max(0,grossPrepayment-profitDeducted);
+   payload.prepayment_gross_amount=grossPrepayment;payload.company_profit_deducted_from_prepayment=profitDeducted;payload.contract_prepayment_amount=netPrepayment;
+   updates.sales_suggested_price=offer;updates.company_profit_percent=payload.company_profit_percent;updates.company_profit_amount=profit;updates.contract_prepayment_amount=netPrepayment;
   }
   if(role==="finance"&&type==="buyer_settlement_received"){
    const amount=Number(payload.amount);
