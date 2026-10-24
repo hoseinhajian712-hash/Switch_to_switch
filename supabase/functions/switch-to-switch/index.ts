@@ -492,6 +492,20 @@ async function adminReviewBuyerPayment(req:Request,reviewerRole:string="admin"){
   const ar=await db.from("auctions").select("id,case_id,winner_id,current_bid,prepayment_amount,purchase_stage").eq("id",p.data.auction_id).eq("winner_id",p.data.buyer_id).maybeSingle();
   if(ar.error||!ar.data)return json({error:"مزایده یا خریدار این فیش پیدا نشد."},404);
   caseId=ar.data.case_id||null;
+  if(p.data.stage==="seller_settlement"){
+   const expected=Math.max(0,Number(ar.data.current_bid||0)-Number(ar.data.prepayment_amount||0));
+   const submitted=Number(p.data.amount||0);
+   if(!Number.isFinite(submitted)||submitted<=0||Math.abs(submitted-expected)>0.5)return json({error:"مبلغ فیش تسویه با مانده تعیین‌شده برای مزایده برابر نیست: "+expected.toLocaleString("fa-IR")+" تومان"},400);
+   if(caseId){
+    const cr=await db.from("cases").select("id,status").eq("id",caseId).maybeSingle();
+    if(cr.error)return json({error:cr.error.message},500);
+    if(cr.data){
+     previousCaseStatus=cr.data.status||"";
+     if(["cancelled","canceled","withdrawn","settled","completed","انصراف"].includes(previousCaseStatus))return json({error:"این پرونده لغو یا بسته شده و تأیید فیش تسویه در آن مجاز نیست."},409);
+     if(!["awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation"].includes(previousCaseStatus))return json({error:"وضعیت پرونده برای تأیید فیش تسویه آماده نیست: "+previousCaseStatus},409);
+    }
+   }
+  }
   if(p.data.stage==="prepayment"){
    prepaymentAmount=Number(p.data.amount||ar.data.prepayment_amount||0);
    const expected=Number(ar.data.prepayment_amount||0);
@@ -525,6 +539,23 @@ async function adminReviewBuyerPayment(req:Request,reviewerRole:string="admin"){
    const audit=await db.from("case_team_updates").insert({case_id:caseId,team_role:reviewerRole,update_type:"prepayment_received",payload:{amount:prepaymentAmount,payment_submission_id:paymentId,receipt_storage_path:p.data.receipt_path||null,reviewed_at:now,automatic:true},note:"فیش پیش‌پرداخت توسط تیم مالی تأیید و به‌صورت خودکار در پرونده ثبت شد."+(note?" "+note:"")});
    if(audit.error)return json({error:"پیش‌پرداخت ثبت شد اما تاریخچه پرونده ذخیره نشد: "+audit.error.message},500);
    if(caseUpdates.status)await historyAdd(caseId,previousCaseStatus,caseUpdates.status,"فیش پیش‌پرداخت توسط تیم مالی تأیید شد؛ مبلغ و گردش مالی به‌صورت خودکار ثبت شد.");
+  }else if(p.data.stage==="seller_settlement"&&caseId){
+   const now=new Date().toISOString();
+   const caseUpdates:any={};
+   if(previousCaseStatus==="awaiting_buyer_settlement")caseUpdates.status="buyer_settlement_review";
+   if(Object.keys(caseUpdates).length){
+    const cu=await db.from("cases").update(caseUpdates).eq("id",caseId).select("id,status").single();
+    if(cu.error)return json({error:"فیش تسویه تأیید شد اما به‌روزرسانی وضعیت پرونده ناموفق بود: "+cu.error.message},500);
+   }
+   const existing=await db.from("case_financial_entries").select("id").eq("case_id",caseId).eq("entry_type","buyer_settlement").eq("receipt_storage_path",p.data.receipt_path).limit(1);
+   if(existing.error)return json({error:existing.error.message},500);
+   if(!(existing.data||[]).length){
+    const led=await db.from("case_financial_entries").insert({case_id:caseId,entry_type:"buyer_settlement",amount:Number(p.data.amount||0),note:"فیش تسویه خریدار توسط تیم مالی تأیید شد. شناسه فیش: "+paymentId+(note?"؛ "+note:""),receipt_storage_path:p.data.receipt_path||null});
+    if(led.error)return json({error:"فیش تأیید شد اما ثبت گردش مالی تسویه ناموفق بود: "+led.error.message},500);
+   }
+   const audit=await db.from("case_team_updates").insert({case_id:caseId,team_role:reviewerRole,update_type:"buyer_settlement_receipt_approved",payload:{amount:Number(p.data.amount||0),payment_submission_id:paymentId,receipt_storage_path:p.data.receipt_path||null,reviewed_at:now,automatic:true},note:"فیش تسویه خریدار توسط تیم مالی تأیید و در گردش مالی ثبت شد."+(note?" "+note:"")});
+   if(audit.error)return json({error:"تسویه ثبت شد اما تاریخچه مالی ذخیره نشد: "+audit.error.message},500);
+   if(caseUpdates.status)await historyAdd(caseId,previousCaseStatus,caseUpdates.status,"فیش تسویه خریدار توسط تیم مالی تأیید شد؛ مبلغ در گردش مالی ثبت شد.");
   }else if(caseId)await historyAdd(caseId,p.data.stage,stage,p.data.stage==="prepayment"?"فیش پیش‌پرداخت توسط تیم مالی تأیید شد":"فیش تسویه کامل توسط تیم مالی تأیید شد");
   await db.from("buyer_notifications").insert({buyer_id:p.data.buyer_id,auction_id:p.data.auction_id,title:p.data.stage==="prepayment"?"پیش‌پرداخت تأیید شد":"تسویه تأیید شد",message:p.data.stage==="prepayment"?"پیش‌پرداخت توسط تیم مالی تأیید و ثبت شد. مرحله بعدی معامله فعال شد.":"تسویه کامل تأیید شد؛ خودرو در بخش «خودروهای من» ثبت شد."});
  }else await db.from("buyer_notifications").insert({buyer_id:p.data.buyer_id,auction_id:p.data.auction_id,title:"نیاز به اصلاح فیش",message:"فیش پرداخت تأیید نشد. لطفاً فیش را اصلاح کنید. "+note});
