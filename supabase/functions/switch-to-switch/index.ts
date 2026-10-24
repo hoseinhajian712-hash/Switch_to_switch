@@ -500,7 +500,7 @@ async function adminReviewBuyerPayment(req:Request,reviewerRole:string="admin"){
    if(caseId){
     const cr=await db.from("cases").select("id,status,prepayment_amount,prepayment_status").eq("id",caseId).maybeSingle();
     if(cr.error)return json({error:cr.error.message},500);
-    if(cr.data){previousCaseStatus=cr.data.status||"";if(!["awaiting_prepayment","ready_to_sign","prepayment"].includes(previousCaseStatus))return json({error:"وضعیت پرونده برای تأیید پیش‌پرداخت مناسب نیست؛ ابتدا مرحله اعلام پیش‌پرداخت را تکمیل کنید."},409);}
+    if(cr.data){previousCaseStatus=cr.data.status||"";if(!["awaiting_prepayment","ready_to_sign","prepayment","contract_approved","contract","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review"].includes(previousCaseStatus))return json({error:"وضعیت پرونده برای تأیید پیش‌پرداخت مناسب نیست؛ ابتدا مرحله اعلام پیش‌پرداخت را تکمیل کنید. وضعیت فعلی: "+previousCaseStatus},409);}
    }
   }
  }
