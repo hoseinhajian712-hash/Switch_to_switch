@@ -504,7 +504,7 @@ function buildVehicleContract(id,showMessage=true){
  const legalTemplate=(localStorage.getItem("s2s_legal_contract_template")||"").trim();
  if(legalTemplate&&printArea){
   const replacements={SELLER_NAME:p.seller_name,SELLER_NATIONAL_ID:p.seller_national_id,SELLER_MOBILE:p.seller_mobile,SELLER_ADDRESS:p.seller_address,BUYER_NAME:p.buyer_name,BUYER_NATIONAL_ID:p.buyer_national_id,BUYER_MOBILE:p.buyer_mobile,BUYER_ADDRESS:p.buyer_address,VEHICLE_BRAND:p.vehicle_brand,VEHICLE_MODEL:p.vehicle_model,VEHICLE_TRIM:p.vehicle_trim,VEHICLE_YEAR:p.vehicle_year,VEHICLE_COLOR:p.vehicle_color,VEHICLE_MILEAGE:p.vehicle_mileage,VEHICLE_VIN:p.vehicle_vin,VEHICLE_ENGINE:p.vehicle_engine,VEHICLE_PLATE:p.vehicle_plate,AGREED_PRICE:p.agreed_price,PREPAYMENT_AMOUNT:p.prepayment_amount,CASE_NUMBER:c.case_number||id,DATE:new Date().toLocaleDateString("fa-IR")};
-  const applied=legalTemplate.replace(/\\{\\{([A-Z_]+)\\}\\}/g,(match,key)=>String(replacements[key]??""));
+  const applied=legalTemplate.replace(/\{\{([A-Z_]+)\}\}/g,(match,key)=>String(replacements[key]??""));
   printArea.innerHTML='<div class="contract-full-text" style="white-space:pre-wrap;line-height:2;font-size:14px;color:#172033">'+ev(applied)+'</div>';
  }
  if(showMessage){const title=document.querySelector("#vehicleContractModal .contract-generated-toolbar");if(title)title.scrollIntoView({behavior:"smooth",block:"start"})}
