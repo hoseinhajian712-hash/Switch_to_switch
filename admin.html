@@ -173,8 +173,10 @@ let adminLoadPendingManual=false;
 async function load(silent=false){
  if(adminLoadBusy){if(!silent)adminLoadPendingManual=true;return;}
  adminLoadBusy=true;
+ let requestToken='';
  try{
-  const activeToken=getAdminToken();
+  requestToken=getAdminToken();
+  const activeToken=requestToken;
   if(!activeToken){adminLoadBusy=false;return;}
   const r=await fetch(API+'?key='+encodeURIComponent(activeToken)+'&api=list&_='+Date.now(),{cache:'no-store'});
   const raw=await r.text();let j;try{j=JSON.parse(raw)}catch(e){throw new Error('پاسخ نامعتبر از سرور')}
@@ -193,7 +195,7 @@ async function load(silent=false){
  }catch(e){
   const stamp=document.getElementById('adminAutoRefreshStatus');
   if(stamp){stamp.textContent='● خطا در همگام‌سازی؛ تلاش مجدد…';stamp.style.color='#fca5a5'}
-  if(/unauthorized|401/i.test(e.message||'')){sessionStorage.removeItem('s2s_admin_token_v2');sessionStorage.removeItem('s2s_admin_name');document.documentElement.classList.add('s2s-locked');show('نشست ورود منقضی یا نامعتبر است. لطفاً دوباره وارد شوید.',true);return}
+  if(/unauthorized|401/i.test(e.message||'')&&requestToken&&sessionStorage.getItem('s2s_admin_token_v2')===requestToken){sessionStorage.removeItem('s2s_admin_token_v2');sessionStorage.removeItem('s2s_admin_name');document.documentElement.classList.add('s2s-locked');show('نشست ورود منقضی یا نامعتبر است. لطفاً دوباره وارد شوید.',true);return}
   if(!silent){show('❌ '+e.message,true);document.getElementById('board').innerHTML='<div class="empty">پرونده‌ها قابل دریافت نیستند. دوباره بروزرسانی کنید.</div>'}
  }finally{adminLoadBusy=false;if(adminLoadPendingManual){adminLoadPendingManual=false;load(false)}}
 }
