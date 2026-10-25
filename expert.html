@@ -466,7 +466,7 @@ html {
  <div id="section-summary" class="inspection-section card hidden"><div class="section-title"><h3>توضیحات کارشناسی</h3><span class="badge">اختیاری</span></div><textarea id="summary" rows="5" style="width:100%;margin-top:10px" placeholder="توضیحات تکمیلی (در صورت نیاز)..."></textarea>
   </div></main>
 <script>
-(function(){const originalFetch=window.fetch.bind(window);const tokenKey='s2s_expert_token_v2';window.fetch=async function(input,init){try{const raw=typeof input==='string'?input:input.url;const u=new URL(raw,location.href);if(!u.searchParams.has('key'))return originalFetch(input,init);u.searchParams.delete('key');const token=sessionStorage.getItem(tokenKey)||'';if(!token){document.documentElement.classList.add('s2s-locked');return new Response(JSON.stringify({error:'نشست ورود پایان یافته؛ دوباره وارد شوید.'}),{status:401,headers:{'content-type':'application/json'}})}const h=new Headers(init&&init.headers||(input instanceof Request?input.headers:undefined));h.set('Authorization','Bearer '+token);const res=await originalFetch(u.toString(),{...(init||{}),headers:h});if(res.status===401){sessionStorage.removeItem(tokenKey);document.documentElement.classList.add('s2s-locked')}return res}catch(e){return originalFetch(input,init)}}})();;
+(function(){;
 const API=SUPABASE_URL+'/functions/v1/switch-to-switch',KEY=sessionStorage.getItem('s2s_expert_token_v2')||'',CASE_STORAGE='s2s_expert_active_case';document.getElementById('expertSessionName').textContent='● '+(sessionStorage.getItem('s2s_expert_name')||'کارشناس');
 function keyFor(partIndex,defect){const list=optionsForPart(parts[Number(partIndex)]),oi=list.indexOf(defect);return partIndex+'_'+(oi<0?0:oi)}
 const defectGroups=[
