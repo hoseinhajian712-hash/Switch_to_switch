@@ -175,9 +175,10 @@ async function load(silent=false){
  adminLoadBusy=true;
  try{
   const activeToken=sessionStorage.getItem('s2s_admin_token_v2')||KEY;
+  if(!activeToken){adminLoadBusy=false;return;}
   const r=await fetch(API+'?key='+encodeURIComponent(activeToken)+'&api=list&_='+Date.now(),{cache:'no-store'});
   const raw=await r.text();let j;try{j=JSON.parse(raw)}catch(e){throw new Error('پاسخ نامعتبر از سرور')}
-  if((r.status===401||r.status===403)&&sessionStorage.getItem('s2s_admin_token_v2')){sessionStorage.removeItem('s2s_admin_token_v2');sessionStorage.removeItem('s2s_admin_name');document.documentElement.classList.add('s2s-locked');show('نشست ورود منقضی یا نامعتبر است. لطفاً دوباره وارد شوید.',true);return}
+  if((r.status===401||r.status===403)&&activeToken&&sessionStorage.getItem('s2s_admin_token_v2')===activeToken){sessionStorage.removeItem('s2s_admin_token_v2');sessionStorage.removeItem('s2s_admin_name');document.documentElement.classList.add('s2s-locked');show('نشست ورود منقضی یا نامعتبر است. لطفاً دوباره وارد شوید.',true);return}
   if(!r.ok||j.error)throw new Error(j.error||('خطای سرور '+r.status));
   const nextRows=Array.isArray(j.cases)?j.cases:[],nextStatus=j.statusFa||{};
   const signature=JSON.stringify([nextRows,nextStatus]);
