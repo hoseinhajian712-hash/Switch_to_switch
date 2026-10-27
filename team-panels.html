@@ -588,7 +588,7 @@ async function sendCaseComment(event){
  const heading=document.querySelector("#loginView .card h2");if(heading)heading.textContent="ورود همکاران";
  const desc=document.querySelector("#loginView .card p");if(desc)desc.textContent="واحد سازمانی را انتخاب کنید و اطلاعات پرسنلی همان واحد را وارد کنید.";
 })();
-document.getElementById("loginBtn").addEventListener("click",()=>{if(typeof login==="function")login().catch(e=>{const out=document.getElementById("loginError");if(out)out.textContent="خطای ورود: "+(e?.message||"خطای نامشخص")})});
+// Login button uses the single secureTeamLogin() handler declared above; avoid duplicate concurrent login requests.
 document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();login()}});
 document.getElementById("personnel").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g,"").slice(0,4)});
 if(!window.SUPABASE_URL||!window.SUPABASE_KEY){document.getElementById("loginError").textContent="تنظیمات اتصال پنل بارگذاری نشده است؛ صفحه را تازه‌سازی کنید یا با پشتیبانی تماس بگیرید."}
