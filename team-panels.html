@@ -214,7 +214,7 @@ function actionButton(c){ return actionButtonPrimary(c); } function actionButton
  const s=c.status;
  if(role==="contracts"&&s==="expert_visit_confirmed")return '<button class="btn primary" onclick="teamAction(\\\''+c.id+'\\\',\\\'branch_arrival\\\')">ورود به شعبه مشتری</button>';
  if(role==="expert"&&!c.assigned_to_me)return '<span class="caseSub">فقط مشاهده · پرونده به شما ارجاع نشده</span>';
- if(role==="sales"&&(s==="expert_visit_confirmed"||s==="refer"))return '<button class="btn primary" onclick="assignCaseExpert(\''+c.id+'\')">ارجاع / انتخاب کارشناس</button>';
+ if(role==="contracts"&&s==="awaiting_expert_confirmation")return '<button class="btn primary" onclick="assignCaseExpert(\''+c.id+'\')">ارجاع به کارشناس</button>';
  if(role==="sales"&&s==="awaiting_guarantee_deposit")return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\'skip_guarantee_to_auction\')">عبور از وجه تضمین و آماده‌سازی مزایده</button>';
   if(role==="sales"&&s==="auction-ready")return '<button class="btn primary" onclick="createAuctionForCase(\''+c.id+'\')">ثبت قیمت هدف و انتقال به مزایده</button>';
  if(role==="sales"&&s==="auction"&&c.auction)return '<button class="btn primary" onclick="endAuctionForCase(\''+c.id+'\')">پایان مزایده</button>';
