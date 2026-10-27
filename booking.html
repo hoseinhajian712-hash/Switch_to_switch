@@ -2284,7 +2284,7 @@ async function setupDates(){
   try{
    const r=await fetch(API+'?api=booking-slots&date='+encodeURIComponent(d.value)+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY}});
    data=await r.json();if(!r.ok||data.error)throw new Error(data.error||'availability');
-  }catch(e){console.warn('Booking slots unavailable; keeping times hidden until availability is confirmed',e);t.innerHTML='';const prompt=document.createElement('option');prompt.value='';prompt.textContent='در حال حاضر امکان بررسی ساعت‌های آزاد نیست؛ دوباره تلاش می‌کنیم';prompt.disabled=true;t.appendChild(prompt);t.disabled=true;return}
+  }catch(e){console.warn('Booking slots refresh failed; preserving the current time options and selection',e);/* A transient availability/API failure must not erase a time the customer already selected. The final booking POST revalidates availability on the server. */return}
   t.innerHTML='';
   const prompt=document.createElement('option');prompt.value='';prompt.textContent='انتخاب ساعت';t.appendChild(prompt);
   if(data.is_blocked){prompt.textContent='این روز برای رزرو بسته است';t.disabled=true;return}
