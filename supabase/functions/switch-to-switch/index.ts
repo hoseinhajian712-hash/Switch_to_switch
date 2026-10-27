@@ -904,8 +904,8 @@ async function api(req:Request,u:URL){
    const b=await req.json(),capacity=Number(b.daily_capacity);
    if(!Number.isInteger(capacity)||capacity<1||capacity>9)return json({error:"ظرفیت روزانه باید بین ۱ تا ۹ نوبت باشد."},400);
    const rawBranches=Array.isArray(b.branch_names)?b.branch_names:[];if(rawBranches.length>100)return json({error:"حداکثر ۱۰۰ شعبه قابل ثبت است."},400);
-   const branchNames=Array.from(new Set(rawBranches.map((x:any)=>String(x||"").trim().replace(/\\s+/g," ")).filter((x:string)=>x.length>0&&x.length<=120)));
-   if(branchNames.length!==rawBranches.filter((x:any)=>String(x||"").trim().length>0).length)return json({error:"نام شعبه نامعتبر است؛ هر نام باید حداکثر ۱۲۰ نویسه باشد."},400);
+   const branchNames=Array.from(new Set(rawBranches.map((x:any)=>String(x||"").trim().replace(/\s+/g," ")).filter((x:string)=>x.length>0&&x.length<=120)));
+   if(rawBranches.some((x:any)=>String(x||"").trim().length>120))return json({error:"نام هر شعبه باید حداکثر ۱۲۰ نویسه باشد."},400);
    const dates=Array.isArray(b.blocked_dates)?b.blocked_dates.map((x:any)=>String(x)):[];if(dates.length>365||dates.some((x:string)=>!/^\d{4}-\d{2}-\d{2}$/.test(x)||Number.isNaN(new Date(x+"T00:00:00Z").getTime())||new Date(x+"T00:00:00Z").toISOString().slice(0,10)!==x))return json({error:"فهرست روزهای تعطیل معتبر نیست."},400);
    const slots:any={};const incoming=b.blocked_slots&&typeof b.blocked_slots==="object"&&!Array.isArray(b.blocked_slots)?b.blocked_slots:{};
    for(const [date,times] of Object.entries(incoming)){
