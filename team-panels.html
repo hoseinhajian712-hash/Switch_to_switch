@@ -566,7 +566,7 @@ async function sendCaseComment(event){
  try{await api("case-comment",{id:selected.id,method:"POST",body:{message}});input.value="";await loadCaseComments();}catch(e){alert(e.message)}finally{btn.disabled=false;input.focus()}
 }
 (function setupUnitLogin(){
- const valid=requestedRole&&Object.prototype.hasOwnProperty.call(roleInfo,requestedRole);
+ const valid=requestedRole&&Object.prototype.hasOwnProperty.call(roleInfo,requestedRole);const unitChoice=new URLSearchParams(window.location.search).get("unit");if(unitChoice&&Object.prototype.hasOwnProperty.call(roleInfo,unitChoice)){const roleField=document.getElementById("loginRoleField");if(roleField)roleField.style.display="block";const roleSelect=document.getElementById("loginRole");if(roleSelect)roleSelect.value=unitChoice;}
  if(valid){
   role=requestedRole;
   document.getElementById("loginRole").value=role;
