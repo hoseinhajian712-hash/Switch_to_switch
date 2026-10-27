@@ -88,22 +88,12 @@
 </div>
 <script>
 async function secureTeamLogin(){
- const btn=document.getElementById('loginBtn'),error=document.getElementById('loginError');
- const codeEl=document.getElementById('personnel'),passEl=document.getElementById('password'),roleEl=document.getElementById('loginRole');
+ const codeEl=document.getElementById('personnel'),passEl=document.getElementById('password'),error=document.getElementById('loginError');
  const code=(codeEl.value||'').trim().replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
- const password=passEl.value||'',selectedRole=roleEl.value;
  if(!/^\d{4}$/.test(code)){error.textContent='کد پرسنلی باید دقیقاً ۴ رقم باشد.';codeEl.focus();return}
- if(!password){error.textContent='رمز عبور را وارد کن.';passEl.focus();return}
- btn.disabled=true;btn.textContent='در حال بررسی…';error.textContent='در حال اتصال به سرور ورود…';
- try{
-  if(!window.SUPABASE_URL||!window.SUPABASE_KEY)throw Error('تنظیمات اتصال پنل بارگذاری نشده است؛ صفحه را دوباره باز کن.');
-  const response=await fetch(window.SUPABASE_URL+'/functions/v1/switch-to-switch?api=staff-login',{method:'POST',cache:'no-store',headers:{'content-type':'application/json','apikey':window.SUPABASE_KEY},body:JSON.stringify({role:selectedRole,personnel_code:code,password})});
-  const data=await response.json().catch(()=>({error:'پاسخ سرور قابل‌خواندن نیست.'}));
-  if(!response.ok||!data.token)throw Error(data.error||('ورود ناموفق بود ('+response.status+').'));
-  token=data.token;role=selectedRole;staffName=data.staff_name||'همکار';
-  localStorage.setItem('s2s_team_token',token);localStorage.setItem('s2s_team_role',role);localStorage.setItem('s2s_team_name',staffName);
-  error.textContent='ورود تأیید شد؛ در حال بازکردن پنل…';showApp();
- }catch(e){error.textContent=e&&e.message?e.message:'خطای ناشناخته هنگام ورود';btn.disabled=false;btn.textContent='تلاش دوباره'}
+ if(!(passEl.value||'')){error.textContent='رمز عبور را وارد کن.';passEl.focus();return}
+ // Use the page's existing login flow so token setup, role selection and dashboard rendering stay in one scope.
+ return login();
 }
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('loginView')&&!document.getElementById('loginView').classList.contains('hidden')){if(['personnel','password'].includes(e.target.id)){e.preventDefault();secureTeamLogin()}}});
 </script>
