@@ -2276,15 +2276,13 @@ async function setupDates(){
  if(firstAvailable)d.value=firstAvailable.iso;
  const fillTimes=async()=>{
   const previous=t.value;
-  t.innerHTML='';
   const addMessage=(message,disabled=true)=>{const o=document.createElement('option');o.value='';o.textContent=message;o.disabled=disabled;t.appendChild(o);t.disabled=disabled};
-  if(!d.value){addMessage('ابتدا روز مراجعه را انتخاب کن');return}
-  addMessage('در حال بررسی ساعت‌های آزاد…');
+  if(!d.value){t.innerHTML='';addMessage('ابتدا روز مراجعه را انتخاب کن');return}
   let data;
   try{
    const r=await fetch(API+'?api=booking-slots&date='+encodeURIComponent(d.value)+'&_='+Date.now(),{cache:'no-store',headers:{'apikey':SUPABASE_KEY}});
    data=await r.json();if(!r.ok||data.error)throw new Error(data.error||'availability');
-  }catch(e){console.warn('Booking slots refresh failed; preserving the current time options and selection',e);/* A transient availability/API failure must not erase a time the customer already selected. The final booking POST revalidates availability on the server. */return}
+  }catch(e){console.warn('Booking slots refresh failed; preserving the current time options and selection',e);/* Keep the existing options intact on transient network/API errors. The server revalidates availability when submitted. */return}
   t.innerHTML='';
   const prompt=document.createElement('option');prompt.value='';prompt.textContent='انتخاب ساعت';t.appendChild(prompt);
   if(data.is_blocked){prompt.textContent='این روز برای رزرو بسته است';t.disabled=true;return}
