@@ -91,7 +91,7 @@ async function secureTeamLogin(){
  const btn=document.getElementById('loginBtn'),codeEl=document.getElementById('personnel'),passEl=document.getElementById('password'),error=document.getElementById('loginError');
  if(!btn||!codeEl||!passEl||!error)return;
  const code=(codeEl.value||'').trim().replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
- if(!/^\\d{4}$/.test(code)){error.textContent='کد پرسنلی باید دقیقاً ۴ رقم باشد.';codeEl.focus();return}
+ if(!/^\d{4}$/.test(code)){error.textContent='کد پرسنلی باید دقیقاً ۴ رقم باشد.';codeEl.focus();return}
  if(!(passEl.value||'')){error.textContent='رمز عبور را وارد کن.';passEl.focus();return}
  if(typeof window.s2sTeamLogin!=='function'){error.textContent='اسکریپت ورود پنل بارگذاری نشده است؛ خطای اجرای صفحه مانع ورود شده. صفحه را دوباره باز کن؛ اگر ادامه داشت باید خطای اسکریپت بررسی شود.';return}
  btn.disabled=true;
