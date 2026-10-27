@@ -82,21 +82,31 @@
   <div class="field" id="loginRoleField"><label>واحد سازمانی</label><select id="loginRole"><option value="admin">مدیریت کل</option><option value="expert">کارشناسی خودرو</option><option value="intake">ثبت درخواست و پیگیری مشتری</option><option value="sales">فروش و قیمت‌گذاری</option><option value="legal">امور حقوقی</option><option value="finance">مالی و تسویه</option><option value="contracts">پنل شعب</option></select></div>
   <div class="field"><label>کد پرسنلی ۴ رقمی</label><input id="personnel" inputmode="numeric" maxlength="4" autocomplete="username" placeholder="کد پرسنلی"></div>
   <div class="field"><label>رمز عبور</label><input id="password" type="password" autocomplete="current-password" placeholder="رمز عبور"></div>
-  <button class="btn primary" style="width:100%;padding:13px" id="loginBtn" type="button" onclick="secureTeamLogin()">ورود امن به پنل</button><div id="loginError" class="muted" style="margin-top:12px"></div>
+  <button class="btn primary" style="width:100%;padding:13px" id="loginBtn" type="button">ورود امن به پنل</button><div id="loginError" class="muted" style="margin-top:12px"></div>
   <div class="notice">ورود هر واحد با نقش و مجوزهای همان واحد کنترل می‌شود. حساب نمایشگاه‌داران از این بخش جداست و از باشگاه مستقل نمایشگاه‌داران استفاده می‌کند.</div>
  </div>
 </div>
 <script>
 async function secureTeamLogin(){
- const codeEl=document.getElementById('personnel'),passEl=document.getElementById('password'),error=document.getElementById('loginError');
+ const btn=document.getElementById('loginBtn'),codeEl=document.getElementById('personnel'),passEl=document.getElementById('password'),error=document.getElementById('loginError');
+ if(!btn||!codeEl||!passEl||!error)return;
  const code=(codeEl.value||'').trim().replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
- if(!/^\d{4}$/.test(code)){error.textContent='کد پرسنلی باید دقیقاً ۴ رقم باشد.';codeEl.focus();return}
+ if(!/^\\d{4}$/.test(code)){error.textContent='کد پرسنلی باید دقیقاً ۴ رقم باشد.';codeEl.focus();return}
  if(!(passEl.value||'')){error.textContent='رمز عبور را وارد کن.';passEl.focus();return}
- // Use an explicit bridge exported by the main panel script.
- if(typeof window.s2sTeamLogin!=='function'){error.textContent='اسکریپت اصلی پنل بارگذاری نشده است. صفحه را با تازه‌سازی کامل دوباره باز کنید.';return}
- return window.s2sTeamLogin();
+ if(typeof window.s2sTeamLogin!=='function'){error.textContent='اسکریپت ورود پنل بارگذاری نشده است؛ خطای اجرای صفحه مانع ورود شده. صفحه را دوباره باز کن؛ اگر ادامه داشت باید خطای اسکریپت بررسی شود.';return}
+ btn.disabled=true;
+ error.textContent='در حال اتصال و بررسی اطلاعات…';
+ try{
+  await window.s2sTeamLogin();
+ }catch(e){
+  error.textContent='خطا هنگام ورود: '+(e&&e.message?e.message:String(e));
+ }finally{
+  btn.disabled=false;
+ }
 }
+document.getElementById('loginBtn')?.addEventListener('click',function(e){e.preventDefault();secureTeamLogin()});
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('loginView')&&!document.getElementById('loginView').classList.contains('hidden')){if(['personnel','password'].includes(e.target.id)){e.preventDefault();secureTeamLogin()}}});
+window.addEventListener('error',function(e){const out=document.getElementById('loginError');if(out&&e&&e.message&&!window.s2sTeamLogin)out.textContent='خطای اجرای اسکریپت ورود: '+e.message});
 </script>
 <div id="appView" class="shell hidden">
  <header class="top"><div class="brand"><div class="logo">S2S</div><div><h1>سوییچ به سوییچ <span style="color:var(--gold)">/ عملیات</span></h1><div class="muted" id="userLabel">پنل همکاران</div></div></div><div class="row" style="gap:8px;flex-wrap:wrap"><span id="salesUserName"></span><a class="btn" href="./workflow.html">نقشه گردش پرونده</a><span id="rolePill" class="pill">پنل تیم</span><button class="btn" onclick="logout()">خروج امن</button></div></header>
