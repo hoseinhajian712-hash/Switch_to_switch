@@ -182,7 +182,9 @@ input,select,textarea,button{touch-action:manipulation}
    sessionStorage.setItem('s2s_admin_name',data.staff_name||'همکار فروش');
    document.documentElement.classList.remove('s2s-locked');
    err.textContent='ورود تأیید شد؛ در حال بازکردن پنل…';
-   location.reload();
+   const sessionLabel=document.getElementById('adminSessionName');if(sessionLabel)sessionLabel.textContent='● '+(data.staff_name||'همکار فروش');
+   await load();
+   err.textContent='ورود تأیید شد. اگر فهرست پرونده‌ها خالی است، پیام وضعیت پنل را بررسی کن.';
   }catch(error){err.textContent=error&&error.message?error.message:'خطای ناشناخته هنگام ورود';btn.disabled=false;btn.textContent='ورود دوباره'}
  });
 })();
