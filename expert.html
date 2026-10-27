@@ -401,7 +401,9 @@ html {
    sessionStorage.setItem('s2s_expert_name',data.staff_name||'کارشناس');
    document.documentElement.classList.remove('s2s-locked');
    err.textContent='ورود تأیید شد؛ در حال بازکردن پنل…';
-   location.reload();
+   const sessionLabel=document.getElementById('expertSessionName');if(sessionLabel)sessionLabel.textContent='● '+(data.staff_name||'کارشناس');
+   await loadCases();
+   err.textContent='ورود تأیید شد. اگر پرونده‌ای نمایش داده نمی‌شود، پیام فهرست کارشناسی را بررسی کن.';
   }catch(error){err.textContent=error&&error.message?error.message:'خطای ناشناخته هنگام ورود';btn.disabled=false;btn.textContent='ورود دوباره'}
  });
 })();
