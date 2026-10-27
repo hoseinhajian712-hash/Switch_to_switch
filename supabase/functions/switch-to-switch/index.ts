@@ -1582,9 +1582,13 @@ Deno.serve(async(req)=>{if(req.method==="OPTIONS")return new Response(null,{stat
   ].filter(Boolean);
   return parts.length?label+"\n"+parts.join("\n"):"";
  };
+ const typeLabel=b.type==="sell"?"فروش خودرو":b.type==="buy"?"خرید خودرو":b.type==="exchange"?"معاوضه خودرو":String(b.type||"نامشخص");
+ const notes=String(b.notes||"").trim();
  const summary=[vehicleSummary(b.vehicle,"خودروی فعلی"),vehicleSummary(b.target_vehicle,"خودروی موردنظر")].filter(Boolean).join("\n\n");
- if(summary){
-  const comment=await db.from("case_comments").insert({case_id:c.id,author_role:"system",author_name:"اطلاعات رزرو",message:"مشخصات خودرو از فرم رزرو به‌صورت خودکار ثبت شد:\n"+summary});
-  if(comment.error)console.error("Could not add automatic vehicle summary to case conversation",comment.error);
+ const conversationMessage=["نوع رزرو: "+typeLabel,notes,summary?"مشخصات خودرو از فرم رزرو:\n"+summary:""].filter(Boolean).join("\n\n");
+ if(conversationMessage){
+  // "system" is not an allowed case_comments.author_role; use the valid intake role.
+  const comment=await db.from("case_comments").insert({case_id:c.id,author_role:"intake",author_name:"اطلاعات رزرو",message:conversationMessage.slice(0,3000)});
+  if(comment.error)console.error("Could not add automatic booking details to case conversation",comment.error);
  }
  return json({ok:true,case_number:c.case_number,id:c.id})}catch(e){return json({error:String(e)},500)}}return json({ok:true,service:"switch-to-switch-v4-api"})});
