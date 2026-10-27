@@ -1555,5 +1555,16 @@ Deno.serve(async(req)=>{if(req.method==="OPTIONS")return new Response(null,{stat
  let customerId:string|null=null;const bearer=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"").trim();if(bearer&&bearer!=="null"&&bearer!=="undefined"){try{const ur=await db.auth.getUser(bearer);if(!ur.error&&ur.data?.user)customerId=ur.data.user.id}catch(_){customerId=null}}
  const {data:c,error}=await db.from("cases").insert({customer_id:customerId,service_type:b.type,customer_name:String(b.name).trim(),customer_mobile:mobile,notes:String(b.notes||"").trim()||null,appointment_date:appointmentDate,appointment_time:appointmentTime}).select("id,case_number").single();
  if(error){if(error.code==="P0001")return json({error:error.message,code:"booking_unavailable"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_appointment"))return json({error:"این روز و ساعت قبلاً رزرو شده است. لطفاً یک زمان دیگر انتخاب کنید.",code:"appointment_taken"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_mobile"))return json({error:"این شماره قبلاً پرونده فعال دارد. محدودیت قدیمی موبایل باید در پایگاه داده اصلاح شود.",code:"legacy_mobile_limit"},409);return json({error:error.message},500)}
- const vs:any[]=[];if(b.vehicle)vs.push({...b.vehicle,vehicle_role:"current"});if(b.target_vehicle)vs.push({...b.target_vehicle,vehicle_role:"target"});for(const v of vs){const x={...v,case_id:c.id};delete x.budget;const r=await db.from("vehicles").insert(x);if(r.error)return json({error:"پرونده ساخته شد اما ذخیره خودرو ناموفق بود: "+r.error.message,case_number:c.case_number,id:c.id},500)}
+ const vs:any[]=[];if(b.vehicle)vs.push({...b.vehicle,vehicle_role:"current"});if(b.target_vehicle)vs.push({...b.target_vehicle,vehicle_role:"target"});
+ // Only send columns that exist in public.vehicles. The booking form calls this field "condition",
+ // while the database stores it as general_condition; passing it through caused PostgREST 500 errors.
+ const vehicleColumns=["vehicle_role","brand","model","trim","model_year","color","mileage","technical_condition","body_condition","general_condition","vin","engine_number","plate_number","spare_key","fuel_card","power_of_attorney","poa_start_date","poa_end_date","poa_note","mileage_preference","transmission","fuel_type","vehicle_type","green_card","factory_invoice","car_document","options"];
+ for(const v of vs){
+  const x:any={case_id:c.id};
+  for(const k of vehicleColumns){if(v[k]!==undefined)x[k]=v[k]}
+  if(x.general_condition===undefined&&v.condition!==undefined)x.general_condition=v.condition;
+  if(Array.isArray(x.options))x.options=x.options.join("، ");
+  const r=await db.from("vehicles").insert(x);
+  if(r.error)return json({error:"پرونده ساخته شد اما ذخیره خودرو ناموفق بود: "+r.error.message,case_number:c.case_number,id:c.id},500)
+ }
  return json({ok:true,case_number:c.case_number,id:c.id})}catch(e){return json({error:String(e)},500)}}return json({ok:true,service:"switch-to-switch-v4-api"})});
