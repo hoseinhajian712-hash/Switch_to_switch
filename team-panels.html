@@ -223,7 +223,7 @@ function actionButton(c){ return actionButtonPrimary(c); } function actionButton
  if(role==="admin"&&s==="new")return '<button class="btn primary" onclick="doAction(\''+c.id+'\',\'confirm-call\')">تأیید تماس</button>';
  if(role==="expert"&&(s==="refer"||s==="awaiting_expert_confirmation"))return '<button class="btn primary" onclick="openCase(\''+c.id+'\')">بررسی و تأیید ارجاع</button>';
  const map={
-  intake:s==="new"?["confirm_contact","تأیید رزرو"]:(s==="booking_confirmed"?["confirm_visit","تأیید مراجعه کارشناس"]:null),
+  intake:s==="new"?["confirm_contact","تأیید رزرو"]:(s==="booking_confirmed"?["confirm_visit","تأیید مراجعه"]:null),
   expert:(s==="awaiting_expert_confirmation"||s==="expert_visit_confirmed"||s==="refer")?["start_inspection","تأیید ارجاع و شروع کارشناسی"]:(s==="inspection"?["finish_inspection","پایان کارشناسی"]:null),
   sales:(s==="awaiting_docs"||s==="docs")?["documents_checklist_open","تکمیل مدارک و ارسال به حقوقی"]: (s==="review"?["price_review","مشاهده گزارش و تعیین قیمت پایه"]:((s==="awaiting_negotiation")?["begin_negotiation","شروع مذاکره"]:((s==="negotiation"||s==="customer"||s==="selling")?["customer_decision","ثبت نتیجه مذاکره"]:(s==="ready_to_sign"?["sales_contract_approved","بررسی و تأیید قرارداد آماده‌شده"]:(s==="contract_approved"?["buyer_coordination_complete","ثبت هماهنگی خریدار و امانت خودرو"]:null))))), 
   followup:s==="buyer_settlement_review"?["seller_settlement_confirmed","ثبت تأیید فروشنده برای تسویه"]: (s==="awaiting_negotiation"?["begin_negotiation","شروع مذاکره"]:((s==="negotiation"||s==="customer")?["customer_decision","ثبت نتیجه مذاکره"]:null)),
