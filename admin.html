@@ -147,8 +147,11 @@ input,select,textarea,button{touch-action:manipulation}
    sessionStorage.setItem('s2s_admin_token_v2',data.token);
    sessionStorage.setItem('s2s_admin_name',data.staff_name||'مدیر');
    document.documentElement.classList.remove('s2s-locked');
-   err.textContent='ورود تأیید شد؛ در حال بازکردن پنل…';
-   location.reload();
+   document.documentElement.classList.remove('s2s-locked');
+   err.textContent='ورود تأیید شد؛ در حال بارگذاری اطلاعات پنل…';
+   btn.textContent='ورود موفق';
+   document.getElementById('adminSessionName').textContent='● '+(data.staff_name||'مدیر');
+   Promise.allSettled([load(),loadAuctionCodes(),loadAuctionMembers(),loadBuyerPayments(),loadSupport(),loadCustomerReviewsAdmin()]).then(()=>{err.textContent='پنل باز شد.'});
   }catch(error){err.textContent=error&&error.message?error.message:'خطای ناشناخته هنگام ورود';btn.disabled=false;btn.textContent='ورود دوباره'}
  });
 })();
