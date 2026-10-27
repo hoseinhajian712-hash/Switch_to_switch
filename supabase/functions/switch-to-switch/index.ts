@@ -1567,4 +1567,24 @@ Deno.serve(async(req)=>{if(req.method==="OPTIONS")return new Response(null,{stat
   const r=await db.from("vehicles").insert(x);
   if(r.error)return json({error:"پرونده ساخته شد اما ذخیره خودرو ناموفق بود: "+r.error.message,case_number:c.case_number,id:c.id},500)
  }
+ // Add an automatic vehicle summary to the case's shared private conversation.
+ const vehicleSummary=(v:any,label:string)=>{
+  if(!v)return "";
+  const parts=[
+   v.brand||v.model?[String(v.brand||"") ,String(v.model||""),String(v.trim||"")].filter(Boolean).join(" "):"",
+   v.model_year?"سال: "+v.model_year:"",
+   v.color?"رنگ: "+v.color:"",
+   v.mileage!==undefined&&v.mileage!==null&&Number(v.mileage)>0?"کارکرد: "+Number(v.mileage).toLocaleString("en-US")+" کیلومتر":"",
+   v.condition||v.general_condition?"ایرادات/وضعیت: "+String(v.condition||v.general_condition):"",
+   v.technical_condition?"وضعیت فنی: "+String(v.technical_condition):"",
+   v.body_condition?"وضعیت بدنه: "+String(v.body_condition):"",
+   Array.isArray(v.options)?(v.options.length?"آپشن‌ها: "+v.options.join("، "):""):v.options?"آپشن‌ها: "+String(v.options):""
+  ].filter(Boolean);
+  return parts.length?label+"\n"+parts.join("\n"):"";
+ };
+ const summary=[vehicleSummary(b.vehicle,"خودروی فعلی"),vehicleSummary(b.target_vehicle,"خودروی موردنظر")].filter(Boolean).join("\n\n");
+ if(summary){
+  const comment=await db.from("case_comments").insert({case_id:c.id,author_role:"system",author_name:"اطلاعات رزرو",message:"مشخصات خودرو از فرم رزرو به‌صورت خودکار ثبت شد:\n"+summary});
+  if(comment.error)console.error("Could not add automatic vehicle summary to case conversation",comment.error);
+ }
  return json({ok:true,case_number:c.case_number,id:c.id})}catch(e){return json({error:String(e)},500)}}return json({ok:true,service:"switch-to-switch-v4-api"})});
