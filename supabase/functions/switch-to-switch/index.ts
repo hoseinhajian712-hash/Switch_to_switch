@@ -732,9 +732,9 @@ function normalizeIranMobile(value:string){
 async function api(req:Request,u:URL){
  const a=u.searchParams.get("api"),id=u.searchParams.get("id")||"";
  if(a==="booking-settings"&&req.method==="GET"){
-  const {data,error}=await db.from("booking_settings").select("daily_capacity,blocked_dates,blocked_slots,branch_names,updated_at").eq("id",1).single();
+  const {data,error}=await db.from("booking_settings").select("daily_capacity,slot_capacity,blocked_dates,blocked_slots,branch_names,updated_at").eq("id",1).single();
   if(error)return json({error:error.message},500);
-  return json({ok:true,settings:{daily_capacity:data.daily_capacity,blocked_dates:(data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10)),blocked_slots:data.blocked_slots||{},branch_names:Array.isArray(data.branch_names)?data.branch_names:[],updated_at:data.updated_at}});
+  return json({ok:true,settings:{daily_capacity:data.daily_capacity,slot_capacity:data.slot_capacity,blocked_dates:(data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10)),blocked_slots:data.blocked_slots||{},branch_names:Array.isArray(data.branch_names)?data.branch_names:[],updated_at:data.updated_at}});
  }
  if(a==="booking-calendar"&&req.method==="GET"){
   const start=u.searchParams.get("start")||"",days=Number(u.searchParams.get("days")||10);
@@ -901,8 +901,9 @@ async function api(req:Request,u:URL){
  }
  if(a==="booking-settings"&&req.method==="POST"&&role==="admin"){
   try{
-   const b=await req.json(),capacity=Number(b.daily_capacity);
+   const b=await req.json(),capacity=Number(b.daily_capacity),slotCapacity=Number(b.slot_capacity??1);
    if(!Number.isInteger(capacity)||capacity<1||capacity>9)return json({error:"ظرفیت روزانه باید بین ۱ تا ۹ نوبت باشد."},400);
+   if(!Number.isInteger(slotCapacity)||slotCapacity<1||slotCapacity>9)return json({error:"ظرفیت هر ساعت باید بین ۱ تا ۹ نفر باشد."},400);
    const rawBranches=Array.isArray(b.branch_names)?b.branch_names:[];if(rawBranches.length>100)return json({error:"حداکثر ۱۰۰ شعبه قابل ثبت است."},400);
    const branchNames=Array.from(new Set(rawBranches.map((x:any)=>String(x||"").trim().replace(/\s+/g," ")).filter((x:string)=>x.length>0&&x.length<=120)));
    if(rawBranches.some((x:any)=>String(x||"").trim().length>120))return json({error:"نام هر شعبه باید حداکثر ۱۲۰ نویسه باشد."},400);
@@ -913,9 +914,9 @@ async function api(req:Request,u:URL){
     const clean=(times as any[]).map(String);if(clean.some(t=>!/^([01]\d|2[0-3]):[0-5]\d$/.test(t)||Number(t.slice(0,2))<9||Number(t.slice(0,2))>17||Number(t.slice(3,5))!==0))return json({error:"ساعت بسته‌شده باید یکی از ساعت‌های ۰۹ تا ۱۷ باشد."},400);
     if(clean.length)slots[date]=Array.from(new Set(clean));
    }
-   const {data,error}=await db.from("booking_settings").update({daily_capacity:capacity,blocked_dates:dates,blocked_slots:slots,branch_names:branchNames,updated_at:new Date().toISOString()}).eq("id",1).select("daily_capacity,blocked_dates,blocked_slots,branch_names,updated_at").single();
+   const {data,error}=await db.from("booking_settings").update({daily_capacity:capacity,slot_capacity:slotCapacity,blocked_dates:dates,blocked_slots:slots,branch_names:branchNames,updated_at:new Date().toISOString()}).eq("id",1).select("daily_capacity,slot_capacity,blocked_dates,blocked_slots,branch_names,updated_at").single();
    if(error)return json({error:error.message},500);
-   return json({ok:true,settings:{daily_capacity:data.daily_capacity,blocked_dates:(data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10)),blocked_slots:data.blocked_slots||{},branch_names:Array.isArray(data.branch_names)?data.branch_names:[],updated_at:data.updated_at}});
+   return json({ok:true,settings:{daily_capacity:data.daily_capacity,slot_capacity:data.slot_capacity,blocked_dates:(data.blocked_dates||[]).map((x:any)=>String(x).slice(0,10)),blocked_slots:data.blocked_slots||{},branch_names:Array.isArray(data.branch_names)?data.branch_names:[],updated_at:data.updated_at}});
   }catch(e){return json({error:String(e)},400)}
  }
  if(a==="staff-password-change"&&req.method==="POST"&&(role==="admin"||role==="expert")){
