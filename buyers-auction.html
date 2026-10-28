@@ -817,10 +817,13 @@ const photoButton=(p,i)=>p&&p.url?'<button type="button" class="photo-thumb" dat
 const defectAreas=[...new Set(defects.map(d=>String(d.area||"").trim()).filter(Boolean))];
 const defectFilterOptions=(items,label)=>'<option value="">'+label+'</option>'+items.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");
 let report='<div class="report" id="caseReport"><details><summary>🔎 ایرادهای کارشناسی · '+fa(defects.length)+' مورد · برای مشاهده بزن</summary><p class="sub">وضعیت: '+esc((a.inspection&&a.inspection.status)==="completed"?"تکمیل شده":"در انتظار تکمیل")+' · '+esc(a.inspection&&a.inspection.finished_at?new Date(a.inspection.finished_at).toLocaleDateString("fa-IR"):"")+'</p><p class="sub">'+esc((a.inspection&&a.inspection.summary)||"جزئیات ایرادها را باز کن.")+'</p>'+(defects.length?'<div class="defect-filters"><div class="defect-filter-heading"><span>فیلتر بخش خودرو</span><span class="sub">انتخاب بخش موردنظر</span></div><div class="defect-filter-selects"><div class="vehicle-section-select-wrap"><span class="vehicle-section-select-icon">⌕</span><button type="button" class="vehicle-section-select vehicle-section-select-button" data-defect-select-button aria-haspopup="listbox" aria-expanded="false"><span data-defect-select-label>همه بخش‌های خودرو</span><span class="vehicle-section-select-chevron">⌄</span></button><div class="vehicle-section-options hidden" data-defect-options role="listbox" aria-label="بخش‌های خودرو"><button type="button" class="vehicle-section-option selected" data-defect-option data-value="" role="option" aria-selected="true">همه بخش‌های خودرو</button>'+defectAreas.map(x=>'<button type="button" class="vehicle-section-option" data-defect-option data-value="'+esc(x)+'" role="option" aria-selected="false">'+esc(x)+'</button>').join("")+'</div><select class="hidden" data-defect-area aria-label="فیلتر بخش خودرو">'+defectFilterOptions(defectAreas,"همه بخش‌های خودرو")+'</select></div></div><div class="sub defect-filter-count" data-defect-count>نمایش '+fa(defects.length)+' مورد از '+fa(defects.length)+' ایراد</div></div>':'')+(defects.length?defects.map(d=>'<details class="defect defect-toggle defect-filter-item" data-defect-area-value="'+esc(d.area||"")+'"><summary><b>'+esc(d.area)+" · "+esc(d.part)+'</b><span class="defect-type">'+esc(d.defect_type)+'</span></summary>'+(d.explanation?'<p>'+esc(d.explanation)+'</p>':"")+(d.photos&&d.photos.length?'<div class="photos">'+d.photos.map(photoButton).join("")+'</div>':'<p class="sub">برای این ایراد عکسی ثبت نشده است.</p>')+'</details>').join(""):'<p class="sub">ایرادی در گزارش ثبت نشده است.</p>')+'<p class="sub defect-no-results hidden" data-defect-empty>ایرادی با این فیلترها پیدا نشد؛ فیلترها را تغییر بده.</p></details></div>';
-const hasPart=(...words)=>defects.some(d=>words.some(w=>(String(d.area||"")+" "+String(d.part||"")+" "+String(d.defect_type||"")).includes(w)));
+const normPart=s=>String(s||"").toLocaleLowerCase("fa").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[\u200c\u200f\u0640\s_-]+/g,"");
+const defectText=defects.map(d=>normPart([d.area,d.part,d.defect_type,d.explanation].filter(Boolean).join(" ")));
+const hasPart=(...words)=>defectText.some(t=>words.some(w=>t.includes(normPart(w))));
 const partClass=(...words)=>hasPart(...words)?"schematic-part schematic-bad":"schematic-part";
-const schematic=`<details class="schematic-box" open>
-<summary><span>🚘 نقشه تخصصی بدنه خودرو</span><span class="sub">فعلاً بدون علامت ایراد</span></summary>
+const markedPartCount=["کاپوت","درب جلو چپ","درب جلو راست","درب عقب چپ","درب عقب راست","گلگیر جلو چپ","گلگیر جلو راست","گلگیر عقب چپ","گلگیر عقب راست","سپر جلو","سپر عقب","سقف","آینه چپ","آینه راست"].filter(p=>hasPart(p)).length;
+ const schematic=`<details class="schematic-box" open>
+<summary><span>🚘 نقشه تخصصی بدنه خودرو</span><span class="sub">${markedPartCount?fa(markedPartCount)+" قطعه دارای علامت":defects.length?"ایراد ثبت شده؛ قطعه متناظر مشخص نشده":"بدون ایراد ثبت‌شده"}</span></summary>
 <div class="pro-schematic-wrap">
 <div class="pro-schematic-head"><span>نمای بالای خودرو · قطعات مجزا و قابل تشخیص</span></div>
 <div class="schematic-view-title">۱. نمای بالا — بدنه و قطعات اصلی</div>
@@ -834,37 +837,37 @@ const schematic=`<details class="schematic-box" open>
 <g class="car-map-wheels"><rect x="105" y="151" width="42" height="112" rx="12"/><rect x="473" y="151" width="42" height="112" rx="12"/><rect x="105" y="493" width="42" height="112" rx="12"/><rect x="473" y="493" width="42" height="112" rx="12"/></g>
 <g filter="url(#bodyDrop)">
 <path class="car-map-body" d="M222 36 Q310 16 398 36 L442 72 L471 134 L479 207 L479 548 L471 621 L442 682 L398 719 Q310 740 222 719 L178 682 L149 621 L141 548 L141 207 L149 134 L178 72 Z"/>
-<path class="schematic-part" d="M224 35 Q310 15 396 35 L427 53 L416 79 L204 79 L193 53 Z"/>
-<path class="schematic-part" d="M203 87 Q310 66 417 87 L440 145 L428 221 L192 221 L180 145 Z"/>
-<path class="schematic-part" d="M158 118 L187 92 L204 151 L201 218 L174 242 L151 193 Z"/>
-<path class="schematic-part" d="M462 118 L433 92 L416 151 L419 218 L446 242 L469 193 Z"/>
+<path class="${partClass("سپر جلو","جلو خودرو","سپر")}" d="M224 35 Q310 15 396 35 L427 53 L416 79 L204 79 L193 53 Z"/>
+<path class="${partClass("کاپوت","درب موتور")}" d="M203 87 Q310 66 417 87 L440 145 L428 221 L192 221 L180 145 Z"/>
+<path class="${partClass("گلگیر جلو چپ","گلگیر سمت چپ","گلگیر جلو")}" d="M158 118 L187 92 L204 151 L201 218 L174 242 L151 193 Z"/>
+<path class="${partClass("گلگیر جلو راست","گلگیر سمت راست","گلگیر جلو")}" d="M462 118 L433 92 L416 151 L419 218 L446 242 L469 193 Z"/>
 <path class="car-map-line" d="M196 119 Q310 99 424 119 M192 180 Q310 199 428 180"/>
 <path class="car-map-lamp" d="M203 82l44-7-8 19-35 5z M417 82l-44-7 8 19 35 5z"/>
 <path class="car-map-glass" d="M220 235 Q310 224 400 235 L418 278 L202 278 Z"/>
 <path class="car-map-trim" d="M202 286 Q310 300 418 286 L418 473 Q310 460 202 473 Z"/>
-<path class="schematic-part" d="M229 295 Q310 280 391 295 L386 466 Q310 480 234 466 Z"/>
+<path class="${partClass("سقف","سقف خودرو")}" d="M229 295 Q310 280 391 295 L386 466 Q310 480 234 466 Z"/>
 <path class="car-map-glass" d="M246 306 Q310 296 374 306 L370 357 L250 357 Z M250 390 L370 390 L374 454 Q310 465 246 454 Z"/>
 <path class="car-map-line" d="M250 374 L370 374"/>
-<path class="schematic-part" d="M150 246 L201 253 L198 354 L150 354 Z"/>
-<path class="schematic-part" d="M470 246 L419 253 L422 354 L470 354 Z"/>
-<path class="schematic-part" d="M150 365 L198 365 L201 474 L150 482 Z"/>
-<path class="schematic-part" d="M470 365 L422 365 L419 474 L470 482 Z"/>
+<path class="${partClass("درب جلو چپ","درب راننده","درب جلو سمت چپ")}" d="M150 246 L201 253 L198 354 L150 354 Z"/>
+<path class="${partClass("درب جلو راست","درب جلو سمت راست","درب شاگرد")}" d="M470 246 L419 253 L422 354 L470 354 Z"/>
+<path class="${partClass("درب عقب چپ","درب عقب سمت چپ")}" d="M150 365 L198 365 L201 474 L150 482 Z"/>
+<path class="${partClass("درب عقب راست","درب عقب سمت راست")}" d="M470 365 L422 365 L419 474 L470 482 Z"/>
 <path class="car-map-handle" d="M162 292h20 M438 292h20 M162 416h20 M438 416h20"/>
 <path class="car-map-line" d="M150 359 L198 359 M422 359 L470 359 M150 487 L201 480 M419 480 L470 487"/>
-<path class="schematic-part" d="M151 510 L174 490 L201 536 L204 601 L187 652 L158 628 L151 578 Z"/>
-<path class="schematic-part" d="M469 510 L446 490 L419 536 L416 601 L433 652 L462 628 L469 578 Z"/>
-<path class="schematic-part" d="M192 508 L428 508 L440 564 L417 644 Q310 669 203 644 L180 564 Z"/>
+<path class="${partClass("گلگیر عقب چپ","گلگیر عقب سمت چپ","گلگیر عقب")}" d="M151 510 L174 490 L201 536 L204 601 L187 652 L158 628 L151 578 Z"/>
+<path class="${partClass("گلگیر عقب راست","گلگیر عقب سمت راست","گلگیر عقب")}" d="M469 510 L446 490 L419 536 L416 601 L433 652 L462 628 L469 578 Z"/>
+<path class="${partClass("صندوق","درب صندوق","صندوق عقب")}" d="M192 508 L428 508 L440 564 L417 644 Q310 669 203 644 L180 564 Z"/>
 <path class="car-map-line" d="M195 545 Q310 560 425 545 M203 615 Q310 635 417 615"/>
 <path class="car-map-lamp" d="M203 659l44 7-8-19-35-5z M417 659l-44 7 8-19 35-5z"/>
-<path class="schematic-part" d="M204 682 L416 682 L427 704 Q310 735 193 704 Z"/>
+<path class="${partClass("سپر عقب","عقب خودرو")}" d="M204 682 L416 682 L427 704 Q310 735 193 704 Z"/>
 <path class="schematic-part" d="M137 248 L151 248 L151 482 L137 482 Z"/>
 <path class="schematic-part" d="M469 248 L483 248 L483 482 L469 482 Z"/>
-<path class="car-map-mirror" d="M143 240 Q112 226 108 252 L138 275 Z M477 240 Q508 226 512 252 L482 275 Z"/>
+<path class="car-map-mirror ${hasPart("آینه چپ","آینه راننده","آینه بغل چپ","آینه راست","آینه")?"schematic-bad":""}" d="M143 240 Q112 226 108 252 L138 275 Z M477 240 Q508 226 512 252 L482 275 Z"/>
 </g>
 <g class="car-map-labels"><text x="310" y="28">جلو خودرو</text><text x="310" y="735">عقب خودرو</text><text x="310" y="150">کاپوت</text><text x="310" y="378">سقف</text><text x="310" y="590">صندوق</text><text x="122" y="310" transform="rotate(-90 122 310)">درب جلو چپ</text><text x="498" y="310" transform="rotate(90 498 310)">درب جلو راست</text><text x="122" y="420" transform="rotate(-90 122 420)">درب عقب چپ</text><text x="498" y="420" transform="rotate(90 498 420)">درب عقب راست</text><text x="170" y="166">گلگیر</text><text x="450" y="166">گلگیر</text><text x="170" y="572">گلگیر</text><text x="450" y="572">گلگیر</text><text x="310" y="62">سپر جلو</text><text x="310" y="716">سپر عقب</text></g>
 </svg>
-<div class="schematic-legend"><span><i class="schematic-dot"></i> قطعات بدنه · بدون علامت‌گذاری ایراد</span></div>
-<p class="schematic-caption">فعلاً هیچ ایرادی روی شماتیک نمایش داده نمی‌شود. اطلاعات گزارش کارشناسی، در صورت وجود، جداگانه در پرونده قابل مشاهده است.</p>
+<div class="schematic-legend"><span><i class="schematic-dot"></i> بدون ایراد علامت‌گذاری‌شده</span><span><i class="schematic-dot bad"></i> قطعه دارای ایراد کارشناسی</span></div>
+<p class="schematic-caption">قطعات قرمز بر اساس ایرادهای ثبت‌شده در گزارش کارشناسی مشخص می‌شوند. جزئیات و عکس هر ایراد در بخش «ایرادهای کارشناسی» قابل مشاهده است.</p>
 </div></details>`;
 
 const current=Number(a.current_bid||a.starting_price||0),suggested=current+minIncrement;
