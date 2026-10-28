@@ -1308,7 +1308,22 @@ body.dashboard-open #auctionArea:not(.hidden){padding-bottom:14px!important}
 }
 
 </style>
-</body></html>
+<script>
+/* مستقل‌سازی فرم ورود خریدار؛ در صورت خطای اسکریپت داشبورد هم فرم ورود کار می‌کند. */
+(function(){
+ let busy=false,requestId='',pollTimer=null;
+ const $=id=>document.getElementById(id);
+ const base=()=>String(window.SUPABASE_URL||'').replace(/\/$/,'')+'/functions/v1/switch-to-switch';
+ const digits=v=>String(v||'').replace(/[۰-۹٠-٩]/g,d=>{let n='۰۱۲۳۴۵۶۷۸۹'.indexOf(d);return String(n>=0?n:'٠١٢٣٤٥٦٧٨٩'.indexOf(d))});
+ function message(text,kind){const box=$('message');if(box){box.innerHTML='';const d=document.createElement('div');d.className='msg '+(kind||'');d.textContent=text;box.appendChild(d);box.scrollIntoView({behavior:'smooth',block:'nearest'});}}
+ async function api(action,body,params){const u=new URL(base());u.searchParams.set('api',action);u.searchParams.set('_',String(Date.now()));Object.entries(params||{}).forEach(([k,v])=>u.searchParams.set(k,String(v)));const r=await fetch(u.toString(),{method:body?'POST':'GET',headers:body?{'content-type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store'});let j={};try{j=await r.json()}catch(_){}if(!r.ok||j.error)throw Error(j.error||('خطای سرور '+r.status));return j;}
+ async function requestCode(e){if(e){e.preventDefault();e.stopImmediatePropagation()}if(busy)return;const name=$('fullName'),mobile=$('mobile'),btn=$('sendCode');if(!name||!mobile||!btn)return;const n=name.value.trim(),m=digits(mobile.value).replace(/\D/g,'');if(!n||!/^09\d{9}$/.test(m)){message('نام و شماره موبایل ۱۱ رقمی معتبر را وارد کن.','err');return;}busy=true;btn.disabled=true;btn.textContent='در حال ارسال درخواست…';try{const r=await api('auction-request-code',{full_name:n,mobile:m});if(!r.request_id)throw Error('شناسه درخواست از سرور دریافت نشد.');requestId=r.request_id;$('verifyCode').classList.remove('hidden');$('requestCode').classList.add('hidden');$('otp').value='';$('otp').readOnly=true;message('درخواست ثبت شد؛ صفحه را باز نگه دار. پس از تأیید همکاران، کد همین‌جا نمایش داده می‌شود.','ok');if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(()=>checkCode(m),2500);checkCode(m);}catch(err){message(err.message||'ارسال درخواست ورود ناموفق بود.','err')}finally{busy=false;btn.disabled=false;btn.textContent='دریافت کد';}}
+ async function checkCode(m){if(!requestId)return;try{const r=await api('auction-code-status',null,{id:requestId,mobile:m});if(r.expired){clearInterval(pollTimer);pollTimer=null;message('اعتبار درخواست تمام شد؛ دوباره کد بگیر.','err');return}if(r.approved&&r.code){$('otp').value=String(r.code);$('otp').readOnly=true;clearInterval(pollTimer);pollTimer=null;message('درخواست تأیید شد؛ حالا «تأیید و ورود» را بزن.','ok')}}catch(_){}}
+ async function verify(e){if(e){e.preventDefault();e.stopImmediatePropagation()}if(busy)return;const mobile=digits($('mobile').value).replace(/\D/g,''),code=digits($('otp').value).replace(/\D/g,''),btn=$('verifyBtn');if(!/^09\d{9}$/.test(mobile)||!code){message('شماره موبایل و کد تأیید را بررسی کن.','err');return}busy=true;if(btn){btn.disabled=true;btn.textContent='در حال بررسی…'}try{const r=await api('auction-verify-code',{mobile,code});if(!r.token)throw Error('توکن ورود از سرور دریافت نشد.');try{localStorage.setItem('s2s_auction_buyer_token',r.token)}catch(_){}document.cookie='s2s_auction_buyer_token='+encodeURIComponent(r.token)+'; Max-Age=7776000; Path=/; SameSite=Lax; Secure';message('ورود موفق بود؛ در حال بازکردن پنل…','ok');window.location.reload()}catch(err){message(err.message||'تأیید کد ناموفق بود.','err')}finally{busy=false;if(btn){btn.disabled=false;btn.textContent='تأیید و ورود'}}}
+ document.addEventListener('submit',function(e){if(e.target&&e.target.id==='requestCode')requestCode(e);else if(e.target&&e.target.id==='verifyCode')verify(e)},true);
+ document.addEventListener('click',function(e){const b=e.target&&e.target.closest?e.target.closest('#sendCode,#verifyBtn'):null;if(!b)return;if(b.id==='sendCode')requestCode(e);else verify(e)},true);
+})();
+</script></body></html>
 <style>
 /* ساده‌سازی نهایی ثبت پیشنهاد برای موبایل */
 .case-details-page .bid-form-simple{display:grid;gap:12px;background:#f8fafc!important;color:#102338!important;border:1px solid #d8e1eb!important;border-radius:16px;padding:14px!important}
