@@ -967,9 +967,9 @@ async function api(req:Request,u:URL){
   const r=await db.from("customer_access_requests").update({status:"rejected",display_code:null,code_hash:null,code_expires_at:null,updated_at:new Date().toISOString()}).eq("id",requestId).neq("status","approved");
   return r.error?json({error:"رد درخواست ناموفق بود."},500):json({ok:true});
  }
- if(a==="personnel-list"&&(role==="admin"||role==="sales")&&req.method==="GET"){
+ if(a==="personnel-list"&&(role==="admin"||role==="sales"||role==="contracts")&&req.method==="GET"){
   let q=db.from("staff_members").select("id,full_name,role,active,personnel_code_display").order("created_at",{ascending:true});
-  if(role==="sales")q=q.eq("role","expert").eq("active",true);
+  if(role==="sales"||role==="contracts")q=q.eq("role","expert").eq("active",true);
   const {data,error}=await q;
   if(error)return json({error:error.message},500);
   return json({staff:data||[]});
