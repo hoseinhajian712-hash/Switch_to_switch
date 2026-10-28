@@ -818,16 +818,20 @@ const defectAreas=[...new Set(defects.map(d=>String(d.area||"").trim()).filter(B
 const defectFilterOptions=(items,label)=>'<option value="">'+label+'</option>'+items.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");
 let report='<div class="report" id="caseReport"><details><summary>🔎 ایرادهای کارشناسی · '+fa(defects.length)+' مورد · برای مشاهده بزن</summary><p class="sub">وضعیت: '+esc((a.inspection&&a.inspection.status)==="completed"?"تکمیل شده":"در انتظار تکمیل")+' · '+esc(a.inspection&&a.inspection.finished_at?new Date(a.inspection.finished_at).toLocaleDateString("fa-IR"):"")+'</p><p class="sub">'+esc((a.inspection&&a.inspection.summary)||"جزئیات ایرادها را باز کن.")+'</p>'+(defects.length?'<div class="defect-filters"><div class="defect-filter-heading"><span>فیلتر بخش خودرو</span><span class="sub">انتخاب بخش موردنظر</span></div><div class="defect-filter-selects"><div class="vehicle-section-select-wrap"><span class="vehicle-section-select-icon">⌕</span><button type="button" class="vehicle-section-select vehicle-section-select-button" data-defect-select-button aria-haspopup="listbox" aria-expanded="false"><span data-defect-select-label>همه بخش‌های خودرو</span><span class="vehicle-section-select-chevron">⌄</span></button><div class="vehicle-section-options hidden" data-defect-options role="listbox" aria-label="بخش‌های خودرو"><button type="button" class="vehicle-section-option selected" data-defect-option data-value="" role="option" aria-selected="true">همه بخش‌های خودرو</button>'+defectAreas.map(x=>'<button type="button" class="vehicle-section-option" data-defect-option data-value="'+esc(x)+'" role="option" aria-selected="false">'+esc(x)+'</button>').join("")+'</div><select class="hidden" data-defect-area aria-label="فیلتر بخش خودرو">'+defectFilterOptions(defectAreas,"همه بخش‌های خودرو")+'</select></div></div><div class="sub defect-filter-count" data-defect-count>نمایش '+fa(defects.length)+' مورد از '+fa(defects.length)+' ایراد</div></div>':'')+(defects.length?defects.map(d=>'<details class="defect defect-toggle defect-filter-item" data-defect-area-value="'+esc(d.area||"")+'"><summary><b>'+esc(d.area)+" · "+esc(d.part)+'</b><span class="defect-type">'+esc(d.defect_type)+'</span></summary>'+(d.explanation?'<p>'+esc(d.explanation)+'</p>':"")+(d.photos&&d.photos.length?'<div class="photos">'+d.photos.map(photoButton).join("")+'</div>':'<p class="sub">برای این ایراد عکسی ثبت نشده است.</p>')+'</details>').join(""):'<p class="sub">ایرادی در گزارش ثبت نشده است.</p>')+'<p class="sub defect-no-results hidden" data-defect-empty>ایرادی با این فیلترها پیدا نشد؛ فیلترها را تغییر بده.</p></details></div>';
 const normPart=s=>String(s||"").toLocaleLowerCase("fa").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[\u200c\u200f\u0640\s_-]+/g,"");
-const defectText=defects.map(d=>normPart([d.area,d.part,d.defect_type,d.explanation].filter(Boolean).join(" ")));
-const hasPart=(...words)=>defectText.some(t=>words.some(w=>t.includes(normPart(w))));
-const partClass=(...words)=>hasPart(...words)?"schematic-part schematic-bad":"schematic-part";
-const markedPartCount=["کاپوت","درب جلو چپ","درب جلو راست","درب عقب چپ","درب عقب راست","گلگیر جلو چپ","گلگیر جلو راست","گلگیر عقب چپ","گلگیر عقب راست","سپر جلو","سپر عقب","سقف","آینه چپ","آینه راست"].filter(p=>hasPart(p)).length;
- const schematic=`<details class="schematic-box" open>
-<summary><span>🚘 نقشه تخصصی بدنه خودرو</span><span class="sub">${markedPartCount?fa(markedPartCount)+" قطعه دارای علامت":defects.length?"ایراد ثبت شده؛ قطعه متناظر مشخص نشده":"بدون ایراد ثبت‌شده"}</span></summary>
+const canonicalPart=s=>normPart(s).replace(/راننده/g,"چپ").replace(/شاگرد/g,"راست").replace(/دربموتور/g,"کاپوت").replace(/دربصندوق/g,"صندوق").replace(/صندوقعقب/g,"صندوق");
+const repairKind=d=>{const t=normPart(d&&d.defect_type||"");if(t.includes("صافکاریبدونرنگ"))return "pdr";if(t.includes("استوک")&&t.includes("تعویض"))return "stock";if(t.includes("صافکارینقاشی")||(t.includes("صافکاری")&&t.includes("نقاشی")))return "paint";if(t==="تعویض"||t.includes("تعویضکامل")||t==="برشو تعویض".replace(/\s/g,""))return "replace";return "";};
+const eligibleDefects=defects.filter(d=>repairKind(d));
+const partDefects=(...words)=>eligibleDefects.filter(d=>{const p=canonicalPart(d.part||"");if(!p)return false;const candidates=words.map(canonicalPart);const exact=candidates.some(w=>w&&p===w);if(exact)return true;const specific=candidates.filter(w=>w&&/(چپ|راست|کاپوت|صندوق)/.test(w));if(specific.length)return specific.some(w=>p.includes(w)||w.includes(p));return candidates.some(w=>w&&p.includes(w));});
+const partKind=(...words)=>{const kinds=partDefects(...words).map(repairKind);return ["replace","stock","paint","pdr"].find(k=>kinds.includes(k))||"";};
+const partClass=(...words)=>{const k=partKind(...words);return "schematic-part"+(k==="replace"?" schematic-bad":"");};
+const partMarker=(words,x,y)=>{const k=partKind(...words);if(!k)return "";if(k==="stock")return '<g transform="translate('+x+' '+y+')" aria-label="تعویض استوک"><circle r="8" fill="#ef4444" stroke="#991b1b" stroke-width="2"/><circle r="2.3" fill="#fff"/></g>';if(k==="paint")return '<g transform="translate('+x+' '+y+')" aria-label="صافکاری و نقاشی"><rect x="-9" y="-7" width="18" height="5" rx="1.5" fill="#ef4444" stroke="#991b1b" stroke-width="1.5"/><path d="M5 -2 V5 H-2" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/><path d="M-5 5 H1" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/></g>';if(k==="pdr")return '<g transform="translate('+x+' '+y+')" aria-label="صافکاری بدون رنگ"><path d="M-8 -7 L-3 -12 L3 -6 L-2 -1 Z" fill="#facc15" stroke="#a16207" stroke-width="1.5"/><path d="M-2 -2 L7 8" stroke="#eab308" stroke-width="4" stroke-linecap="round"/><path d="M-10 -8 L-5 -13" stroke="#a16207" stroke-width="2" stroke-linecap="round"/></g>';return "";};
+const markedPartCount=["کاپوت","درب جلو چپ","درب جلو راست","درب عقب چپ","درب عقب راست","گلگیر جلو چپ","گلگیر جلو راست","گلگیر عقب چپ","گلگیر عقب راست","سپر جلو","سپر عقب","سقف","صندوق","آینه بغل راننده","آینه بغل شاگرد"].filter(p=>partKind(p)).length;
+const schematic=`<details class="schematic-box" open>
+<summary><span>🚘 نقشه تخصصی بدنه خودرو</span><span class="sub">${markedPartCount?fa(markedPartCount)+" قطعه دارای اقدام مشخص":"بدون اقدام بدنه قابل نمایش"}</span></summary>
 <div class="pro-schematic-wrap">
-<div class="pro-schematic-head"><span>نمای بالای خودرو · قطعات مجزا و قابل تشخیص</span></div>
+<div class="pro-schematic-head"><span>نمای بالای خودرو · فقط اقدامات بدنه قابل نمایش</span></div>
 <div class="schematic-view-title">۱. نمای بالا — بدنه و قطعات اصلی</div>
-<svg class="pro-car-map" viewBox="0 0 620 760" role="img" aria-label="نقشه فنی نمای بالای خودرو با قطعات جداگانه و برچسب فارسی">
+<svg class="pro-car-map" viewBox="0 0 620 760" role="img" aria-label="نقشه فنی نمای بالای خودرو با اقدامات کارشناسی">
 <defs>
 <linearGradient id="bodyFinish" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#eaf1f7"/><stop offset="1" stop-color="#d7e2ec"/></linearGradient>
 <linearGradient id="glassFinish" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8d6e9"/><stop offset="1" stop-color="#e3f0f8"/></linearGradient>
@@ -862,14 +866,28 @@ const markedPartCount=["کاپوت","درب جلو چپ","درب جلو راست
 <path class="${partClass("سپر عقب","عقب خودرو")}" d="M204 682 L416 682 L427 704 Q310 735 193 704 Z"/>
 <path class="schematic-part" d="M137 248 L151 248 L151 482 L137 482 Z"/>
 <path class="schematic-part" d="M469 248 L483 248 L483 482 L469 482 Z"/>
-<path class="car-map-mirror ${hasPart("آینه چپ","آینه راننده","آینه بغل چپ","آینه راست","آینه")?"schematic-bad":""}" d="M143 240 Q112 226 108 252 L138 275 Z M477 240 Q508 226 512 252 L482 275 Z"/>
+<path class="car-map-mirror ${partKind("آینه بغل راننده","آینه چپ","آینه راننده")?"schematic-bad":""}" d="M143 240 Q112 226 108 252 L138 275 Z M477 240 Q508 226 512 252 L482 275 Z"/>
+</g>
+<g class="schematic-markers">
+${partMarker(["سپر جلو","جلو خودرو"],310,55)}
+${partMarker(["کاپوت","درب موتور"],310,155)}
+${partMarker(["گلگیر جلو چپ","گلگیر جلو راننده"],174,186)}
+${partMarker(["گلگیر جلو راست","گلگیر جلو شاگرد"],446,186)}
+${partMarker(["درب جلو چپ","درب راننده"],174,300)}
+${partMarker(["درب جلو راست","درب شاگرد"],446,300)}
+${partMarker(["درب عقب چپ","درب عقب راننده"],174,420)}
+${partMarker(["درب عقب راست","درب عقب شاگرد"],446,420)}
+${partMarker(["سقف"],310,380)}
+${partMarker(["گلگیر عقب چپ","گلگیر عقب راننده"],174,572)}
+${partMarker(["گلگیر عقب راست","گلگیر عقب شاگرد"],446,572)}
+${partMarker(["صندوق","درب صندوق"],310,585)}
+${partMarker(["سپر عقب"],310,700)}
 </g>
 <g class="car-map-labels"><text x="310" y="28">جلو خودرو</text><text x="310" y="735">عقب خودرو</text><text x="310" y="150">کاپوت</text><text x="310" y="378">سقف</text><text x="310" y="590">صندوق</text><text x="122" y="310" transform="rotate(-90 122 310)">درب جلو چپ</text><text x="498" y="310" transform="rotate(90 498 310)">درب جلو راست</text><text x="122" y="420" transform="rotate(-90 122 420)">درب عقب چپ</text><text x="498" y="420" transform="rotate(90 498 420)">درب عقب راست</text><text x="170" y="166">گلگیر</text><text x="450" y="166">گلگیر</text><text x="170" y="572">گلگیر</text><text x="450" y="572">گلگیر</text><text x="310" y="62">سپر جلو</text><text x="310" y="716">سپر عقب</text></g>
 </svg>
-<div class="schematic-legend"><span><i class="schematic-dot"></i> بدون ایراد علامت‌گذاری‌شده</span><span><i class="schematic-dot bad"></i> قطعه دارای ایراد کارشناسی</span></div>
-<p class="schematic-caption">قطعات قرمز بر اساس ایرادهای ثبت‌شده در گزارش کارشناسی مشخص می‌شوند. جزئیات و عکس هر ایراد در بخش «ایرادهای کارشناسی» قابل مشاهده است.</p>
+<div class="schematic-legend"><span><i class="schematic-dot bad"></i> تعویض کامل قطعه</span><span><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#ef4444"></i> تعویض استوک</span><span><b style="color:#ef4444">▰</b> صافکاری و نقاشی (غلطک)</span><span><b style="color:#eab308">🔨</b> صافکاری بدون رنگ</span></div>
+<p class="schematic-caption">فقط گزینه‌های صافکاری و نقاشی، تعویض کامل، تعویض استوک و صافکاری بدون رنگ روی نقشه علامت‌گذاری می‌شوند؛ سایر ایرادهای گزارش در بخش جزئیات باقی می‌مانند.</p>
 </div></details>`;
-
 const current=Number(a.current_bid||a.starting_price||0),suggested=current+minIncrement;
 const consumerPrice=Number(a.target_price??a.consumer_price??a.fair_price??0);
 const consumerPriceLabel=consumerPrice>0?money(consumerPrice)+" تومان":"هنوز توسط فروش ثبت نشده";
