@@ -1426,6 +1426,68 @@ if(a==="upload-document"&&req.method==="POST"){
   if(ins.error){await db.storage.from("s2s-documents").remove([path]);return json({error:"فایل بارگذاری شد اما ثبت مدرک ناموفق بود: "+ins.error.message},500)}
   return json({ok:true,document_id:ins.data.id,storage_path:path,file_name:fileName});
  }
+ 
+ if(a==="case-edit-details"&&req.method==="POST"){
+  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات ویرایش معتبر نیست."},400)}
+  const caseId=String(id||b.id||"").trim(),vehicleOnly=b.vehicle_only===true;
+  if(!caseId)return json({error:"شناسه پرونده مشخص نیست."},400);
+  if(vehicleOnly?!["admin","sales"].includes(role):!["admin","intake"].includes(role))return json({error:vehicleOnly?"ویرایش خودرو فقط برای فروش و مدیریت مجاز است.":"ویرایش اطلاعات مشتری فقط برای ثبت درخواست و مدیریت مجاز است."},403);
+  const before=await db.from("cases").select("id,status,customer_name,customer_mobile,service_type,appointment_date,appointment_time,appointment_status").eq("id",caseId).maybeSingle();
+  if(before.error)return json({error:"دریافت پرونده برای ویرایش ناموفق بود: "+before.error.message},500);
+  if(!before.data)return json({error:"پرونده پیدا نشد."},404);
+  const casePatch:any={updated_at:new Date().toISOString()};
+  if(!vehicleOnly){
+   const name=String(b.customer_name||"").trim().slice(0,120);
+   const toEnglish=(v:any)=>String(v??"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+   const mobile=toEnglish(String(b.customer_mobile||"").trim()).replace(/[^0-9+]/g,"").slice(0,24),serviceType=String(b.service_type||"");
+   if(name.length<2)return json({error:"نام و نام خانوادگی مشتری را کامل وارد کنید."},400);
+   if(mobile.replace(/\D/g,"").length<7)return json({error:"شماره تماس معتبر وارد کنید."},400);
+   if(!["sell","buy","exchange"].includes(serviceType))return json({error:"نوع درخواست معتبر نیست."},400);
+   casePatch.customer_name=name;casePatch.customer_mobile=mobile;casePatch.service_type=serviceType;
+   if(serviceType==="buy"){casePatch.appointment_date=null;casePatch.appointment_time=null}
+   else{
+    const appointmentDate=String(b.appointment_date||"").slice(0,10),appointmentTime=String(b.appointment_time||"").slice(0,5);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime))return json({error:"روز و ساعت مراجعه را انتخاب کنید."},400);
+    casePatch.appointment_date=appointmentDate;casePatch.appointment_time=appointmentTime;
+    if(appointmentDate!==String(before.data.appointment_date||"").slice(0,10)||appointmentTime!==String(before.data.appointment_time||"").slice(0,5))casePatch.appointment_status="requested";
+   }
+  }
+  const savedCase=await db.from("cases").update(casePatch).eq("id",caseId).select("id,status,customer_name,customer_mobile,service_type,appointment_date,appointment_time,appointment_status").maybeSingle();
+  if(savedCase.error)return json({error:"ذخیره اطلاعات مشتری ناموفق بود: "+savedCase.error.message},500);
+  if(!savedCase.data)return json({error:"پرونده پیدا نشد یا دیگر قابل ویرایش نیست."},404);
+  const vehicleDigits=(v:any)=>String(v??"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,"");
+  const cleanVehicle=(v:any)=>{const raw=v&&typeof v==="object"?v:{};const yearDigits=vehicleDigits(raw.model_year),mileageDigits=vehicleDigits(raw.mileage);return {brand:String(raw.brand||"").trim().slice(0,120)||null,model:String(raw.model||"").trim().slice(0,120)||null,trim:String(raw.trim||"").trim().slice(0,120)||null,model_year:yearDigits&&/^\d{4}$/.test(yearDigits)?Number(yearDigits):null,color:String(raw.color||"").trim().slice(0,80)||null,mileage:mileageDigits?Number(mileageDigits):null,options:String(Array.isArray(raw.options)?raw.options.join("، "):(raw.options||"")).trim().slice(0,1000)||null}};
+  const vr=await db.from("vehicles").select("*").eq("case_id",caseId);
+  if(vr.error)return json({error:"دریافت مشخصات خودرو ناموفق بود: "+vr.error.message},500);
+  const existing=vr.data||[],currentRow=existing.find((v:any)=>v.vehicle_role==="current")||null,targetRow=existing.find((v:any)=>v.vehicle_role==="target")||null;
+  const currentInput=cleanVehicle(b.vehicle_current),targetInput=cleanVehicle(b.vehicle_target);
+  const hasVehicle=(v:any)=>!!(v.brand||v.model||v.trim||v.model_year||v.color||v.mileage!==null||v.options);
+  const saveVehicle=async(row:any,vehicle:any,vehicleRole:string)=>{
+   if(!row&&!hasVehicle(vehicle))return {data:null,error:null};
+   if(vehicle.model_year!==null&&(vehicle.model_year<1300||vehicle.model_year>1600))return {data:null,error:{message:"سال ساخت خودرو معتبر نیست."}};
+   if(vehicle.mileage!==null&&(!Number.isSafeInteger(vehicle.mileage)||vehicle.mileage<0))return {data:null,error:{message:"کارکرد خودرو معتبر نیست."}};
+   if(row)return await db.from("vehicles").update(vehicle).eq("id",row.id).eq("case_id",caseId).select("*").maybeSingle();
+   return await db.from("vehicles").insert({...vehicle,case_id:caseId,vehicle_role:vehicleRole}).select("*").single();
+  };
+  const vehicleWrites:any[]=[];
+  if(savedCase.data.service_type==="buy"){
+   const row=targetRow||currentRow,result=await saveVehicle(row,targetInput,row?.vehicle_role||"target");
+   if(result.error)return json({error:"ذخیره مشخصات خودروی موردنظر ناموفق بود: "+result.error.message},400);
+   if(result.data)vehicleWrites.push(result.data);
+  }else{
+   const result=await saveVehicle(currentRow,currentInput,"current");
+   if(result.error)return json({error:"ذخیره مشخصات خودروی فعلی ناموفق بود: "+result.error.message},400);
+   if(result.data)vehicleWrites.push(result.data);
+   if(savedCase.data.service_type==="exchange"&&(targetRow||hasVehicle(targetInput))){
+    const targetResult=await saveVehicle(targetRow,targetInput,"target");
+    if(targetResult.error)return json({error:"ذخیره مشخصات خودروی هدف ناموفق بود: "+targetResult.error.message},400);
+    if(targetResult.data)vehicleWrites.push(targetResult.data);
+   }
+  }
+  await historyAdd(caseId,before.data.status||"new",before.data.status||"new",vehicleOnly?"مشخصات خودرو توسط "+role+" ویرایش شد":"اطلاعات پرونده و مشخصات خودرو ویرایش شد");
+  return json({ok:true,case:savedCase.data,vehicles:vehicleWrites});
+ }
+ 
  if(a==="list")return listCases(role,staffMemberId);
  if(a==="assign-case-expert"&&(role==="admin"||role==="sales"||role==="contracts")&&req.method==="POST"){
   if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
