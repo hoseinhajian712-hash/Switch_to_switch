@@ -418,7 +418,7 @@ async function adminUpdateVehicle(req:Request){
  const brand=clean(b.brand),model=clean(b.model),trim=clean(b.trim),color=clean(b.color),vehicle_type=clean(b.vehicle_type,80),fuel_type=clean(b.fuel_type,80),transmission=clean(b.transmission,80);
  const year=b.model_year===null||b.model_year===""?null:Number(b.model_year),mileage=b.mileage===null||b.mileage===""?null:Number(String(b.mileage).replace(/[^0-9]/g,""));
  if(!brand||!model)return json({error:"برند و مدل خودرو الزامی است"},400);
- if(year!==null&&(!Number.isInteger(year)||year<1300||year>1500))return json({error:"سال ساخت معتبر نیست"},400);
+ if(year!==null&&(!Number.isInteger(year)||!((year>=1300&&year<=1500)||(year>=1900&&year<=2100))))return json({error:"سال ساخت معتبر نیست"},400);
  if(mileage!==null&&(!Number.isSafeInteger(mileage)||mileage<0))return json({error:"کارکرد معتبر نیست"},400);
  const up=await db.from("vehicles").update({brand,model,trim:trim||null,model_year:year,color:color||null,vehicle_type:vehicle_type||null,fuel_type:fuel_type||null,transmission:transmission||null,mileage}).eq("id",vehicleId).select("id,case_id,vehicle_role,brand,model,trim,model_year,color,vehicle_type,fuel_type,transmission,mileage").maybeSingle();
  if(up.error)return json({error:up.error.message},500);
@@ -1464,7 +1464,7 @@ if(a==="upload-document"&&req.method==="POST"){
   const hasVehicle=(v:any)=>!!(v.brand||v.model||v.trim||v.model_year||v.color||v.mileage!==null||v.options);
   const saveVehicle=async(row:any,vehicle:any,vehicleRole:string)=>{
    if(!row&&!hasVehicle(vehicle))return {data:null,error:null};
-   if(vehicle.model_year!==null&&(vehicle.model_year<1300||vehicle.model_year>1600))return {data:null,error:{message:"سال ساخت خودرو معتبر نیست."}};
+   if(vehicle.model_year!==null&&!((vehicle.model_year>=1300&&vehicle.model_year<=1600)||(vehicle.model_year>=1900&&vehicle.model_year<=2100)))return {data:null,error:{message:"سال ساخت خودرو معتبر نیست."}};
    if(vehicle.mileage!==null&&(!Number.isSafeInteger(vehicle.mileage)||vehicle.mileage<0))return {data:null,error:{message:"کارکرد خودرو معتبر نیست."}};
    if(row)return await db.from("vehicles").update(vehicle).eq("id",row.id).eq("case_id",caseId).select("*").maybeSingle();
    return await db.from("vehicles").insert({...vehicle,case_id:caseId,vehicle_role:vehicleRole}).select("*").single();
