@@ -819,7 +819,7 @@ const defectFilterOptions=(items,label)=>'<option value="">'+label+'</option>'+i
 let report='<div class="report" id="caseReport"><details><summary>🔎 ایرادهای کارشناسی · '+fa(defects.length)+' مورد · برای مشاهده بزن</summary><p class="sub">وضعیت: '+esc((a.inspection&&a.inspection.status)==="completed"?"تکمیل شده":"در انتظار تکمیل")+' · '+esc(a.inspection&&a.inspection.finished_at?new Date(a.inspection.finished_at).toLocaleDateString("fa-IR"):"")+'</p><p class="sub">'+esc((a.inspection&&a.inspection.summary)||"جزئیات ایرادها را باز کن.")+'</p>'+(defects.length?'<div class="defect-filters"><div class="defect-filter-heading"><span>فیلتر بخش خودرو</span><span class="sub">انتخاب بخش موردنظر</span></div><div class="defect-filter-selects"><div class="vehicle-section-select-wrap"><span class="vehicle-section-select-icon">⌕</span><button type="button" class="vehicle-section-select vehicle-section-select-button" data-defect-select-button aria-haspopup="listbox" aria-expanded="false"><span data-defect-select-label>همه بخش‌های خودرو</span><span class="vehicle-section-select-chevron">⌄</span></button><div class="vehicle-section-options hidden" data-defect-options role="listbox" aria-label="بخش‌های خودرو"><button type="button" class="vehicle-section-option selected" data-defect-option data-value="" role="option" aria-selected="true">همه بخش‌های خودرو</button>'+defectAreas.map(x=>'<button type="button" class="vehicle-section-option" data-defect-option data-value="'+esc(x)+'" role="option" aria-selected="false">'+esc(x)+'</button>').join("")+'</div><select class="hidden" data-defect-area aria-label="فیلتر بخش خودرو">'+defectFilterOptions(defectAreas,"همه بخش‌های خودرو")+'</select></div></div><div class="sub defect-filter-count" data-defect-count>نمایش '+fa(defects.length)+' مورد از '+fa(defects.length)+' ایراد</div></div>':'')+(defects.length?defects.map(d=>'<details class="defect defect-toggle defect-filter-item" data-defect-area-value="'+esc(d.area||"")+'"><summary><b>'+esc(d.area)+" · "+esc(d.part)+'</b><span class="defect-type">'+esc(d.defect_type)+'</span></summary>'+(d.explanation?'<p>'+esc(d.explanation)+'</p>':"")+(d.photos&&d.photos.length?'<div class="photos">'+d.photos.map(photoButton).join("")+'</div>':'<p class="sub">برای این ایراد عکسی ثبت نشده است.</p>')+'</details>').join(""):'<p class="sub">ایرادی در گزارش ثبت نشده است.</p>')+'<p class="sub defect-no-results hidden" data-defect-empty>ایرادی با این فیلترها پیدا نشد؛ فیلترها را تغییر بده.</p></details></div>';
 const normPart=s=>String(s||"").toLocaleLowerCase("fa").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[\u200c\u200f\u0640\s_-]+/g,"");
 const canonicalPart=s=>normPart(s).replace(/راننده/g,"چپ").replace(/شاگرد/g,"راست").replace(/دربموتور/g,"کاپوت").replace(/دربصندوق/g,"صندوق").replace(/صندوقعقب/g,"صندوق");
-const repairKind=d=>{const t=normPart(d&&d.defect_type||"");if(t.includes("صافکاریبدونرنگ"))return "pdr";if(t.includes("استوک")&&t.includes("تعویض"))return "stock";if(t.includes("صافکارینقاشی")||(t.includes("صافکاری")&&t.includes("نقاشی")))return "paint";if(t==="تعویض"||t.includes("تعویضکامل")||t==="برشو تعویض".replace(/\s/g,""))return "replace";return "";};
+const repairKind=d=>{const t=normPart(d&&d.defect_type||"");if(t.includes("صافکاریبدونرنگ"))return "pdr";if(t.includes("استوک")&&t.includes("تعویض"))return "stock";if(t.includes("صافکارینقاشی")||(t.includes("صافکاری")&&t.includes("نقاشی")))return "paint";if(t==="تعویض"||t.includes("تعویضکامل"))return "replace";return "";};
 const eligibleDefects=defects.filter(d=>repairKind(d));
 const partDefects=(...words)=>eligibleDefects.filter(d=>{const p=canonicalPart(d.part||"");if(!p)return false;const candidates=words.map(canonicalPart);const exact=candidates.some(w=>w&&p===w);if(exact)return true;const specific=candidates.filter(w=>w&&/(چپ|راست|کاپوت|صندوق)/.test(w));if(specific.length)return specific.some(w=>p.includes(w)||w.includes(p));return candidates.some(w=>w&&p.includes(w));});
 const partKind=(...words)=>{const kinds=partDefects(...words).map(repairKind);return ["replace","stock","paint","pdr"].find(k=>kinds.includes(k))||"";};
@@ -869,19 +869,19 @@ const schematic=`<details class="schematic-box" open>
 <path class="car-map-mirror ${partKind("آینه بغل راننده","آینه چپ","آینه راننده")?"schematic-bad":""}" d="M143 240 Q112 226 108 252 L138 275 Z M477 240 Q508 226 512 252 L482 275 Z"/>
 </g>
 <g class="schematic-markers">
-${partMarker(["سپر جلو","جلو خودرو"],310,55)}
-${partMarker(["کاپوت","درب موتور"],310,155)}
+${partMarker(["سپر جلو","جلو خودرو"],370,55)}
+${partMarker(["کاپوت","درب موتور"],370,155)}
 ${partMarker(["گلگیر جلو چپ","گلگیر جلو راننده"],174,186)}
 ${partMarker(["گلگیر جلو راست","گلگیر جلو شاگرد"],446,186)}
 ${partMarker(["درب جلو چپ","درب راننده"],174,300)}
 ${partMarker(["درب جلو راست","درب شاگرد"],446,300)}
 ${partMarker(["درب عقب چپ","درب عقب راننده"],174,420)}
 ${partMarker(["درب عقب راست","درب عقب شاگرد"],446,420)}
-${partMarker(["سقف"],310,380)}
+${partMarker(["سقف"],360,380)}
 ${partMarker(["گلگیر عقب چپ","گلگیر عقب راننده"],174,572)}
 ${partMarker(["گلگیر عقب راست","گلگیر عقب شاگرد"],446,572)}
-${partMarker(["صندوق","درب صندوق"],310,585)}
-${partMarker(["سپر عقب"],310,700)}
+${partMarker(["صندوق","درب صندوق"],370,585)}
+${partMarker(["سپر عقب"],370,700)}
 </g>
 <g class="car-map-labels"><text x="310" y="28">جلو خودرو</text><text x="310" y="735">عقب خودرو</text><text x="310" y="150">کاپوت</text><text x="310" y="378">سقف</text><text x="310" y="590">صندوق</text><text x="122" y="310" transform="rotate(-90 122 310)">درب جلو چپ</text><text x="498" y="310" transform="rotate(90 498 310)">درب جلو راست</text><text x="122" y="420" transform="rotate(-90 122 420)">درب عقب چپ</text><text x="498" y="420" transform="rotate(90 498 420)">درب عقب راست</text><text x="170" y="166">گلگیر</text><text x="450" y="166">گلگیر</text><text x="170" y="572">گلگیر</text><text x="450" y="572">گلگیر</text><text x="310" y="62">سپر جلو</text><text x="310" y="716">سپر عقب</text></g>
 </svg>
