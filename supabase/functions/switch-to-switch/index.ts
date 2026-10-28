@@ -1427,7 +1427,7 @@ if(a==="upload-document"&&req.method==="POST"){
   return json({ok:true,document_id:ins.data.id,storage_path:path,file_name:fileName});
  }
  if(a==="list")return listCases(role,staffMemberId);
- if(a==="assign-case-expert"&&(role==="admin"||role==="sales")&&req.method==="POST"){
+ if(a==="assign-case-expert"&&(role==="admin"||role==="sales"||role==="contracts")&&req.method==="POST"){
   if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);
   let b:any;try{b=await req.json()}catch(_){return json({error:"درخواست نامعتبر است"},400)}
   const personnelId=String(b.personnel_id||"").trim();
@@ -1439,6 +1439,7 @@ if(a==="upload-document"&&req.method==="POST"){
   if(cr.error)return json({error:cr.error.message},500);
   if(!cr.data)return json({error:"پرونده پیدا نشد"},404);
   if(role==="sales"&&!["expert_visit_confirmed","refer"].includes(cr.data.status))return json({error:"ارجاع کارشناس فقط پس از تأیید مراجعه کارشناس امکان‌پذیر است."},409);
+  if(role==="contracts"&&cr.data.status!=="awaiting_expert_confirmation")return json({error:"ارجاع کارشناس از پنل شعبه فقط پس از ثبت «انتقال به کارشناس» مجاز است."},409);
   const up=await db.from("cases").update({assigned_expert_staff_id:sr.data.id,assigned_expert_name:sr.data.full_name,status:"awaiting_expert_confirmation",updated_at:new Date().toISOString()}).eq("id",id);
   if(up.error)return json({error:up.error.message},500);
   await historyAdd(id,cr.data.status||"new","awaiting_expert_confirmation","ارجاع پرونده به کارشناس: "+sr.data.full_name);
