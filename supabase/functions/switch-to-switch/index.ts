@@ -40,20 +40,67 @@ async function auctionToken(req:Request,u:URL){const h=req.headers.get("authoriz
 async function sendAuctionCode(mobile:string,code:string){const hook=Deno.env.get("SMS_WEBHOOK_URL")||"";if(!hook)return false;try{const r=await fetch(hook,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({mobile,code,template:"S2S_AUCTION_LOGIN"})});return r.ok}catch(_){return false}}
 async function requestAuctionOtp(req:Request){
  const b=await req.json();
- const toEnglish=(v:string)=>v.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+ const toEnglish=(v:string)=>String(v||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
  const mobile=toEnglish(String(b.mobile||"").replace(/\s/g,"")),name=String(b.full_name||"").trim().slice(0,120);
+ const digits=(v:string)=>toEnglish(String(v||"")).replace(/\D/g,"");
+ const nationalId=digits(b.national_id),postalCode=digits(b.postal_code),address=String(b.address||"").trim().replace(/\s+/g," ").slice(0,1000);
  if(!/^09\d{9}$/.test(mobile))return json({error:"شماره موبایل باید با 09 شروع شود و دقیقاً ۱۱ رقم داشته باشد؛ مثل 09123456789"},400);
+ if(name.length<3)return json({error:"نام و نام خانوادگی را کامل وارد کنید."},400);
+ // Step 1 is intentionally name + mobile only. Profile fields are collected after OTP login.
+ const hasAnyProfileField=!!(b.national_id||b.postal_code||b.address);
+ if(hasAnyProfileField){
+  if(!/^\d{10}$/.test(nationalId)||/^([0-9])\1{9}$/.test(nationalId))return json({error:"کد ملی باید ۱۰ رقم معتبر باشد."},400);
+  if(!/^\d{10}$/.test(postalCode))return json({error:"کد پستی باید دقیقاً ۱۰ رقم داشته باشد."},400);
+  if(address.length<10)return json({error:"آدرس کامل محل سکونت را وارد کنید."},400);
+  const duplicate=await db.from("auction_members").select("id").eq("national_id",nationalId).neq("mobile",mobile).limit(1).maybeSingle();
+  if(duplicate.error)return json({error:"بررسی کد ملی ناموفق بود."},500);
+  if(duplicate.data)return json({error:"این کد ملی قبلاً برای حساب دیگری ثبت شده است."},409);
+ }
  const recent=await db.from("auction_otp_codes").select("created_at").eq("mobile",mobile).order("created_at",{ascending:false}).limit(1).maybeSingle();
  if(recent.data&&Date.now()-new Date(recent.data.created_at).getTime()<60000)return json({error:"لطفاً ۶۰ ثانیه بعد دوباره درخواست کد کنید"},429);
  const code=randCode(),hash=await sha256Hex(code);
- // SMS is intentionally not required: the manager reads this short-lived code in the admin panel.
- const ins=await db.from("auction_otp_codes").insert({mobile,code_hash:hash,display_code:code,expires_at:new Date(Date.now()+5*60000).toISOString()}).select("id").single();
+ const registration_payload:any={full_name:name};
+ if(hasAnyProfileField)Object.assign(registration_payload,{national_id:nationalId,address,postal_code:postalCode});
+ const ins=await db.from("auction_otp_codes").insert({mobile,code_hash:hash,display_code:code,registration_payload,expires_at:new Date(Date.now()+5*60000).toISOString()}).select("id").single();
  if(ins.error)return json({error:"ذخیره کد ورود ناموفق بود"},500);
- const mr=await db.from("auction_members").upsert({mobile,full_name:name||null,updated_at:new Date().toISOString()},{onConflict:"mobile"});
- if(mr.error)return json({error:mr.error.message},500);
  return json({ok:true,request_id:ins.data.id,delivery:"admin-approval",message:"درخواست ثبت شد؛ پس از تأیید همکاران، کد همین‌جا نمایش داده می‌شود."});
 }
-async function verifyAuctionOtp(req:Request){const b=await req.json(),toEnglish=(v:string)=>v.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)),mobile=toEnglish(String(b.mobile||"").replace(/\s/g,"")),code=toEnglish(String(b.code||"").trim());if(!/^09\d{9}$/.test(mobile)||!/^\d{6}$/.test(code))return json({error:"شماره موبایل یا کد نامعتبر است"},400);const r=await db.from("auction_otp_codes").select("*").eq("mobile",mobile).is("verified_at",null).order("created_at",{ascending:false}).limit(1).maybeSingle();if(!r.data)return json({error:"کد پیدا نشد؛ دوباره درخواست کد کنید"},400);if(new Date(r.data.expires_at).getTime()<Date.now())return json({error:"کد منقضی شده است"},400);if(Number(r.data.attempts)>=5)return json({error:"تعداد تلاش بیش از حد مجاز است"},429);const h=await sha256Hex(code);if(h!==r.data.code_hash){await db.from("auction_otp_codes").update({attempts:Number(r.data.attempts)+1}).eq("id",r.data.id);return json({error:"کد واردشده صحیح نیست"},400)}await db.from("auction_otp_codes").update({verified_at:new Date().toISOString()}).eq("id",r.data.id);const mr=await db.from("auction_members").select("*").eq("mobile",mobile).single();if(mr.error)return json({error:mr.error.message},500);const raw=randToken(),th=await sha256Hex(raw);const sessionInsert=await db.from("auction_sessions").insert({member_id:mr.data.id,token_hash:th,expires_at:new Date(Date.now()+90*24*60*60*1000).toISOString()});if(sessionInsert.error){console.error("auction_session_insert_failed",sessionInsert.error.message);return json({error:"ساخت نشست ورود ناموفق بود. دوباره تلاش کن."},500)}return json({ok:true,verified:true,subscription_required:false,token:raw,expires_in:7776000})}
+async function verifyAuctionOtp(req:Request){
+ const b=await req.json();
+ const toEnglish=(v:string)=>String(v||"").replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+ const mobile=toEnglish(String(b.mobile||"").replace(/\s/g,"")),code=toEnglish(String(b.code||"").trim());
+ if(!/^09\d{9}$/.test(mobile)||!/^\d{6}$/.test(code))return json({error:"شماره موبایل یا کد نامعتبر است"},400);
+ const r=await db.from("auction_otp_codes").select("*").eq("mobile",mobile).is("verified_at",null).order("created_at",{ascending:false}).limit(1).maybeSingle();
+ if(!r.data)return json({error:"کد پیدا نشد؛ دوباره درخواست کد کنید"},400);
+ if(new Date(r.data.expires_at).getTime()<Date.now())return json({error:"کد منقضی شده است"},400);
+ if(Number(r.data.attempts)>=5)return json({error:"تعداد تلاش بیش از حد مجاز است"},429);
+ const h=await sha256Hex(code);
+ if(h!==r.data.code_hash){await db.from("auction_otp_codes").update({attempts:Number(r.data.attempts)+1}).eq("id",r.data.id);return json({error:"کد واردشده صحیح نیست"},400)}
+ const verifiedAt=new Date().toISOString();
+ await db.from("auction_otp_codes").update({verified_at:verifiedAt}).eq("id",r.data.id);
+ const registration=r.data.registration_payload&&typeof r.data.registration_payload==="object"?r.data.registration_payload:null;
+ const existing=await db.from("auction_members").select("*").eq("mobile",mobile).maybeSingle();
+ if(existing.error)return json({error:"بررسی حساب خریدار ناموفق بود."},500);
+ let member:any;
+ if(existing.data){
+  const changes:any={updated_at:verifiedAt};
+  if(registration?.full_name)changes.full_name=String(registration.full_name).trim().slice(0,120);
+  if(registration?.national_id)Object.assign(changes,{national_id:String(registration.national_id).replace(/\D/g,""),address:String(registration.address||"").trim().slice(0,1000),postal_code:String(registration.postal_code||"").replace(/\D/g,"")});
+  const saved=await db.from("auction_members").update(changes).eq("id",existing.data.id).select("*").single();
+  if(saved.error)return json({error:"ذخیره اطلاعات خریدار پس از تأیید شماره ناموفق بود: "+saved.error.message},500);
+  member=saved.data;
+ }else{
+  const payload:any={mobile,full_name:String(registration?.full_name||"").trim().slice(0,120),updated_at:verifiedAt};
+  if(registration?.national_id)Object.assign(payload,{national_id:String(registration.national_id).replace(/\D/g,""),address:String(registration.address||"").trim().slice(0,1000),postal_code:String(registration.postal_code||"").replace(/\D/g,"")});
+  const saved=await db.from("auction_members").insert(payload).select("*").single();
+  if(saved.error)return json({error:"ساخت حساب خریدار پس از تأیید شماره ناموفق بود: "+saved.error.message},500);
+  member=saved.data;
+ }
+ const raw=randToken(),th=await sha256Hex(raw);
+ const sessionInsert=await db.from("auction_sessions").insert({member_id:member.id,token_hash:th,expires_at:new Date(Date.now()+90*24*60*60*1000).toISOString()});
+ if(sessionInsert.error){console.error("auction_session_insert_failed",sessionInsert.error.message);return json({error:"ساخت نشست ورود ناموفق بود. دوباره تلاش کن."},500)}
+ return json({ok:true,verified:true,subscription_required:false,token:raw,expires_in:7776000});
+}
 
 function b64urlEncode(bytes:Uint8Array){let raw="";for(const x of bytes)raw+=String.fromCharCode(x);return btoa(raw).replace(/\\+/g,"-").replace(/\\//g,"_").replace(/=+$/g,"")}
 function b64urlDecode(value:string){const raw=atob(value.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((value.length+3)%4));return Uint8Array.from(raw,c=>c.charCodeAt(0))}
