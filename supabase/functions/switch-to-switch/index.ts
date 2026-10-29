@@ -12,7 +12,7 @@ async function listCases(role:string,staffMemberId:string=""){
  const cq=db.from("cases").select("*").order("created_at",{ascending:false});
  let {data,error}=await cq;
  if(error)return json({error:error.message},500);
- const roleStatuses:any={intake:["new","booking_confirmed","expert_visit_confirmed"],sales:["review","auction-ready","auction","auction-end","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","legal_review","prepayment","deposit","ready_to_sign","contract_approved","contract","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery","done"],followup:["awaiting_negotiation","negotiation","customer","disagreement","awaiting_docs","buyer_settlement_review"],legal:["legal_review","awaiting_transfer_method_confirmation","awaiting_notary","awaiting_power_of_attorney_signature"],finance:["awaiting_guarantee_deposit","prepayment","deposit","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","seller_final_payout_pending","settled"],contracts:["expert_visit_confirmed","branch_entered","awaiting_expert_confirmation","refer","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","awaiting_plate_release","vehicle_delivery","done"]};
+ const roleStatuses:any={intake:["new","booking_confirmed","expert_visit_confirmed"],sales:["review","auction-ready","auction","auction-end","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","legal_review","prepayment","deposit","ready_to_sign","contract_approved","contract","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery","done"],followup:["awaiting_negotiation","negotiation","customer","disagreement","awaiting_docs","buyer_settlement_review"],legal:["legal_review","awaiting_transfer_method_confirmation","awaiting_notary","awaiting_power_of_attorney_signature"],finance:["awaiting_guarantee_deposit","prepayment","awaiting_prepayment","deposit","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","seller_final_payout_pending","settled"],contracts:["expert_visit_confirmed","branch_entered","awaiting_expert_confirmation","refer","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","awaiting_plate_release","vehicle_delivery","done"]};
  if(role==="dealer")data=[];
  const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
  if(ids.length){const r=await db.from("vehicles").select("*").in("case_id",ids);if(r.error)return json({error:r.error.message},500);vehicles=r.data||[]}
@@ -25,12 +25,12 @@ async function listCases(role:string,staffMemberId:string=""){
   const xr=await db.from("documents").select("*").in("case_id",ids);if(xr.error)return json({error:xr.error.message},500);documents=xr.data||[];const hr=await db.from("case_history").select("*").in("case_id",ids).order("created_at",{ascending:false});if(hr.error)return json({error:hr.error.message},500);history=hr.data||[];const ar=await db.from("auctions").select("*").in("case_id",ids).order("created_at",{ascending:false});if(ar.error)return json({error:ar.error.message},500);auctions=ar.data||[];const tr=await db.from("case_team_updates").select("*").in("case_id",ids).order("created_at",{ascending:false});if(tr.error)return json({error:tr.error.message},500);teamUpdates=tr.data||[];const fr=await db.from("case_financial_entries").select("*").in("case_id",ids).order("created_at",{ascending:false});if(fr.error)return json({error:fr.error.message},500);financialEntries=fr.data||[];const rr=await db.from("case_contract_records").select("*").in("case_id",ids).order("created_at",{ascending:false});if(rr.error)return json({error:rr.error.message},500);contractRecords=rr.data||[];
  }
  let legalBuyerById:any={};
- if(role==="legal"){
+ if(["legal","sales","admin"].includes(role)){
   const winnerIds=[...new Set(auctions.map((a:any)=>a.winner_id).filter(Boolean))] as string[];
-  if(winnerIds.length){const bm=await db.from("auction_members").select("id,full_name,mobile,national_id,address").in("id",winnerIds);if(bm.error)return json({error:"دریافت مشخصات خریدار برای تیم حقوقی ناموفق بود: "+bm.error.message},500);legalBuyerById=Object.fromEntries((bm.data||[]).map((m:any)=>[m.id,m]));}
+  if(winnerIds.length){const bm=await db.from("auction_members").select("id,full_name,mobile,national_id,address,postal_code").in("id",winnerIds);if(bm.error)return json({error:"دریافت مشخصات خریدار برنده مزایده ناموفق بود: "+bm.error.message},500);legalBuyerById=Object.fromEntries((bm.data||[]).map((m:any)=>[m.id,m]));}
  }
  const mediaRows=[...documents,...photos]; const paths=mediaRows.map((x:any)=>x.storage_path).filter(Boolean); const signed=paths.length?(await db.storage.from("s2s-documents").createSignedUrls(paths,3600)).data||[]:[]; const mediaUrl=(p:string)=>signed.find((x:any)=>x.path===p)?.signedUrl||null;
- return json({cases:(data||[]).map((c:any)=>{const cd=documents.filter((d:any)=>d.case_id===c.id).map((d:any)=>({...d,url:mediaUrl(d.storage_path)}));const cp=inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>photos.filter((p:any)=>p.inspection_id===i.id)).map((p:any)=>({...p,url:mediaUrl(p.storage_path)}));const tu=teamUpdates.filter((x:any)=>x.case_id===c.id).map((x:any)=>{if(!["admin","sales","legal"].includes(role)&&x.update_type==="documents_checklist"){const p={...(x.payload||{})};delete p.seller_payment_details;return {...x,payload:p}}return x});const fe=financialEntries.filter((x:any)=>x.case_id===c.id);const cr=contractRecords.filter((x:any)=>x.case_id===c.id);const calc=tu.find((x:any)=>x.update_type==="calculate_branch_offer")?.payload||null;const caseAuctions=auctions.filter((a:any)=>a.case_id===c.id);const latestAuction=caseAuctions[0]||null;return {...c,...(role==="legal"?{legal_parties:{seller:(()=>{const p=tu.find((x:any)=>x.update_type==="documents_checklist")?.payload||{};const d=p.seller_payment_details||{};return {name:c.customer_name||null,mobile:c.customer_mobile||null,address:c.customer_address||null,national_id:d.national_id||null,account_number:d.account_number||null,card_number:d.card_number||null,iban:d.iban||null}})(),buyer:latestAuction?.winner_id?(legalBuyerById[latestAuction.winner_id]||null):null}}:{}),assigned_to_me:role==="expert"&&!!staffMemberId&&c.assigned_expert_staff_id===staffMemberId,vehicles:vehicles.filter((v:any)=>v.case_id===c.id),inspection:(inspections.find((i:any)=>i.case_id===c.id)||null),defects:inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>defects.filter((d:any)=>d.inspection_id===i.id)),documents:cd,photos:cp,history:history.filter((h:any)=>h.case_id===c.id),team_updates:tu,financial_entries:fe,contract_records:cr,sales_calculation:calc,auction:(()=>{const ca=auctions.filter((a:any)=>a.case_id===c.id);const latest=ca[0]||null;if(!latest)return null;const withdrawals=ca.filter((a:any)=>a.status==="ended"&&(a.purchase_stage==="cancelled"||a.winner_response_status==="declined"));return {...latest,withdrawal_order:withdrawals.length}})()}}),statusFa});
+ return json({cases:(data||[]).map((c:any)=>{const cd=documents.filter((d:any)=>d.case_id===c.id).map((d:any)=>({...d,url:mediaUrl(d.storage_path)}));const cp=inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>photos.filter((p:any)=>p.inspection_id===i.id)).map((p:any)=>({...p,url:mediaUrl(p.storage_path)}));const tu=teamUpdates.filter((x:any)=>x.case_id===c.id).map((x:any)=>{if(!["admin","sales","legal","contracts","finance"].includes(role)&&x.update_type==="documents_checklist"){const p={...(x.payload||{})};delete p.seller_payment_details;return {...x,payload:p}}return x});const fe=financialEntries.filter((x:any)=>x.case_id===c.id);const cr=contractRecords.filter((x:any)=>x.case_id===c.id);const baseCalc=tu.find((x:any)=>x.update_type==="calculate_branch_offer")?.payload||null;const financeCalc=tu.find((x:any)=>x.update_type==="prepayment_announce")?.payload||null;const calc=financeCalc?{...(baseCalc||{}),...financeCalc}:baseCalc;const caseAuctions=auctions.filter((a:any)=>a.case_id===c.id);const latestAuction=caseAuctions[0]||null;return {...c,...(role==="legal"?{legal_parties:{seller:(()=>{const p=tu.find((x:any)=>x.update_type==="documents_checklist")?.payload||{};const d=p.seller_payment_details||{};return {name:d.full_name||c.customer_name||null,father_name:d.father_name||null,birth_certificate_number:d.birth_certificate_number||null,birth_date:d.birth_date||null,mobile:d.mobile||c.customer_mobile||null,address:d.address||c.customer_address||null,postal_code:d.postal_code||null,national_id:d.national_id||null,account_number:d.account_number||null,card_number:d.card_number||null,iban:d.iban||null,bank_name:d.bank_name||null}})(),buyer:latestAuction?.winner_id?(legalBuyerById[latestAuction.winner_id]||null):null}}:{}),assigned_to_me:role==="expert"&&!!staffMemberId&&c.assigned_expert_staff_id===staffMemberId,vehicles:vehicles.filter((v:any)=>v.case_id===c.id),inspection:(inspections.find((i:any)=>i.case_id===c.id)||null),defects:inspections.filter((i:any)=>i.case_id===c.id).flatMap((i:any)=>defects.filter((d:any)=>d.inspection_id===i.id)),documents:cd,photos:cp,history:history.filter((h:any)=>h.case_id===c.id),team_updates:tu,financial_entries:fe,contract_records:cr,sales_calculation:calc,auction:(()=>{const ca=auctions.filter((a:any)=>a.case_id===c.id);const latest=ca[0]||null;if(!latest)return null;const withdrawals=ca.filter((a:any)=>a.status==="ended"&&(a.purchase_stage==="cancelled"||a.winner_response_status==="declined"));return {...latest,winner:latest.winner_id?(legalBuyerById[latest.winner_id]||null):null,withdrawal_order:withdrawals.length}})()}}),statusFa});
 }
 async function saveDraft(req:Request,id:string){const b=await req.json();const data=b.data&&typeof b.data==="object"?b.data:{};const {error}=await db.from("inspection_drafts").upsert({case_id:id,data,updated_at:new Date().toISOString()},{onConflict:"case_id"});return error?json({error:error.message},500):json({ok:true})}
 async function getDraft(id:string){const {data,error}=await db.from("inspection_drafts").select("data,updated_at").eq("case_id",id).maybeSingle();return error?json({error:error.message},500):json({ok:true,draft:data||null})}async function sha256Hex(v:string){const d=new TextEncoder().encode(v);const h=await crypto.subtle.digest("SHA-256",d);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join("")}
@@ -289,7 +289,7 @@ async function publicAuctions(req:Request,u:URL){
 }
 async function buyerDashboard(req:Request,u:URL){
  const sess=await auctionToken(req,u);if(!sess)return json({error:"auction_login_required"},401);
- const mr=await db.from("auction_members").select("id,mobile,full_name,national_id,address,identity_document_path,identity_uploaded_at,identity_verified,identity_review_note,subscription_status,paid_until").eq("id",sess.member_id).single();if(mr.error)return json({error:"خریدار پیدا نشد"},404);
+ const mr=await db.from("auction_members").select("id,mobile,full_name,national_id,address,postal_code,identity_document_path,identity_uploaded_at,identity_verified,identity_review_note,subscription_status,paid_until").eq("id",sess.member_id).single();if(mr.error)return json({error:"خریدار پیدا نشد"},404);
  const [ar,fr,pr,nr,br,wr]=await Promise.all([
   db.from("auctions").select("id,case_id,vehicle_id,status,starts_at,ends_at,current_bid,starting_price,target_price,fair_price,prepayment_amount,purchase_stage,seller_account_name,seller_account_number,cancellation_fine_amount,winner_id,winner_response_status,winner_response_deadline,winner_response_at,created_at").eq("winner_id",sess.member_id).order("created_at",{ascending:false}),
   db.from("fines").select("id,auction_id,amount,paid_amount,reason,status,created_at").eq("buyer_id",sess.member_id).order("created_at",{ascending:false}),
@@ -300,9 +300,10 @@ async function buyerDashboard(req:Request,u:URL){
  ]);
  for(const x of [ar,fr,pr,nr,br,wr])if(x.error)return json({error:x.error.message},500);
  const walletBalance=(wr.data||[]).reduce((sum:any,t:any)=>sum+(t.direction==="credit"?1:-1)*Number(t.amount||0),0);
- const ids=(ar.data||[]).map((x:any)=>x.case_id).filter(Boolean);const [vr,cr]=await Promise.all([ids.length?db.from("vehicles").select("case_id,brand,model,trim,model_year,color").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null},ids.length?db.from("cases").select("id,case_number").in("id",ids):{data:[],error:null}]);
+ const ids=(ar.data||[]).map((x:any)=>x.case_id).filter(Boolean);const [vr,cr]=await Promise.all([ids.length?db.from("vehicles").select("case_id,brand,model,trim,model_year,color").in("case_id",ids).eq("vehicle_role","current"):{data:[],error:null},ids.length?db.from("cases").select("id,case_number,status,prepayment_amount,prepayment_status,prepayment_received_at").in("id",ids):{data:[],error:null}]);
  if(vr.error||cr.error)return json({error:vr.error?.message||cr.error?.message},500);
- const auctions=(ar.data||[]).map((a:any)=>({...a,case_number:(cr.data||[]).find((c:any)=>c.id===a.case_id)?.case_number||null,vehicle:(vr.data||[]).find((v:any)=>v.case_id===a.case_id)||null}));
+ const caseById=new Map((cr.data||[]).map((c:any)=>[c.id,c]));
+ const auctions=(ar.data||[]).map((a:any)=>{const c:any=caseById.get(a.case_id)||null;const stored=Number(a.prepayment_amount||0),caseAmount=Number(c?.prepayment_amount||0),resolved=stored>0?stored:caseAmount;const stage=c?.prepayment_status==="received"&&resolved>0&&["prepayment","awaiting_admin_prepayment","awaiting_prepayment"].includes(String(a.purchase_stage||""))?"seller_settlement":a.purchase_stage;return {...a,purchase_stage:stage,prepayment_amount:resolved>0?resolved:a.prepayment_amount,case_number:c?.case_number||null,vehicle:(vr.data||[]).find((v:any)=>v.case_id===a.case_id)||null}});
  return json({member:mr.data,auctions,fines:fr.data||[],payments:pr.data||[],notifications:nr.data||[],my_bids:br.data||[],wallet:{balance:walletBalance,transactions:wr.data||[]}});
 }
 async function buyerDeliveryDetails(req:Request,u:URL,id:string){
@@ -348,14 +349,16 @@ async function buyerSaveProfile(req:Request,u:URL){
  const sess=await auctionToken(req,u);if(!sess)return json({error:"نشست ورود معتبر نیست؛ دوباره وارد حساب شو."},401);
  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات فرم قابل خواندن نیست."},400)}
  const digits=(v:string)=>v.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[０-９]/g,d=>"０１２３４５６７８９".indexOf(d)).replace(/[\u200B-\u200D\uFEFF]/g,"");
- const nationalId=digits(String(b.national_id||"")).replace(/\D/g,""),address=String(b.address||"").trim().replace(/\s+/g," ").slice(0,1000);
+ const fullName=String(b.full_name||"").trim().slice(0,120),nationalId=digits(String(b.national_id||"")).replace(/\D/g,""),postalCode=digits(String(b.postal_code||"")).replace(/\D/g,""),address=String(b.address||"").trim().replace(/\s+/g," ").slice(0,1000);
  // Validate format here; the uploaded national-ID card is reviewed manually before auction access is approved.
  if(!/^\d{10}$/.test(nationalId)||/^([0-9])\1{9}$/.test(nationalId))return json({error:"کد ملی باید ۱۰ رقم داشته باشد؛ لطفاً ارقام را بررسی کن."},400);
+ if(fullName.length<3)return json({error:"نام و نام خانوادگی را کامل وارد کن."},400);
+ if(!/^\d{10}$/.test(postalCode))return json({error:"کد پستی باید دقیقاً ۱۰ رقم باشد."},400);
  if(address.length<10)return json({error:"آدرس کامل را وارد کن (حداقل ۱۰ نویسه)."},400);
  const duplicate=await db.from("auction_members").select("id").eq("national_id",nationalId).neq("id",sess.member_id).limit(1).maybeSingle();
  if(duplicate.error)return json({error:"بررسی کد ملی ناموفق بود؛ دوباره تلاش کن."},500);
  if(duplicate.data)return json({error:"این کد ملی قبلاً برای حساب دیگری ثبت شده است."},409);
- const saved=await db.from("auction_members").update({national_id:nationalId,address,updated_at:new Date().toISOString()}).eq("id",sess.member_id).select("national_id,address").single();
+ const saved=await db.from("auction_members").update({full_name:fullName,national_id:nationalId,address,postal_code:postalCode,updated_at:new Date().toISOString()}).eq("id",sess.member_id).select("full_name,mobile,national_id,address,postal_code").single();
  if(saved.error)return json({error:"ذخیره اطلاعات خریدار ناموفق بود."},500);
  return json({ok:true,member:saved.data,message:"اطلاعات خریدار ذخیره شد."});
 }
@@ -491,7 +494,7 @@ async function adminApproveSeller(req:Request){
   }
   if(ar.data.purchase_stage!=="awaiting_seller_approval")return json({error:"این مزایده در انتظار موافقت فروشنده نیست"},400);
   const up=await db.from("auctions").update({purchase_stage:"prepayment"}).eq("id",auctionId).eq("purchase_stage","awaiting_seller_approval").select("id").maybeSingle();
-  if(up.error)return json({error:up.error.message},500);
+  if(up.error){if(financeTermsAuction)await db.from("auctions").update({prepayment_amount:financeTermsAuction.prepayment_amount??null,purchase_stage:financeTermsAuction.purchase_stage??null}).eq("id",financeTermsAuction.id);return json({error:up.error.message},500)}
   if(!up.data)return json({error:"وضعیت مزایده هم‌زمان تغییر کرده است؛ فهرست را تازه کنید"},409);
   const note=await db.from("buyer_notifications").insert({buyer_id:ar.data.winner_id,auction_id:auctionId,title:"فروشنده با قیمت موافقت کرد",message:"فروشنده با قیمت پیشنهادی شما موافقت کرده است؛ مرحله پیش‌پرداخت در پنل شما آغاز شد. به‌محض ثبت مبلغ و حساب مقصد توسط همکاران ما، فرم واریز و ارسال فیش در همین پنل فعال می‌شود."});
   await historyAdd(ar.data.case_id,"auction-end","customer","فروشنده با قیمت برنده موافقت کرد؛ منتظر ثبت اطلاعات پیش‌پرداخت توسط مدیریت.");
@@ -1174,25 +1177,26 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(role==="legal"&&type==="documents_rejected"&&!note)return json({error:"برای بازگرداندن پرونده به‌دلیل نقص مدارک، ثبت دلیل نقص الزامی است."},400);
   if(role==="legal"&&type==="legal_inquiries_completed"&&!note)return json({error:"برای ثبت پایان استعلام‌ها، نتیجه استعلام‌ها را در یادداشت وارد کنید."},400);
   if(type==="documents_checklist_save"){
-   if(role!=="sales")return json({error:"ثبت و تأیید چک‌لیست مدارک فقط برای تیم فروش مجاز است."},403);
+   if(!["contracts","sales","admin"].includes(role))return json({error:"ثبت و تأیید چک‌لیست مدارک فقط برای تیم شعبه مجاز است."},403);
    const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();if(cr.error)return json({error:cr.error.message},500);if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
-   if(!["awaiting_docs","docs"].includes(cr.data.status))return json({error:"چک‌لیست فقط توسط فروش و در مرحله تکمیل مدارک قابل ثبت است."},409);
+   if(!["awaiting_docs","docs"].includes(cr.data.status))return json({error:"چک‌لیست فقط در مرحله تکمیل مدارک قابل ثبت است."},409);
    const items=payload.items&&typeof payload.items==="object"?payload.items:{};
-   const requiredKeys=["owner_national_id","vehicle_card","green_card"];
+   const requiredKeys=["owner_national_id","owner_identity_documents","vehicle_card","vehicle_card_back","green_card"];
    const uploaded=await db.from("documents").select("document_type").eq("case_id",id).in("document_type",requiredKeys);
    if(uploaded.error)return json({error:uploaded.error.message},500);
    const uploadedTypes=new Set((uploaded.data||[]).map((x:any)=>x.document_type));
    const missing=requiredKeys.filter(k=>!uploadedTypes.has(k));
    const toDigits=(v:any)=>String(v||"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
    const rawDetails=payload.seller_payment_details&&typeof payload.seller_payment_details==="object"?payload.seller_payment_details:{};
-   const sellerDetails={national_id:toDigits(rawDetails.national_id).replace(/\D/g,""),account_number:toDigits(rawDetails.account_number).replace(/\s/g,""),card_number:toDigits(rawDetails.card_number).replace(/\D/g,""),iban:toDigits(rawDetails.iban).toUpperCase().replace(/\s/g,"")};
+   const sellerDetails={full_name:String(rawDetails.full_name||"").trim().slice(0,120),father_name:String(rawDetails.father_name||"").trim().slice(0,100),birth_certificate_number:String(rawDetails.birth_certificate_number||"").trim().slice(0,30),birth_date:String(rawDetails.birth_date||"").trim().slice(0,10),mobile:toDigits(rawDetails.mobile).replace(/\D/g,""),postal_code:toDigits(rawDetails.postal_code).replace(/\D/g,""),address:String(rawDetails.address||"").trim().slice(0,500),national_id:toDigits(rawDetails.national_id).replace(/\D/g,""),account_number:toDigits(rawDetails.account_number).replace(/\s/g,""),card_number:toDigits(rawDetails.card_number).replace(/\D/g,""),iban:toDigits(rawDetails.iban).toUpperCase().replace(/\s/g,"")};
    const missingDetails:string[]=[];
+   if(!sellerDetails.full_name)missingDetails.push("نام و نام خانوادگی فروشنده");if(!sellerDetails.father_name)missingDetails.push("نام پدر فروشنده");if(!sellerDetails.birth_certificate_number)missingDetails.push("شماره شناسنامه فروشنده");if(!/^\d{4}[/-]\d{2}[/-]\d{2}$/.test(sellerDetails.birth_date))missingDetails.push("تاریخ تولد فروشنده");if(!/^09\d{9}$/.test(sellerDetails.mobile))missingDetails.push("شماره تماس فروشنده");if(!/^\d{10}$/.test(sellerDetails.postal_code))missingDetails.push("کد پستی فروشنده");if(!sellerDetails.address)missingDetails.push("نشانی کامل فروشنده");
    if(!/^\d{10}$/.test(sellerDetails.national_id))missingDetails.push("کد ملی فروشنده");
    if(sellerDetails.account_number.length<4)missingDetails.push("شماره حساب فروشنده");
-   if(!/^\d{16}$/.test(sellerDetails.card_number))missingDetails.push("شماره کارت فروشنده");
+   if(!String(rawDetails.bank_name||"").trim())missingDetails.push("نام بانک فروشنده");if(!/^\d{16}$/.test(sellerDetails.card_number))missingDetails.push("شماره کارت فروشنده");
    if(!/^IR\d{24}$/.test(sellerDetails.iban))missingDetails.push("شماره شبای فروشنده");
    const approved=payload.approved===true&&missing.length===0&&missingDetails.length===0&&requiredKeys.every((k:string)=>items[k]===true)&&!!String(payload.reviewer_name||"").trim();
-   const savedPayload={items,approved,missing_documents:missing,missing_seller_details:missingDetails,seller_payment_details:sellerDetails,reviewer_name:String(payload.reviewer_name||"").trim().slice(0,120),reviewed_at:approved?new Date().toISOString():null};
+   const savedPayload={items,approved,missing_documents:missing,missing_seller_details:missingDetails,seller_payment_details:{...sellerDetails,bank_name:String(rawDetails.bank_name||"").trim().slice(0,80)},seller_commission_half_percent:payload.seller_commission_half_percent===true,seller_commission_rate:payload.seller_commission_half_percent===true?0.5:0,reviewer_name:String(payload.reviewer_name||"").trim().slice(0,120),reviewed_at:approved?new Date().toISOString():null};
    const ins=await db.from("case_team_updates").insert({case_id:id,team_role:role,staff_member_id:staffMemberId||null,update_type:"documents_checklist",payload:savedPayload,note:note||null});
    if(ins.error)return json({error:"ذخیره چک‌لیست ناموفق بود: "+ins.error.message},500);
    await historyAdd(id,cr.data.status,cr.data.status,approved?"چک‌لیست مدارک تأیید شد":"چک‌لیست مدارک ذخیره شد؛ موارد ناقص: "+missing.join(", "));
@@ -1201,11 +1205,11 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   const transitions:any={
    intake:{confirm_contact:{from:["new"],to:"booking_confirmed"},confirm_visit:{from:["booking_confirmed"],to:"expert_visit_confirmed"}},
    expert:{start_inspection:{from:["awaiting_expert_confirmation","expert_visit_confirmed","refer"],to:"inspection"},finish_inspection:{from:["inspection"],to:"review"}},
-   sales:{price_review:{from:["review","auction-ready"],to:"auction-ready"},calculate_branch_offer:{from:["auction-end"],to:"awaiting_negotiation"},begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},buyer_coordination_complete:{from:["contract_approved"],to:"awaiting_custody_receipt"}},
-   followup:{begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},seller_settlement_confirmed:{from:["buyer_settlement_review"],to:"awaiting_seller_settlement_confirmation"}},
+   sales:{price_review:{from:["review","auction-ready"],to:"auction-ready"},calculate_branch_offer:{from:["auction-end"],to:"awaiting_negotiation"},buyer_coordination_complete:{from:["contract_approved"],to:"awaiting_custody_receipt"}},
+   followup:{seller_settlement_confirmed:{from:["buyer_settlement_review"],to:"awaiting_seller_settlement_confirmation"}},
    legal:{legal_approved:{from:["legal_review"],to:"awaiting_legal_inquiries"},legal_inquiries_completed:{from:["awaiting_legal_inquiries"],to:"prepayment"},documents_rejected:{from:["legal_review","awaiting_legal_inquiries"],to:"awaiting_docs"},transfer_method_confirmed:{from:["awaiting_transfer_method_confirmation"],to:"awaiting_buyer_confirmation"}},
-   finance:{prepayment_received:{from:["prepayment","deposit"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_transfer_method_confirmation"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"settled"}},
-   contracts:{branch_entered:{from:["expert_visit_confirmed"],to:"branch_entered"},transfer_to_expert:{from:["branch_entered"],to:"awaiting_expert_confirmation"},contract_approved:{from:["ready_to_sign"],to:"contract_approved"},await_buyer_settlement:{from:["contract_approved"],to:"awaiting_buyer_settlement"},custody_receipt_issued:{from:["awaiting_custody_receipt"],to:"deductions_review"},buyer_confirmed:{from:["awaiting_buyer_confirmation"],to:"awaiting_seller_confirmation"},seller_confirmed:{from:["awaiting_seller_confirmation"],to:"awaiting_notary"},notary_attended:{from:["awaiting_notary"],to:"awaiting_power_of_attorney_signature"},poa_signed:{from:["awaiting_power_of_attorney_signature"],to:"seller_final_payout_pending"},start_plate_release:{from:["settled"],to:"awaiting_plate_release"},plate_release:{from:["awaiting_plate_release"],to:"vehicle_delivery"},vehicle_delivered:{from:["vehicle_delivery"],to:"done"},transaction_completed:{from:["vehicle_delivery","contract"],to:"done"}}
+   finance:{prepayment_announce:{from:["prepayment"],to:"awaiting_prepayment"},prepayment_received:{from:["awaiting_prepayment","prepayment","deposit"],to:"ready_to_sign"},deductions_completed:{from:["deductions_review"],to:"awaiting_buyer_settlement"},buyer_settlement_received:{from:["awaiting_buyer_settlement"],to:"buyer_settlement_review"},settlement_completed:{from:["awaiting_seller_settlement_confirmation"],to:"awaiting_transfer_method_confirmation"},seller_final_payout_completed:{from:["seller_final_payout_pending"],to:"settled"}},
+   contracts:{branch_entered:{from:["expert_visit_confirmed"],to:"branch_entered"},transfer_to_expert:{from:["branch_entered"],to:"awaiting_expert_confirmation"},begin_negotiation:{from:["awaiting_negotiation"],to:"negotiation"},customer_accept:{from:["negotiation","customer","selling"],to:"awaiting_docs"},customer_decline:{from:["negotiation","customer","selling"],to:"disagreement"},contract_approved:{from:["ready_to_sign"],to:"contract_approved"},await_buyer_settlement:{from:["contract_approved"],to:"awaiting_buyer_settlement"},custody_receipt_issued:{from:["awaiting_custody_receipt"],to:"deductions_review"},buyer_confirmed:{from:["awaiting_buyer_confirmation"],to:"awaiting_seller_confirmation"},seller_confirmed:{from:["awaiting_seller_confirmation"],to:"awaiting_notary"},notary_attended:{from:["awaiting_notary"],to:"awaiting_power_of_attorney_signature"},poa_signed:{from:["awaiting_power_of_attorney_signature"],to:"seller_final_payout_pending"},start_plate_release:{from:["settled"],to:"awaiting_plate_release"},plate_release:{from:["awaiting_plate_release"],to:"vehicle_delivery"},vehicle_delivered:{from:["vehicle_delivery"],to:"done"},transaction_completed:{from:["vehicle_delivery","contract"],to:"done"}}
   };
   if(role==="sales"&&type==="relist_after_buyer_cancel"){
     const ar=await db.from("auctions").select("id,case_id,status,winner_id,winner_response_status,purchase_stage").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
@@ -1231,7 +1235,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    if(type==="docs_received"){
    const latest=await db.from("case_team_updates").select("payload,created_at").eq("case_id",id).eq("update_type","documents_checklist").order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(latest.error)return json({error:latest.error.message},500);
-   const required=["owner_national_id","vehicle_card","green_card"],items=latest.data?.payload?.items||{};
+   const required=["owner_national_id","vehicle_card","vehicle_card_back","green_card"],items=latest.data?.payload?.items||{};
    const docs=await db.from("documents").select("document_type").eq("case_id",id).in("document_type",required);
    if(docs.error)return json({error:docs.error.message},500);
    const types=new Set((docs.data||[]).map((x:any)=>x.document_type));
@@ -1253,8 +1257,8 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   if(role==="expert"&&cr.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است؛ فقط پرونده‌های ارجاع‌شده به خودتان قابل ویرایش هستند."},403);
   if(spec.from.includes("__sales_manual__")){if(!salesManualStatuses.includes(cr.data.status))return json({error:"تغییر دستی فقط برای مراحل قابل‌کنترل واحد فروش مجاز است؛ از عملیات تخصصی همان مرحله استفاده کنید.",current_status:cr.data.status},409);if(cr.data.status===spec.to)return json({error:"وضعیت پرونده از قبل همین است."},400)}else if(!spec.from.includes(cr.data.status))return json({error:"وضعیت پرونده تغییر کرده است؛ ابتدا فهرست را به‌روزرسانی کنید.",current_status:cr.data.status},409);
   const updates:any={status:spec.to,updated_at:new Date().toISOString()};
-  let acceptedAuctionForPrepayment:any=null;
-  if((role==="followup"||role==="intake"||role==="sales")&&type==="customer_accept"){
+  let acceptedAuctionForPrepayment:any=null;let financeTermsAuction:any=null;
+  if(role==="contracts"&&type==="customer_accept"){
    const agreed=Number(payload.agreed_price||0);
    if(!Number.isFinite(agreed)||agreed<=0)return json({error:"برای ثبت موافقت، مبلغ نهایی معتبر لازم است."},400);
    updates.agreed_price=agreed;updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"موافقت مشتری ثبت شد.";
@@ -1267,7 +1271,22 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
     acceptedAuctionForPrepayment={...ar.data,buyerFinal,prepayment};
    }
   }
-  if((role==="followup"||role==="intake"||role==="sales")&&type==="customer_decline"){
+  if(role==="finance"&&type==="prepayment_announce"){
+   const profitPercent=Number(payload.company_profit_percent),prepaymentPercent=Number(payload.prepayment_percent);
+   const ar=await db.from("auctions").select("id,status,current_bid,winner_id,winner_response_status,purchase_stage,prepayment_amount").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(ar.error)return json({error:"دریافت اطلاعات مزایده برای تنظیم پیش‌پرداخت ناموفق بود: "+ar.error.message},500);
+   if(!ar.data||ar.data.status!=="ended"||!ar.data.winner_id||ar.data.winner_response_status!=="accepted")return json({error:"برای اعلام پیش‌پرداخت، مزایده باید پایان یافته و تأیید برنده ثبت شده باشد."},409);
+   const finalPrice=Number(ar.data.current_bid||cr.data.agreed_price||0);
+   if(!Number.isFinite(finalPrice)||finalPrice<=0)return json({error:"قیمت نهایی خریدار معتبر نیست."},400);
+   if(!Number.isFinite(profitPercent)||profitPercent<0||profitPercent>=99.5)return json({error:"درصد سود شرکت باید از صفر تا کمتر از ۹۹٫۵ درصد باشد."},400);
+   if(!Number.isFinite(prepaymentPercent)||prepaymentPercent<=0||prepaymentPercent>100)return json({error:"درصد پیش‌پرداخت باید بیشتر از صفر و حداکثر ۱۰۰ باشد."},400);
+   const profit=Math.round(finalPrice*profitPercent/100),commissionRate=0.5,commission=Math.round(finalPrice*commissionRate/100),prepayment=Math.round(finalPrice*prepaymentPercent/100),sellerNet=finalPrice-profit-commission;
+   if(sellerNet<=0||prepayment<=0||prepayment>finalPrice)return json({error:"با این درصدها مبلغ سود، کارمزد یا پیش‌پرداخت معتبر نیست."},400);
+   payload.auction_final_price=finalPrice;payload.company_profit_percent=profitPercent;payload.company_profit_amount=profit;payload.company_commission_rate=commissionRate;payload.company_commission_amount=commission;payload.prepayment_percent=prepaymentPercent;payload.prepayment_amount=prepayment;payload.branch_offer_price=sellerNet;payload.seller_net_after_company_profit_and_commission=sellerNet;payload.commission_included_in_seller_net=true;
+   updates.prepayment_amount=prepayment;
+   financeTermsAuction={...ar.data,finalPrice,profitPercent,profit,commissionRate,commission,prepaymentPercent,prepayment,sellerNet};
+  }
+  if(role==="contracts"&&type==="customer_decline"){
    updates.customer_decision_at=new Date().toISOString();updates.customer_decision_note=note||"مشتری پیشنهاد را نپذیرفت.";
   }
   if(role==="sales"&&type==="price_review"){
@@ -1301,7 +1320,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    const total=Number(payload.total_deductions);
    if(!Number.isFinite(total)||total<0)return json({error:"مجموع کسورات باید عددی معتبر و صفر یا بیشتر باشد."},400);
    if(Number(cr.data.prepayment_amount||0)<=0)return json({error:"پیش‌پرداخت باید قبل از ثبت کسورات دریافت شده باشد."},409);
-   const calcResult=await db.from("case_team_updates").select("payload").eq("case_id",id).eq("update_type","calculate_branch_offer").order("created_at",{ascending:false}).limit(1).maybeSingle();
+   const calcResult=await db.from("case_team_updates").select("payload,update_type,created_at").eq("case_id",id).in("update_type",["calculate_branch_offer","prepayment_announce"]).order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(calcResult.error)return json({error:calcResult.error.message},500);
    const auctionResult=await db.from("auctions").select("current_bid").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(auctionResult.error)return json({error:auctionResult.error.message},500);
@@ -1315,7 +1334,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    payload.total_deductions=total;payload.seller_payout_due=Math.max(0,sellerNet-alreadyDeducted-total-sellerPaid);payload.buyer_final_price=buyerFinal;payload.company_profit_amount=Number(calc.company_profit_amount||Math.max(0,buyerFinal-sellerNet));payload.seller_net_before_deductions=sellerNet;
   }
   if(role==="finance"&&type==="seller_final_payout_completed"){
-   const calcResult=await db.from("case_team_updates").select("payload").eq("case_id",id).eq("update_type","calculate_branch_offer").order("created_at",{ascending:false}).limit(1).maybeSingle();
+   const calcResult=await db.from("case_team_updates").select("payload,update_type,created_at").eq("case_id",id).in("update_type",["calculate_branch_offer","prepayment_announce"]).order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(calcResult.error)return json({error:calcResult.error.message},500);
    const auctionResult=await db.from("auctions").select("current_bid").eq("case_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle();
    if(auctionResult.error)return json({error:auctionResult.error.message},500);
@@ -1334,15 +1353,25 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    if(!Number.isFinite(amount)||amount<=0)return json({error:"مبلغ پیش‌پرداخت باید بیشتر از صفر باشد."},400);
    updates.prepayment_amount=amount;updates.prepayment_status="received";updates.prepayment_received_at=new Date().toISOString();
   }
+  if(financeTermsAuction){const au=await db.from("auctions").update({prepayment_amount:financeTermsAuction.prepayment,purchase_stage:"prepayment"}).eq("id",financeTermsAuction.id).eq("winner_id",financeTermsAuction.winner_id).select("id").maybeSingle();if(au.error||!au.data)return json({error:"ذخیره مبلغ پیش‌پرداخت در مزایده خریدار ناموفق بود."+(au.error?" "+au.error.message:"")},500)}
   const up=await db.from("cases").update(updates).eq("id",id).eq("status",cr.data.status).select("id,status").maybeSingle();
   if(up.error)return json({error:up.error.message},500);
-  if(!up.data)return json({error:"پرونده هم‌زمان توسط همکار دیگری تغییر کرده است؛ دوباره بارگذاری کنید."},409);
+  if(!up.data){if(financeTermsAuction)await db.from("auctions").update({prepayment_amount:financeTermsAuction.prepayment_amount??null,purchase_stage:financeTermsAuction.purchase_stage??null}).eq("id",financeTermsAuction.id);return json({error:"پرونده هم‌زمان توسط همکار دیگری تغییر کرده است؛ دوباره بارگذاری کنید."},409)}
   if(role==="contracts"&&type==="custody_receipt_issued"){
    const receipt=await db.from("case_contract_records").insert({case_id:id,contract_type:"custody_receipt",status:"ready",created_by:staffMemberId||null,metadata:{case_number:cr.data.case_number,customer_name:cr.data.customer_name,customer_mobile:cr.data.customer_mobile,issued_at:new Date().toISOString(),note:note||"رسید امانت خودرو"}}).select("id").single();
    if(receipt.error){await db.from("cases").update({status:cr.data.status}).eq("id",id).eq("status",spec.to);return json({error:"ثبت رسید امانت ناموفق بود: "+receipt.error.message},500)}
   }
   const audit=await db.from("case_team_updates").insert({case_id:id,team_role:role,staff_member_id:staffMemberId||null,update_type:type,payload,note:note||null});
-  if(audit.error){await db.from("cases").update({status:cr.data.status}).eq("id",id).eq("status",spec.to);return json({error:"مرحله ثبت شد اما ثبت تاریخچه تیم ناموفق بود: "+audit.error.message},500)}
+  if(audit.error){await db.from("cases").update({status:cr.data.status,prepayment_amount:cr.data.prepayment_amount??null}).eq("id",id).eq("status",spec.to);if(financeTermsAuction)await db.from("auctions").update({prepayment_amount:financeTermsAuction.prepayment_amount??null,purchase_stage:financeTermsAuction.purchase_stage??null}).eq("id",financeTermsAuction.id);return json({error:"مرحله ثبت شد اما ثبت تاریخچه تیم ناموفق بود: "+audit.error.message},500)}
+  if(financeTermsAuction){
+   const bank=await db.from("wallet_bank_settings").select("account_holder,sheba,account_number,card_number").eq("id",true).maybeSingle();
+   const bankNumber=String(bank.data?.sheba||bank.data?.account_number||bank.data?.card_number||"");
+   const bankHolder=String(bank.data?.account_holder||"حساب شرکت");
+   const t=financeTermsAuction;
+   const message="مبلغ نهایی معامله "+t.finalPrice.toLocaleString("fa-IR")+" تومان است. پیش‌پرداخت شما "+t.prepaymentPercent.toLocaleString("fa-IR")+"٪، معادل "+t.prepayment.toLocaleString("fa-IR")+" تومان تعیین شد."+(bankNumber?" اطلاعات واریز به حساب شرکت: "+bankNumber+"؛ صاحب حساب: "+bankHolder+".":"");
+   const notice=await db.from("buyer_notifications").insert({buyer_id:t.winner_id,auction_id:t.id,title:"مبلغ پیش‌پرداخت معامله اعلام شد",message});
+   if(notice.error)return json({error:"شرایط مالی ذخیره شد اما اعلان خریدار ناموفق بود: "+notice.error.message},500);
+  }
   await historyAdd(id,cr.data.status,spec.to,note||type);
   if(acceptedAuctionForPrepayment){
    const a=acceptedAuctionForPrepayment;
@@ -1360,6 +1389,9 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
    const amount=Number(payload.amount);
    const ledger=await db.from("case_financial_entries").insert({case_id:id,entry_type:"prepayment",amount,note:[payload.payment_reference?"شماره پیگیری: "+String(payload.payment_reference).slice(0,120):"",note||"ثبت پیش‌پرداخت توسط امور مالی"].filter(Boolean).join(" | "),created_by:staffMemberId||null});
    if(ledger.error)return json({error:"مرحله ثبت شد اما ثبت سند مالی ناموفق بود: "+ledger.error.message},500);
+   const au=await db.from("auctions").select("id,winner_id").eq("case_id",id).not("winner_id","is",null).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(au.error)return json({error:"پیش‌پرداخت ثبت شد اما دریافت مزایده ناموفق بود: "+au.error.message},500);
+   if(au.data){const moved=await db.from("auctions").update({prepayment_amount:amount,purchase_stage:"seller_settlement"}).eq("id",au.data.id).eq("winner_id",au.data.winner_id).in("purchase_stage",["prepayment","awaiting_admin_prepayment","awaiting_prepayment","seller_settlement"]).select("id").maybeSingle();if(moved.error||!moved.data)return json({error:"پیش‌پرداخت ثبت شد اما انتقال مزایده به مرحله تسویه ناموفق بود."+(moved.error?" "+moved.error.message:"")},500);await db.from("buyer_notifications").insert({buyer_id:au.data.winner_id,auction_id:au.data.id,title:"پیش‌پرداخت تأیید شد؛ مرحله تسویه فعال است",message:"پیش‌پرداخت توسط امور مالی ثبت و تأیید شد. نیازی به پرداخت دوباره نیست؛ مرحله تسویه با فروشنده فعال شد."});}
   }
   if(role==="finance"&&type==="buyer_settlement_received"){
    const ledger=await db.from("case_financial_entries").insert({case_id:id,entry_type:"buyer_payment",amount:Number(payload.amount),note:[payload.payment_reference?"شماره پیگیری: "+String(payload.payment_reference).slice(0,120):"",note||"ثبت تسویه کامل خریدار"].filter(Boolean).join(" | "),created_by:staffMemberId||null});
@@ -1430,7 +1462,7 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
  }
  if(a==="upload-photo"&&role==="expert"&&req.method==="POST"){if(!id)return json({error:"شناسه پرونده مشخص نیست"},400);const cr=await db.from("cases").select("id,assigned_expert_staff_id").eq("id",id).maybeSingle();if(cr.error)return json({error:cr.error.message},500);if(!cr.data)return json({error:"پرونده پیدا نشد"},404);if(!staffMemberId||cr.data.assigned_expert_staff_id!==staffMemberId)return json({error:"این پرونده به شما ارجاع نشده است."},403);let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات عکس نامعتبر است"},400)}const dataUrl=String(b.data_url||"");const raw=dataUrl.split(",");if(raw.length<2||!raw[0].includes("base64"))return json({error:"فایل عکس معتبر نیست"},400);const mime=(raw[0].match(/data:(.*?);base64/)||[])[1]||"image/jpeg";if(!mime.startsWith("image/"))return json({error:"فقط فایل تصویری پذیرفته می‌شود"},400);let bytes:Uint8Array;try{bytes=Uint8Array.from(atob(raw[1]),(x:string)=>x.charCodeAt(0))}catch(_){return json({error:"رمزگشایی عکس ناموفق بود"},400)}if(bytes.length>12*1024*1024)return json({error:"حجم عکس بیش از حد مجاز است"},413);const path=`${id}/inspection/uploads/${crypto.randomUUID()}.jpg`;const up=await db.storage.from("s2s-documents").upload(path,bytes,{contentType:mime,upsert:false});if(up.error)return json({error:"ذخیره عکس ناموفق بود: "+up.error.message},500);return json({ok:true,storage_path:path})}
  if(a==="complete-documents"&&req.method==="POST"){
-  if(role!=="sales")return json({error:"تکمیل مدارک و ارسال پرونده به حقوقی فقط در اختیار تیم فروش است."},403);
+  if(!["contracts","sales","admin"].includes(role))return json({error:"تکمیل مدارک و ارسال پرونده به حقوقی فقط در اختیار تیم شعبه است."},403);
   if(!id)return json({error:"شناسه پرونده مشخص نشده است."},400);
   const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();
   if(cr.error)return json({error:cr.error.message},500);
@@ -1439,13 +1471,13 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   const checklist=await db.from("case_team_updates").select("payload,team_role,created_at").eq("case_id",id).eq("update_type","documents_checklist").order("created_at",{ascending:false}).limit(1).maybeSingle();
   if(checklist.error)return json({error:"بررسی چک‌لیست مدارک ناموفق بود: "+checklist.error.message},500);
   const checklistPayload=checklist.data?.payload||{}, checklistItems=checklistPayload.items||{};
-  const pd=checklistPayload.seller_payment_details||{};const pdDigits=(v:any)=>String(v||"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));const validSellerDetails=/^\d{10}$/.test(pdDigits(pd.national_id).replace(/\D/g,""))&&pdDigits(pd.account_number).replace(/\s/g,"").length>=4&&/^\d{16}$/.test(pdDigits(pd.card_number).replace(/\D/g,""))&&/^IR\d{24}$/.test(pdDigits(pd.iban).toUpperCase().replace(/\s/g,""));if(checklist.data?.team_role!=="sales"||checklistPayload.approved!==true||!validSellerDetails||!String(checklistPayload.reviewer_name||"").trim()||!["owner_national_id","vehicle_card","green_card"].every((k:string)=>checklistItems[k]===true))return json({error:"ابتدا فروش باید مدارک، کد ملی، شماره حساب، کارت و شبا را کامل و چک‌لیست را با نام مسئول تأیید کند."},409);
+  const pd=checklistPayload.seller_payment_details||{};const pdDigits=(v:any)=>String(v||"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));const validSellerDetails=/^\d{10}$/.test(pdDigits(pd.national_id).replace(/\D/g,""))&&pdDigits(pd.account_number).replace(/\s/g,"").length>=4&&/^\d{16}$/.test(pdDigits(pd.card_number).replace(/\D/g,""))&&/^IR\d{24}$/.test(pdDigits(pd.iban).toUpperCase().replace(/\s/g,""));if(!["contracts","sales","admin"].includes(String(checklist.data?.team_role||""))||checklistPayload.approved!==true||!validSellerDetails||!String(pd.bank_name||"").trim()||!String(checklistPayload.reviewer_name||"").trim()||!["owner_national_id","owner_identity_documents","vehicle_card","green_card"].every((k:string)=>checklistItems[k]===true))return json({error:"ابتدا تیم شعبه باید عکس کارت ملی، مدارک هویتی، کارت خودرو، برگ سبز، اطلاعات بانکی و چک‌لیست را کامل و تأیید کند."},409);
   const dr=await db.from("documents").select("document_type").eq("case_id",id);
   if(dr.error)return json({error:"بررسی مدارک ناموفق بود: "+dr.error.message},500);
   const types=new Set((dr.data||[]).map((d:any)=>String(d.document_type||"")));
   const missing:string[]=[];
-  if(!types.has("owner_national_id"))missing.push("کارت ملی مالک");
-  if(!types.has("vehicle_card")&&!(types.has("car_document_front")&&types.has("car_document_back")))missing.push("کارت خودرو (یا تصویر رو و پشت)");
+  if(!types.has("owner_national_id"))missing.push("کارت ملی مالک");if(!types.has("owner_identity_documents"))missing.push("مدارک هویتی مالک");
+  if(!types.has("vehicle_card"))missing.push("عکس روی کارت خودرو");if(!types.has("vehicle_card_back"))missing.push("عکس پشت کارت خودرو");
   if(!types.has("green_card"))missing.push("برگ سبز / سند مالکیت");
   if(missing.length)return json({error:"مدارک ضروری ناقص است: "+missing.join("، ")},409);
   const up=await db.from("cases").update({status:"legal_review",updated_at:new Date().toISOString()}).eq("id",id).in("status",["docs","awaiting_docs"]).select("id,status").maybeSingle();
@@ -1455,10 +1487,10 @@ if(a==="admin-update-vehicle"&&role==="admin"&&req.method==="POST")return adminU
   return json({ok:true,status:"legal_review",message:"مدارک کامل است؛ پرونده به کنترل حقوقی ارسال شد."});
 }
 if(a==="upload-document"&&req.method==="POST"){
-  if(!["admin","sales","legal","intake"].includes(role))return json({error:"برای بارگذاری مدارک اجازه ندارید."},403);
+  if(!["admin","sales","legal","intake","contracts"].includes(role))return json({error:"برای بارگذاری مدارک اجازه ندارید."},403);
   if(!id)return json({error:"شناسه پرونده مشخص نشده است."},400);
   const cr=await db.from("cases").select("id,status").eq("id",id).maybeSingle();if(cr.error)return json({error:cr.error.message},500);if(!cr.data)return json({error:"پرونده پیدا نشد."},404);
-  if(["awaiting_docs","docs"].includes(cr.data.status)&&role!=="sales")return json({error:"بارگذاری و تکمیل مدارک در این مرحله فقط توسط تیم فروش انجام می‌شود."},403);
+  if(["awaiting_docs","docs"].includes(cr.data.status)&&!["contracts","sales","admin"].includes(role))return json({error:"بارگذاری و تکمیل مدارک در این مرحله فقط توسط تیم شعبه انجام می‌شود."},403);
   let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات فایل نامعتبر است."},400)}
   const dataUrl=String(b.data_url||""),docType=String(b.document_type||"other").slice(0,80),fileName=String(b.file_name||"document").replace(/[^a-zA-Z0-9._-]/g,"_").slice(0,100);
   const raw=dataUrl.split(",");if(raw.length<2||!raw[0].includes("base64"))return json({error:"فایل انتخاب‌شده معتبر نیست."},400);
@@ -1469,17 +1501,36 @@ if(a==="upload-document"&&req.method==="POST"){
   const ext=(fileName.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,8)||"bin";
   const path=`${id}/case-documents/${crypto.randomUUID()}.${ext}`;
   const up=await db.storage.from("s2s-documents").upload(path,bytes,{contentType:mime,upsert:false});if(up.error)return json({error:"ذخیره فایل ناموفق بود: "+up.error.message},500);
-  const ins=await db.from("documents").insert({case_id:id,document_type:docType,storage_path:path,required:["owner_national_id","vehicle_card","green_card"].includes(docType)}).select("id").single();
+  const ins=await db.from("documents").insert({case_id:id,document_type:docType,storage_path:path,required:["owner_national_id","owner_identity_documents","vehicle_card","vehicle_card_back","green_card"].includes(docType)}).select("id").single();
   if(ins.error){await db.storage.from("s2s-documents").remove([path]);return json({error:"فایل بارگذاری شد اما ثبت مدرک ناموفق بود: "+ins.error.message},500)}
   return json({ok:true,document_id:ins.data.id,storage_path:path,file_name:fileName});
  }
  
+ if(a==="case-create-manual"&&req.method==="POST"){
+  if(!["admin","intake"].includes(role))return json({error:"فقط ثبت درخواست یا مدیریت می‌تواند پرونده تلفنی ایجاد کند."},403);
+  let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات پرونده معتبر نیست."},400)}
+  const name=String(b.customer_name||"").trim().slice(0,120),toEnglish=(v:any)=>String(v??"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+  const mobile=toEnglish(String(b.customer_mobile||"").trim()).replace(/[^0-9+]/g,"").slice(0,24),serviceType=String(b.service_type||"");
+  if(name.length<2||mobile.replace(/\D/g,"").length<7||!["sell","buy","exchange"].includes(serviceType))return json({error:"نام، شماره تماس و نوع درخواست را بررسی کنید."},400);
+  const appointmentDate=serviceType==="buy"?null:String(b.appointment_date||"").slice(0,10),appointmentTime=serviceType==="buy"?null:String(b.appointment_time||"").slice(0,5);
+  if(serviceType!=="buy"&&(!/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate||"")||!/^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime||"")))return json({error:"روز و ساعت مراجعه را انتخاب کنید."},400);
+  const branchName=String(b.branch_name||"").trim().slice(0,120);
+  if(branchName){const cfg=await db.from("booking_settings").select("branch_names").eq("id",1).single();if(cfg.error)return json({error:"بررسی فهرست شعب ناموفق بود: "+cfg.error.message},500);const allowed=Array.isArray(cfg.data?.branch_names)?cfg.data.branch_names.map((x:any)=>String(x||"").trim()):[];if(!allowed.includes(branchName))return json({error:"شعبه انتخاب‌شده معتبر نیست."},400)}
+  const created=await db.from("cases").insert({customer_id:null,service_type:serviceType,customer_name:name,customer_mobile:mobile,branch_name:branchName||null,appointment_date:appointmentDate,appointment_time:appointmentTime,appointment_status:"requested"}).select("*").single();
+  if(created.error){if(created.error.code==="P0001")return json({error:created.error.message},409);if(created.error.code==="23505")return json({error:"این زمان یا شماره تماس با یک رزرو فعال تداخل دارد؛ زمان دیگری انتخاب کنید."},409);return json({error:"ایجاد پرونده ناموفق بود: "+created.error.message},500)}
+  const digits=(v:any)=>String(v??"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,"");
+  const clean=(v:any,vehicleRole:string)=>{const x=v&&typeof v==="object"?v:{};const yd=digits(x.model_year),md=digits(x.mileage);return {case_id:created.data.id,vehicle_role:vehicleRole,brand:String(x.brand||"").trim().slice(0,120)||null,model:String(x.model||"").trim().slice(0,120)||null,trim:String(x.trim||"").trim().slice(0,120)||null,model_year:yd&&/^\d{4}$/.test(yd)?Number(yd):null,color:String(x.color||"").trim().slice(0,80)||null,mileage:md?Number(md):null,options:String(Array.isArray(x.options)?x.options.join("، "):(x.options||"")).trim().slice(0,1000)||null}};
+  const rows:any[]=[];if(serviceType==="buy"){if(b.vehicle_target)rows.push(clean(b.vehicle_target,"target"))}else{if(b.vehicle_current)rows.push(clean(b.vehicle_current,"current"));if(serviceType==="exchange"&&b.vehicle_target)rows.push(clean(b.vehicle_target,"target"))}
+  if(rows.length){const vr=await db.from("vehicles").insert(rows);if(vr.error){await db.from("cases").delete().eq("id",created.data.id);return json({error:"ثبت خودرو ناموفق بود: "+vr.error.message},500)}}
+  await historyAdd(created.data.id,"","new","پرونده تلفنی توسط واحد ثبت درخواست ایجاد شد"+(branchName?"؛ شعبه: "+branchName:""));
+  return json({ok:true,case:created.data});
+ }
  if(a==="case-edit-details"&&req.method==="POST"){
   let b:any;try{b=await req.json()}catch(_){return json({error:"اطلاعات ویرایش معتبر نیست."},400)}
   const caseId=String(id||b.id||"").trim(),vehicleOnly=b.vehicle_only===true;
   if(!caseId)return json({error:"شناسه پرونده مشخص نیست."},400);
   if(vehicleOnly?!["admin","sales"].includes(role):!["admin","intake"].includes(role))return json({error:vehicleOnly?"ویرایش خودرو فقط برای فروش و مدیریت مجاز است.":"ویرایش اطلاعات مشتری فقط برای ثبت درخواست و مدیریت مجاز است."},403);
-  const before=await db.from("cases").select("id,status,customer_name,customer_mobile,service_type,appointment_date,appointment_time,appointment_status").eq("id",caseId).maybeSingle();
+  const before=await db.from("cases").select("id,status,customer_name,customer_mobile,service_type,appointment_date,appointment_time,appointment_status,branch_name").eq("id",caseId).maybeSingle();
   if(before.error)return json({error:"دریافت پرونده برای ویرایش ناموفق بود: "+before.error.message},500);
   if(!before.data)return json({error:"پرونده پیدا نشد."},404);
   const casePatch:any={updated_at:new Date().toISOString()};
@@ -1490,7 +1541,7 @@ if(a==="upload-document"&&req.method==="POST"){
    if(name.length<2)return json({error:"نام و نام خانوادگی مشتری را کامل وارد کنید."},400);
    if(mobile.replace(/\D/g,"").length<7)return json({error:"شماره تماس معتبر وارد کنید."},400);
    if(!["sell","buy","exchange"].includes(serviceType))return json({error:"نوع درخواست معتبر نیست."},400);
-   casePatch.customer_name=name;casePatch.customer_mobile=mobile;casePatch.service_type=serviceType;
+   casePatch.customer_name=name;casePatch.customer_mobile=mobile;casePatch.service_type=serviceType;const branchName=String(b.branch_name??"").trim().slice(0,120);if(branchName){const cfg=await db.from("booking_settings").select("branch_names").eq("id",1).single();if(cfg.error)return json({error:"بررسی فهرست شعب ناموفق بود: "+cfg.error.message},500);const allowed=Array.isArray(cfg.data?.branch_names)?cfg.data.branch_names.map((x:any)=>String(x||"").trim()):[];if(!allowed.includes(branchName)&&branchName!==String(before.data.branch_name||""))return json({error:"شعبه انتخاب‌شده معتبر نیست؛ فهرست شعب را تازه‌سازی کنید."},400)}casePatch.branch_name=branchName||null;
    if(serviceType==="buy"){casePatch.appointment_date=null;casePatch.appointment_time=null}
    else{
     const appointmentDate=String(b.appointment_date||"").slice(0,10),appointmentTime=String(b.appointment_time||"").slice(0,5);
@@ -1499,7 +1550,7 @@ if(a==="upload-document"&&req.method==="POST"){
     if(appointmentDate!==String(before.data.appointment_date||"").slice(0,10)||appointmentTime!==String(before.data.appointment_time||"").slice(0,5))casePatch.appointment_status="requested";
    }
   }
-  const savedCase=await db.from("cases").update(casePatch).eq("id",caseId).select("id,status,customer_name,customer_mobile,service_type,appointment_date,appointment_time,appointment_status").maybeSingle();
+  const savedCase=await db.from("cases").update(casePatch).eq("id",caseId).select("id,status,customer_name,customer_mobile,service_type,appointment_date,appointment_time,appointment_status,branch_name").maybeSingle();
   if(savedCase.error)return json({error:"ذخیره اطلاعات مشتری ناموفق بود: "+savedCase.error.message},500);
   if(!savedCase.data)return json({error:"پرونده پیدا نشد یا دیگر قابل ویرایش نیست."},404);
   const vehicleDigits=(v:any)=>String(v??"").replace(/[۰-۹]/g,(d:string)=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,(d:string)=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,"");
@@ -1663,7 +1714,7 @@ if(a==="confirm-call"&&role==="admin")return setStatus(id,"booking_confirmed","�
 Deno.serve(async(req)=>{if(req.method==="OPTIONS")return new Response(null,{status:204,headers:J});const u=new URL(req.url);if(u.searchParams.has("api"))return api(req,u);
  if(req.method==="POST"){try{const b=await req.json();if(!b.name||!b.mobile||!["sell","buy","exchange"].includes(b.type))return json({error:"نام، موبایل و نوع درخواست الزامی است"},400);const mobile=String(b.mobile).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^0-9]/g,"");if(!/^09[0-9]{9}$/.test(mobile))return json({error:"شماره موبایل معتبر نیست. شماره را با 09 و 11 رقم وارد کن."},400);const appointmentDate=b.type==="buy"?null:(b.appointment_date||null),appointmentTime=b.type==="buy"?null:(b.appointment_time||null);
  let customerId:string|null=null;const bearer=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"").trim();if(bearer&&bearer!=="null"&&bearer!=="undefined"){try{const ur=await db.auth.getUser(bearer);if(!ur.error&&ur.data?.user)customerId=ur.data.user.id}catch(_){customerId=null}}
- const {data:c,error}=await db.from("cases").insert({customer_id:customerId,service_type:b.type,customer_name:String(b.name).trim(),customer_mobile:mobile,notes:String(b.notes||"").trim()||null,appointment_date:appointmentDate,appointment_time:appointmentTime}).select("id,case_number").single();
+ const branchName=String(b.branch_name||"").trim().slice(0,120);if(branchName){const cfg=await db.from("booking_settings").select("branch_names").eq("id",1).single();if(cfg.error)return json({error:"بررسی فهرست شعب ناموفق بود: "+cfg.error.message},500);const allowed=Array.isArray(cfg.data?.branch_names)?cfg.data.branch_names.map((x:any)=>String(x||"").trim()):[];if(!allowed.includes(branchName))return json({error:"شعبه انتخاب‌شده معتبر نیست؛ فهرست شعب را تازه‌سازی کنید."},400)}const {data:c,error}=await db.from("cases").insert({customer_id:customerId,service_type:b.type,customer_name:String(b.name).trim(),customer_mobile:mobile,notes:String(b.notes||"").trim()||null,branch_name:branchName||null,appointment_date:appointmentDate,appointment_time:appointmentTime}).select("id,case_number").single();
  if(error){if(error.code==="P0001")return json({error:error.message,code:"booking_unavailable"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_appointment"))return json({error:"این روز و ساعت قبلاً رزرو شده است. لطفاً یک زمان دیگر انتخاب کنید.",code:"appointment_taken"},409);if(error.code==="23505"&&error.message.includes("cases_unique_active_mobile"))return json({error:"این شماره قبلاً پرونده فعال دارد. محدودیت قدیمی موبایل باید در پایگاه داده اصلاح شود.",code:"legacy_mobile_limit"},409);return json({error:error.message},500)}
  const vs:any[]=[];if(b.vehicle)vs.push({...b.vehicle,vehicle_role:"current"});if(b.target_vehicle)vs.push({...b.target_vehicle,vehicle_role:"target"});
  // Only send columns that exist in public.vehicles. The booking form calls this field "condition",
