@@ -240,7 +240,7 @@ function renderCases(){const all=cases.filter(relevant),q=(document.getElementBy
 function actionButton(c){ return actionButtonPrimary(c); } function actionButtonPrimary(c){
  const s=c.status;
  if(role==="sales"&&s==="disagreement")return '<button class="btn primary" onclick="teamAction(\\''+c.id+'\\',\\'relist_after_buyer_cancel\\')">بازگشت پرونده به مزایده</button>';
- if(role==="contracts"&&s==="disagreement")return '<span class="caseSub" style="color:#fda4af;font-weight:800">عدم توافق — عملیات شعبه متوقف است</span>';
+
 
   if(role==="contracts"&&s==="expert_visit_confirmed")return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\'branch_entered\')">ورود به شعبه</button>';
  if(role==="contracts"&&s==="branch_entered")return '<button class="btn primary" onclick="teamAction(\''+c.id+'\',\'transfer_to_expert\')">انتقال به کارشناس</button>';
