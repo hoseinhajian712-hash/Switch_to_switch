@@ -1134,6 +1134,7 @@ async function refreshAuctionLists(){
       const card=document.querySelector('[data-auction-card="'+a.id+'"]');if(!card)return;
       const base=Number(a.current_bid||a.starting_price||0),oldBase=Number(card.dataset.currentBase||0);
       const display=card.querySelector("[data-current-bid-display]");if(display)display.textContent=money(base);
+      const topBid=a.bids&&a.bids.length?a.bids[0]:null,status=card.querySelector("[data-highest-bid-status]");if(status){status.textContent=topBid?(topBid.is_mine?"✓ تا این لحظه بالاترین پیشنهاد برای شماست":"بالاترین پیشنهاد فعلی متعلق به خریدار دیگری است"):"هنوز پیشنهادی ثبت نشده است";status.style.cssText="padding:10px 12px;border-radius:10px;font-size:12px;font-weight:900;text-align:center;margin-bottom:10px;"+(topBid?(topBid.is_mine?"border:1px solid #2d9d70;background:#103a2d;color:#b6ffda":"border:1px solid #9a7440;background:#332819;color:#ffe3a1"):"border:1px solid #40536b;background:#102238;color:#c9d8e8");}
       if(base!==oldBase){
        card.dataset.currentBase=String(base);
        const form=card.querySelector("[data-bid]"),field=form&&form.elements.amount;
