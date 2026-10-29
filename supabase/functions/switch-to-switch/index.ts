@@ -264,7 +264,7 @@ async function publicAuctions(req:Request,u:URL){
  const out=await Promise.all(active.map(async(a:any)=>{
   const [cr,vr,ir,br,docs]=await Promise.all([
    db.from("cases").select("id,case_number").eq("id",a.case_id).maybeSingle(),
-   db.from("vehicles").select("id,brand,model,trim,model_year,color,mileage,body_condition,technical_condition,general_condition,spare_key,fuel_card,power_of_attorney,green_card,factory_invoice,car_document").eq("id",a.vehicle_id).maybeSingle(),
+   db.from("vehicles").select("id,brand,model,trim,model_year,color,mileage,body_condition,technical_condition,general_condition,spare_key,fuel_card,power_of_attorney,green_card,factory_invoice,car_document,insurance_status,insurance_expiry_date").eq("id",a.vehicle_id).maybeSingle(),
    db.from("inspections").select("id,summary,finished_at,status").eq("case_id",a.case_id).order("finished_at",{ascending:false}).limit(1).maybeSingle(),
    db.from("bids").select("id,amount,created_at").eq("auction_id",a.id).order("amount",{ascending:false}),
    db.from("documents").select("document_type").eq("case_id",a.case_id)
