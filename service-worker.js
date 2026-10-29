@@ -1,4 +1,4 @@
-const CACHE_NAME = "switch-app-shell-v2";
+const CACHE_NAME = "switch-app-shell-v3";
 const APP_URLS = [
   new URL("./buyers-auction.html", self.location.href).href,
   new URL("./expert.html", self.location.href).href
