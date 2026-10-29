@@ -1663,7 +1663,7 @@ if(a==="upload-document"&&req.method==="POST"){
  const ar=await db.from("auctions").select("id,case_id,status,purchase_stage,winner_id,current_bid").eq("id",auctionId).maybeSingle();
  if(ar.error)return json({error:ar.error.message},500);
  if(!ar.data)return json({error:"مزایده پیدا نشد"},404);
- if(ar.data.status!=="ended"||ar.data.purchase_stage!=="cancelled")return json({error:"انتقال فقط پس از انصراف برنده فعلی امکان‌پذیر است"},409);
+ if(ar.data.status!=="ended"||(ar.data.purchase_stage!=="cancelled"&&ar.data.winner_response_status!=="declined"))return json({error:"انتقال فقط پس از انصراف یا عدم تأیید برنده فعلی امکان‌پذیر است"},409);
  const br=await db.from("bids").select("buyer_id,amount,created_at").eq("auction_id",auctionId).order("amount",{ascending:false});
  if(br.error)return json({error:"دریافت پیشنهادها ناموفق بود: "+br.error.message},500);
  const ranked:any[]=[],seen=new Set<string>();
