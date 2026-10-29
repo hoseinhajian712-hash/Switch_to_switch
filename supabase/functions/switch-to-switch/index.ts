@@ -266,7 +266,7 @@ async function publicAuctions(req:Request,u:URL){
    db.from("cases").select("id,case_number").eq("id",a.case_id).maybeSingle(),
    db.from("vehicles").select("id,brand,model,trim,model_year,color,mileage,body_condition,technical_condition,general_condition,spare_key,fuel_card,power_of_attorney,green_card,factory_invoice,car_document,insurance_status,insurance_expiry_date").eq("id",a.vehicle_id).maybeSingle(),
    db.from("inspections").select("id,summary,finished_at,status").eq("case_id",a.case_id).order("finished_at",{ascending:false}).limit(1).maybeSingle(),
-   db.from("bids").select("id,amount,created_at").eq("auction_id",a.id).order("amount",{ascending:false}),
+   db.from("bids").select("id,buyer_id,amount,created_at").eq("auction_id",a.id).order("amount",{ascending:false}),
    db.from("documents").select("document_type").eq("case_id",a.case_id)
   ]);
   let defects:any[]=[],photos:any[]=[];
@@ -289,7 +289,7 @@ async function publicAuctions(req:Request,u:URL){
   const thumbUrl=(p:string)=>thumbs.find((x:any)=>x.path===p)?.signedUrl||mediaUrl(p);
   const photoRows=photos.map((p:any)=>({...p,url:mediaUrl(p.storage_path),preview_url:thumbUrl(p.storage_path)}));
   const types=(docs.data||[]).map((x:any)=>String(x.document_type||""));
-  return {...a,case:cr.data||null,vehicle:vr.data||null,vehicle_documents:{green_card:types.includes("green_card"),factory_invoice:types.includes("factory_invoice"),car_document:types.includes("car_document_front")&&types.includes("car_document_back")},inspection:ir.data||null,defects:defects.map((d:any)=>({...d,photos:photoRows.filter((p:any)=>p.defect_id===d.id)})),photos:photoRows,bids:(br.data||[]).map((x:any)=>({amount:x.amount,created_at:x.created_at}))};
+  return {...a,case:cr.data||null,vehicle:vr.data||null,vehicle_documents:{green_card:types.includes("green_card"),factory_invoice:types.includes("factory_invoice"),car_document:types.includes("car_document_front")&&types.includes("car_document_back")},inspection:ir.data||null,defects:defects.map((d:any)=>({...d,photos:photoRows.filter((p:any)=>p.defect_id===d.id)})),photos:photoRows,bids:(br.data||[]).map((x:any)=>({amount:x.amount,created_at:x.created_at,is_mine:x.buyer_id===sess.member_id}))};
  }));
  return json({auctions:out,min_increment:Number(setting.data?.min_increment||5000000)});
 }
@@ -609,7 +609,7 @@ async function placeBid(req:Request,id:string){
    const msg=r.error.message||"ثبت پیشنهاد ناموفق بود";
    return json({error:msg},400);
  }
- return json({ok:true,bid:r.data,current_bid:Number(r.data.current_bid),ends_at:r.data.ends_at||null,extended:!!r.data.extended,extension_count:Number(r.data.extension_count||0)});
+ const highest=await db.from("bids").select("buyer_id,amount").eq("auction_id",id).order("amount",{ascending:false}).order("created_at",{ascending:false}).limit(1).maybeSingle();if(highest.error)return json({error:"پیشنهاد ثبت شد اما بررسی بالاترین پیشنهاد ناموفق بود؛ صفحه را تازه‌سازی کن."},500);return json({ok:true,bid:r.data,current_bid:Number(r.data.current_bid),ends_at:r.data.ends_at||null,extended:!!r.data.extended,extension_count:Number(r.data.extension_count||0),highest_bidder_is_me:highest.data?.buyer_id===sess.member_id,highest_bid_amount:Number(highest.data?.amount||0)});
 }
 async function inspect(req:Request,id:string){
  const b=await req.json();
