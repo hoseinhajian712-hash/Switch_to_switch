@@ -12,6 +12,12 @@ async function listCases(role:string,staffMemberId:string=""){
  const cq=db.from("cases").select("*").order("created_at",{ascending:false});
  let {data,error}=await cq;
  if(error)return json({error:error.message},500);
+ // The expert queue must contain cases actually assigned to the logged-in expert.
+ // Include the referral waiting state immediately after sales/branch assigns the case.
+ if(role==="expert"){
+  const expertQueueStatuses=["awaiting_expert_confirmation","expert_visit_confirmed","refer","inspection","review"];
+  data=(data||[]).filter((c:any)=>!!staffMemberId&&c.assigned_expert_staff_id===staffMemberId&&expertQueueStatuses.includes(String(c.status||"")));
+ }
  const roleStatuses:any={intake:["new","booking_confirmed","expert_visit_confirmed"],sales:["review","auction-ready","auction","auction-end","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","legal_review","prepayment","deposit","ready_to_sign","contract_approved","contract","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","seller_final_payout_pending","awaiting_plate_release","vehicle_delivery","done"],followup:["awaiting_negotiation","negotiation","customer","disagreement","awaiting_docs","buyer_settlement_review"],legal:["legal_review","awaiting_transfer_method_confirmation","awaiting_notary","awaiting_power_of_attorney_signature"],finance:["awaiting_guarantee_deposit","prepayment","awaiting_prepayment","deposit","deductions_review","awaiting_buyer_settlement","buyer_settlement_review","awaiting_seller_settlement_confirmation","seller_final_payout_pending","settled"],contracts:["expert_visit_confirmed","branch_entered","awaiting_expert_confirmation","refer","awaiting_negotiation","negotiation","customer","selling","disagreement","awaiting_docs","docs","ready_to_sign","contract_approved","awaiting_custody_receipt","deductions_review","awaiting_buyer_settlement","awaiting_transfer_method_confirmation","awaiting_buyer_confirmation","awaiting_seller_confirmation","awaiting_notary","settled","awaiting_power_of_attorney_signature","awaiting_plate_release","vehicle_delivery","done"]};
  if(role==="dealer")data=[];
  const ids=(data||[]).map((x:any)=>x.id); let vehicles:any[]=[];
