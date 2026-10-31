@@ -637,4 +637,38 @@ if(!window.SUPABASE_URL||!window.SUPABASE_KEY){document.getElementById("loginErr
 window.addEventListener("error",e=>{const out=document.getElementById("loginError");if(out&&!document.getElementById("appView").classList.contains("hidden"))return;if(out&&e.message)out.textContent="خطای بارگذاری پنل: "+e.message});
 (function restore(){const unitChoice=new URLSearchParams(window.location.search).get("unit");token=localStorage.getItem("s2s_team_token")||"";const savedRole=localStorage.getItem("s2s_team_role")||"";staffName=localStorage.getItem("s2s_team_name")||"همکار";if(token&&savedRole&&Object.prototype.hasOwnProperty.call(roleInfo,savedRole)){role=savedRole;const roleSelect=document.getElementById("loginRole");if(roleSelect)roleSelect.value=role;showApp();return;}if(requestedRole&&Object.prototype.hasOwnProperty.call(roleInfo,requestedRole))role=requestedRole;else if(unitChoice&&Object.prototype.hasOwnProperty.call(roleInfo,unitChoice))role=unitChoice;const roleSelect=document.getElementById("loginRole");if(roleSelect)roleSelect.value=role;document.getElementById("loginView").classList.remove("hidden");document.getElementById("appView").classList.add("hidden");})();
 </script><div id="buyerFineModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="buyerFineTitle"><div class="modalCard"><h2 id="buyerFineTitle">ثبت جریمه انصراف خریدار</h2><p id="buyerFineCase" class="muted"></p><label for="buyerFineAmount">مبلغ جریمه (تومان)</label><input id="buyerFineAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="مثلاً 5000000"><label for="buyerFineReason">علت و مستند جریمه</label><textarea id="buyerFineReason" rows="3" placeholder="علت اعمال جریمه را وارد کنید"></textarea><p id="buyerFineError" class="error"></p><div class="row"><button class="btn primary" onclick="submitBuyerFineModal()">ثبت جریمه</button><button class="btn" onclick="closeBuyerFineModal(null)">انصراف</button></div></div></div>
-</body></html>
+<style id="s2s-filter-dashboard-style">
+#s2sFilterDashboardButton{position:fixed;top:12px;left:12px;z-index:10020;display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #42627c;border-radius:13px;background:linear-gradient(145deg,#18364b,#0b1b2b);color:#f2fbff;font:800 13px inherit;box-shadow:0 8px 24px #0005;cursor:pointer}
+#s2sFilterDashboardButton .s2s-hamburger{font-size:19px;line-height:1}
+#s2sFilterDashboardOverlay{position:fixed;inset:0;z-index:10018;background:#02091499;backdrop-filter:blur(3px);display:none}
+#s2sFilterDashboardOverlay.open{display:block}
+#s2sFilterDashboard{position:fixed;z-index:10019;top:0;left:0;width:min(440px,calc(100vw - 18px));height:100dvh;overflow:auto;padding:76px 16px 22px;background:linear-gradient(160deg,#10263a,#071321 72%);border-right:1px solid #35536c;box-shadow:18px 0 55px #0008;transform:translateX(-105%);transition:transform .24s ease;color:#edf6ff}
+#s2sFilterDashboard.open{transform:translateX(0)}
+#s2sFilterDashboard .s2s-filter-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 15px;padding-bottom:12px;border-bottom:1px solid #29445c;font-size:16px;font-weight:900}
+#s2sFilterDashboard .s2s-filter-close{border:1px solid #45617a;border-radius:10px;background:#1a3045;color:#eaf5ff;padding:7px 11px;cursor:pointer}
+#s2sFilterDashboard .s2s-filter-content{display:flex;flex-direction:column;gap:12px}
+#s2sFilterDashboard .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:9px;margin:0;padding:0;background:transparent;border:0;box-shadow:none}
+#s2sFilterDashboard .toolbar>*{width:100%;max-width:none!important;box-sizing:border-box}
+#s2sFilterDashboard input,#s2sFilterDashboard select{max-width:100%;box-sizing:border-box}
+#s2sFilterDashboard .dateFilterCard{margin:0}
+#s2sFilterDashboard .case-search-wrap{margin:0;flex-wrap:wrap}
+#s2sFilterDashboard .case-search-wrap input{flex:1 1 100%;min-width:0}
+#s2sFilterDashboard #auctionFilters{margin:0}
+@media(max-width:600px){#s2sFilterDashboard{width:min(390px,calc(100vw - 12px));padding-left:12px;padding-right:12px}#s2sFilterDashboardButton{top:9px;left:9px}}
+</style><script id="s2s-filter-dashboard-script">
+(function(){
+ if(window.__s2sFilterDashboardReady)return;window.__s2sFilterDashboardReady=true;
+ const overlay=document.createElement('div');overlay.id='s2sFilterDashboardOverlay';
+ const drawer=document.createElement('aside');drawer.id='s2sFilterDashboard';drawer.setAttribute('aria-label','داشبورد فیلترها');
+ drawer.innerHTML='<div class="s2s-filter-title"><span>داشبورد فیلترها</span><button type="button" class="s2s-filter-close" id="s2sFilterDashboardClose">بستن ×</button></div><div class="s2s-filter-content" id="s2sFilterDashboardContent"></div>';
+ const button=document.createElement('button');button.type='button';button.id='s2sFilterDashboardButton';button.setAttribute('aria-expanded','false');button.innerHTML='<span class="s2s-hamburger">☰</span><span>فیلترها</span>';
+ document.body.append(overlay,drawer,button);
+ const content=document.getElementById('s2sFilterDashboardContent');
+ const search=document.getElementById('search'),dates=document.querySelector('.dateFilterCard');if(search)content.appendChild(search);if(dates)content.appendChild(dates);
+ function close(){drawer.classList.remove('open');overlay.classList.remove('open');button.setAttribute('aria-expanded','false');}
+ function open(){drawer.classList.add('open');overlay.classList.add('open');button.setAttribute('aria-expanded','true');}
+ button.addEventListener('click',()=>drawer.classList.contains('open')?close():open());
+ overlay.addEventListener('click',close);document.getElementById('s2sFilterDashboardClose').addEventListener('click',close);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+})();
+</script></body></html>
