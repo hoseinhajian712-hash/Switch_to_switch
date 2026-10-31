@@ -1603,4 +1603,36 @@ h1,h2,h3,.car-title,.section-title{color:#f4f8ff!important}
 
 <style>
 .timer.auction-ending,.auction-card-timer.auction-ending,.buyer-bid-countdown.auction-ending{background:#4a1018!important;border-color:#ff334f!important;color:#fff!important;box-shadow:0 0 0 1px #ff334f55,0 0 18px #ff334f33!important;animation:auctionUrgentPulse .8s ease-in-out infinite alternate}.timer.auction-ending b,.auction-card-timer.auction-ending b,.buyer-bid-countdown.auction-ending b{color:#ff5267!important;font-weight:1000!important}.timer.auction-ended,.auction-card-timer.auction-ended,.buyer-bid-countdown.auction-ended{border-color:#ff334f!important;background:#310e15!important;color:#ffdce1!important}.timer.auction-ended b,.auction-card-timer.auction-ended b,.buyer-bid-countdown.auction-ended b{color:#ff5267!important}@keyframes auctionUrgentPulse{from{box-shadow:0 0 0 1px #ff334f33,0 0 8px #ff334f22}to{box-shadow:0 0 0 2px #ff334f88,0 0 20px #ff334f66}}@media(prefers-reduced-motion:reduce){.timer.auction-ending,.auction-card-timer.auction-ending,.buyer-bid-countdown.auction-ending{animation:none}}
+
+/* Force every filter control into its own vertical row inside the drawer */
+#s2sFilterDashboard #s2sFilterDashboardContent{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent>*{
+ display:block!important;width:100%!important;max-width:none!important;min-width:0!important;
+ flex:0 0 auto!important;box-sizing:border-box!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .toolbar{
+ display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+ align-items:stretch!important;gap:10px!important;width:100%!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .toolbar>*{
+ display:block!important;width:100%!important;max-width:none!important;min-width:0!important;
+ flex:0 0 auto!important;box-sizing:border-box!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent input,
+#s2sFilterDashboard #s2sFilterDashboardContent select,
+#s2sFilterDashboard #s2sFilterDashboardContent button{
+ width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .dateFilterGrid,
+#s2sFilterDashboard #s2sFilterDashboardContent .auction-filter-grid{
+ display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+ align-items:stretch!important;gap:10px!important;width:100%!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .dateFilterGrid>*,
+#s2sFilterDashboard #s2sFilterDashboardContent .auction-filter-grid>*{
+ width:100%!important;max-width:none!important;min-width:0!important;flex:0 0 auto!important;
+}
+
 </style>
