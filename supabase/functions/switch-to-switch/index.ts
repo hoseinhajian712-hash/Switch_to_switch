@@ -1761,8 +1761,12 @@ if(a==="confirm-call"&&role==="admin")return setStatus(id,"booking_confirmed","�
   const historyRows=historyResult.data||[],rollbackMarker="بازگشت به مرحله قبل توسط تیم فروش";
   let historyOffset=0;
   if(historyRows[0]&&String(historyRows[0].note||"").startsWith(rollbackMarker)&&String(historyRows[0].to_status||"")===current)historyOffset=1;
-  const previousRecord=historyRows.slice(historyOffset).find((h:any)=>String(h.to_status||"")===current&&h.from_status&&String(h.from_status)!==current);
-  const previous=String(previousRecord?.from_status||"");
+  const usableHistory=historyRows.slice(historyOffset);
+  const previousRecord=usableHistory.find((h:any)=>String(h.to_status||"")===current&&h.from_status&&String(h.from_status)!==current);
+  // Legacy status changes may exist without a matching history transition.
+  // Fall back to the most recent recorded destination instead of hiding rollback.
+  const fallbackRecord=usableHistory.find((h:any)=>h.to_status&&String(h.to_status)!==current);
+  const previous=String(previousRecord?.from_status||fallbackRecord?.to_status||"");
   if(!previous)return json({error:"مرحله قبلی معتبری در تاریخچه این پرونده ثبت نشده است."},409);
   if(current==="auction"||previous==="auction")return json({error:"برای جلوگیری از ناهماهنگی مزایده، ابتدا وضعیت مزایده را از مسیر اختصاصی تعیین تکلیف کنید."},409);
   if(Number(cr.data.prepayment_amount||0)>0||!!cr.data.prepayment_status)return json({error:"این پرونده سابقه پیش‌پرداخت دارد؛ بازگشت وضعیت باید با هماهنگی واحد مالی انجام شود."},409);
