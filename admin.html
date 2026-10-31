@@ -497,23 +497,34 @@ function printDeliveryReceipt(){
  const win=window.open("","_blank","width=1000,height=800");
  if(!win){alert("اجازه بازشدن پنجره چاپ را برای این سایت فعال کنید.");return}
  const html='<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>صورت‌جلسه تحویل خودرو</title><style>@page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Tahoma,Arial,sans-serif;color:#111;font-size:11px;line-height:1.8}h1{text-align:center;font-size:18px;margin:0}h2{font-size:12px;margin:9px 0 4px;border-bottom:1px solid #444}.brand{text-align:center;font-weight:bold;font-size:13px}.sub{text-align:center;margin-bottom:8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px}.field{border:1px solid #999;padding:4px 6px;min-height:25px}.wide{grid-column:1/-1}table{width:100%;border-collapse:collapse;margin-top:4px}td,th{border:1px solid #777;padding:3px 5px;text-align:right}th{background:#eee}.tick{text-align:center;width:50px;font-size:14px}.statement{border:1px solid #777;padding:7px;margin-top:7px;text-align:justify}.signs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}.sign{border:1px solid #777;min-height:90px;padding:6px}.foot{font-size:9px;margin-top:7px}</style></head><body><div class="brand">سوییچ به سوییچ | SWITCH TO SWITCH</div><h1>صورت‌جلسه تحویل خودرو، مدارک و متعلقات</h1><div class="sub">شماره پرونده: '+esc(caseNo(x.case_number))+'</div><div class="grid"><div class="field">تاریخ تحویل: '+esc(val("deliveryDate"))+'</div><div class="field">ساعت تحویل: '+esc(val("deliveryTime"))+'</div><div class="field wide">محل تحویل: '+esc(val("deliveryLocation"))+'</div></div><h2>۱) مشخصات خودرو</h2><div class="grid"><div class="field">خودرو / مدل / تیپ: '+esc(vehicleText(v))+'</div><div class="field">رنگ: '+esc(v.color||"................................")+'</div><div class="field">پلاک: '+esc(v.plate_number||v.plate||"................................")+'</div><div class="field">سال ساخت: '+esc(v.model_year||v.year||"................................")+'</div><div class="field">شماره شاسی / VIN: '+esc(v.vin||"................................")+'</div><div class="field">شماره موتور: '+esc(v.engine_number||"................................")+'</div><div class="field">کیلومتر هنگام تحویل: '+esc(val("deliveryOdometer"))+'</div><div class="field">سطح سوخت: ☐ خالی ☐ کم ☐ ¼ ☐ ½ ☐ ¾ ☐ پر</div></div><h2>۲) مشخصات طرفین</h2><div class="grid"><div class="field">تحویل‌دهنده / نماینده: ....................................................</div><div class="field">کد ملی: ........................................</div><div class="field">تلفن: ........................................</div><div class="field">خریدار / تحویل‌گیرنده: '+esc(val("deliveryRecipient"))+'</div><div class="field">کد ملی خریدار: '+esc(val("deliveryRecipientId"))+'</div><div class="field">تلفن همراه خریدار: ........................................</div></div><h2>۳) چک‌لیست مدارک و متعلقات</h2><table><thead><tr><th>مورد</th><th>وضعیت ثبت‌شده در پنل</th><th>تحویل شد</th><th>تحویل نشد / شامل نمی‌شود</th></tr></thead><tbody>'+table+'</tbody></table><h2>۴) اقرار به رویت و دریافت خودرو</h2><div class="statement">اینجانبان تأیید می‌کنیم خودرو با مشخصات فوق در تاریخ و ساعت درج‌شده تحویل/تحول شده است. خریدار اقرار می‌نماید خودرو را از نزدیک رویت کرده و فرصت بررسی ظاهری، کیلومترشمار، مدارک و متعلقات را داشته است. وضعیت مشاهده‌شده، ایرادات اعلام‌شده و موارد تحویل‌نشده باید در این صورت‌جلسه یا پیوست امضاشده درج شود. این رسید صرفاً ناظر بر تحویل فیزیکی خودرو و موارد صریحاً ثبت‌شده است و به‌تنهایی جایگزین قرارداد اصلی، تسویه‌حساب، انتقال قانونی مالکیت یا تشریفات تعویض پلاک نیست.</div><div class="grid" style="margin-top:6px"><div class="field wide">ایرادات، خط‌وخش، خسارت یا موارد تحویل‌نشده: '+esc(val("deliveryNotes")||"................................................................................................................")+'</div><div class="field wide">رسید / وضعیت تسویه / تعهدات باقی‌مانده / مهلت تعویض پلاک: '+esc(val("deliveryReceipt")||"............................................................................................")+'</div><div class="field wide">سایر توضیحات: ................................................................................................................................................</div></div><div class="statement">طرفین با علم و اختیار مفاد این صورت‌جلسه را مطالعه کرده و امضا می‌کنند. هر اصلاح یا قلم‌خوردگی باید به امضای طرفین برسد. این صورت‌جلسه در دو نسخه متحدالمتن امضا شود و هر طرف یک نسخه دریافت کند.</div><div class="signs"><div class="sign"><b>تحویل‌دهنده / نماینده مجموعه</b><br>نام: .............................<br>امضا: <br><br>تاریخ: ........................</div><div class="sign"><b>خریدار / تحویل‌گیرنده</b><br>نام: .............................<br>امضا و اثر انگشت (در صورت نیاز):<br><br>تاریخ: ........................</div><div class="sign"><b>مهر سوییچ به سوییچ</b><br><br><br><br><br></div></div><div class="foot">پیوست‌های پیشنهادی: تصاویر چهار طرف خودرو، کیلومترشمار و فهرست مدارک/ایرادات. این نمونه فرم عملیاتی است و برای معاملات مهم، متن نهایی را با مشاور حقوقی آشنا با مقررات محل معامله تطبیق دهید.</div><script>window.onload=()=>setTimeout(()=>window.print(),300);</scr'+'ipt><style id="s2s-filter-dashboard-style">
-#s2sFilterDashboardButton{position:fixed;top:12px;left:12px;z-index:10020;display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #42627c;border-radius:13px;background:linear-gradient(145deg,#18364b,#0b1b2b);color:#f2fbff;font-family:inherit;font-size:13px;font-weight:800;box-shadow:0 8px 24px #0005;cursor:pointer}
+#s2sFilterDashboardButton{position:fixed;top:12px;left:12px;z-index:10020;display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #42627c;border-radius:13px;background:#102b40;color:#f2fbff;font-family:inherit;font-size:13px;font-weight:800;box-shadow:0 6px 18px #0004;cursor:pointer}
 #s2sFilterDashboardButton .s2s-hamburger{font-size:19px;line-height:1}
 #s2sFilterDashboardOverlay{position:fixed;inset:0;z-index:10018;background:#02091499;backdrop-filter:blur(3px);display:none}
 #s2sFilterDashboardOverlay.open{display:block}
-#s2sFilterDashboard{position:fixed;z-index:10019;top:0;left:0;width:min(440px,calc(100vw - 18px));height:100dvh;overflow:auto;padding:76px 16px 22px;background:linear-gradient(160deg,#10263a,#071321 72%);border-right:1px solid #35536c;box-shadow:18px 0 55px #0008;transform:translateX(-105%);transition:transform .24s ease;color:#edf6ff}
+#s2sFilterDashboard{position:fixed;z-index:10019;top:0;left:0;width:min(370px,calc(100vw - 18px));height:100dvh;overflow:auto;padding:72px 16px 22px;background:#0c1c2c;border-right:1px solid #35536c;box-shadow:14px 0 40px #0007;transform:translateX(-105%);transition:transform .22s ease;color:#edf6ff}
 #s2sFilterDashboard.open{transform:translateX(0)}
-#s2sFilterDashboard .s2s-filter-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 15px;padding-bottom:12px;border-bottom:1px solid #29445c;font-size:16px;font-weight:900}
-#s2sFilterDashboard .s2s-filter-close{border:1px solid #45617a;border-radius:10px;background:#1a3045;color:#eaf5ff;padding:7px 11px;cursor:pointer}
+#s2sFilterDashboard .s2s-filter-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid #29445c;font-size:16px;font-weight:900}
+#s2sFilterDashboard .s2s-filter-close{border:1px solid #45617a;border-radius:9px;background:#1a3045;color:#eaf5ff;padding:7px 11px;cursor:pointer}
 #s2sFilterDashboard .s2s-filter-content{display:flex;flex-direction:column;gap:12px}
-#s2sFilterDashboard .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:9px;margin:0;padding:0;background:transparent;border:0;box-shadow:none}
-#s2sFilterDashboard .toolbar>*{width:100%;max-width:none!important;box-sizing:border-box}
-#s2sFilterDashboard input,#s2sFilterDashboard select{max-width:100%;box-sizing:border-box}
-#s2sFilterDashboard .dateFilterCard{margin:0}
-#s2sFilterDashboard .case-search-wrap{margin:0;flex-wrap:wrap}
-#s2sFilterDashboard .case-search-wrap input{flex:1 1 100%;min-width:0}
+#s2sFilterDashboard .toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin:0;padding:0;background:transparent;border:0;box-shadow:none}
+#s2sFilterDashboard .toolbar>*{display:block;width:100%;max-width:none!important;min-width:0;box-sizing:border-box}
+#s2sFilterDashboard .dateFilterCard{margin:0;padding:12px;background:#10283b}
+#s2sFilterDashboard .dateFilterGrid{display:flex!important;flex-direction:column!important;gap:10px!important}
+#s2sFilterDashboard .dateFilterGrid .field{width:100%;margin:0}
+#s2sFilterDashboard .dateFilterGrid .field input,#s2sFilterDashboard .dateFilterGrid .field select{width:100%;max-width:none;box-sizing:border-box}
+#s2sFilterDashboard .case-search-wrap{display:flex;flex-direction:column;align-items:stretch;gap:9px;margin:0;padding:10px}
+#s2sFilterDashboard .case-search-wrap>*{width:100%;max-width:none!important;min-width:0;box-sizing:border-box}
+#s2sFilterDashboard .case-search-wrap>span{display:none}
 #s2sFilterDashboard #auctionFilters{margin:0}
-@media(max-width:600px){#s2sFilterDashboard{width:min(390px,calc(100vw - 12px));padding-left:12px;padding-right:12px}#s2sFilterDashboardButton{top:9px;left:9px}}
+#s2sFilterDashboard #auctionFilters[open] .auction-filter-grid{display:flex;flex-direction:column;gap:10px}
+#s2sFilterDashboard #auctionFilters .auction-filter-field{width:100%;box-sizing:border-box}
+#s2sFilterDashboard #auctionFilters .auction-filter-field input,#s2sFilterDashboard #auctionFilters .auction-filter-field button{width:100%;box-sizing:border-box}
+#s2sFilterDashboard #auctionFilters .auction-filter-heading{display:block;padding:12px}
+#s2sFilterSummary{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:10px 0 14px;padding:10px 12px;border:1px solid #2e5969;border-radius:12px;background:#0d2732;color:#e7f7f5;font-size:12px}
+#s2sFilterSummary:empty{display:none}
+#s2sFilterSummary .s2s-summary-title{font-weight:900;color:#a9e7dc}
+#s2sFilterSummary .s2s-filter-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #376c70;border-radius:20px;background:#123a3d;color:#f0fffc}
+@media(max-width:600px){#s2sFilterDashboard{width:min(350px,calc(100vw - 12px));padding-left:12px;padding-right:12px}#s2sFilterDashboardButton{top:9px;left:9px}}
 </style><script id="s2s-filter-dashboard-script">
 (function(){
  if(window.__s2sFilterDashboardReady)return;window.__s2sFilterDashboardReady=true;
@@ -523,12 +534,30 @@ function printDeliveryReceipt(){
  const button=document.createElement('button');button.type='button';button.id='s2sFilterDashboardButton';button.setAttribute('aria-expanded','false');button.innerHTML='<span class="s2s-hamburger">☰</span><span>فیلترها</span>';
  document.body.append(overlay,drawer,button);
  const content=document.getElementById('s2sFilterDashboardContent');
- const toolbar=document.querySelector('.toolbar');if(toolbar)content.appendChild(toolbar);
+ const toolbar=document.querySelector('.toolbar');if(toolbar)content.appendChild(toolbar);const anchor=document.getElementById('board');
+ const summary=document.createElement('div');summary.id='s2sFilterSummary';summary.setAttribute('aria-live','polite');
+ if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(summary,anchor);
+ const controls=[...content.querySelectorAll('input,select')];
+ function updateSummary(){
+  const active=[];
+  controls.forEach(el=>{
+   if(!el.id)return;const v=(el.value||'').trim();if(!v)return;
+   let label=el.getAttribute('aria-label')||el.closest('.field')?.querySelector('label')?.textContent||el.closest('label')?.childNodes?.[0]?.textContent?.trim()||'';
+   if(!label){const map={q:'جست‌وجو',search:'جست‌وجو',filter:'وضعیت پرونده',dateMode:'نوع تاریخ',dateFrom:'از تاریخ',dateTo:'تا تاریخ',filterBasis:'مبنای تاریخ',filterDateFrom:'از تاریخ',filterDateTo:'تا تاریخ',filterTimeFrom:'از ساعت',filterTimeTo:'تا ساعت',filterBranch:'شعبه',filterStatus:'وضعیت پرونده',caseSearchInput:'جست‌وجو',caseStatusFilter:'وضعیت پرونده',auctionModelFilter:'مدل خودرو',auctionYearFilter:'سال ساخت',auctionMileageFilter:'کارکرد'};label=map[el.id]||'فیلتر';}
+   let value=v;if(el.tagName==='SELECT'){const opt=el.options[el.selectedIndex];value=opt?opt.textContent.trim():v;}
+   active.push([label,value]);
+  });
+  summary.innerHTML=active.length?'<span class="s2s-summary-title">فیلترهای انتخاب‌شده:</span>'+active.map(([k,v])=>'<span class="s2s-filter-chip">'+k+': '+v.replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]))+'</span>').join(''):'';
+ }
+ controls.forEach(el=>{el.addEventListener('input',updateSummary);el.addEventListener('change',updateSummary);});
+ content.addEventListener('click',()=>setTimeout(updateSummary,80));
+ const observer=new MutationObserver(updateSummary);controls.filter(x=>x.tagName==='SELECT').forEach(x=>observer.observe(x,{childList:true,subtree:true}));
  function close(){drawer.classList.remove('open');overlay.classList.remove('open');button.setAttribute('aria-expanded','false');}
  function open(){drawer.classList.add('open');overlay.classList.add('open');button.setAttribute('aria-expanded','true');}
  button.addEventListener('click',()=>drawer.classList.contains('open')?close():open());
  overlay.addEventListener('click',close);document.getElementById('s2sFilterDashboardClose').addEventListener('click',close);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+ updateSummary();
 })();
 </script></body></html>';
  win.document.open();win.document.write(html);win.document.close();
