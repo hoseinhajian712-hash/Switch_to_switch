@@ -1447,6 +1447,38 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 #s2sFilterSummary .s2s-summary-title{font-weight:900;color:#a9e7dc}
 #s2sFilterSummary .s2s-filter-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #376c70;border-radius:20px;background:#123a3d;color:#f0fffc}
 @media(max-width:600px){#s2sFilterDashboard{width:min(350px,calc(100vw - 12px));padding-left:12px;padding-right:12px}#s2sFilterDashboardButton{top:9px;left:9px}}
+
+/* Force every filter control into its own vertical row inside the drawer */
+#s2sFilterDashboard #s2sFilterDashboardContent{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent>*{
+ display:block!important;width:100%!important;max-width:none!important;min-width:0!important;
+ flex:0 0 auto!important;box-sizing:border-box!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .toolbar{
+ display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+ align-items:stretch!important;gap:10px!important;width:100%!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .toolbar>*{
+ display:block!important;width:100%!important;max-width:none!important;min-width:0!important;
+ flex:0 0 auto!important;box-sizing:border-box!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent input,
+#s2sFilterDashboard #s2sFilterDashboardContent select,
+#s2sFilterDashboard #s2sFilterDashboardContent button{
+ width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .dateFilterGrid,
+#s2sFilterDashboard #s2sFilterDashboardContent .auction-filter-grid{
+ display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+ align-items:stretch!important;gap:10px!important;width:100%!important;
+}
+#s2sFilterDashboard #s2sFilterDashboardContent .dateFilterGrid>*,
+#s2sFilterDashboard #s2sFilterDashboardContent .auction-filter-grid>*{
+ width:100%!important;max-width:none!important;min-width:0!important;flex:0 0 auto!important;
+}
+
 </style><script id="s2s-filter-dashboard-script">
 (function(){
  if(window.__s2sFilterDashboardReady)return;window.__s2sFilterDashboardReady=true;
