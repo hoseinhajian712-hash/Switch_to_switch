@@ -1446,6 +1446,8 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
 #s2sFilterSummary:empty{display:none}
 #s2sFilterSummary .s2s-summary-title{font-weight:900;color:#a9e7dc}
 #s2sFilterSummary .s2s-filter-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #376c70;border-radius:20px;background:#123a3d;color:#f0fffc}
+#s2sFilterSummary .s2s-filter-remove{display:inline-grid;place-items:center;width:20px;height:20px;margin-inline-start:3px;padding:0;border:0;border-radius:50%;background:#244e50;color:#fff;font:700 15px/1 Tahoma,Arial,sans-serif;cursor:pointer}
+#s2sFilterSummary .s2s-filter-remove:hover{background:#b42335;color:#fff}
 @media(max-width:600px){#s2sFilterDashboard{width:min(350px,calc(100vw - 12px));padding-left:12px;padding-right:12px}#s2sFilterDashboardButton{top:9px;left:9px}}
 
 /* Force every filter control into its own vertical row inside the drawer */
@@ -1499,10 +1501,21 @@ async function boot(){await loadCases();setInterval(()=>{if(document.hidden)retu
    let label=el.getAttribute('aria-label')||el.closest('.field')?.querySelector('label')?.textContent||el.closest('label')?.childNodes?.[0]?.textContent?.trim()||'';
    if(!label){const map={q:'جست‌وجو',search:'جست‌وجو',filter:'وضعیت پرونده',dateMode:'نوع تاریخ',dateFrom:'از تاریخ',dateTo:'تا تاریخ',filterBasis:'مبنای تاریخ',filterDateFrom:'از تاریخ',filterDateTo:'تا تاریخ',filterTimeFrom:'از ساعت',filterTimeTo:'تا ساعت',filterBranch:'شعبه',filterStatus:'وضعیت پرونده',caseSearchInput:'جست‌وجو',caseStatusFilter:'وضعیت پرونده',auctionModelFilter:'مدل خودرو',auctionYearFilter:'سال ساخت',auctionMileageFilter:'کارکرد'};label=map[el.id]||'فیلتر';}
    let value=v;if(el.tagName==='SELECT'){const opt=el.options[el.selectedIndex];value=opt?opt.textContent.trim():v;}
-   active.push([label,value]);
+   active.push({id:el.id,label,value});
   });
-  summary.innerHTML=active.length?'<span class="s2s-summary-title">فیلترهای انتخاب‌شده:</span>'+active.map(([k,v])=>'<span class="s2s-filter-chip">'+k+': '+v.replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]))+'</span>').join(''):'';
+  const escHtml=t=>String(t??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  summary.innerHTML=active.length?'<span class="s2s-summary-title">فیلترهای انتخاب‌شده:</span>'+active.map(item=>'<span class="s2s-filter-chip">'+escHtml(item.label)+': '+escHtml(item.value)+' <button type="button" class="s2s-filter-remove" data-filter-id="'+escHtml(item.id)+'" aria-label="حذف فیلتر '+escHtml(item.label)+'" title="حذف این فیلتر">×</button></span>').join(''):'';
  }
+ summary.addEventListener('click',e=>{
+  const remove=e.target.closest('.s2s-filter-remove');if(!remove)return;
+  const el=controls.find(item=>item.id===remove.dataset.filterId);if(!el)return;
+  if(el.type==='checkbox'||el.type==='radio')el.checked=false;
+  else if(el.tagName==='SELECT'){const first=[...el.options].find(option=>option.value==='');el.value=first?'':(el.options[0]?.value||'');}
+  else el.value='';
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+  el.dispatchEvent(new Event('change',{bubbles:true}));
+  updateSummary();
+ });
  controls.forEach(el=>{el.addEventListener('input',updateSummary);el.addEventListener('change',updateSummary);});
  content.addEventListener('click',()=>setTimeout(updateSummary,80));
  const observer=new MutationObserver(updateSummary);controls.filter(x=>x.tagName==='SELECT').forEach(x=>observer.observe(x,{childList:true,subtree:true}));
