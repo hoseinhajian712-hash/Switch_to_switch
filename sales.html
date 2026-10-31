@@ -350,7 +350,7 @@ async function confirmSalesRollback(){
 let pendingReinspectionId="";
 function openReinspectionModal(id){
  const row=rows.find(x=>String(x.id)===String(id));
- if(!row||row.status!=="review"){show("فقط پرونده‌های پایان کارشناسی‌شده قابل ارجاع مجدد هستند.",true);return}
+ if(!row||!["review","auction-ready"].includes(row.status)||row.auction?.status==="active"){show("ارجاع مجدد فقط برای پرونده‌های پایان کارشناسی‌شده و بدون مزایده فعال امکان‌پذیر است.",true);return}
  pendingReinspectionId=String(id);
  document.getElementById("salesReinspectionCaseText").textContent="پرونده "+caseNo(row.case_number);
  document.getElementById("salesReinspectionModal").style.display="flex";
