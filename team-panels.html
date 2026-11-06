@@ -494,14 +494,14 @@ ${partMarker(["سپر عقب"],370,700)}
 }
 function bindInspectionSchematicViewer(root){
  if(!root||root.dataset.schematicViewerBound)return;root.dataset.schematicViewerBound="1";
- let items=[],index=0;const modal=root.querySelector("#s2sSchematicViewer"),img=root.querySelector("#s2sSchematicPhoto"),title=root.querySelector("#s2sSchematicPhotoTitle"),count=root.querySelector("#s2sSchematicPhotoCount");
- const render=()=>{if(!items.length)return;const p=items[index];img.src=p.url;title.textContent=p.label||"تصویر ایراد";count.textContent=(index+1).toLocaleString("fa-IR")+" از "+items.length.toLocaleString("fa-IR");modal.hidden=false};
+ let items=[],index=0;
+ const render=()=>{if(!items.length)return;const modal=root.querySelector("#s2sSchematicViewer"),img=root.querySelector("#s2sSchematicPhoto"),title=root.querySelector("#s2sSchematicPhotoTitle"),count=root.querySelector("#s2sSchematicPhotoCount");if(!modal||!img||!title||!count)return;const p=items[index];img.src=p.url;title.textContent=p.label||"تصویر ایراد";count.textContent=(index+1).toLocaleString("fa-IR")+" از "+items.length.toLocaleString("fa-IR");modal.hidden=false};
  root.addEventListener("click",e=>{const part=e.target.closest("[data-schematic-photos]");if(part&&root.contains(part)){e.preventDefault();e.stopPropagation();try{items=JSON.parse(part.getAttribute("data-schematic-photos")||"[]").filter(p=>p&&p.url);index=0;if(!items.length){alert("برای این قطعه عکس ایراد ثبت نشده است.");return}render()}catch(_){alert("عکس‌های این قطعه قابل خواندن نیست.");}return}
- if(e.target.closest("[data-s2s-photo-close]")||e.target===modal){modal.hidden=true;img.removeAttribute("src");return}
+ const modal=root.querySelector("#s2sSchematicViewer"),img=root.querySelector("#s2sSchematicPhoto");if(e.target.closest("[data-s2s-photo-close]")||e.target===modal){if(modal)modal.hidden=true;if(img)img.removeAttribute("src");return}
  if(e.target.closest("[data-s2s-photo-prev]")){index=(index-1+items.length)%items.length;render()}
  if(e.target.closest("[data-s2s-photo-next]")){index=(index+1)%items.length;render()}
  });
- root.addEventListener("keydown",e=>{if(e.key==="Escape"&&modal&&!modal.hidden){modal.hidden=true;img.removeAttribute("src")}});
+ root.addEventListener("keydown",e=>{const modal=root.querySelector("#s2sSchematicViewer"),img=root.querySelector("#s2sSchematicPhoto");if(e.key==="Escape"&&modal&&!modal.hidden){modal.hidden=true;if(img)img.removeAttribute("src")}});
 }
 
 function inspectionReportHtml(c,v){
