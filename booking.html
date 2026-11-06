@@ -2151,6 +2151,7 @@ function isSolarCalendarBrand(brand){
  const key=normalizeCarName(brand);
  return [...solarYearBrands].some(name=>normalizeCarName(name)===key)
 }
+const gregorianYearModels=new Set(['سیتروئن C5','پژو ۳۰۱','پژو ۵۰۸'].map(normalizeCarName));
 const locallyBuiltSolarModels=new Set(['آریو اس ۳۰۰','چانگان سی‌اس ۳۵ مونتاژ','چانگان ایدو','مگان مونتاژ','ریو مونتاژ','زانتیا','ژیان','پیکاپ ریچ','سیتروئن C3' ,'دانگ‌فنگ اچ ۳۰ کراس','دانگ‌فنگ اس ۳۰'].map(normalizeCarName));
 function yearsFor(brand,model,trim){
  const modelKey=normalizeCarName(model),trimKey=normalizeCarName(trim);
@@ -2173,10 +2174,10 @@ function yearsFor(brand,model,trim){
  // برای مدل‌هایی که بازه دقیق هنوز ثبت نشده، سال‌ها را به‌اشتباه از ۱۳۹۰ شروع نکن:
  // خودروهای مونتاژ/داخلی شمسی و خودروهای وارداتی میلادی نمایش داده می‌شوند.
  const brandKeyForYear=normalizeCarName(brand);
- const locallyBuiltPeugeot=/پژو(206|207|2008|301|405|پارس)/.test(modelKey)||
+ const locallyBuiltPeugeot=/پژو(206|207|2008|405|پارس)/.test(modelKey)||
   (brandKeyForYear==='پژو'&&/^(206|206اسدی|206صندوقدار|207|2008|301|405|پارس)$/.test(modelKey));
  const locallyBuiltRenault=/^(ساندرو|استپوی|لوگان|تندر90ایرانخودرو|مگانمونتاژ|زانتیا|ریومونتاژ)$/.test(modelKey);
- const solarCalendar=isSolarCalendarBrand(brand)||locallyBuiltPeugeot||locallyBuiltRenault||locallyBuiltSolarModels.has(modelKey);
+ const solarCalendar=(isSolarCalendarBrand(brand)&&!gregorianYearModels.has(modelKey))||locallyBuiltPeugeot||locallyBuiltRenault||locallyBuiltSolarModels.has(modelKey);
  const hasKnownRange=Array.isArray(range);
  const fallbackIsGregorian=!hasKnownRange&&!solarCalendar;
  if(!hasKnownRange)range=solarCalendar?[1370,1405]:[1990,2026];
