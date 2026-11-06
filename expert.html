@@ -779,7 +779,7 @@ function renderInspectionPreviousEvidence(){
  home.querySelector('#reinspectionEditBanner')?.remove();
  if(!isSalesReinspection()||!reinspectionSourceId())return;
  const sourceId=reinspectionSourceId(),sessionKey=String(current.id)+'::'+sourceId;if(reinspectionSessionKey!==sessionKey){reinspectionSessionKey=sessionKey;reinspectionExcludedPhotoIds=new Set();reinspectionPrefilledDefectKeys=new Set()}
- if(summary&&!summary.value)summary.value=current.inspection?.summary||'';
+ const summaryField=document.getElementById('summary');if(summaryField&&!summaryField.value)summaryField.value=current.inspection?.summary||'';
  const oldDefects=(current.defects||[]).filter(d=>String(d.inspection_id||'')===sourceId),oldPhotos=(current.photos||[]).filter(p=>String(p.inspection_id||'')===sourceId);
  const banner=document.createElement('div');banner.id='reinspectionEditBanner';banner.className='notice';banner.style.cssText='margin:12px 0;border:1px solid #0d9488;background:#0b302c;color:#d1fae5;padding:14px;border-radius:14px;line-height:1.9';
  banner.innerHTML='<b>🛠 کارشناسی مجدد؛ گزارش قبلی قابل اصلاح است</b><br>اطلاعات و ایرادهای گزارش قبلی برای ویرایش در بخش‌های کارشناسی بارگذاری می‌شوند. می‌توانید ایراد اضافه یا حذف کنید و عکس‌ها را جایگزین یا حذف کنید. گزارش قبلی و سوابق آن محفوظ می‌ماند.<br><small>'+oldDefects.length+' ایراد قبلی · '+oldPhotos.length+' عکس قبلی</small>';
