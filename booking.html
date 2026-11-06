@@ -2151,7 +2151,7 @@ function isSolarCalendarBrand(brand){
  const key=normalizeCarName(brand);
  return [...solarYearBrands].some(name=>normalizeCarName(name)===key)
 }
-const locallyBuiltSolarModels=new Set(['آریو اس ۳۰۰','چانگان سی‌اس ۳۵ مونتاژ','چانگان ایدو','مگان مونتاژ','ریو مونتاژ','زانتیا','ژیان','پیکاپ ریچ','سیتروئن C3','سیتروئن C5','دانگ‌فنگ اچ ۳۰ کراس','دانگ‌فنگ اس ۳۰'].map(normalizeCarName));
+const locallyBuiltSolarModels=new Set(['آریو اس ۳۰۰','چانگان سی‌اس ۳۵ مونتاژ','چانگان ایدو','مگان مونتاژ','ریو مونتاژ','زانتیا','ژیان','پیکاپ ریچ','سیتروئن C3' ,'دانگ‌فنگ اچ ۳۰ کراس','دانگ‌فنگ اس ۳۰'].map(normalizeCarName));
 function yearsFor(brand,model,trim){
  const modelKey=normalizeCarName(model),trimKey=normalizeCarName(trim);
  // تطبیق نام مدل بدون وابستگی به فاصله، نیم‌فاصله، شکل اعداد و ی/ک عربی.
