@@ -685,8 +685,9 @@ async function deleteExistingInspectionPhoto(photoId){
   renderExistingInspectionPhotos('all');
  }catch(e){alert('عکس حذف نشد: '+e.message)}
 }
-function existingPhotoCard(p){
- return '<div class="existing-inspection-photo" data-existing-photo="'+esc(p.id)+'" style="position:relative;display:inline-flex;flex-direction:column;gap:5px;max-width:150px;margin:5px;padding:6px;border:1px solid #315777;border-radius:10px;background:#0a1a2a"><a href="'+esc(p.url)+'" target="_blank" rel="noopener"><img loading="lazy" src="'+esc(p.url)+'" alt="'+esc(p.label||'عکس ثبت‌شده')+'" style="width:132px;height:100px;object-fit:contain;border-radius:7px"></a><small>'+esc(p.label||'عکس ثبت‌شده')+'</small><button type="button" class="camera-btn" style="margin:0;padding:6px;font-size:11px;background:#7f1d1d" onclick="deleteExistingInspectionPhoto(\''+esc(p.id)+'\')">حذف / جایگزینی</button></div>';
+function existingPhotoCard(p,partIndex,defectType){
+ const selector='.defphoto.photo-gallery[data-part="'+String(partIndex)+'"][data-defect="'+String(defectType).replace(/"/g,'&quot;')+'"]';
+ return '<div class="existing-inspection-photo" data-existing-photo="'+esc(p.id)+'" style="display:flex;flex-direction:column;gap:6px;max-width:170px;padding:7px;border:1px solid #315777;border-radius:10px;background:#0a1a2a"><img loading="lazy" src="'+esc(p.url)+'" alt="'+esc(p.label||'عکس ایراد')+'" style="width:150px;height:110px;object-fit:contain;border-radius:7px;cursor:pointer" onclick="openGalleryPhotoEditor(this.parentElement,this)" title="برای علامت‌گذاری و ویرایش عکس لمس کنید"><small>'+esc(p.label||'عکس ایراد')+'</small><button type="button" class="camera-btn" style="margin:0;padding:7px" onclick="document.querySelector(\''+selector+'\')?.click()">✏️ تغییر / جایگزینی عکس</button><button type="button" class="camera-btn" style="margin:0;padding:7px;background:#7f1d1d" onclick="deleteExistingInspectionPhoto(\''+esc(p.id)+'\')">حذف عکس</button></div>';
 }
 const pendingMainPhotoReplacement={};
 function replaceMainPhoto(i,photoIds){
@@ -754,7 +755,7 @@ async function renderExistingInspectionPhotos(sectionKey){
    const ids=new Set(rows.map(x=>String(x.id)));
    const matching=all.filter(p=>p.photo_type==='defect'&&p.defect_id&&ids.has(String(p.defect_id))).sort((x,y)=>new Date(y.created_at||0)-new Date(x.created_at||0));
    if(matching.length){
-    box.innerHTML=existingPhotoCard(matching[0]);
+    box.innerHTML=existingPhotoCard(matching[0],partIndex,d.defect_type);
     if(name)name.textContent='۱ عکس ثبت‌شده برای این ایراد';
    }else if(name)name.textContent='تصویری انتخاب نشده';
   }
