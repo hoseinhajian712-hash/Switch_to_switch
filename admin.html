@@ -300,7 +300,7 @@ async function editCaseVehicle(vehicleId){
 }
 
 function mainPhotoGallery(photos,mediaBase,key){
- const order=["سه‌رخ جلو راننده","نمای مستقیم جلو","سه‌رخ جلو شاگرد","نمای کامل سمت راننده","سه‌رخ عقب راننده","نمای مستقیم عقب","صندوق عقب باز","کف صندوق","جک و آچار چرخ","سه‌رخ عقب شاگرد","نمای کامل سمت شاگرد","سقف خودرو","صندلی جلو راننده","صندلی عقب کامل","صندلی جلو شاگرد","کیلومترشمار","فرمان","داشبورد کامل","زوم داشبورد از عقب","لاستیک جلو راننده","لاستیک عقب راننده","لاستیک جلو شاگرد","لاستیک عقب شاگرد"];
+ const order=["سه‌رخ جلو راننده","نمای مستقیم جلو","سه‌رخ جلو شاگرد","نمای کامل سمت راننده","سه‌رخ عقب راننده","نمای مستقیم عقب","صندوق عقب باز","کف صندوق","جک و آچار چرخ","سه‌رخ عقب شاگرد","نمای کامل سمت شاگرد","سقف خودرو","صندلی جلو راننده","صندلی عقب کامل","صندلی جلو شاگرد","کیلومترشمار","فرمان","داشبورد کامل","زوم داشبورد از عقب","لاستیک جلو راننده","لاستیک عقب راننده","لاستیک جلو شاگرد","لاستیک عقب شاگرد","محوطه موتور"];
  const seen=new Set();
  const items=(photos||[]).filter(p=>p&&(p.url||p.storage_path)).filter(p=>{const k=String(p.storage_path||p.file_path||p.url||p.id||'').split('?')[0];if(seen.has(k))return false;seen.add(k);return true;}).map((p,i)=>({...p,_i:i,_url:p.url||(mediaBase+'?key='+encodeURIComponent(key||'')+'&file='+encodeURIComponent(p.storage_path||''))})).sort((a,b)=>{const ai=order.indexOf(a.label),bi=order.indexOf(b.label);if(ai!==bi)return (ai<0?999:ai)-(bi<0?999:bi);const ao=Number(a.sort_order??a.position??a.display_order),bo=Number(b.sort_order??b.position??b.display_order);if(Number.isFinite(ao)&&Number.isFinite(bo)&&ao!==bo)return ao-bo;return a._i-b._i;});
  if(!items.length)return '<div class="photo">عکس اصلی ثبت نشده</div>';
