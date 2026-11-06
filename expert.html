@@ -670,9 +670,9 @@ async function captureQuickPhoto(){
 }
 
 function renderMainPhotos(){
- mainPhotos.innerHTML=mainShots.map((s,i)=>{const id='maincam_'+i,gid='maingal_'+i;return '<div class="photo-box" id="mainbox_'+i+'"><strong>'+s[1]+'</strong><small>'+s[2]+'</small><input id="'+id+'" class="mainfile photo-camera" data-label="'+esc(s[1])+'" type="file" accept="image/*" capture="environment" multiple><input id="'+gid+'" class="mainfile photo-gallery" data-label="'+esc(s[1])+'" type="file" accept="image/*" multiple><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\''+id+'\',\''+gid+'\')">＋ افزودن عکس</button><span class="file-name" id="mainname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="mp'+i+'"></div></div>'}).join('');
+ mainPhotos.innerHTML=mainShots.map((s,i)=>{const id='maincam_'+i,gid='maingal_'+i;return '<div class="photo-box" id="mainbox_'+i+'"><strong>'+s[1]+'</strong><small>'+s[2]+'</small><input id="'+id+'" class="mainfile photo-camera" data-label="'+esc(s[1])+'" type="file" accept="image/*" capture="environment"><input id="'+gid+'" class="mainfile photo-gallery" data-label="'+esc(s[1])+'" type="file" accept="image/*"><button type="button" class="camera-btn" onclick="openPhotoSourceMenu(\''+id+'\',\''+gid+'\')">＋ افزودن عکس</button><span class="file-name" id="mainname'+i+'">تصویری انتخاب نشده</span><div class="preview" id="mp'+i+'"></div></div>'}).join('');
  restoreMainPhotoDraft();
- document.querySelectorAll('.mainfile').forEach(f=>f.onchange=async()=>{const i=Number(f.id.split('_').pop()),box=document.getElementById('mp'+i),files=selectedPhotoGroup('mainfile',i);box.innerHTML='';document.getElementById('mainname'+i).textContent=files.length?(files.length+' عکس انتخاب شد؛ در حال ذخیره…'):'تصویری انتخاب نشده';files.forEach(file=>{const im=document.createElement('img');im.src=URL.createObjectURL(file);box.appendChild(im)});if(files.length){addDeletePhotoButton(box);const card=document.getElementById('mainbox_'+i);if(card)card.classList.add('has-photo');try{const urls=await Promise.all(files.map(readFile));const d=await readPhotoDraft();d.main=d.main||{};d.main[i]=urls;await writePhotoDraft(d);document.getElementById('mainname'+i).textContent=files.length+' عکس ذخیره شد؛ با رفرش پاک نمی‌شود'}catch(err){console.error('ذخیره عکس‌های خودرو ناموفق بود',err);document.getElementById('mainname'+i).textContent='ذخیره نشد؛ دوباره عکس را انتخاب کنید';alert('ذخیره عکس انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کنید و دوباره تلاش کنید.')}}if(quickCaptureActive&&f.classList.contains('photo-camera')&&f.files&&f.files.length){const card=document.getElementById('mainbox_'+i);if(card)card.style.borderColor='#10b981';advanceQuickCapture()}});
+ document.querySelectorAll('.mainfile').forEach(f=>f.onchange=async()=>{const i=Number(f.id.split('_').pop()),box=document.getElementById('mp'+i),files=selectedPhotoGroup('mainfile',i);box.innerHTML='';document.getElementById('mainname'+i).textContent=files.length?(files.length+' عکس انتخاب شد؛ در حال ذخیره…'):'تصویری انتخاب نشده';files.forEach(file=>{const im=document.createElement('img');im.src=URL.createObjectURL(file);box.appendChild(im)});if(files.length){addDeletePhotoButton(box);const card=document.getElementById('mainbox_'+i);if(card)card.classList.add('has-photo');try{const urls=await Promise.all(files.map(readFile));const d=await readPhotoDraft();d.main=d.main||{};d.main[i]=urls.slice(-1);await writePhotoDraft(d);document.getElementById('mainname'+i).textContent=files.length+' عکس ذخیره شد؛ با رفرش پاک نمی‌شود'}catch(err){console.error('ذخیره عکس‌های خودرو ناموفق بود',err);document.getElementById('mainname'+i).textContent='ذخیره نشد؛ دوباره عکس را انتخاب کنید';alert('ذخیره عکس انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کنید و دوباره تلاش کنید.')}}if(quickCaptureActive&&f.classList.contains('photo-camera')&&f.files&&f.files.length){const card=document.getElementById('mainbox_'+i);if(card)card.style.borderColor='#10b981';advanceQuickCapture()}});
 }
 async function deleteExistingInspectionPhoto(photoId){
  if(!current||!photoId)return;
@@ -688,18 +688,47 @@ async function deleteExistingInspectionPhoto(photoId){
 function existingPhotoCard(p){
  return '<div class="existing-inspection-photo" data-existing-photo="'+esc(p.id)+'" style="position:relative;display:inline-flex;flex-direction:column;gap:5px;max-width:150px;margin:5px;padding:6px;border:1px solid #315777;border-radius:10px;background:#0a1a2a"><a href="'+esc(p.url)+'" target="_blank" rel="noopener"><img loading="lazy" src="'+esc(p.url)+'" alt="'+esc(p.label||'عکس ثبت‌شده')+'" style="width:132px;height:100px;object-fit:contain;border-radius:7px"></a><small>'+esc(p.label||'عکس ثبت‌شده')+'</small><button type="button" class="camera-btn" style="margin:0;padding:6px;font-size:11px;background:#7f1d1d" onclick="deleteExistingInspectionPhoto(\''+esc(p.id)+'\')">حذف / جایگزینی</button></div>';
 }
+async function replaceMainPhoto(i,photoIds){
+ if(!current||!Array.isArray(photoIds))return;
+ if(!confirm('عکس قبلی این زاویه حذف و با عکس جدید جایگزین شود؟'))return;
+ try{
+  for(const id of photoIds){const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=expert-delete-inspection-photo&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({photo_id:id})});const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'حذف عکس قبلی ناموفق بود');}
+  const ids=new Set(photoIds.map(String));current.photos=(current.photos||[]).filter(p=>!ids.has(String(p.id)));cases=cases.map(c=>c.id===current.id?current:c);
+  const box=document.getElementById('mp'+i);if(box)box.innerHTML='';
+  const name=document.getElementById('mainname'+i);if(name)name.textContent='عکس جدید را انتخاب کنید';
+  document.getElementById('maingal_'+i)?.click();
+ }catch(e){alert('جایگزینی عکس انجام نشد: '+e.message)}
+}
+async function deleteMainPhotoGroup(photoIds){
+ if(!current||!photoIds.length||!confirm('عکس این زاویه حذف شود؟'))return;
+ try{
+  for(const id of photoIds){const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&api=expert-delete-inspection-photo&id='+encodeURIComponent(current.id),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({photo_id:id})});const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'حذف عکس ناموفق بود');}
+  const ids=new Set(photoIds.map(String));current.photos=(current.photos||[]).filter(p=>!ids.has(String(p.id)));cases=cases.map(c=>c.id===current.id?current:c);renderExistingInspectionPhotos('gallery');
+ }catch(e){alert('حذف عکس انجام نشد: '+e.message)}
+}
 async function renderExistingInspectionPhotos(sectionKey){
  if(!current)return;
  const all=Array.isArray(current.photos)?current.photos.filter(p=>p&&p.url):[];
  if(sectionKey==='all'||sectionKey==='gallery'){
+  const draft=await readPhotoDraft();
   for(let i=0;i<mainShots.length;i++){
    const box=document.getElementById('mp'+i);if(!box)continue;
    box.querySelectorAll('.existing-server-photo').forEach(n=>n.remove());
-   const matching=all.filter(p=>p.photo_type==='main'&&String(p.label||'')===String(mainShots[i][1]));
+   const matching=all.filter(p=>p.photo_type==='main'&&String(p.label||'')===String(mainShots[i][1])).sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
    if(matching.length){
+    box.innerHTML='';
+    const p=matching[0],ids=matching.map(x=>String(x.id));
     const wrap=document.createElement('div');wrap.className='existing-server-photo';wrap.style.cssText='display:flex;flex-wrap:wrap;gap:4px;margin-top:8px';
-    wrap.innerHTML=matching.map(existingPhotoCard).join('');box.appendChild(wrap);
-    const name=document.getElementById('mainname'+i);if(name)name.textContent=matching.length+' عکس قبلی ثبت‌شده · قابل حذف و جایگزینی';
+    const card=document.createElement('div');card.className='existing-inspection-photo';card.style.cssText='display:flex;flex-direction:column;gap:6px;max-width:170px;padding:7px;border:1px solid #315777;border-radius:10px;background:#0a1a2a';
+    const link=document.createElement('a');link.href=p.url;link.target='_blank';link.rel='noopener';
+    const img=document.createElement('img');img.loading='lazy';img.src=p.url;img.alt=mainShots[i][1];img.style.cssText='width:150px;height:110px;object-fit:contain;border-radius:7px';link.appendChild(img);
+    const label=document.createElement('small');label.textContent=mainShots[i][1];
+    const edit=document.createElement('button');edit.type='button';edit.className='camera-btn';edit.textContent='✏️ ویرایش / جایگزینی';edit.style.margin='0';edit.onclick=()=>replaceMainPhoto(i,ids);
+    const del=document.createElement('button');del.type='button';del.className='camera-btn';del.textContent='حذف عکس';del.style.cssText='margin:0;background:#7f1d1d';del.onclick=()=>deleteMainPhotoGroup(ids);
+    card.append(link,label,edit,del);wrap.appendChild(card);box.appendChild(wrap);
+    const name=document.getElementById('mainname'+i);if(name)name.textContent='۱ عکس ثبت‌شده · قابل ویرایش و حذف';
+   }else{
+    const saved=draft.main?.[i];if(saved){const urls=Array.isArray(saved)?saved:[saved];box.innerHTML='';urls.slice(-1).forEach(url=>{const im=document.createElement('img');im.src=url;box.appendChild(im)});addDeletePhotoButton(box);const name=document.getElementById('mainname'+i);if(name)name.textContent='۱ عکس پیش‌نویس · قابل تغییر';}
    }
   }
  }
