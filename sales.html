@@ -418,9 +418,10 @@ function mainPhotoGallery(photos,mediaBase,key){
 }
 
 function salesDefectCategory(d){
- const raw=[d?.category,d?.system,d?.part,d?.area,d?.defect_type,d?.explanation].filter(Boolean).join(" ").replace(/[يى]/g,"ی").replace(/ك/g,"ک").toLowerCase();
+ const partRaw=[d?.part,d?.part_name,d?.component,d?.component_name,d?.area,d?.title,d?.name,d?.label].filter(Boolean).join(" ").toLowerCase().replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[\u064B-\u065F\u0670]/g,"").replace(/[\u200c\sـ]/g,"");
+ const raw=[d?.category,d?.system,d?.part,d?.part_name,d?.component,d?.component_name,d?.area,d?.defect_type,d?.explanation,d?.title,d?.name,d?.label].filter(Boolean).join(" ").toLowerCase().replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[\u064B-\u065F\u0670]/g,"").replace(/[\u200c]/g," ");
  const has=(...words)=>words.some(w=>raw.includes(w));
- if(has("درب موتور","دربِ موتور","کاپوت"))return "ایرادات بدنه و رنگ";if(has("لاستیک","تایر","رینگ","چرخ"))return "لاستیک و رینگ";if(has("موتور","موتوری","سیلندر","سرسیلندر","واشر","پیستون","سوپاپ","تسمه تایم","رادیاتور","روغن موتور","اگزوز","دود موتور","نشتی آب"))return "ایرادات موتوری";
+ if(["دربموتور","درموتور","کاپوت"].some(w=>partRaw.includes(w))||has("درب موتور","دربِ موتور","در موتور","کاپوت"))return "ایرادات بدنه و رنگ";if(has("لاستیک","تایر","رینگ","چرخ"))return "لاستیک و رینگ";if(has("موتور","موتوری","سیلندر","سرسیلندر","واشر","پیستون","سوپاپ","تسمه تایم","رادیاتور","روغن موتور","اگزوز","دود موتور","نشتی آب"))return "ایرادات موتوری";
  if(has("گیربکس","کلاچ","دنده","پلوس","دیفرانسیل","انتقال قدرت"))return "گیربکس و انتقال قدرت";
  if(has("جلوبندی","تعلیق","کمک فنر","فنر","طبق","سیبک","ترمز","دیسک","لنت","فرمان","جعبه فرمان"))return "سیستم تعلیق، فرمان و ترمز";
  if(has("برق","باتری","دینام","استارت","سیم کشی","سیم‌کشی","سنسور","چراغ","لامپ","کولر","بخاری","شیشه بالابر","آپشن","ایربگ","رادیو"))return "ایرادات برقی و تجهیزات";
