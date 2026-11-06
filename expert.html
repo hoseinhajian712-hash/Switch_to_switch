@@ -746,8 +746,8 @@ async function renderExistingInspectionPhotos(sectionKey){
   for(const [key,rows] of groups){
    const d=rows[0],partIndex=parts.indexOf(d.part);if(partIndex<0)continue;
    const input=[...document.querySelectorAll('.defect-options input[type="checkbox"]')].find(x=>x.dataset.part===String(partIndex)&&x.dataset.defect===String(d.defect_type||''));if(!input)continue;
-   const prefillKey=String(partIndex)+'__'+String(d.defect_type||'');if(!reinspectionPrefilledDefectKeys.has(prefillKey)){input.checked=true;reinspectionPrefilledDefectKeys.add(prefillKey)}const pill=input.closest('.pill'),details=input.closest('details');if(pill){pill.classList.toggle('selected',input.checked);pill.classList.toggle('open',input.checked)}if(details&&input.checked)details.open=true;const noteField=drawer?.querySelector('.defnote');if(noteField&&!noteField.value)noteField.value=d.explanation||'';
-   const drawer=document.getElementById('drawer_'+keyFor(partIndex,d.defect_type));if(!drawer)continue;
+   const prefillKey=String(partIndex)+'__'+String(d.defect_type||'');if(!reinspectionPrefilledDefectKeys.has(prefillKey)){input.checked=true;reinspectionPrefilledDefectKeys.add(prefillKey)}const pill=input.closest('.pill'),details=input.closest('details');if(pill){pill.classList.toggle('selected',input.checked);pill.classList.toggle('open',input.checked)}if(details&&input.checked)details.open=true;
+   const drawer=document.getElementById('drawer_'+keyFor(partIndex,d.defect_type));if(!drawer)continue;const noteField=drawer.querySelector('.defnote');if(noteField&&!noteField.value)noteField.value=d.explanation||'';
    const box=drawer.querySelector('.drawer-preview');if(!box)continue;const name=drawer.querySelector('.file-name');box.innerHTML='';
    const draftUrls=saved[defectPhotoKey(partIndex,d.defect_type)]||[];
    if(draftUrls.length){const im=document.createElement('img');im.src=draftUrls[draftUrls.length-1];im.alt='عکس این ایراد';box.appendChild(im);addDeletePhotoButton(box);if(name)name.textContent='۱ عکس انتخاب‌شده برای این ایراد';continue}
@@ -779,6 +779,7 @@ function renderInspectionPreviousEvidence(){
  home.querySelector('#reinspectionEditBanner')?.remove();
  if(!isSalesReinspection()||!reinspectionSourceId())return;
  const sourceId=reinspectionSourceId(),sessionKey=String(current.id)+'::'+sourceId;if(reinspectionSessionKey!==sessionKey){reinspectionSessionKey=sessionKey;reinspectionExcludedPhotoIds=new Set();reinspectionPrefilledDefectKeys=new Set()}
+ if(summary&&!summary.value)summary.value=current.inspection?.summary||'';
  const oldDefects=(current.defects||[]).filter(d=>String(d.inspection_id||'')===sourceId),oldPhotos=(current.photos||[]).filter(p=>String(p.inspection_id||'')===sourceId);
  const banner=document.createElement('div');banner.id='reinspectionEditBanner';banner.className='notice';banner.style.cssText='margin:12px 0;border:1px solid #0d9488;background:#0b302c;color:#d1fae5;padding:14px;border-radius:14px;line-height:1.9';
  banner.innerHTML='<b>🛠 کارشناسی مجدد؛ گزارش قبلی قابل اصلاح است</b><br>اطلاعات و ایرادهای گزارش قبلی برای ویرایش در بخش‌های کارشناسی بارگذاری می‌شوند. می‌توانید ایراد اضافه یا حذف کنید و عکس‌ها را جایگزین یا حذف کنید. گزارش قبلی و سوابق آن محفوظ می‌ماند.<br><small>'+oldDefects.length+' ایراد قبلی · '+oldPhotos.length+' عکس قبلی</small>';
