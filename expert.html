@@ -998,7 +998,9 @@ function openGalleryPhotoEditor(box,im){
    drawGalleryEditor(state);
  };
  state.base.onerror=()=>{overlay.querySelector('#galleryEditHelp').textContent='بارگذاری عکس انجام نشد. دوباره عکس را باز کنید.'};
- /* Allow the browser to read pixels from Supabase Storage when its CORS headers permit it; without this, canvas.toDataURL throws a SecurityError on cross-origin photos. */\n state.base.crossOrigin='anonymous';\n state.base.src=im.currentSrc||im.src;
+ /* Allow the browser to read pixels from Supabase Storage when its CORS headers permit it; without this, canvas.toDataURL throws a SecurityError on cross-origin photos. */
+ state.base.crossOrigin='anonymous';
+ state.base.src=im.currentSrc||im.src;
  const close=()=>{overlay.remove();if(galleryEditorState===state)galleryEditorState=null};
  overlay.querySelector('#galleryEditClose').onclick=close;overlay.querySelector('#galleryEditCancel').onclick=close;
  overlay.querySelector('#galleryEditNewPhoto').onclick=()=>{
